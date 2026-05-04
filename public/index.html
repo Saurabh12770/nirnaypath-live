@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>NirnayPath – Free Mock Tests for Competitive Exams</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css?v=2.0.0">
+    <link rel="manifest" href="/manifest.json?v=2.0.0">
+    <link rel="stylesheet" href="/css/chatbot.css?v=2.0.0">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <header class="sticky-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-compass"></i>
+            </div>
+            <div class="logo-text">
+                <span class="logo-main">NirnayPath</span>
+                <span class="logo-sub">Mock Test Platform</span>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+            <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About Us</a>
+            <a href="/admin" id="adminNavLink" class="nav-link" style="display: none; color: #f59e0b;"><i class="fas fa-user-shield"></i> Admin</a>
+            <button id="loginBtn" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            <span id="userNameDisplay" style="display: none; color: var(--primary); font-weight: 600; margin-left: 10px;"></span>
+        </nav>
+        <div class="header-right">
+            <div class="language-toggle">
+                <button class="lang-btn active-lang" data-lang="en"><i class="fas fa-globe-americas"></i> EN</button>
+                <button class="lang-btn" data-lang="hi"><i class="fas fa-flag"></i> HI</button>
+            </div>
+            <button id="installAppBtn" class="cta-btn" style="display:none; background: var(--success); margin-right: 10px;" onclick="PWA.install()">
+                <i class="fas fa-download"></i> <span class="cta-text">Install App</span>
+            </button>
+            <button class="cta-btn">
+                <span class="cta-text">Start Free Test</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Exam Ribbon -->
+    <div class="exam-ribbon">
+        <div class="ribbon-inner">
+            <button class="exam-btn active-exam" data-exam="upsc">
+                <i class="fas fa-crown"></i> UPSC IAS
+            </button>
+            <button class="exam-btn" data-exam="bpsc">
+                <i class="fas fa-landmark"></i> BPSC Civil Services
+            </button>
+            <button class="exam-btn" data-exam="bpsc_teacher">
+                <i class="fas fa-chalkboard-teacher"></i> BPSC Teacher
+            </button>
+            <button class="exam-btn" data-exam="ssc">
+                <i class="fas fa-file-contract"></i> SSC
+            </button>
+            <button class="exam-btn" data-exam="railway">
+                <i class="fas fa-train"></i> Railway
+            </button>
+            <button class="exam-btn" data-exam="banking">
+                <i class="fas fa-university"></i> Banking
+            </button>
+            <button class="exam-btn" data-exam="police">
+                <i class="fas fa-shield-alt"></i> Police
+            </button>
+            <button class="exam-btn" data-exam="daroga">
+                <i class="fas fa-user-tie"></i> Daroga
+            </button>
+            <button class="exam-btn" data-exam="army">
+                <i class="fas fa-medal"></i> Army
+            </button>
+        </div>
+    </div>
+
+    <main>
+        <!-- Dashboard Section (Homepage) -->
+        <section id="dashboard" class="view-section active">
+
+            <!-- Hero Section -->
+            <div class="hero glass-card reveal">
+                <div class="hero-content">
+                    <span class="badge">🔥 Premier Mock Test Series 2026</span>
+                    <h1>Unlock Your Potential with <br><span id="typed-text" class="gradient-text">NirnayPath</span><span class="cursor">|</span></h1>
+                    <p class="hero-desc">Experience the most realistic practice ecosystem for UPSC, BPSC, SSC, and Banking. Empowering aspirants with high-fidelity, bilingual mock tests designed by experts.</p>
+                    <div class="hero-actions">
+                        <button class="btn-primary-lg hover-lift hover-glow" onclick="document.getElementById('popular-exams').scrollIntoView({behavior:'smooth'})">Explore All Exams</button>
+                        <button class="btn-secondary-lg hover-lift"><i class="fas fa-play"></i> Experience Demo</button>
+                    </div>
+                    <div class="hero-trust">
+                        <div class="avatars">
+                            <img src="https://i.pravatar.cc/40?u=1" alt="u1">
+                            <img src="https://i.pravatar.cc/40?u=2" alt="u2">
+                            <img src="https://i.pravatar.cc/40?u=3" alt="u3">
+                            <img src="https://i.pravatar.cc/40?u=4" alt="u4">
+                            <span>Trusted by 50K+ Active Aspirants</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="floating-card c1 hover-lift"><i class="fas fa-check-double"></i> Real-time Analytics</div>
+                    <div class="floating-card c2 hover-lift"><i class="fas fa-shield-halved"></i> Anti-Cheat Engine</div>
+                    <div class="floating-card c3 hover-lift"><i class="fas fa-language"></i> Dual Language HI/EN</div>
+                </div>
+            </div><!-- /hero -->
+
+            <!-- Popular Exams Section -->
+            <section id="popular-exams" class="popular-exams reveal">
+                <h2 class="section-title text-center">🏆 Popular <span class="gradient-text">Exam Categories</span></h2>
+                <div class="exam-grid-4">
+                    <div class="category-card hover-lift" onclick="setActiveExam('upsc')">
+                        <div class="cat-icon" style="background:rgba(99,102,241,0.1); color:var(--primary)"><i class="fas fa-crown"></i></div>
+                        <h3>UPSC IAS</h3>
+                        <p>Complete GS & CSAT Paper Series</p>
+                        <span class="cat-link">Start Practice <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="category-card hover-lift" onclick="setActiveExam('bpsc')">
+                        <div class="cat-icon" style="background:rgba(245,158,11,0.1); color:var(--secondary)"><i class="fas fa-landmark"></i></div>
+                        <h3>BPSC Civil Services</h3>
+                        <p>Bihar Integrated Prelims & General Studies</p>
+                        <span class="cat-link">Start Practice <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="category-card hover-lift" onclick="setActiveExam('ssc')">
+                        <div class="cat-icon" style="background:rgba(244,63,94,0.1); color:var(--accent)"><i class="fas fa-file-contract"></i></div>
+                        <h3>SSC CGL / CHSL</h3>
+                        <p>Latest Pattern Reasoning, English & Quant</p>
+                        <span class="cat-link">Start Practice <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div class="category-card hover-lift" onclick="setActiveExam('banking')">
+                        <div class="cat-icon" style="background:rgba(16,185,129,0.1); color:var(--success)"><i class="fas fa-university"></i></div>
+                        <h3>Banking Exams</h3>
+                        <p>IBPS, SBI PO & Clerk Specialized Mocks</p>
+                        <span class="cat-link">Start Practice <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Sectional Tests Entry -->
+                <div class="sectional-entry-banner reveal">
+                    <div class="sectional-banner-content">
+                        <h3><i class="fas fa-layer-group"></i> Sectional Mock Tests</h3>
+                        <p>Focus on specific sections like Quantitative Aptitude, GS, or English with targeted 50-100 question tests.</p>
+                        <button class="btn-primary-lg" onclick="SectionalTests.openModal()">Explore Sections</button>
+                    </div>
+                </div>
+            </section>
+
+        <!-- Stats Section -->
+        <section class="stats-counter-section reveal">
+            <div class="stats-grid-4">
+                <div class="stat-item">
+                    <h2 class="stat-counter" data-count="50000">50K+</h2>
+                    <p>Active Students</p>
+                </div>
+                <div class="stat-item">
+                    <h2 class="stat-counter" data-count="1000">1000+</h2>
+                    <p>Mock Tests</p>
+                </div>
+                <div class="stat-item">
+                    <h2 class="stat-counter" data-count="95">95%</h2>
+                    <p>Success Rate</p>
+                </div>
+                <div class="stat-item">
+                    <h2 class="stat-counter" data-count="24">24/7</h2>
+                    <p>Learning Access</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-section reveal">
+            <h2 class="section-title text-center">Engineered for Excellence</h2>
+            <div class="feature-grid-8">
+                <div class="feature-card">
+                    <i class="fas fa-infinity"></i>
+                    <h4>Unlimited Practice</h4>
+                    <p>Retake any test as many times as you want until you master it.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-globe"></i>
+                    <h4>Dual Language</h4>
+                    <p>Toggle between Hindi and English instantly during the test.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Smart Analytics</h4>
+                    <p>Detailed performance reports with section-wise analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Mobile Ready</h4>
+                    <p>Fully responsive platform works perfectly on any screen size.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-save"></i>
+                    <h4>Auto-Resume</h4>
+                    <p>Close the browser and resume your test exactly where you left off.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Updated Content</h4>
+                    <p>Our question bank is updated weekly with the latest trends.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Instant Results</h4>
+                    <p>Get your score and review the detailed solutions immediately.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-user-secret"></i>
+                    <h4>Privacy First</h4>
+                    <p>No intrusive tracking. Your data is yours and always secure.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expert Preparation Tips Section -->
+        <section class="expert-tips-section reveal">
+            <div class="container">
+                <h2 class="section-title text-center">🎯 Expert Preparation Tips</h2>
+                <p class="section-subtitle text-center">Proven strategies from top rankers to maximize your exam performance</p>
+                
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>📅 Consistent Study Routine</h3>
+                        <p>Create a daily study schedule and stick to it. Consistency builds discipline and ensures steady progress.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>🎯 Focus on Weak Areas</h3>
+                        <p>Identify your weak subjects through mock tests and allocate extra time to improve them systematically.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>⏱ Time Management Practice</h3>
+                        <p>Practice solving questions within time limits to improve speed and accuracy for the actual exam.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3>📊 Mock Test Analysis</h3>
+                        <p>After each mock test, analyze mistakes thoroughly to avoid repeating them in future attempts.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>📚 Concept Clarity First</h3>
+                        <p>Focus on understanding concepts deeply rather than rote memorization for long-term retention.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <h3>🔁 Regular Revision</h3>
+                        <p>Schedule weekly revision sessions to reinforce learning and prevent forgetting important topics.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>🧠 Active Recall Practice</h3>
+                        <p>Test yourself frequently without looking at notes to strengthen memory and recall ability.</p>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3>💪 Health & Wellness</h3>
+                        <p>Maintain proper sleep, nutrition, and exercise to keep your mind sharp and focused during preparation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="how-it-works container reveal">
+            <h2 class="section-title text-center">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <h4>Select Exam</h4>
+                    <p>Choose from UPSC, BPSC, SSC, and 10+ other categories.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <h4>Pick Subject</h4>
+                    <p>Dive deep into specific subjects with targeted tests.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <h4>Take Mock</h4>
+                    <p>Experience real exam pressure with our timed engine.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">04</div>
+                    <h4>Get Analyzed</h4>
+                    <p>Review solutions and track your preparation progress.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subject Selection (hidden by default, shown on exam click) -->
+        <section id="subject-selection-area" style="display:none" class="reveal">
+            <div class="subject-selection-header">
+                <h2 class="section-title">📚 Choose Your Subject — <span id="current-exam-name" class="gradient-text">UPSC</span></h2>
+                <div class="practice-modes-toggle">
+                    <button class="mode-toggle-btn active" onclick="switchPracticeMode('full')">Full Mock Tests</button>
+                    <button class="mode-toggle-btn" onclick="switchPracticeMode('drill')">Topic-wise Drills</button>
+                </div>
+            </div>
+            <div class="subject-grid" id="subject-grid"></div>
+            
+            <!-- Topic Selection (hidden by default) -->
+            <div id="topic-selection-area" style="display:none" class="topic-grid-panel">
+                <div class="topic-header">
+                    <h3><i class="fas fa-tags"></i> Practice by Topic: <span id="drill-subject-name"></span></h3>
+                    <button class="back-to-subjects" onclick="switchPracticeMode('full')"><i class="fas fa-arrow-left"></i> Back to Subjects</button>
+                </div>
+                <div id="topic-chips-container" class="topic-chips-grid">
+                    <!-- Topic chips injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Test Selection Panel (hidden by default, shown on subject click) -->
+        <div class="test-selection" id="testSelection">
+            <div class="test-selection-header">
+                <div class="test-header-left">
+                    <h3><i class="fas fa-vial"></i> Available Mock Tests</h3>
+                    <p class="test-subtitle">30 full-length practice tests with detailed analytics and performance tracking</p>
+                </div>
+                <div class="test-header-right">
+                    <div class="test-filter">
+                        <span class="filter-label">Filter by:</span>
+                        <button class="filter-btn active">All</button>
+                        <button class="filter-btn">Easy</button>
+                        <button class="filter-btn">Medium</button>
+                        <button class="filter-btn">Hard</button>
+                    </div>
+                </div>
+            </div>
+            <div class="test-grid" id="testGrid"></div>
+            <div class="test-grid-info">
+                <div class="grid-info-item"><i class="fas fa-info-circle"></i><span>Click any card or "Start Test" to begin</span></div>
+                <div class="grid-info-item"><i class="fas fa-sync-alt"></i><span>Tests are auto-saved — resume anytime</span></div>
+            </div>
+        </div>
+
+            <!-- Trending Tests Section -->
+            <section class="trending-section reveal">
+                <div class="section-header">
+                    <h2 class="section-title">🔥 Trending <span class="gradient-text">Mock Tests</span></h2>
+                    <p>Recently updated high-yield tests based on the latest 2026 patterns</p>
+                </div>
+                <div class="trending-cards-grid">
+                    <!-- BPSC Prelims 2026 -->
+                    <div class="trend-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon"><i class="fas fa-landmark"></i></div>
+                            <span class="trend-badge hard">Expert Tier</span>
+                        </div>
+                        <h3>BPSC 71st Combined Prelims</h3>
+                        <p>All Subjects · Comprehensive GS</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 150 Qs</span>
+                            <span><i class="fas fa-clock"></i> 120 Mins</span>
+                            <span><i class="fas fa-fire"></i> 12.5k Attempts</span>
+                        </div>
+                        <button class="trend-start-btn" data-exam="bpsc" data-subject="bihar">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <!-- SSC CGL -->
+                    <div class="trend-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon" style="background:rgba(249,115,22,.12);color:#F97316"><i class="fas fa-calculator"></i></div>
+                            <span class="trend-badge medium">Mid Tier</span>
+                        </div>
+                        <h3>SSC CGL Tier 1 Full Mock</h3>
+                        <p>Reasoning, Quant & English</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 100 Qs</span>
+                            <span><i class="fas fa-clock"></i> 60 Mins</span>
+                            <span><i class="fas fa-fire"></i> 8.2k Attempts</span>
+                        </div>
+                        <button class="trend-start-btn" data-exam="ssc" data-subject="math">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <!-- UPSC CSAT -->
+                    <div class="trend-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon" style="background:rgba(16,185,129,.12);color:#10B981"><i class="fas fa-crown"></i></div>
+                            <span class="trend-badge easy">Base Tier</span>
+                        </div>
+                        <h3>UPSC Ethics & Aptitude</h3>
+                        <p>GS Paper IV · Case Studies</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 80 Qs</span>
+                            <span><i class="fas fa-clock"></i> 120 Mins</span>
+                            <span><i class="fas fa-fire"></i> 5.6k Attempts</span>
+                        </div>
+                        <button class="trend-start-btn" data-exam="upsc" data-subject="polity">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Choose Us Section -->
+            <section class="why-us-section reveal">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Why Aspirants Choose <span class="text-primary">NirnayPath?</span></h2>
+                    <p>We provide everything you need to ace your exams in one single place.</p>
+                </div>
+                <div class="why-us-grid">
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-desktop"></i></div>
+                        <h4>Real Exam Interface</h4>
+                        <p>Practice with the exact interface used by UPSC, SSC, and Banking exams to build confidence.</p>
+                    </div>
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h4>Instant Analysis</h4>
+                        <p>Get detailed subject-wise and question-wise performance analysis immediately after submission.</p>
+                    </div>
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-gift"></i></div>
+                        <h4>100% Free Practice</h4>
+                        <p>Access high-quality premium mock tests for all major government exams without paying a single rupee.</p>
+                    </div>
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-language"></i></div>
+                        <h4>Bilingual Tests</h4>
+                        <p>Questions available in both Hindi & English, reflecting the actual paper pattern of competitive exams.</p>
+                    </div>
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-route"></i></div>
+                        <h4>Performance Tracking</h4>
+                        <p>Track your score improvement over time with our smart progress dashboards.</p>
+                    </div>
+                    <div class="why-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-brain"></i></div>
+                        <h4>Smart Learning</h4>
+                        <p>Detailed explanations for every question to help you clear concepts and avoid future mistakes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials-section reveal">
+                <h2 class="section-title text-center">Student Success <span class="gradient-text">Voices</span></h2>
+                <div id="tips-slider" class="tips-slider">
+                    <!-- Tips/Testimonials injected by JS -->
+                </div>
+            </section>
+
+            <!-- Motivational Quotes Section -->
+            <section class="motivational-quotes-section reveal">
+                <div class="container">
+                    <h2 class="section-title text-center">✨ Daily Motivation for Aspirants ✨</h2>
+                    <p class="section-subtitle text-center">Fuel your preparation journey with powerful words from visionaries and achievers</p>
+                    
+                    <div class="quotes-grid">
+                        <div class="quote-card">
+                            <div class="quote-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="quote-text">
+                                "Success is not final, failure is not fatal: it is the <span class="quote-highlight">courage to continue</span> that counts."
+                            </div>
+                            <div class="quote-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="author-info">
+                                    <h4>Winston Churchill</h4>
+                                    <p>Former British Prime Minister</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quote-card">
+                            <div class="quote-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="quote-text">
+                                "The future belongs to those who believe in the <span class="quote-highlight">beauty of their dreams</span>."
+                            </div>
+                            <div class="quote-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="author-info">
+                                    <h4>Eleanor Roosevelt</h4>
+                                    <p>Former First Lady of the United States</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quote-card">
+                            <div class="quote-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="quote-text">
+                                "Don't watch the clock; do what it does. <span class="quote-highlight">Keep going</span>."
+                            </div>
+                            <div class="quote-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                                <div class="author-info">
+                                    <h4>Sam Levenson</h4>
+                                    <p>American humorist & writer</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quote-card">
+                            <div class="quote-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="quote-text">
+                                "The only way to do <span class="quote-highlight">great work</span> is to love what you do."
+                            </div>
+                            <div class="quote-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-apple-alt"></i>
+                                </div>
+                                <div class="author-info">
+                                    <h4>Steve Jobs</h4>
+                                    <p>Co-founder of Apple Inc.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quote-card">
+                            <div class="quote-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="quote-text">
+                                "The <span class="quote-highlight">harder you work</span> for something, the greater you'll feel when you achieve it."
+                            </div>
+                            <div class="quote-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="author-info">
+                                    <h4>Anonymous Aspirant</h4>
+                                    <p>UPSC Topper 2023</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quote-actions">
+                        <button class="refresh-quotes-btn">
+                            <i class="fas fa-magic"></i> Get Fresh Inspiration
+                        </button>
+                        <p class="quote-note">New motivational quotes refresh daily to keep your spirits high!</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Expert Tips Carousel -->
+            <section class="tips-section reveal">
+                <h2 class="section-title text-center">Expert Preparation Tips</h2>
+                <div class="tips-slider-container">
+                    <div class="tips-slider" id="tips-slider">
+                        <!-- Slides in script.js -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq-section container reveal">
+                <h2 class="section-title text-center">Frequently Asked Questions</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-header">Is NirnayPath really free? <i class="fas fa-chevron-down"></i></div>
+                        <div class="faq-content">Yes! Every feature on NirnayPath is 100% free for all aspirants, regardless of their financial status.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-header">Which exams are covered? <i class="fas fa-chevron-down"></i></div>
+                        <div class="faq-content">We cover UPSC, BPSC, SSC (CGL, CHSL), Railway (NTPC), Banking (IBPS, SBI), Police, Teaching, and more.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-header">Can I practice in Hindi? <i class="fas fa-chevron-down"></i></div>
+                        <div class="faq-content">Absolutely! Our platform is fully bilingual, allowing you to toggle between Hindi and English at any time.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-header">Do tests follow the latest pattern? <i class="fas fa-chevron-down"></i></div>
+                        <div class="faq-content">Yes, our subject matter experts update the questions weekly to reflect the most recent exam trends.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Latest Updates Section -->
+            <section class="updates-section container reveal">
+                <h2 class="section-title text-center">Latest Updates</h2>
+                <div class="updates-grid">
+                    <div class="update-card">
+                        <div class="update-date">10<span>APR</span></div>
+                        <div class="update-text">
+                            <h4>BPSC 70th PR Prelims Strategy</h4>
+                            <p>Read the latest roadmap by successful candidates.</p>
+                        </div>
+                    </div>
+                    <div class="update-card">
+                        <div class="update-date">08<span>APR</span></div>
+                        <div class="update-text">
+                            <h4>UPSC 2026 Batch Registration</h4>
+                            <p>Free registration starts for our upcoming mock series.</p>
+                        </div>
+                    </div>
+                    <div class="update-card">
+                        <div class="update-date">05<span>APR</span></div>
+                        <div class="update-text">
+                            <h4>New: SSC CGL English Section</h4>
+                            <p>Over 500 new questions added to the database.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="test-selection" id="testSelection">
+                <div class="test-selection-header">
+                    <div class="test-header-left">
+                        <h3><i class="fas fa-vial"></i> Available Mock Tests</h3>
+                        <p class="test-subtitle">30 full-length practice tests with detailed analytics and performance tracking</p>
+                    </div>
+                    <div class="test-header-right">
+                        <div class="test-filter">
+                            <span class="filter-label">Filter by:</span>
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Easy</button>
+                            <button class="filter-btn">Medium</button>
+                            <button class="filter-btn">Hard</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="test-grid" id="testGrid"></div>
+                <div class="test-grid-info">
+                    <div class="grid-info-item">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Click any test card or the "Start Test" button to begin</span>
+                    </div>
+                    <div class="grid-info-item">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Tests are automatically saved - resume anytime</span>
+                    </div>
+                </div>
+        </section><!-- /dashboard -->
+
+        <!-- Loading Screen -->
+        <section id="loading-screen" class="view-section">
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <h3>Generating your Test...</h3>
+                <p>Please wait, we're preparing the best questions for you</p>
+            </div>
+        </section>
+
+        <!-- Exam Engine -->
+        <section id="exam-engine" class="view-section">
+            <div class="exam-header">
+                <h3 id="exam-title">NirnayPath Mock Test</h3>
+                <div class="timer-box">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span class="timer-label">Time Left:</span>
+                    <span class="timer-val" id="countdown">90:00</span>
+                </div>
+                <div class="exam-lang-toggle">
+                    <button class="lang-btn active-lang" data-lang="en">English</button>
+                    <button class="lang-btn" data-lang="hi">Hindi</button>
+                </div>
+                <button class="exam-header-submit-btn" id="btn-header-submit">
+                    <i class="fas fa-paper-plane"></i> Submit Test
+                </button>
+            </div>
+            <div class="exam-body">
+                <div class="question-panel">
+                    <div class="question-area">
+                        <div class="q-meta">
+                            <span class="q-number">Question <span id="q-no">1</span> of <span id="q-total">100</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <p class="progress-text"><span id="progress-text">0</span> of <span id="progress-total">100</span> answered</p>
+                        </div>
+                        <div class="question-text" id="q-text">Loading...</div>
+                        <div class="options-container" id="options-container"></div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-prev" id="btn-prev"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                        <button class="btn-save" id="btn-next">Save & Next <i class="fa-solid fa-chevron-right"></i></button>
+                        <button class="btn-mark" id="btn-mark"><i class="fa-regular fa-flag"></i> Mark for Review & Next</button>
+                        <button class="btn-clear" id="btn-clear"><i class="fa-solid fa-eraser"></i> Clear Response</button>
+                    </div>
+                </div>
+                <div class="palette-panel">
+                    <div class="profile-card">
+                        <img src="https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP" alt="User Avatar" class="avatar" id="user-avatar">
+                        <div>
+                            <div class="name" id="cand-name">Aspirant</div>
+                            <div class="role">NirnayPath Warrior</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-box answered"></div>
+                            <span>Answered <strong id="c-answered">0</strong></span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-box not-answered"></div>
+                            <span>Not Ans. <strong id="c-not-answered">0</strong></span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-box not-visited"></div>
+                            <span>Not Visited <strong id="c-not-visited">100</strong></span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-box marked"></div>
+                            <span>Marked <strong id="c-marked">0</strong></span>
+                        </div>
+                        <div class="stat-item full-width">
+                            <div class="stat-box answered-marked"></div>
+                            <span>Answered & Marked <strong id="c-answered-marked">0</strong> (evaluated)</span>
+                        </div>
+                    </div>
+                    <div class="palette-header">
+                        <i class="fas fa-th"></i> Question Palette
+                    </div>
+                    <div class="palette-grid" id="palette-grid"></div>
+                    <button class="submit-btn" id="btn-submit"><i class="fas fa-check-double"></i> Submit Test</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Section -->
+        <section id="result-screen" class="view-section">
+            <div class="result-wrapper">
+                <div class="result-hero">
+                    <div class="result-trophy"><i class="fas fa-trophy"></i></div>
+                    <h2>Test Submitted Successfully!</h2>
+                    <p>Here is your detailed performance summary</p>
+                </div>
+                <div class="result-kpi-row">
+                    <div class="result-kpi score-kpi">
+                        <i class="fas fa-star"></i>
+                        <strong id="r-score">0</strong>
+                        <span>Score</span>
+                        <small>out of <span id="r-total">100</span></small>
+                    </div>
+                    <div class="result-kpi attempted-kpi">
+                        <i class="fas fa-pen-to-square"></i>
+                        <strong id="r-attempted">0</strong>
+                        <span>Attempted</span>
+                        <small>questions answered</small>
+                    </div>
+                    <div class="result-kpi accuracy-kpi">
+                        <i class="fas fa-bullseye"></i>
+                        <strong id="r-accuracy">0%</strong>
+                        <span>Accuracy</span>
+                        <small>of answered questions</small>
+                    </div>
+                </div>
+                <div class="result-detail-row">
+                    <div class="result-detail-card correct-detail">
+                        <i class="fas fa-check-circle"></i>
+                        <strong id="r-correct">0</strong><span>Correct</span>
+                    </div>
+                    <div class="result-detail-card incorrect-detail">
+                        <i class="fas fa-times-circle"></i>
+                        <strong id="r-incorrect">0</strong><span>Incorrect</span>
+                    </div>
+                    <div class="result-detail-card skipped-detail">
+                        <i class="fas fa-forward"></i>
+                        <strong id="r-unattempted">0</strong><span>Skipped</span>
+                    </div>
+                    <div class="result-detail-card percent-detail">
+                        <i class="fas fa-percent"></i>
+                        <strong id="r-percent">0</strong><span>% Score</span>
+                    </div>
+                </div>
+                <div class="result-action-row">
+                    <button class="result-btn-review" id="btn-review">
+                        <i class="fas fa-eye"></i> Review Answers
+                    </button>
+                    <button class="result-btn-home" id="btn-home">
+                        <i class="fas fa-home"></i> Return to Home
+                    </button>
+                </div>
+                <div id="review-container" style="display:none"></div>
+            </div>
+        </section>
+
+        <!-- User Dashboard Section -->
+        <section id="user-dashboard" class="view-section">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <div class="user-info-card">
+                        <img src="https://ui-avatars.com/api/?background=6366f1&color=fff&size=100&bold=true&name=User" id="dash-user-avatar" alt="User">
+                        <div class="user-details">
+                            <h2 id="dash-user-name">Loading...</h2>
+                            <p id="dash-user-email">email@example.com</p>
+                            <div id="streak-container" class="streak-badge">
+                                <i class="fas fa-fire"></i> <span id="dash-streak">0</span> Day Streak
+                            </div>
+                        </div>
+                        <div id="dashboard-upgrade-cta" style="display:none; margin-left: auto; padding: 15px; background: rgba(255,215,0,0.1); border: 1px dashed #ffd700; border-radius: 12px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 0.85rem; font-weight: 600; color: #b8860b;">🚀 Upgrade to Pro for unlimited tests!</p>
+                            <button class="btn-primary-sm" onclick="document.getElementById('upgradeModal').style.display='flex'">View Plans</button>
+                        </div>
+                    </div>
+                    <div id="badges-container" class="badges-row">
+                        <!-- Badges will be injected here -->
+                    </div>
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <i class="fas fa-clipboard-check"></i>
+                            <div class="stat-content">
+                                <h3 id="dash-total-tests">0</h3>
+                                <p>Tests Taken</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-bullseye"></i>
+                            <div class="stat-content">
+                                <h3 id="dash-avg-accuracy">0%</h3>
+                                <p>Avg. Accuracy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="recent-tests-panel">
+                        <h3><i class="fas fa-history"></i> Recent Test Attempts</h3>
+                        <div class="table-responsive">
+                            <table class="recent-tests-table">
+                               <thead>
+                                   <tr>
+                                       <th>Date</th>
+                                       <th>Exam / Subject</th>
+                                       <th>Score</th>
+                                       <th>Accuracy</th>
+                                       <th>Action</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="recent-tests-body">
+                                   <!-- Data injected by JS -->
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="subject-analysis-panel">
+                        <h3><i class="fas fa-chart-bar"></i> Subject-wise Analysis</h3>
+                        <div id="subject-stats-container" class="subject-stats-grid">
+                            <!-- Data injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="leaderboard-panel">
+                        <div class="leaderboard-header">
+                            <h3><i class="fas fa-trophy"></i> Weekly Leaderboard</h3>
+                            <select id="leaderboard-exam-select" class="leaderboard-select" onchange="Dashboard.loadLeaderboard(this.value)">
+                                <option value="upsc">UPSC</option>
+                                <option value="bpsc">BPSC</option>
+                                <option value="ssc">SSC CGL</option>
+                                <option value="railway">Railway</option>
+                                <option value="banking">Banking</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Aspirant</th>
+                                        <th>Total Score</th>
+                                        <th>Tests</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboard-body">
+                                    <!-- Data injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Login Modal -->
+    <!-- Login Modal - Redesigned with Glassmorphism -->
+    <div class="modal" id="loginModal">
+        <div class="modal-background"></div>
+        <div class="modal-container">
+            <div class="login-card glassmorphism">
+                <div class="login-header">
+                    <span class="close-modal" id="closeLogin">&times;</span>
+                    <div class="login-logo">
+                        <div class="logo-icon"><i class="fas fa-compass"></i></div>
+                        <div class="logo-text">
+                            <span class="logo-main">NirnayPath</span>
+                            <span class="logo-sub">Mock Test Platform</span>
+                        </div>
+                    </div>
+                    <h2 class="login-title">Welcome Back, Aspirant! <i class="fas fa-user-graduate"></i></h2>
+                    <p class="login-subtitle">Continue your journey to success with personalized mock tests</p>
+                </div>
+                
+                <div class="login-body" id="loginFormContainer">
+                    <form id="loginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="loginEmail">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user-circle"></i>
+                                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPass">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="loginPass" placeholder="Enter your password" required>
+                                <button type="button" class="toggle-password" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="login-btn primary-btn" id="doLogin">
+                            <i class="fas fa-sign-in-alt"></i> Sign In & Continue Practice
+                        </button>
+                    </form>
+                    <div class="login-footer">
+                        <p>Don't have an account? <a href="#" class="signup-link" id="showSignup">Sign up for free</a></p>
+                    </div>
+                </div>
+
+                <div class="login-body" id="signupFormContainer" style="display: none;">
+                    <form id="signupForm" class="login-form">
+                        <div class="form-group">
+                            <label for="signupName">
+                                <i class="fas fa-user"></i> Full Name
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" id="signupName" placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signupEmail">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope-open"></i>
+                                <input type="email" id="signupEmail" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupPass">
+                                <i class="fas fa-lock"></i> Create Password
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="signupPass" placeholder="Min 6 characters" minlength="6" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="login-btn primary-btn" id="doSignup">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+                    <div class="login-footer">
+                        <p>Already have an account? <a href="#" class="signup-link" id="showLogin">Sign in instead</a></p>
+                    </div>
+                </div>
+
+                
+                <div class="login-motivation">
+                    <div class="motivation-card">
+                        <i class="fas fa-quote-left"></i>
+                        <p class="motivation-text">"Every successful officer started with a single mock test. Your journey begins here."</p>
+                        <div class="motivation-author">— NirnayPath Team</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal (Rich & Detailed) -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content about-modal">
+            <span class="close-modal" id="closeAbout">&times;</span>
+            <div class="about-inner">
+                <!-- Headline & Subheading -->
+                <div class="about-header">
+                    <h2><i class="fas fa-heartbeat"></i> About NirnayPath</h2>
+                    <p class="subheading">Empowering Every Aspirant with Free, Quality Education Since 2024</p>
+                </div>
+
+                <!-- Founder Section -->
+                <div class="founder-section">
+                    <img src="assets/founder.jpeg" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=6366f1&color=fff&size=120&name=Saurabh+K'">
+                    <h2>Saurabh Kumar</h2>
+                    <p class="title">Software Engineer & Founder | NirnayPath</p>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone-alt"></i> +91 9135791602</p>
+                        <p><i class="fas fa-envelope"></i> saurabhkumar12770@gmail.com</p>
+                    </div>
+                </div>
+
+                <!-- Mission & Vision -->
+                <div class="mission-section">
+                    <h3><i class="fas fa-bullseye"></i> Our Mission</h3>
+                    <p>To provide <strong>free, high‑quality mock tests</strong> for every competitive exam aspirant in India, regardless of their financial background. We believe that access to quality practice should be a right, not a privilege.</p>
+                    
+                    <h3><i class="fas fa-eye"></i> Our Vision</h3>
+                    <p>To create a future where <strong>equal education opportunity</strong> is a reality for all. We envision a nation where every student can prepare for UPSC, BPSC, SSC, Banking, and other exams without worrying about cost.</p>
+                    
+                    <div class="highlight">🎯 "Built in 2026 for ALL aspirants – poor and rich alike."</div>
+                </div>
+
+                <!-- Feature Cards -->
+                <div class="feature-cards-section">
+                    <h3><i class="fas fa-star"></i> Why NirnayPath Stands Out</h3>
+                    <div class="feature-cards">
+                        <div class="feature-card-about">
+                            <i class="fas fa-gem"></i>
+                            <h4>100% Free Forever</h4>
+                            <p>No hidden charges, no premium tiers. Everything is free for every student.</p>
+                        </div>
+                        <div class="feature-card-about">
+                            <i class="fas fa-universal-access"></i>
+                            <h4>Accessible to All</h4>
+                            <p>Designed for both Hindi & English medium aspirants across India.</p>
+                        </div>
+                        <div class="feature-card-about">
+                            <i class="fas fa-brain"></i>
+                            <h4>Smart Learning</h4>
+                            <p>AI‑powered analytics, performance tracking, and personalized insights.</p>
+                        </div>
+                        <div class="feature-card-about">
+                            <i class="fas fa-chart-line"></i>
+                            <h4>Performance Analysis</h4>
+                            <p>Detailed reports, weak‑area identification, and improvement roadmap.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story -->
+                <div class="story-section">
+                    <h3><i class="fas fa-book-open"></i> The Story Behind NirnayPath</h3>
+                    <p>I am a <strong>Software Engineer</strong> who built this platform in <strong>2026</strong> after witnessing the struggles of my fellow aspirants. The high cost of mock test series was shutting doors for talented students from humble backgrounds.</p>
+                    <p>NirnayPath was born from a simple idea: <strong>democratize exam preparation</strong>. Today, we serve thousands of aspirants across UPSC, BPSC, SSC, Banking, Railway, and more – all for free.</p>
+                    <p>This platform is created for <strong>ALL aspirants (poor and rich)</strong> because your dreams shouldn't have a price tag.</p>
+                </div>
+
+                <!-- Values -->
+                <div class="values-section">
+                    <h3><i class="fas fa-heart"></i> Our Core Values</h3>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> <strong>Equity:</strong> Equal opportunity for every student</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Excellence:</strong> Real‑exam quality in every test</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Empathy:</strong> Built by aspirants, for aspirants</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Innovation:</strong> Constantly evolving with technology</li>
+                    </ul>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline">
+                    <h3><i class="fas fa-timeline"></i> Our Journey</h3>
+                    <div class="timeline-item">
+                        <span>2026</span>
+                        <p>Launched with 5 subjects, 100% free model</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span>2026</span>
+                        <p>Crossed 10,000 active users, expanded to 12 exams</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span>2026</span>
+                        <p>Platform rebuilt with advanced analytics, 30+ tests per subject</p>
+                    </div>
+                </div>
+
+                <!-- Closing Note -->
+                <div class="footer-note">
+                    <i class="fas fa-crown"></i> Dedicated to every hardworking aspirant across India. Together, we rise!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">NirnayPath</span>
+                        <span class="logo-sub">Mock Test Platform</span>
+                    </div>
+                </div>
+                <p class="footer-tagline">Free. Unlimited. Realistic Mock Tests for Every Aspirant.</p>
+                <p class="footer-mission">Our mission is to democratize access to high-quality exam preparation for every competitive exam aspirant in India.</p>
+                <div class="footer-stats">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <h4>50,000+</h4>
+                            <p>Aspirants</p>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-question-circle"></i>
+                        <div>
+                            <h4>10,000+</h4>
+                            <p>Questions</p>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <h4>95%</h4>
+                            <p>Success Rate</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="social-link" title="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4><i class="fas fa-graduation-cap"></i> Popular Exams</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> BPSC Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> UPSC Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> Railway Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> Teaching Exams</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> State PSC Tests</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4><i class="fas fa-book-open"></i> Resources</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#"><i class="fas fa-newspaper"></i> Blog & Articles</a></li>
+                    <li><a href="#"><i class="fas fa-file-pdf"></i> Study Materials</a></li>
+                    <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
+                    <li><a href="#"><i class="fas fa-trophy"></i> Success Stories</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Performance Analytics</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> FAQ & Help</a></li>
+                    <li><a href="#"><i class="fas fa-download"></i> Mobile App</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4><i class="fas fa-building"></i> Company</h4>
+                <ul class="footer-links-list">
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Our Team</a></li>
+                    <li><a href="#"><i class="fas fa-bullhorn"></i> Careers</a></li>
+                    <li><a href="#"><i class="fas fa-handshake"></i> Partnerships</a></li>
+                    <li><a href="#"><i class="fas fa-newspaper"></i> Press & Media</a></li>
+                    <li><a href="#"><i class="fas fa-star"></i> Testimonials</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col footer-newsletter-app">
+                <h4><i class="fas fa-envelope"></i> Stay Updated</h4>
+                <p class="newsletter-desc">Get weekly exam tips, study strategies, and updates.</p>
+                <div class="newsletter">
+                    <div class="newsletter-input-group">
+                        <input type="email" placeholder="Enter your email">
+                        <button class="newsletter-btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <h4 class="mt-4"><i class="fas fa-mobile-alt"></i> Download App</h4>
+                <div class="app-badges-vertical">
+                    <a href="#" class="app-badge">
+                        <i class="fab fa-google-play"></i>
+                        <div><span>GET IT ON</span><strong>Google Play</strong></div>
+                    </a>
+                    <a href="#" class="app-badge">
+                        <i class="fab fa-app-store"></i>
+                        <div><span>Download on</span><strong>App Store</strong></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="copyright">
+                    <p>© 2026 NirnayPath – Created with <i class="fas fa-heart" style="color: #ef4444;"></i> by Saurabh Kumar. All rights reserved.</p>
+                    <p class="copyright-note">NirnayPath is an independent platform and is not affiliated with any government exam conducting body.</p>
+                </div>
+                <div class="footer-bottom-links">
+                    <div class="footer-links">
+                        <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                        <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                        <a href="#"><i class="fas fa-cookie-bite"></i> Cookie Policy</a>
+                        <a href="#"><i class="fas fa-exclamation-triangle"></i> Disclaimer</a>
+                        <a href="#"><i class="fas fa-sitemap"></i> Sitemap</a>
+                    </div>
+                    <div class="payment-methods">
+                        <span class="payment-label">Secure Payments:</span>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa" title="Visa"></i>
+                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                            <i class="fab fa-cc-paypal" title="PayPal"></i>
+                            <i class="fab fa-google-pay" title="Google Pay"></i>
+                            <i class="fab fa-cc-amazon-pay" title="Amazon Pay"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Modals -->
+    <div id="sectionalModal" class="modal-overlay">
+        <div class="modal-content sectional-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-layer-group"></i> Sectional Mock Tests</h3>
+                <button class="close-modal" onclick="SectionalTests.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select a section to start a timed 75-question mock test combining all related subjects.</p>
+                <div id="sections-grid" class="sections-grid">
+                    <!-- Sections injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="upgradeModal" class="modal-overlay">
+        <div class="modal-content upgrade-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-crown"></i> Upgrade to NirnayPath Pro</h3>
+                <button class="close-modal" onclick="document.getElementById('upgradeModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="plans-comparison">
+                    <div class="plan-card">
+                        <h4>Free Plan</h4>
+                        <div class="plan-price">₹0<span>/mo</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Daily Full Mocks</li>
+                            <li><i class="fas fa-check"></i> Topic Drills (20 Qs)</li>
+                            <li><i class="fas fa-check"></i> Basic Analytics</li>
+                        </ul>
+                        <button class="btn-disabled" disabled>Current Plan</button>
+                    </div>
+                    <div class="plan-card pro">
+                        <div class="plan-badge">Popular</div>
+                        <h4>Pro Path</h4>
+                        <div class="plan-price">₹199<span>/mo</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Unlimited Topic Drills</li>
+                            <li><i class="fas fa-check"></i> Unlimited Sectional Tests</li>
+                            <li><i class="fas fa-check"></i> Advanced AI Analytics</li>
+                            <li><i class="fas fa-check"></i> PYQ Mode (Previous Year)</li>
+                            <li><i class="fas fa-check"></i> Ad-free experience</li>
+                        </ul>
+                        <button class="btn-primary-lg" onclick="PaymentManager.upgrade()">Upgrade Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js?v=2.0.0"></script>
+    <script src="/js/dashboard.js?v=2.0.0"></script>
+    <script src="/js/push.js?v=2.0.0"></script>
+    <script src="/script.js?v=2.0.0"></script>
+    <script src="/js/app.js?v=2.0.0"></script>
+    <script src="/js/chatbot.js?v=2.0.0"></script>
+</body>
+</html>

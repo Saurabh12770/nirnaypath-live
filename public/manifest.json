@@ -1,0 +1,21 @@
+{
+  "name": "NirnayPath - Free Mock Test Platform",
+  "short_name": "NirnayPath",
+  "description": "Premium mock tests for UPSC, BPSC, SSC & Banking.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B3A6B",
+  "theme_color": "#1B3A6B",
+  "icons": [
+    {
+      "src": "/images/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
