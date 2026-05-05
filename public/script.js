@@ -1447,7 +1447,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-    }function initMobileMenu() {
+    }
+function initMobileMenu() {
     const btn = document.getElementById('mobileMenuBtn');
     const overlay = document.getElementById('mobileMenuOverlay');
     const closeBtn = document.getElementById('closeMobileMenu');

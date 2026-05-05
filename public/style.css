@@ -8592,5 +8592,63 @@ body:not([data-theme="dark"]) .contact-card {
     border: 1px solid #e2e8f0 !important;
 }
 
+
+/* ===== GLOBAL CONTRAST & LAYOUT POLISH (AUDIT FIX) ===== */
+/* Chatbot Dark Mode support */
+[data-theme="dark"] .chatbot-window {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .chatbot-messages {
+    background: #0f172a !important;
+}
+[data-theme="dark"] .message.bot {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .message.user {
+    background: #334155 !important;
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .chatbot-input-area {
+    background: #1e293b !important;
+    border-top-color: #334155 !important;
+}
+[data-theme="dark"] .chatbot-input-area input {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+
+/* Mobile Menu Slide-in Polish */
+@media (max-width: 768px) {
+    .mobile-menu-overlay {
+        right: -100% !important;
+        left: auto !important;
+        width: 300px !important; /* Slide-in drawer instead of full screen */
+        border-left: 1px solid rgba(255,255,255,0.1);
+    }
+    .mobile-menu-overlay.active {
+        right: 0 !important;
+    }
+    .close-menu-btn {
+        font-size: 2rem !important;
+        top: 15px !important;
+        right: 15px !important;
+    }
+}
+
+/* Force dark text in light mode for critical About/Home sections */
+body:not([data-theme="dark"]) h1, 
+body:not([data-theme="dark"]) h2, 
+body:not([data-theme="dark"]) h3, 
+body:not([data-theme="dark"]) h4 {
+    color: #1e293b !important;
+}
+body:not([data-theme="dark"]) p, 
+body:not([data-theme="dark"]) li {
+    color: #475569 !important;
+}
+
 /* End of NirnayPath Style Sheet */
 
