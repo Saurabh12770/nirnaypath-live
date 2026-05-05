@@ -41,7 +41,9 @@ router.post('/', auth, async (req, res) => {
         await userMsg.save();
 
         // Get AI Response
-        const botReply = await askAI(message, history.reverse());
+        const aiResult = await askAI(message, history.reverse());
+        const botReply = typeof aiResult === 'string' ? aiResult : aiResult.text;
+        const isFallback = aiResult.isFallback || false;
 
         // Save Bot Message
         const botMsg = new ChatMessage({
@@ -55,7 +57,7 @@ router.post('/', auth, async (req, res) => {
         user.chatCount += 1;
         await user.save();
 
-        res.json({ reply: botReply });
+        res.json({ reply: botReply, isFallback: isFallback });
     } catch (error) {
         console.error("Chat Route Error:", error);
         res.status(500).json({ error: error.message });

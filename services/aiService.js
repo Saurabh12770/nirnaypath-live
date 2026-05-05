@@ -36,11 +36,14 @@ const askAI = async (userMessage, history = []) => {
 
         const result = await chat.sendMessage(prompt);
         const response = await result.response;
-        return response.text();
+        return { text: response.text(), isFallback: false };
     } catch (error) {
         console.error("AI Service Error:", error);
         if (!process.env.AI_API_KEY || error.message.includes("API_KEY_INVALID")) {
-            return "I’m currently learning. Please ask me general questions about exams, and I’ll do my best!";
+            return {
+                text: "I’m currently in learning mode. Our team is setting up the full AI assistant soon. In the meantime, feel free to ask me about exam patterns, general tips, or navigation help!\n\n(मैं अभी सीख रहा हूँ। हमारी टीम जल्द ही पूर्ण AI सहायक सेट कर रही है। तब तक, आप मुझसे परीक्षा पैटर्न, सामान्य सुझाव या नेविगेशन के बारे में पूछ सकते हैं!)",
+                isFallback: true
+            };
         }
         throw new Error("Failed to get response from AI tutor.");
     }

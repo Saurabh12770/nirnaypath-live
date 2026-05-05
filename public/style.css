@@ -946,8 +946,9 @@ textarea:focus {
 /* ── 10. BACK-TO-TOP ─────────────────────────────────────────── */
 .back-to-top {
     position: fixed;
-    bottom: 100px;
+    bottom: 28px;
     right: 28px;
+    z-index: 1000;
     width: 48px;
     height: 48px;
     background: var(--gradient);
@@ -7306,5 +7307,89 @@ html, body {
     }
     .footer-content {
         flex-direction: column;
+    }
+}
+
+/* -- 32. MOBILE HEADER & HAMBURGER MENU ------------------------------------------- */
+@media (max-width: 768px) {
+    .sticky-header {
+        flex-wrap: wrap;
+        padding: 10px 15px;
+    }
+    .sticky-header nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        order: 3;
+        background: var(--bg-light);
+        padding: 15px 0;
+        border-top: 1px solid var(--border);
+        margin-top: 10px;
+    }
+    .sticky-header nav.active {
+        display: flex;
+    }
+    .sticky-header nav .nav-link {
+        padding: 10px 15px;
+        width: 100%;
+        text-align: left;
+    }
+    .header-right {
+        order: 2;
+        margin-left: auto;
+    }
+    .mobile-menu-btn {
+        display: inline-block !important;
+    }
+    .cta-btn .cta-text {
+        display: none;
+    }
+    .cta-btn {
+        padding: 8px 12px;
+    }
+    .language-toggle {
+        display: none; /* Hide language toggle on small mobile headers to save space, or move to nav */
+    }
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 120px !important;
+    }
+    .exam-btn {
+        height: 48px !important;
+        min-height: 48px !important;
+    }
+}
+
+/* -- 33. TYPOGRAPHY & OVERFLOW POLISH ------------------------------------------- */
+h1, .hero-title { font-size: clamp(2rem, 5vw, 3.5rem) !important; }
+h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
+
+@media (max-width: 768px) {
+    .scrolling-text {
+        font-size: 1.5rem !important;
+    }
+    .mentor-card {
+        margin-bottom: 20px;
+    }
+    .mission-box {
+        padding: 30px !important;
+    }
+    .about-hero {
+        padding-top: 100px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .cta-btn, .hero-btn, .btn-primary-lg, .trend-start-btn {
+        padding: 16px 24px !important;
+        font-size: 1.1rem !important;
+        width: 100% !important;
+        justify-content: center !important;
+        margin-bottom: 12px !important;
+    }
+    .hero-actions {
+        width: 100%;
     }
 }

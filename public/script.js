@@ -1375,3 +1375,14 @@ function injectDynamicCSS() {
     `;
     document.head.appendChild(s);
 }
+
+/* -- 32. MOBILE MENU TOGGLE ------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const nav = document.querySelector('.sticky-header nav');
+    if (menuBtn && nav) {
+        menuBtn.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+    }
+});

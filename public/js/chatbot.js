@@ -33,6 +33,7 @@ const Chatbot = {
                         (Hello! I am Nirnay Help Center. How can I assist you with your exam preparation?)
                     </div>
                 </div>
+                <div id="fallbackNotice" class="fallback-notice hidden">AI key not set – basic responses enabled</div>
                 <div id="typingIndicator" class="typing hidden" style="padding: 0 20px;">Nirnay Help Center is typing...</div>
                 <form class="chatbot-input-area" id="chatForm">
                     <input type="text" id="chatInput" placeholder="Type your doubt here..." autocomplete="off">
@@ -112,6 +113,12 @@ const Chatbot = {
 
             if (res.ok) {
                 this.addMessage('bot', data.reply);
+                const fallbackNotice = document.getElementById('fallbackNotice');
+                if (data.isFallback) {
+                    fallbackNotice.classList.remove('hidden');
+                } else {
+                    fallbackNotice.classList.add('hidden');
+                }
             } else {
                 this.addMessage('bot', `⚠️ ${data.error || 'Something went wrong.'}`);
             }
