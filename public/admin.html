@@ -334,9 +334,69 @@
 
     <script src="/js/auth.js?v=2.0.0"></script>
     <script src="/js/chatbot.js?v=2.0.0"></script>
+    <script src="/js/auth.js?v=2.0.0"></script>
+    <script src="/js/chatbot.js?v=2.0.0"></script>
     <script>
         // Track Chart.js instances to avoid re-render errors
         const chartInstances = {};
+
+        // 2.1 Mandatory Spinner Timeout
+        setTimeout(() => {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+            }
+            console.warn('Loading overlay hidden by timeout.');
+        }, 8000);
+
+        // Global spinner functions to handle overlaps
+        let spinnerCount = 0;
+        function showSpinner() {
+            spinnerCount++;
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'flex';
+            }
+        }
+        function hideSpinner() {
+            spinnerCount = Math.max(0, spinnerCount - 1);
+            if (spinnerCount === 0) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+
+        // 2.2 Guarantee Overlay Hidden in All fetch Calls
+        async function fetchWithOverlay(url, options = {}) {
+            showSpinner();
+            try {
+                const token = Auth.getToken();
+                if (!token) {
+                    throw new Error('No token found');
+                }
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...(options.headers || {})
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+                return data;
+            } catch (error) {
+                console.error(`API error [${url}]:`, error.message);
+                return null;
+            } finally {
+                hideSpinner();
+            }
+        }
 
         const AdminPanel = {
             async init() {
@@ -345,37 +405,35 @@
                     return;
                 }
 
-                // Verify admin role via profile
-                try {
-                    const token = Auth.getToken();
-                    const res = await fetch('/api/user/me', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!res.ok) throw new Error('Auth failed');
-                    const data = await res.json();
-                    if (!data.user || data.user.role !== 'admin') {
-                        alert('Unauthorized. Admin access only.');
-                        location.href = '/';
-                        return;
-                    }
-                    document.getElementById('adminName').textContent = data.user.name;
-                } catch (e) {
-                    alert('Session expired. Please log in again.');
+                // Verify admin role via profile with overlay
+                const data = await fetchWithOverlay('/api/user/me');
+                if (!data || !data.user || data.user.role !== 'admin') {
+                    alert('Unauthorized. Admin access only.');
                     location.href = '/';
                     return;
                 }
+                document.getElementById('adminName').textContent = data.user.name || 'Admin';
 
-                this.loadStats();
-                this.loadSubjects();
+                // Ensure initial sections load properly
+                await Promise.allSettled([
+                    this.loadStats(),
+                    this.loadSubjects()
+                ]);
             },
 
             showSection(id) {
                 document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
-                document.getElementById(`section-${id}`).classList.remove('hidden');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                event.target.closest('.nav-item').classList.add('active');
+                const section = document.getElementById(`section-${id}`);
+                if (section) section.classList.remove('hidden');
                 
-                document.getElementById('sectionTitle').textContent = id.charAt(0).toUpperCase() + id.slice(1);
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                if (event && event.target) {
+                    const navItem = event.target.closest('.nav-item');
+                    if (navItem) navItem.classList.add('active');
+                }
+                
+                const titleEl = document.getElementById('sectionTitle');
+                if (titleEl) titleEl.textContent = id.charAt(0).toUpperCase() + id.slice(1);
                 
                 if (id === 'users') this.loadUsers();
                 if (id === 'payments') this.loadPayments();
@@ -383,36 +441,53 @@
             },
 
             async loadStats() {
-                const data = await this.fetchApi('/api/admin/stats');
-                if (!data) return;
+                const rawData = await fetchWithOverlay('/api/admin/stats');
+                
+                // 2.4 Validate All API Responses
+                const data = {
+                    users: {
+                        total: rawData?.users?.total || 0,
+                        pro: rawData?.users?.pro || 0,
+                        banned: rawData?.users?.banned || 0
+                    },
+                    tests: {
+                        today: rawData?.tests?.today || 0,
+                        week: rawData?.tests?.week || 0,
+                        total: rawData?.tests?.total || 0
+                    },
+                    revenue: rawData?.revenue || 0,
+                    activeUsers: rawData?.activeUsers || 0
+                };
 
                 const grid = document.getElementById('statsGrid');
-                grid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-users"></i></div>
-                        <div><h3>${data.users.total}</h3><p>Total Users</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-clipboard-check"></i></div>
-                        <div><h3>${data.tests.total}</h3><p>Tests Taken</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-crown"></i></div>
-                        <div><h3>${data.users.pro}</h3><p>Pro Members</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fas fa-user-slash"></i></div>
-                        <div><h3>${data.users.banned}</h3><p>Banned</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;"><i class="fas fa-fire"></i></div>
-                        <div><h3>${data.activeUsers}</h3><p>Active (7d)</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
-                        <div><h3>₹${data.revenue}</h3><p>Revenue</p></div>
-                    </div>
-                `;
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-users"></i></div>
+                            <div><h3>${data.users.total}</h3><p>Total Users</p></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-clipboard-check"></i></div>
+                            <div><h3>${data.tests.total}</h3><p>Tests Taken</p></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+                            <div><h3>${data.users.pro}</h3><p>Pro Members</p></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fas fa-user-slash"></i></div>
+                            <div><h3>${data.users.banned}</h3><p>Banned</p></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;"><i class="fas fa-fire"></i></div>
+                            <div><h3>${data.activeUsers}</h3><p>Active (7d)</p></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
+                            <div><h3>₹${data.revenue}</h3><p>Revenue</p></div>
+                        </div>
+                    `;
+                }
                 this.renderCharts(data);
             },
 
@@ -423,38 +498,63 @@
 
                 const freeUsers = Math.max(0, data.users.total - data.users.pro - data.users.banned);
 
-                const ctxUser = document.getElementById('userChart').getContext('2d');
-                chartInstances.userChart = new Chart(ctxUser, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Free', 'Pro', 'Banned'],
-                        datasets: [{
-                            data: [freeUsers, data.users.pro, data.users.banned],
-                            backgroundColor: ['#6366f1', '#f59e0b', '#ef4444']
-                        }]
-                    },
-                    options: { plugins: { legend: { position: 'bottom' } } }
-                });
+                // 2.5 Chart.js Safety
+                const userCanvas = document.getElementById('userChart');
+                if (userCanvas) {
+                    const ctxUser = userCanvas.getContext('2d');
+                    if (data.users.total === 0) {
+                        ctxUser.clearRect(0, 0, userCanvas.width, userCanvas.height);
+                        ctxUser.font = '14px sans-serif';
+                        ctxUser.fillStyle = '#94a3b8';
+                        ctxUser.textAlign = 'center';
+                        ctxUser.fillText('No user data', userCanvas.width / 2, userCanvas.height / 2);
+                    } else {
+                        chartInstances.userChart = new Chart(ctxUser, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Free', 'Pro', 'Banned'],
+                                datasets: [{
+                                    data: [freeUsers, data.users.pro, data.users.banned],
+                                    backgroundColor: ['#6366f1', '#f59e0b', '#ef4444']
+                                }]
+                            },
+                            options: { plugins: { legend: { position: 'bottom' } } }
+                        });
+                    }
+                }
 
-                const ctxActivity = document.getElementById('activityChart').getContext('2d');
-                chartInstances.activityChart = new Chart(ctxActivity, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Today', 'Last 7 Days', 'All Time'],
-                        datasets: [{
-                            label: 'Mock Tests Taken',
-                            data: [data.tests.today, data.tests.week, data.tests.total],
-                            backgroundColor: '#1B3A6B'
-                        }]
-                    },
-                    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-                });
+                const activityCanvas = document.getElementById('activityChart');
+                if (activityCanvas) {
+                    const ctxActivity = activityCanvas.getContext('2d');
+                    if (data.tests.total === 0) {
+                        ctxActivity.clearRect(0, 0, activityCanvas.width, activityCanvas.height);
+                        ctxActivity.font = '14px sans-serif';
+                        ctxActivity.fillStyle = '#94a3b8';
+                        ctxActivity.textAlign = 'center';
+                        ctxActivity.fillText('No test activity', activityCanvas.width / 2, activityCanvas.height / 2);
+                    } else {
+                        chartInstances.activityChart = new Chart(ctxActivity, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Today', 'Last 7 Days', 'All Time'],
+                                datasets: [{
+                                    label: 'Mock Tests Taken',
+                                    data: [data.tests.today, data.tests.week, data.tests.total],
+                                    backgroundColor: '#1B3A6B'
+                                }]
+                            },
+                            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                        });
+                    }
+                }
             },
 
             async loadSubjects() {
-                const subjects = await this.fetchApi('/api/admin/subjects');
-                if (!subjects) return;
+                const subjects = await fetchWithOverlay('/api/admin/subjects');
+                if (!Array.isArray(subjects)) return;
                 const select = document.getElementById('subjectSelect');
+                if (!select) return;
+                select.innerHTML = '<option value="">Select a subject...</option>'; // Reset
                 subjects.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s;
@@ -464,14 +564,16 @@
             },
 
             async loadQuestions() {
-                const sub = document.getElementById('subjectSelect').value;
+                const select = document.getElementById('subjectSelect');
+                const sub = select ? select.value : '';
                 if (!sub) return alert('Please select a subject first.');
-                const data = await this.fetchApi(`/api/admin/questions/${sub}?limit=100`);
-                if (!data) return;
-
+                
+                const data = await fetchWithOverlay(`/api/admin/questions/${sub}?limit=100`);
                 const tbody = document.getElementById('questionsTableBody');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
-                if (!data.questions || data.questions.length === 0) {
+                if (!data || !Array.isArray(data.questions) || data.questions.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No questions found for this subject.</td></tr>';
                     return;
                 }
@@ -490,18 +592,19 @@
             },
 
             async loadUsers() {
-                const data = await this.fetchApi('/api/admin/users');
-                if (!data) return;
+                const data = await fetchWithOverlay('/api/admin/users');
                 const tbody = document.getElementById('usersTableBody');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
-                if (!data.users || data.users.length === 0) {
+                if (!data || !Array.isArray(data.users) || data.users.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No users found.</td></tr>';
                     return;
                 }
                 data.users.forEach(u => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td><strong>${u.name}</strong><br><small>${u.email}</small></td>
+                        <td><strong>${u.name || 'Unknown'}</strong><br><small>${u.email || 'No email'}</small></td>
                         <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
                         <td><span class="tag" style="background:${u.isActive ? '#dcfce7' : '#fee2e2'}; color:${u.isActive ? '#166534' : '#991b1b'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
                         <td>${u.testsCount || 0}</td>
@@ -516,14 +619,16 @@
             },
 
             async loadPayments() {
-                const data = await this.fetchApi('/api/admin/payments');
-                if (!data) return;
+                const data = await fetchWithOverlay('/api/admin/payments');
                 const tbody = document.getElementById('paymentsTableBody');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
                 let revenue = 0;
                 if (!Array.isArray(data) || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payment records yet.</td></tr>';
-                    document.getElementById('totalRevenue').textContent = '₹0';
+                    const revEl = document.getElementById('totalRevenue');
+                    if (revEl) revEl.textContent = '₹0';
                     return;
                 }
                 data.forEach(p => {
@@ -533,46 +638,17 @@
                         <td>${p.userId?.name || 'Unknown'}</td>
                         <td>${p.planId || '-'}</td>
                         <td>₹${p.amount || 0}</td>
-                        <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
                         <td><small>${p.razorpay_payment_id || '-'}</small></td>
                     `;
                     tbody.appendChild(row);
                 });
-                document.getElementById('totalRevenue').textContent = '₹' + revenue;
-            },
-
-            // Centralized fetch helper — always clears spinner, always shows error
-            async fetchApi(url, options = {}) {
-                const overlay = document.getElementById('loadingOverlay');
-                overlay.classList.remove('hidden');
-                try {
-                    const token = Auth.getToken();
-                    if (!token) {
-                        location.href = '/';
-                        return null;
-                    }
-                    const res = await fetch(url, {
-                        ...options,
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                            ...(options.headers || {})
-                        }
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-                    return data;
-                } catch (e) {
-                    console.error(`Admin fetch error [${url}]:`, e.message);
-                    // Show inline error rather than alert for non-critical sections
-                    return null;
-                } finally {
-                    overlay.classList.add('hidden');
-                }
+                const revEl = document.getElementById('totalRevenue');
+                if (revEl) revEl.textContent = '₹' + revenue;
             },
 
             async toggleUserStatus(userId, status) {
-                const result = await this.fetchApi(`/api/admin/users/${userId}`, {
+                const result = await fetchWithOverlay(`/api/admin/users/${userId}`, {
                     method: 'PUT',
                     body: JSON.stringify({ isActive: status })
                 });
@@ -581,16 +657,27 @@
 
             async deleteQuestion(subject, id) {
                 if (!confirm('Delete this question?')) return;
-                await this.fetchApi(`/api/admin/questions/${subject}/${id}`, { method: 'DELETE' });
+                await fetchWithOverlay(`/api/admin/questions/${subject}/${id}`, { method: 'DELETE' });
                 this.loadQuestions();
             },
 
             closeModal() {
-                document.getElementById('questionModal').style.display = 'none';
+                const modal = document.getElementById('questionModal');
+                if (modal) modal.style.display = 'none';
             }
         };
 
-        AdminPanel.init();
+        // 2.3 Remove Any Remaining Spinner Instances
+        // Ensure spinner is hidden on any unhandled rejections or errors
+        window.addEventListener('unhandledrejection', hideSpinner);
+        window.addEventListener('error', hideSpinner);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            AdminPanel.init().catch(err => {
+                console.error("Admin init error:", err);
+                hideSpinner();
+            });
+        });
     </script>
 </body>
 </html>
