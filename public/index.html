@@ -32,10 +32,6 @@
             <span id="userNameDisplay" style="display: none; color: var(--primary); font-weight: 600; margin-left: 10px;"></span>
         </nav>
         <div class="header-right">
-            <div class="language-toggle">
-                <button class="lang-btn active-lang" data-lang="en"><i class="fas fa-globe-americas"></i> EN</button>
-                <button class="lang-btn" data-lang="hi"><i class="fas fa-flag"></i> HI</button>
-            </div>
             <button id="installAppBtn" class="cta-btn" style="display:none; background: var(--success); margin-right: 10px;" onclick="PWA.install()">
                 <i class="fas fa-download"></i> <span class="cta-text">Install App</span>
             </button>
@@ -90,29 +86,38 @@
         <section id="dashboard" class="view-section active">
 
             <!-- Hero Section -->
-            <div class="hero glass-card reveal">
+            <div class="hero reveal">
+                <div class="hero-bg-accent"></div>
                 <div class="hero-content">
-                    <span class="badge">🔥 Premier Mock Test Series 2026</span>
-                    <h1>Unlock Your Potential with <br><span id="typed-text" class="gradient-text">NirnayPath</span><span class="cursor">|</span></h1>
-                    <p class="hero-desc">Experience the most realistic practice ecosystem for UPSC, BPSC, SSC, and Banking. Empowering aspirants with high-fidelity, bilingual mock tests designed by experts.</p>
-                    <div class="hero-actions">
-                        <button class="btn-primary-lg hover-lift hover-glow" onclick="document.getElementById('popular-exams').scrollIntoView({behavior:'smooth'})">Explore All Exams</button>
-                        <button class="btn-secondary-lg hover-lift"><i class="fas fa-play"></i> Experience Demo</button>
+                    <div class="hero-badge reveal">
+                        <span class="badge-icon">🔥</span>
+                        <span class="badge-text">Premier Mock Test Series 2026</span>
                     </div>
-                    <div class="hero-trust">
+                    <h1 class="hero-title reveal">Unlock Your Potential with <br><span class="gradient-text">NirnayPath</span></h1>
+                    <p class="hero-desc reveal">Experience the most realistic practice ecosystem for UPSC, BPSC, SSC, and Banking. Empowering aspirants with high-fidelity, bilingual mock tests designed by experts.</p>
+                    <div class="hero-actions reveal">
+                        <button class="cta-btn primary-btn pulse" onclick="document.getElementById('popular-exams').scrollIntoView({behavior:'smooth'})">
+                            <span class="cta-text">Explore All Exams</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="cta-btn secondary-btn" onclick="scrollToDashboard()">
+                            <i class="fas fa-play"></i> Experience Demo
+                        </button>
+                    </div>
+                    <div class="hero-trust reveal">
                         <div class="avatars">
                             <img src="https://i.pravatar.cc/40?u=1" alt="u1">
                             <img src="https://i.pravatar.cc/40?u=2" alt="u2">
                             <img src="https://i.pravatar.cc/40?u=3" alt="u3">
                             <img src="https://i.pravatar.cc/40?u=4" alt="u4">
-                            <span>Trusted by 50K+ Active Aspirants</span>
+                            <span class="trust-text">Trusted by 50K+ Active Aspirants</span>
                         </div>
                     </div>
                 </div>
-                <div class="hero-visual">
-                    <div class="floating-card c1 hover-lift"><i class="fas fa-check-double"></i> Real-time Analytics</div>
-                    <div class="floating-card c2 hover-lift"><i class="fas fa-shield-halved"></i> Anti-Cheat Engine</div>
-                    <div class="floating-card c3 hover-lift"><i class="fas fa-language"></i> Dual Language HI/EN</div>
+                <div class="hero-visual reveal">
+                    <div class="floating-card c1"><i class="fas fa-check-double"></i> Real-time Analytics</div>
+                    <div class="floating-card c2"><i class="fas fa-shield-halved"></i> Anti-Cheat Engine</div>
+                    <div class="floating-card c3"><i class="fas fa-language"></i> Dual Language HI/EN</div>
                 </div>
             </div><!-- /hero -->
 
@@ -608,53 +613,133 @@
             </section>
 
             <!-- FAQ Section -->
+            <!-- FAQ Section -->
             <section class="faq-section container reveal">
-                <h2 class="section-title text-center">Frequently Asked Questions</h2>
-                <div class="faq-container">
+                <h2 class="section-title text-center">Frequently Asked <span class="gradient-text">Questions</span></h2>
+                <div class="faq-accordion">
                     <div class="faq-item">
-                        <div class="faq-header">Is NirnayPath really free? <i class="fas fa-chevron-down"></i></div>
-                        <div class="faq-content">Yes! Every feature on NirnayPath is 100% free for all aspirants, regardless of their financial status.</div>
+                        <div class="faq-question">
+                            <span>How do I start a mock test?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Simply select your exam category from the home page, choose a subject, and click on any available test card to begin instantly.</p>
+                        </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-header">Which exams are covered? <i class="fas fa-chevron-down"></i></div>
-                        <div class="faq-content">We cover UPSC, BPSC, SSC (CGL, CHSL), Railway (NTPC), Banking (IBPS, SBI), Police, Teaching, and more.</div>
+                        <div class="faq-question">
+                            <span>Is it really completely free?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes, NirnayPath is committed to providing high-quality mock tests at zero cost to ensure equal opportunity for every aspirant.</p>
+                        </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-header">Can I practice in Hindi? <i class="fas fa-chevron-down"></i></div>
-                        <div class="faq-content">Absolutely! Our platform is fully bilingual, allowing you to toggle between Hindi and English at any time.</div>
+                        <div class="faq-question">
+                            <span>Can I resume a test later?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Absolutely! Our platform auto-saves your progress every 30 seconds. You can close the browser and resume exactly where you left off.</p>
+                        </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-header">Do tests follow the latest pattern? <i class="fas fa-chevron-down"></i></div>
-                        <div class="faq-content">Yes, our subject matter experts update the questions weekly to reflect the most recent exam trends.</div>
+                        <div class="faq-question">
+                            <span>Are the questions based on the latest pattern?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Our question bank is updated weekly by experts who monitor the latest trends and patterns of UPSC, BPSC, SSC, and other major exams.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials-section reveal">
+                <div class="container">
+                    <h2 class="section-title text-center">Voices of <span class="gradient-text">Success</span></h2>
+                    <div class="testimonials-grid">
+                        <div class="testimonial-card">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon"></i>
+                                <p>"The bilingual toggle is a lifesaver! I can instantly switch between Hindi and English when I get stuck on complex terms. Truly realistic interface."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://i.pravatar.cc/60?u=a1" alt="User">
+                                <div class="user-info">
+                                    <h4>Amit Sharma</h4>
+                                    <span>BPSC Aspirant</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon"></i>
+                                <p>"NirnayPath's analytics showed me exactly where I was losing time. My score improved by 30% in just two months."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://i.pravatar.cc/60?u=a2" alt="User">
+                                <div class="user-info">
+                                    <h4>Priya Verma</h4>
+                                    <span>UPSC Candidate</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon"></i>
+                                <p>"Completely free and high quality. This platform is a blessing for my SSC CGL preparation."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://i.pravatar.cc/60?u=a3" alt="User">
+                                <div class="user-info">
+                                    <h4>Rahul Kumar</h4>
+                                    <span>SSC Aspirant</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- Latest Updates Section -->
             <section class="updates-section container reveal">
-                <h2 class="section-title text-center">Latest Updates</h2>
+                <h2 class="section-title text-center">Latest <span class="gradient-text">Updates</span></h2>
                 <div class="updates-grid">
                     <div class="update-card">
                         <div class="update-date">10<span>APR</span></div>
                         <div class="update-text">
-                            <h4>BPSC 70th PR Prelims Strategy</h4>
-                            <p>Read the latest roadmap by successful candidates.</p>
+                            <h4>BPSC 70th PR Strategy</h4>
+                            <p>Read the latest roadmap by toppers.</p>
                         </div>
                     </div>
                     <div class="update-card">
                         <div class="update-date">08<span>APR</span></div>
                         <div class="update-text">
-                            <h4>UPSC 2026 Batch Registration</h4>
-                            <p>Free registration starts for our upcoming mock series.</p>
+                            <h4>UPSC 2026 Batch</h4>
+                            <p>Free registration starts now.</p>
                         </div>
                     </div>
                     <div class="update-card">
                         <div class="update-date">05<span>APR</span></div>
                         <div class="update-text">
-                            <h4>New: SSC CGL English Section</h4>
-                            <p>Over 500 new questions added to the database.</p>
+                            <h4>New English Section</h4>
+                            <p>500+ new questions added.</p>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Final CTA Banner -->
+            <section class="cta-banner reveal">
+                <div class="cta-banner-content">
+                    <h2>Ready to Ace Your <span class="gradient-text">Next Exam?</span></h2>
+                    <p>Join 50,000+ aspirants and start your journey towards success today.</p>
+                    <button class="cta-btn primary-btn pulse" onclick="scrollToDashboard()">
+                        Get Started Now <i class="fas fa-rocket"></i>
+                    </button>
                 </div>
             </section>
 

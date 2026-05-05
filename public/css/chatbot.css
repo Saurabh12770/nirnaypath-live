@@ -1,9 +1,9 @@
 /* Nirnay Bot Styles */
 .chatbot-container {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 999;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1201;
     font-family: 'Inter', sans-serif;
 }
 
