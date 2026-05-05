@@ -25,6 +25,7 @@ const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
 const chatRoutes = require('./routes/chat');
 const pagesRoutes = require('./routes/pages');
+const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { initCronJobs } = require('./services/cronService');
 
