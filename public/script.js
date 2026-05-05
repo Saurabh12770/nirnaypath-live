@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NirnayPath â€“ Main Script v3.0
    âœ… Single DOMContentLoaded
    âœ… Proper view switching (dashboard shown on load)
@@ -1483,3 +1483,61 @@ function initMobileMenu() {
 
 
 initMobileMenu();
+
+
+// ---------- PREMIUM UI: TESTIMONIALS CAROUSEL ----------
+function initTestimonialsCarousel() {
+    const slider = document.getElementById('testimonials-slider');
+    if (!slider) return;
+
+    let currentIndex = 0;
+    const cards = slider.querySelectorAll('.testimonial-card');
+    if (!cards.length) return;
+    
+    function getVisibleCards() {
+        return window.innerWidth >= 768 ? 3 : 1;
+    }
+
+    function slide() {
+        const visible = getVisibleCards();
+        const maxIndex = Math.max(0, cards.length - visible);
+        
+        currentIndex++;
+        if (currentIndex > maxIndex) {
+            currentIndex = 0;
+        }
+
+        const cardWidth = (cards[0]?.offsetWidth || 0) + 30;
+        slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+    }
+
+    let interval = setInterval(slide, 4000);
+
+    slider.addEventListener('mouseenter', () => clearInterval(interval));
+    slider.addEventListener('mouseleave', () => {
+        clearInterval(interval);
+        interval = setInterval(slide, 4000);
+    });
+}
+
+// ---------- PREMIUM UI: FAQ ACCORDION ----------
+function initFAQAccordion() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    if (!faqItems.length) return;
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        if (!question) return;
+        
+        question.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            faqItems.forEach(i => i.classList.remove('active'));
+            if (!isActive) item.classList.add('active');
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTestimonialsCarousel();
+    initFAQAccordion();
+});

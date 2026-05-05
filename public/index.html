@@ -172,110 +172,179 @@ header .language-toggle { display: none !important; }
   [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; color: white !important; }
 }
     </style>
-    <style id="targeted-fix">
-        /* 1. Header Buttons Fix */
+    <style id="premium-ui-fix">
+        /* ---------- 1. PREMIUM HEADER BUTTONS ---------- */
         body:not([data-theme="dark"]) .nav-link, 
-        body:not([data-theme="dark"]) #loginBtn {
-            background: rgba(79, 70, 229, 0.08) !important;
-            color: #1e293b !important;
-            border-radius: 8px !important;
-            padding: 8px 15px !important;
-            margin: 0 5px !important;
+        body:not([data-theme="dark"]) #loginBtn,
+        body:not([data-theme="dark"]) #adminNavLink,
+        body:not([data-theme="dark"]) .logout-btn {
+            background: rgba(79, 70, 229, 0.1) !important;
+            color: #1E293B !important;
+            border-radius: 10px !important;
+            padding: 10px 18px !important;
+            margin: 0 6px !important;
+            transition: all 0.3s ease !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(79, 70, 229, 0.2) !important;
         }
-        [data-theme="dark"] .nav-link, 
-        [data-theme="dark"] #loginBtn {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: #f1f5f9 !important;
-            border-radius: 8px !important;
-            padding: 8px 15px !important;
-            margin: 0 5px !important;
+        body:not([data-theme="dark"]) .nav-link:hover, 
+        body:not([data-theme="dark"]) #loginBtn:hover {
+            background: #4F46E5 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+            transform: translateY(-2px) !important;
         }
 
-        /* 2. Success Voices / Testimonials Fix */
-        .testimonials-grid {
-            flex-wrap: wrap !important;
+        [data-theme="dark"] .nav-link, 
+        [data-theme="dark"] #loginBtn,
+        [data-theme="dark"] #adminNavLink,
+        [data-theme="dark"] .logout-btn {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #F1F5F9 !important;
+            border-radius: 10px !important;
+            padding: 10px 18px !important;
+            margin: 0 6px !important;
+            transition: all 0.3s ease !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        [data-theme="dark"] .nav-link:hover, 
+        [data-theme="dark"] #loginBtn:hover {
+            background: #6366F1 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* ---------- 2. HERO TRUST BADGES ---------- */
+        .hero-trust {
             display: flex !important;
-            gap: 20px !important;
+            flex-wrap: wrap !important;
+            gap: 15px !important;
             justify-content: center !important;
+            margin-top: 30px !important;
+            overflow: visible !important;
+        }
+        .trust-badge {
+            padding: 10px 15px !important;
+            border-radius: 30px !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+            transition: transform 0.3s ease !important;
+        }
+        body:not([data-theme="dark"]) .trust-badge {
+            background: #f8fafc !important;
+            color: #1e293b !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        [data-theme="dark"] .trust-badge {
+            background: #1e293b !important;
+            color: #f1f5f9 !important;
+            border: 1px solid #334155 !important;
+        }
+        .trust-badge:hover { transform: scale(1.05) !important; }
+
+        /* ---------- 3. TESTIMONIAL CAROUSEL ---------- */
+        .testimonials-carousel-container {
+            overflow: hidden !important;
+            position: relative !important;
+            width: 100% !important;
+            padding: 20px 0 !important;
+        }
+        .testimonials-grid {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            gap: 30px !important;
+            width: 100% !important;
         }
         .testimonial-card {
-            max-width: 100% !important;
-            flex: 1 1 300px !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
+            min-width: 100% !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
+        }
+        @media (min-width: 768px) {
+            .testimonial-card { min-width: calc(33.333% - 20px) !important; }
         }
 
-        /* 3. About Page Fixes (Targeted) */
-        /* a. Reduce space in Founder/Mission section */
-        .founder-grid {
-            max-width: 900px !important;
-            margin: 0 auto !important;
-            gap: 30px !important;
-        }
-        /* b. Founder Image circular fix */
-        .founder-image-wrapper {
-            width: 150px !important;
-            height: 150px !important;
-            border-radius: 50% !important;
-            overflow: hidden !important;
-            margin: 0 auto 10px !important;
-            border: 4px solid var(--primary) !important;
+        /* ---------- 4. PREMIUM CARD SYSTEM ---------- */
+        .card, .feature-card, .category-card, .testimonial-card, .faq-item, 
+        .trend-card, .tip-card, .quote-card, .update-card, .stat-card,
+        .mission-card, .value-card, .contact-card, .about-platform-card {
+            background: #ffffff !important;
+            border-radius: 16px !important;
+            padding: 1.5rem !important;
             position: relative !important;
-        }
-        .founder-image-wrapper img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 50% !important;
-        }
-        .founder-badge { 
-            display: inline-block !important;
-            margin: 10px auto !important;
-            font-size: 0.75rem !important;
-            background: var(--primary) !important;
-            color: white !important;
-            padding: 4px 12px !important;
-            border-radius: 20px !important;
-            font-weight: 600 !important;
-            text-align: center !important;
-        }
-        .founder-visual { text-align: center !important; }
-        .founder-meta h3 { margin-top: 10px !important; }
-
-        /* c. CTA Banner Color Fix */
-        body:not([data-theme="dark"]) .cta-banner {
-            background: linear-gradient(135deg, #4F46E5, #8B5CF6) !important;
-            color: #ffffff !important;
-        }
-        body:not([data-theme="dark"]) .cta-banner h2,
-        body:not([data-theme="dark"]) .cta-banner p { color: #ffffff !important; }
-        
-        [data-theme="dark"] .cta-banner {
-            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
-            color: #ffffff !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+            border: none !important;
+            overflow: hidden !important;
+            z-index: 1 !important;
+            margin-bottom: 20px !important;
         }
 
-        /* d. About Hero Dark Mode */
-        [data-theme="dark"] .about-hero {
-            background: #0f172a !important;
-            color: #f1f5f9 !important;
+        [data-theme="dark"] .card, [data-theme="dark"] .feature-card, 
+        [data-theme="dark"] .category-card, [data-theme="dark"] .testimonial-card, 
+        [data-theme="dark"] .faq-item, [data-theme="dark"] .trend-card, 
+        [data-theme="dark"] .tip-card, [data-theme="dark"] .quote-card, 
+        [data-theme="dark"] .update-card, [data-theme="dark"] .stat-card,
+        [data-theme="dark"] .mission-card, [data-theme="dark"] .value-card,
+        [data-theme="dark"] .contact-card {
+            background: #1e293b !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
         }
 
-        /* 4. Home CTA Dark Mode */
-        [data-theme="dark"] .cta-banner {
-            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
-            color: #ffffff !important;
+        /* Rainbow Borders */
+        .testimonial-card:nth-child(3n+1), .category-card:nth-child(3n+1), .faq-item:nth-child(3n+1) { border-top: 4px solid #4F46E5 !important; }
+        .testimonial-card:nth-child(3n+2), .category-card:nth-child(3n+2), .faq-item:nth-child(3n+2) { border-top: 4px solid #EC4899 !important; }
+        .testimonial-card:nth-child(3n+3), .category-card:nth-child(3n+3), .faq-item:nth-child(3n+3) { border-top: 4px solid #10B981 !important; }
+        .feature-card:nth-child(odd) { border-top: 4px solid #F59E0B !important; }
+        .feature-card:nth-child(even) { border-top: 4px solid #8B5CF6 !important; }
+
+        .card:hover, .feature-card:hover, .category-card:hover, .testimonial-card:hover, 
+        .faq-item:hover, .trend-card:hover, .tip-card:hover, .quote-card:hover, 
+        .update-card:hover, .stat-card:hover, .mission-card:hover, .value-card:hover {
+            transform: translateY(-10px) scale(1.02) !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 20px rgba(79,70,229,0.15) !important;
         }
 
-        /* 5. Home Hero Light Mode readable */
-        body:not([data-theme="dark"]) .hero {
-            background: linear-gradient(135deg, #f0f4ff, #fff) !important;
-            color: #1e293b !important;
+        /* Float Animation */
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
         }
-        body:not([data-theme="dark"]) .hero h1,
-        body:not([data-theme="dark"]) .hero p,
-        body:not([data-theme="dark"]) .hero .badge-text {
-            color: #1e293b !important;
+        .feature-card, .stat-card { animation: floating 4s ease-in-out infinite !important; }
+
+        /* ---------- 5. FAQ ACCORDION ---------- */
+        .faq-answer {
+            max-height: 0 !important;
+            overflow: hidden !important;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 0 1.5rem !important;
+            opacity: 0 !important;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 200px !important;
+            padding: 1rem 1.5rem !important;
+            opacity: 1 !important;
+        }
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg) !important;
+            color: #4F46E5 !important;
+        }
+        .faq-question {
+            cursor: pointer !important;
+            padding: 1.2rem 1.5rem !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            font-weight: 700 !important;
+            color: inherit !important;
         }
     </style>
 </head>
@@ -972,47 +1041,61 @@ header .language-toggle { display: none !important; }
                 </div>
             </section>
 
-            <!-- Testimonials Section -->
             <section class="testimonials-section reveal">
                 <div class="container">
                     <h2 class="section-title text-center">Voices of <span class="gradient-text">Success</span></h2>
-                    <div class="testimonials-grid">
-                        <div class="testimonial-card" style="border-left: 4px solid var(--primary);">
-                            <div class="testi-content">
-                                <i class="fas fa-quote-left quote-icon" style="color: var(--primary-light);"></i>
-                                <p>"The bilingual toggle is a lifesaver! I can instantly switch between Hindi and English when I get stuck on complex terms. Truly realistic interface."</p>
-                            </div>
-                            <div class="testi-user">
-                                <img src="https://ui-avatars.com/api/?name=Amit+Sharma&background=4f46e5&color=fff&size=120" alt="Amit Sharma">
-                                <div class="user-info">
-                                    <h4>Amit Sharma</h4>
-                                    <span>BPSC Aspirant</span>
+                    <div class="testimonials-carousel-container">
+                        <div class="testimonials-grid" id="testimonials-slider">
+                            <div class="testimonial-card">
+                                <div class="testi-content">
+                                    <i class="fas fa-quote-left quote-icon"></i>
+                                    <p>"The bilingual toggle is a lifesaver! I can instantly switch between Hindi and English when I get stuck on complex terms. Truly realistic interface."</p>
+                                </div>
+                                <div class="testi-user">
+                                    <img src="https://ui-avatars.com/api/?name=Amit+Sharma&background=4f46e5&color=fff&size=120" alt="Amit Sharma">
+                                    <div class="user-info">
+                                        <h4>Amit Sharma</h4>
+                                        <span>BPSC Aspirant</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="testimonial-card" style="border-left: 4px solid var(--success);">
-                            <div class="testi-content">
-                                <i class="fas fa-quote-left quote-icon" style="color: var(--success-light);"></i>
-                                <p>"NirnayPath's analytics showed me exactly where I was losing time. My score improved by 30% in just two months."</p>
-                            </div>
-                            <div class="testi-user">
-                                <img src="https://ui-avatars.com/api/?name=Priya+Verma&background=10b981&color=fff&size=120" alt="Priya Verma">
-                                <div class="user-info">
-                                    <h4>Priya Verma</h4>
-                                    <span>UPSC Candidate</span>
+                            <div class="testimonial-card">
+                                <div class="testi-content">
+                                    <i class="fas fa-quote-left quote-icon"></i>
+                                    <p>"NirnayPath's analytics showed me exactly where I was losing time. My score improved by 30% in just two months."</p>
+                                </div>
+                                <div class="testi-user">
+                                    <img src="https://ui-avatars.com/api/?name=Priya+Verma&background=10b981&color=fff&size=120" alt="Priya Verma">
+                                    <div class="user-info">
+                                        <h4>Priya Verma</h4>
+                                        <span>UPSC Candidate</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="testimonial-card" style="border-left: 4px solid var(--accent);">
-                            <div class="testi-content">
-                                <i class="fas fa-quote-left quote-icon" style="color: var(--accent-light);"></i>
-                                <p>"Completely free and high quality. This platform is a blessing for my SSC CGL preparation."</p>
+                            <div class="testimonial-card">
+                                <div class="testi-content">
+                                    <i class="fas fa-quote-left quote-icon"></i>
+                                    <p>"Completely free and high quality. This platform is a blessing for my SSC CGL preparation."</p>
+                                </div>
+                                <div class="testi-user">
+                                    <img src="https://ui-avatars.com/api/?name=Rahul+Kumar&background=ec4899&color=fff&size=120" alt="Rahul Kumar">
+                                    <div class="user-info">
+                                        <h4>Rahul Kumar</h4>
+                                        <span>SSC Aspirant</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="testi-user">
-                                <img src="https://ui-avatars.com/api/?name=Rahul+Kumar&background=ec4899&color=fff&size=120" alt="Rahul Kumar">
-                                <div class="user-info">
-                                    <h4>Rahul Kumar</h4>
-                                    <span>SSC Aspirant</span>
+                            <div class="testimonial-card">
+                                <div class="testi-content">
+                                    <i class="fas fa-quote-left quote-icon"></i>
+                                    <p>"The level of questions matches exactly with the latest BPSC pattern. I feel much more confident now."</p>
+                                </div>
+                                <div class="testi-user">
+                                    <img src="https://ui-avatars.com/api/?name=Sneha+Singh&background=f59e0b&color=fff&size=120" alt="Sneha Singh">
+                                    <div class="user-info">
+                                        <h4>Sneha Singh</h4>
+                                        <span>BPSC Candidate</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
