@@ -1485,59 +1485,72 @@ function initMobileMenu() {
 initMobileMenu();
 
 
-// ---------- PREMIUM UI: TESTIMONIALS CAROUSEL ----------
+
+// ---------- PREMIUM UI: INFINITE CAROUSEL ----------
 function initTestimonialsCarousel() {
-    const slider = document.getElementById('testimonials-slider') || document.getElementById('tips-slider');
+    const slider = document.getElementById("testimonials-slider") || document.getElementById("tips-slider");
     if (!slider) return;
 
+    // Clone cards for infinite loop
+    const cards = Array.from(slider.children);
+    cards.forEach(card => {
+        const clone = card.cloneNode(true);
+        slider.appendChild(clone);
+    });
+
     let isPaused = false;
-    const scrollStep = 1;
     const scrollInterval = 30; // ms
+    const scrollStep = 1;
 
     function autoScroll() {
         if (!isPaused) {
             slider.scrollLeft += scrollStep;
-            // Loop back if reached the end
-            if (slider.scrollLeft >= (slider.scrollWidth - slider.clientWidth - 1)) {
+            if (slider.scrollLeft >= slider.scrollWidth / 2) {
                 slider.scrollLeft = 0;
             }
         }
     }
 
     let interval = setInterval(autoScroll, scrollInterval);
+    slider.addEventListener("mouseenter", () => isPaused = true);
+    slider.addEventListener("mouseleave", () => isPaused = false);
+}
 
-    slider.addEventListener('mouseenter', () => isPaused = true);
-    slider.addEventListener('mouseleave', () => isPaused = false);
+// ---------- HERO ACTIVITY CAROUSEL ----------
+function initHeroActivity() {
+    const track = document.getElementById("heroActivityTrack");
+    if (!track) return;
+
+    let index = 0;
+    const items = track.children.length;
     
-    // Smooth scrolling for manual interaction
-    slider.style.scrollBehavior = 'smooth';
+    setInterval(() => {
+        index = (index + 1) % items;
+        track.style.transform = `translateY(-${index * 40}px)`;
+    }, 4000);
 }
 
 // ---------- PREMIUM UI: FAQ ACCORDION ----------
 function initFAQAccordion() {
-    const faqItems = document.querySelectorAll('.faq-item');
+    const faqItems = document.querySelectorAll(".faq-item");
     if (!faqItems.length) return;
 
     faqItems.forEach(item => {
-        const header = item.querySelector('.faq-question') || item.querySelector('.faq-header');
+        const header = item.querySelector(".faq-question") || item.querySelector(".faq-header");
         if (!header) return;
         
-        header.addEventListener('click', () => {
-            const isActive = item.classList.contains('active');
-            
-            // Close others
-            faqItems.forEach(i => i.classList.remove('active'));
-            
-            // Toggle current
-            if (!isActive) {
-                item.classList.add('active');
-            }
+        header.addEventListener("click", () => {
+            const isActive = item.classList.contains("active");
+            faqItems.forEach(i => i.classList.remove("active"));
+            if (!isActive) item.classList.add("active");
         });
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     initTestimonialsCarousel();
     initFAQAccordion();
+    initHeroActivity();
 });
+
 
