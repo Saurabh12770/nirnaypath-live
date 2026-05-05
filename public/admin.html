@@ -332,10 +332,12 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="/js/auth.js?v=2.0.0"></script>
     <script src="/js/chatbot.js?v=2.0.0"></script>
     <script>
+        // Track Chart.js instances to avoid re-render errors
+        const chartInstances = {};
+
         const AdminPanel = {
             async init() {
                 if (!Auth.isLoggedIn()) {
@@ -349,15 +351,18 @@
                     const res = await fetch('/api/user/me', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
+                    if (!res.ok) throw new Error('Auth failed');
                     const data = await res.json();
-                    if (data.user.role !== 'admin') {
+                    if (!data.user || data.user.role !== 'admin') {
                         alert('Unauthorized. Admin access only.');
                         location.href = '/';
                         return;
                     }
                     document.getElementById('adminName').textContent = data.user.name;
                 } catch (e) {
+                    alert('Session expired. Please log in again.');
                     location.href = '/';
+                    return;
                 }
 
                 this.loadStats();
@@ -399,25 +404,40 @@
                         <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fas fa-user-slash"></i></div>
                         <div><h3>${data.users.banned}</h3><p>Banned</p></div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;"><i class="fas fa-fire"></i></div>
+                        <div><h3>${data.activeUsers}</h3><p>Active (7d)</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
+                        <div><h3>₹${data.revenue}</h3><p>Revenue</p></div>
+                    </div>
                 `;
                 this.renderCharts(data);
             },
 
             renderCharts(data) {
+                // Destroy existing charts to prevent "Canvas already in use" error
+                if (chartInstances.userChart) { chartInstances.userChart.destroy(); }
+                if (chartInstances.activityChart) { chartInstances.activityChart.destroy(); }
+
+                const freeUsers = Math.max(0, data.users.total - data.users.pro - data.users.banned);
+
                 const ctxUser = document.getElementById('userChart').getContext('2d');
-                new Chart(ctxUser, {
+                chartInstances.userChart = new Chart(ctxUser, {
                     type: 'pie',
                     data: {
                         labels: ['Free', 'Pro', 'Banned'],
                         datasets: [{
-                            data: [data.users.total - data.users.pro, data.users.pro, data.users.banned],
+                            data: [freeUsers, data.users.pro, data.users.banned],
                             backgroundColor: ['#6366f1', '#f59e0b', '#ef4444']
                         }]
-                    }
+                    },
+                    options: { plugins: { legend: { position: 'bottom' } } }
                 });
 
                 const ctxActivity = document.getElementById('activityChart').getContext('2d');
-                new Chart(ctxActivity, {
+                chartInstances.activityChart = new Chart(ctxActivity, {
                     type: 'bar',
                     data: {
                         labels: ['Today', 'Last 7 Days', 'All Time'],
@@ -426,7 +446,8 @@
                             data: [data.tests.today, data.tests.week, data.tests.total],
                             backgroundColor: '#1B3A6B'
                         }]
-                    }
+                    },
+                    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
                 });
             },
 
@@ -444,20 +465,23 @@
 
             async loadQuestions() {
                 const sub = document.getElementById('subjectSelect').value;
-                if (!sub) return;
+                if (!sub) return alert('Please select a subject first.');
                 const data = await this.fetchApi(`/api/admin/questions/${sub}?limit=100`);
                 if (!data) return;
 
                 const tbody = document.getElementById('questionsTableBody');
                 tbody.innerHTML = '';
+                if (!data.questions || data.questions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No questions found for this subject.</td></tr>';
+                    return;
+                }
                 data.questions.forEach(q => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${q.topic || '-'}</td>
-                        <td><span class="tag tag-free">${q.difficulty}</span></td>
-                        <td title="${q.question_en}">${q.question_en?.substring(0, 80)}...</td>
+                        <td><span class="tag tag-free">${q.difficulty || '-'}</span></td>
+                        <td title="${q.question_en || ''}">${(q.question_en || '').substring(0, 80)}...</td>
                         <td>
-                            <button class="admin-btn btn-primary" onclick="AdminPanel.editQuestion('${sub}', '${q.id}')">Edit</button>
                             <button class="admin-btn btn-danger" onclick="AdminPanel.deleteQuestion('${sub}', '${q.id}')">Del</button>
                         </td>
                     `;
@@ -470,15 +494,19 @@
                 if (!data) return;
                 const tbody = document.getElementById('usersTableBody');
                 tbody.innerHTML = '';
+                if (!data.users || data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No users found.</td></tr>';
+                    return;
+                }
                 data.users.forEach(u => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><strong>${u.name}</strong><br><small>${u.email}</small></td>
-                        <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan.toUpperCase()}</span></td>
-                        <td><span class="tag ${u.isActive ? 'btn-success' : 'btn-danger'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
-                        <td>${u.testsCount}</td>
+                        <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
+                        <td><span class="tag" style="background:${u.isActive ? '#dcfce7' : '#fee2e2'}; color:${u.isActive ? '#166534' : '#991b1b'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
+                        <td>${u.testsCount || 0}</td>
                         <td>
-                            <button class="admin-btn btn-primary" onclick="AdminPanel.toggleUserStatus('${u._id}', ${!u.isActive})">
+                            <button class="admin-btn ${u.isActive ? 'btn-danger' : 'btn-success'}" onclick="AdminPanel.toggleUserStatus('${u._id}', ${!u.isActive})">
                                 ${u.isActive ? 'Ban' : 'Unban'}
                             </button>
                         </td>
@@ -493,51 +521,68 @@
                 const tbody = document.getElementById('paymentsTableBody');
                 tbody.innerHTML = '';
                 let revenue = 0;
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payment records yet.</td></tr>';
+                    document.getElementById('totalRevenue').textContent = '₹0';
+                    return;
+                }
                 data.forEach(p => {
-                    revenue += p.amount;
+                    revenue += (p.amount || 0);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${p.userId?.name || 'Unknown'}</td>
-                        <td>${p.planId}</td>
-                        <td>₹${p.amount}</td>
+                        <td>${p.planId || '-'}</td>
+                        <td>₹${p.amount || 0}</td>
                         <td>${new Date(p.createdAt).toLocaleDateString()}</td>
-                        <td><small>${p.razorpay_payment_id}</small></td>
+                        <td><small>${p.razorpay_payment_id || '-'}</small></td>
                     `;
                     tbody.appendChild(row);
                 });
                 document.getElementById('totalRevenue').textContent = '₹' + revenue;
             },
 
-            // Utils
+            // Centralized fetch helper — always clears spinner, always shows error
             async fetchApi(url, options = {}) {
-                document.getElementById('loadingOverlay').classList.remove('hidden');
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.classList.remove('hidden');
                 try {
                     const token = Auth.getToken();
+                    if (!token) {
+                        location.href = '/';
+                        return null;
+                    }
                     const res = await fetch(url, {
                         ...options,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',
-                            ...options.headers
+                            ...(options.headers || {})
                         }
                     });
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.error);
+                    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
                     return data;
                 } catch (e) {
-                    alert(e.message);
+                    console.error(`Admin fetch error [${url}]:`, e.message);
+                    // Show inline error rather than alert for non-critical sections
                     return null;
                 } finally {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    overlay.classList.add('hidden');
                 }
             },
 
             async toggleUserStatus(userId, status) {
-                await this.fetchApi(`/api/admin/users/${userId}`, {
+                const result = await this.fetchApi(`/api/admin/users/${userId}`, {
                     method: 'PUT',
                     body: JSON.stringify({ isActive: status })
                 });
-                this.loadUsers();
+                if (result) this.loadUsers();
+            },
+
+            async deleteQuestion(subject, id) {
+                if (!confirm('Delete this question?')) return;
+                await this.fetchApi(`/api/admin/questions/${subject}/${id}`, { method: 'DELETE' });
+                this.loadQuestions();
             },
 
             closeModal() {

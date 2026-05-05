@@ -194,32 +194,35 @@ router.put('/users/:userId', auth, adminAuth, async (req, res) => {
 
 router.get('/stats', auth, adminAuth, async (req, res) => {
     try {
-        const now = new Date();
-        const startOfDay = new Date(now.setHours(0,0,0,0));
-        const startOfWeek = new Date(now.setDate(now.getDate() - 7));
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
 
-        const totalUsers = await User.countDocuments();
-        const proUsers = await User.countDocuments({ plan: 'pro_monthly' });
-        const bannedUsers = await User.countDocuments({ isActive: false });
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - 7);
+        startOfWeek.setHours(0, 0, 0, 0);
 
-        const testsToday = await TestResult.countDocuments({ createdAt: { $gte: startOfDay } });
-        const testsThisWeek = await TestResult.countDocuments({ createdAt: { $gte: startOfWeek } });
-        const totalTests = await TestResult.countDocuments();
+        const [totalUsers, proUsers, bannedUsers, testsToday, testsThisWeek, totalTests] = await Promise.all([
+            User.countDocuments(),
+            User.countDocuments({ plan: 'pro_monthly' }),
+            User.countDocuments({ isActive: false }),
+            TestResult.countDocuments({ createdAt: { $gte: startOfDay } }),
+            TestResult.countDocuments({ createdAt: { $gte: startOfWeek } }),
+            TestResult.countDocuments()
+        ]);
 
         const payments = await Payment.find({ status: 'success' });
-        const totalRevenue = payments.reduce((acc, p) => acc + p.amount, 0);
+        const totalRevenue = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
 
-        // Active users in last 7 days (by TestResult activity)
         const activeUserIds = await TestResult.distinct('userId', { createdAt: { $gte: startOfWeek } });
-        const activeUsersCount = activeUserIds.length;
 
         res.json({
             users: { total: totalUsers, pro: proUsers, banned: bannedUsers },
             tests: { today: testsToday, week: testsThisWeek, total: totalTests },
             revenue: totalRevenue,
-            activeUsers: activeUsersCount
+            activeUsers: activeUserIds.length
         });
     } catch (error) {
+        console.error('Admin stats error:', error);
         res.status(500).json({ error: error.message });
     }
 });
