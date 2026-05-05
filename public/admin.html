@@ -163,6 +163,44 @@
             display: flex; justify-content: center; align-items: center;
             z-index: 9999;
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                gap: 5px;
+            }
+            .nav-item {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            div[style*="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;"] {
+                grid-template-columns: 1fr !important;
+            }
+            .admin-card {
+                padding: 15px;
+            }
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -591,8 +629,14 @@
                 });
             },
 
-            async loadUsers() {
-                const data = await fetchWithOverlay('/api/admin/users');
+            openQuestionModal() {
+                const modal = document.getElementById('questionModal');
+                if (modal) modal.style.display = 'flex';
+            },
+
+            async loadUsers(query = '') {
+                const url = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
+                const data = await fetchWithOverlay(url);
                 const tbody = document.getElementById('usersTableBody');
                 if (!tbody) return;
                 
@@ -616,6 +660,13 @@
                     `;
                     tbody.appendChild(row);
                 });
+            },
+
+            searchUsers(query) {
+                if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.loadUsers(query);
+                }, 300);
             },
 
             async loadPayments() {

@@ -946,7 +946,7 @@ textarea:focus {
 /* ── 10. BACK-TO-TOP ─────────────────────────────────────────── */
 .back-to-top {
     position: fixed;
-    bottom: 28px;
+    bottom: 100px;
     right: 28px;
     width: 48px;
     height: 48px;
@@ -7227,4 +7227,84 @@ img.loaded {
     vertical-align: middle;
     text-transform: uppercase;
     font-weight: 800;
+}
+/* -- 30. SECTIONAL MOCK TESTS BANNER ------------------------------------------- */
+.sectional-entry-banner {
+    position: relative;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin-top: 40px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(27, 58, 107, 0.2);
+}
+.scrolling-wrapper {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.1;
+    pointer-events: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    z-index: 0;
+}
+.scrolling-text {
+    display: flex;
+    white-space: nowrap;
+    font-size: 3rem;
+    font-weight: 800;
+    animation: marquee 20s linear infinite;
+}
+.scrolling-text span {
+    margin: 0 30px;
+}
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.sectional-banner-content {
+    position: relative;
+    z-index: 1;
+}
+.sectional-banner-content h3 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+.sectional-banner-content p {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* -- 31. GLOBAL MOBILE FIXES ------------------------------------------- */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+@media (max-width: 768px) {
+    .exam-grid-4, .stats-grid-4, .feature-grid-8, .tips-grid, .steps-grid, .trending-cards-grid {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+    }
+    .hero-actions {
+        flex-direction: column;
+    }
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    .hero-desc {
+        font-size: 1rem;
+    }
+    .exam-ribbon {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    .footer-content {
+        flex-direction: column;
+    }
 }

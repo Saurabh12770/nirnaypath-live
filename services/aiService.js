@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY || "DUMMY_KEY");
 
-const SYSTEM_PROMPT = `You are "Nirnay Bot", a highly knowledgeable AI Tutor for the NirnayPath platform.
+const SYSTEM_PROMPT = `You are "Nirnay Help Center", a highly knowledgeable AI Tutor for the NirnayPath platform.
 Your goal is to help Indian students preparing for competitive exams like UPSC, BPSC, SSC, Banking, and Railways.
 
 Guidelines:
@@ -39,8 +39,8 @@ const askAI = async (userMessage, history = []) => {
         return response.text();
     } catch (error) {
         console.error("AI Service Error:", error);
-        if (error.message.includes("API_KEY_INVALID")) {
-            return "I'm currently resting. (AI API Key not configured)";
+        if (!process.env.AI_API_KEY || error.message.includes("API_KEY_INVALID")) {
+            return "I’m currently learning. Please ask me general questions about exams, and I’ll do my best!";
         }
         throw new Error("Failed to get response from AI tutor.");
     }

@@ -1194,7 +1194,7 @@ function initFAQ() {
 function initTypingAnimation() {
     const el = document.getElementById('typed-text');
     if (!el) return;
-    const phrases = ['NirnayPath', 'Free Mock Tests', 'Bilingual Prep', 'Real Exam Pattern', 'Your Success Path'];
+    const phrases = ['NirnayPath', 'Your Success Path'];
     let pi = 0, ci = 0, del = false;
     const type = () => {
         const word = phrases[pi];

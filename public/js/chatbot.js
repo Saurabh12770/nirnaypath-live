@@ -19,21 +19,21 @@ const Chatbot = {
         container.id = 'chatbot-container';
         container.className = 'chatbot-container';
         container.innerHTML = `
-            <button class="chatbot-toggle" id="chatbotToggle" title="Ask Nirnay Bot">
-                <i class="fas fa-robot"></i>
+            <button class="chatbot-toggle" id="chatbotToggle" title="Ask Nirnay Help Center">
+                <i class="fas fa-headset"></i>
             </button>
             <div class="chatbot-window" id="chatbotWindow">
                 <div class="chatbot-header">
-                    <h4><i class="fas fa-graduation-cap"></i> Nirnay Bot <small>(AI Tutor)</small></h4>
+                    <h4><i class="fas fa-headset"></i> Nirnay Help Center</h4>
                     <button class="close-chat" id="closeChat" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">&times;</button>
                 </div>
                 <div class="chatbot-messages" id="chatMessages">
                     <div class="message bot">
-                        नमस्ते! मैं आपका <b>Nirnay Bot</b> हूँ। मैं आपकी परीक्षा की तैयारी में कैसे मदद कर सकता हूँ? 
-                        (Hello! I am Nirnay Bot. How can I help with your exam prep?)
+                        नमस्ते! मैं Nirnay Help Center हूँ। आपकी परीक्षा की तैयारी में कैसे मदद कर सकता हूँ?<br><br>
+                        (Hello! I am Nirnay Help Center. How can I assist you with your exam preparation?)
                     </div>
                 </div>
-                <div id="typingIndicator" class="typing hidden" style="padding: 0 20px;">Nirnay Bot is thinking...</div>
+                <div id="typingIndicator" class="typing hidden" style="padding: 0 20px;">Nirnay Help Center is typing...</div>
                 <form class="chatbot-input-area" id="chatForm">
                     <input type="text" id="chatInput" placeholder="Type your doubt here..." autocomplete="off">
                     <button type="submit"><i class="fas fa-paper-plane"></i></button>
