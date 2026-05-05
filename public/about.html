@@ -9,6 +9,224 @@
     <link rel="stylesheet" href="/style.css?v=2.0.0">
     <link rel="manifest" href="/manifest.json?v=2.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=2.0.0">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --accent: #EC4899;
+        }
+
+        .about-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: var(--bg-main);
+        }
+
+        .founder-section {
+            padding: 80px 0;
+        }
+
+        .founder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .founder-image-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .founder-image-wrapper img {
+            width: 100%;
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .founder-badge {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--r-pill);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .founder-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
+    <style id="critical-fix">
+/* ---------- CRITICAL FIX BLOCK ---------- */
+/* Prevent horizontal overflow */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+*, *::before, *::after {
+  box-sizing: border-box !important;
+}
+img, video, iframe {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Hero must fit viewport exactly */
+.hero {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+}
+.hero h1 { font-size: clamp(1.8rem, 5vw, 3rem) !important; margin-bottom: 0.8rem !important; }
+.hero p  { margin-bottom: 1rem !important; }
+
+/* FIX LIGHT MODE: dark text on white cards */
+body:not([data-theme="dark"]) .card,
+body:not([data-theme="dark"]) .feature-card,
+body:not([data-theme="dark"]) .category-card,
+body:not([data-theme="dark"]) .testimonial-card,
+body:not([data-theme="dark"]) .faq-item,
+body:not([data-theme="dark"]) .why-card,
+body:not([data-theme="dark"]) .trend-card,
+body:not([data-theme="dark"]) .tip-card,
+body:not([data-theme="dark"]) .quote-card,
+body:not([data-theme="dark"]) .update-card,
+body:not([data-theme="dark"]) .mission-box,
+body:not([data-theme="dark"]) .about-platform-card,
+body:not([data-theme="dark"]) .contact-card,
+body:not([data-theme="dark"]) .glass-card,
+body:not([data-theme="dark"]) .premium-card,
+body:not([data-theme="dark"]) .exam-card,
+body:not([data-theme="dark"]) .subject-card,
+body:not([data-theme="dark"]) .step-card,
+body:not([data-theme="dark"]) .mentor-card {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+/* All text inside cards in light mode */
+body:not([data-theme="dark"]) .card h2,
+body:not([data-theme="dark"]) .card h3,
+body:not([data-theme="dark"]) .card h4,
+body:not([data-theme="dark"]) .card p,
+body:not([data-theme="dark"]) .card span,
+body:not([data-theme="dark"]) .card li,
+body:not([data-theme="dark"]) .feature-card h3,
+body:not([data-theme="dark"]) .feature-card h4,
+body:not([data-theme="dark"]) .feature-card p,
+body:not([data-theme="dark"]) .category-card h3,
+body:not([data-theme="dark"]) .category-card p,
+body:not([data-theme="dark"]) .testimonial-card p,
+body:not([data-theme="dark"]) .faq-header,
+body:not([data-theme="dark"]) .faq-content,
+body:not([data-theme="dark"]) .why-card h4,
+body:not([data-theme="dark"]) .why-card p,
+body:not([data-theme="dark"]) .trend-card h3,
+body:not([data-theme="dark"]) .trend-card p,
+body:not([data-theme="dark"]) .tip-card h3,
+body:not([data-theme="dark"]) .tip-card p,
+body:not([data-theme="dark"]) .quote-text,
+body:not([data-theme="dark"]) .quote-author,
+body:not([data-theme="dark"]) .update-text h4,
+body:not([data-theme="dark"]) .update-text p {
+  color: #1e293b !important;
+}
+
+/* FIX DARK MODE: light text on dark cards */
+[data-theme="dark"] .card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .why-card,
+[data-theme="dark"] .trend-card,
+[data-theme="dark"] .tip-card,
+[data-theme="dark"] .quote-card,
+[data-theme="dark"] .update-card,
+[data-theme="dark"] .mission-box,
+[data-theme="dark"] .about-platform-card,
+[data-theme="dark"] .contact-card,
+[data-theme="dark"] .glass-card,
+[data-theme="dark"] .premium-card,
+[data-theme="dark"] .exam-card,
+[data-theme="dark"] .subject-card,
+[data-theme="dark"] .step-card,
+[data-theme="dark"] .mentor-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .card h4,
+[data-theme="dark"] .card p,
+[data-theme="dark"] .card span,
+[data-theme="dark"] .card li,
+[data-theme="dark"] .feature-card h3,
+[data-theme="dark"] .feature-card h4,
+[data-theme="dark"] .feature-card p,
+[data-theme="dark"] .category-card h3,
+[data-theme="dark"] .category-card p,
+[data-theme="dark"] .testimonial-card p,
+[data-theme="dark"] .faq-header,
+[data-theme="dark"] .faq-content,
+[data-theme="dark"] .why-card h4,
+[data-theme="dark"] .why-card p,
+[data-theme="dark"] .trend-card h3,
+[data-theme="dark"] .trend-card p,
+[data-theme="dark"] .tip-card h3,
+[data-theme="dark"] .tip-card p,
+[data-theme="dark"] .quote-text,
+[data-theme="dark"] .quote-author,
+[data-theme="dark"] .update-text h4,
+[data-theme="dark"] .update-text p {
+  color: #f1f5f9 !important;
+}
+
+/* Menu: hide language toggle in header */
+header .language-toggle { display: none !important; }
+
+/* Back to top / chatbot positioning */
+.back-to-top { position: fixed !important; bottom: 30px !important; left: 30px !important; z-index: 1200 !important; }
+.chatbot-toggle { position: fixed !important; bottom: 30px !important; right: 30px !important; z-index: 1201 !important; }
+
+/* Mobile Menu Dropdown Positioning */
+@media (max-width: 768px) {
+  .mobile-menu-overlay {
+    position: absolute !important;
+    top: 70px !important;
+    right: 20px !important;
+    left: auto !important;
+    width: 200px !important;
+    height: auto !important;
+    background: white !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    display: none !important;
+    z-index: 1001 !important;
+  }
+  .mobile-menu-overlay.active { display: flex !important; flex-direction: column !important; }
+  [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; color: white !important; }
+}
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -31,14 +249,6 @@
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
         </nav>
-        <button class="hamburger" id="hamburgerBtn">
-            <span></span><span></span><span></span>
-        </button>
-        <div class="nav-mobile" id="mobileMenu">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="about.html" class="nav-link active">About Us</a>
-            <button id="mobileLoginBtn" class="nav-link">Login</button>
-        </div>
         <div class="header-right">
             <button class="cta-btn primary-btn" onclick="window.location.href='index.html#popular-exams'">
                 <span class="cta-text">Start Test</span>
@@ -47,6 +257,17 @@
             <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
+            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="mobileMenuOverlay" class="mobile-menu-overlay">
+                <button id="closeMobileMenu" class="close-dropdown" style="align-self: flex-end; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+                <nav class="mobile-nav">
+                    <a href="index.html" class="mobile-nav-link">Home</a>
+                    <a href="about.html" class="mobile-nav-link active">About Us</a>
+                    <button id="mobileLoginBtn" class="mobile-nav-link">Login</button>
+                </nav>
+            </div>
         </div>
     </header>
 
@@ -430,20 +651,5 @@
     <script src="/js/auth.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/chatbot.js"></script>
-    <script>
-      const hamburger = document.getElementById('hamburgerBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      if (hamburger && mobileMenu) {
-        hamburger.addEventListener('click', () => {
-          mobileMenu.classList.toggle('active');
-        });
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-          if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
-            mobileMenu.classList.remove('active');
-          }
-        });
-      }
-    </script>
 </body>
 </html>

@@ -1,19 +1,19 @@
-/* ============================================================
-   NirnayPath – Main Script v3.0
-   ✅ Single DOMContentLoaded
-   ✅ Proper view switching (dashboard shown on load)
-   ✅ Fullscreen API integrated (not monkey-patched)
-   ✅ Anti-cheat: right-click, F12, tab-switch detection
-   ✅ Question slide animation
-   ✅ Progress bar, option highlighting
-   ✅ Timer with warning color
+﻿/* ============================================================
+   NirnayPath â€“ Main Script v3.0
+   âœ… Single DOMContentLoaded
+   âœ… Proper view switching (dashboard shown on load)
+   âœ… Fullscreen API integrated (not monkey-patched)
+   âœ… Anti-cheat: right-click, F12, tab-switch detection
+   âœ… Question slide animation
+   âœ… Progress bar, option highlighting
+   âœ… Timer with warning color
 ============================================================ */
 
 'use strict';
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    1. STATE
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let currentExam = 'upsc';
 let currentSubject = 'history';
 let currentLanguage = 'en';
@@ -30,9 +30,9 @@ let testState = {
     mode: 'full', modeValue: null // 'full', 'drill', 'section'
 };
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    2. CONSTANTS
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 const examSubjects = {
     upsc: ['history', 'geography', 'polity', 'economics', 'environment', 'science', 'physics', 'chemistry', 'current'],
     bpsc: ['history', 'geography', 'polity', 'economics', 'bihar', 'science', 'physics', 'chemistry', 'current'],
@@ -79,9 +79,9 @@ const examNames = {
 /* DOM refs to view sections */
 const VIEW = {};
 
-/* ══════════════════════════════════════════════════════════
-   3. BOOT — SINGLE DOMContentLoaded
-══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   3. BOOT â€” SINGLE DOMContentLoaded
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 document.addEventListener('DOMContentLoaded', () => {
 
     /* Cache views */
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animateCounters();
     initTrendingTestButtons();
 
-    /* ✅ Always start on dashboard — subject panel hidden by default */
+    /* âœ… Always start on dashboard â€” subject panel hidden by default */
     showView('dashboard');
 
     /* Bind result screen buttons here since engine sections exist */
@@ -120,9 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
     checkExistingTestSession();
 });
 
-/* ══════════════════════════════════════════════════════════
-   4. VIEW MANAGER  — guaranteed visibility control
-══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   4. VIEW MANAGER  â€” guaranteed visibility control
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function showView(id) {
     /* Hard-hide EVERY view unconditionally */
     Object.values(VIEW).forEach(v => {
@@ -148,7 +148,7 @@ function showView(id) {
         document.querySelectorAll('.exam-btn').forEach(b => b.classList.remove('active-exam'));
     }
 
-    /* Body state — controls header/footer visibility */
+    /* Body state â€” controls header/footer visibility */
     document.body.setAttribute('data-view', id);
 
     if (id === 'engine') {
@@ -166,9 +166,9 @@ function showView(id) {
     if (id !== 'engine') window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    4b. NEW PRACTICE MODES (Topic Drills & Sectional Tests)
-   ══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function switchPracticeMode(mode) {
     const grid = document.getElementById('subject-grid');
     const topicArea = document.getElementById('topic-selection-area');
@@ -335,9 +335,9 @@ const SectionalTests = {
     }
 };
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    5. THEME
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initTheme() {
     const toggle = document.getElementById('themeToggle');
     if (!toggle) return;
@@ -360,14 +360,14 @@ function initTheme() {
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    6. LOGIN
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    7. EXAM RIBBON
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initExamRibbon() {
     document.querySelectorAll('.exam-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -394,9 +394,9 @@ function setActiveExam(exam) {
     document.getElementById('testSelection')?.classList.remove('show');
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    8. LANGUAGE
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initLanguageToggle() {
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -410,18 +410,18 @@ function setLanguage(lang) {
     if (testState.isActive && testState.selectedQuestions.length) renderQuestion();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    9. BILINGUAL HELPERS
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 const L = {
     q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
     exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
 };
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    10. SUBJECT CARDS
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function renderSubjectCards(exam) {
     const grid = document.getElementById('subject-grid');
     if (!grid) return;
@@ -453,7 +453,7 @@ function onSubjectClick(card, key, name) {
     /* Update test panel heading */
     const sel = document.getElementById('testSelection');
     const heading = sel?.querySelector('.test-header-left h3');
-    if (heading) heading.innerHTML = `<i class="fas fa-vial"></i> Mock Tests · <span class="subject-highlight">${name}</span>`;
+    if (heading) heading.innerHTML = `<i class="fas fa-vial"></i> Mock Tests Â· <span class="subject-highlight">${name}</span>`;
 
     /* Show test selection panel */
     if (sel) {
@@ -466,9 +466,9 @@ function onSubjectClick(card, key, name) {
     renderTestGrid();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    11. TEST GRID
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function renderTestGrid() {
     const grid = document.getElementById('testGrid');
     if (!grid) return;
@@ -520,9 +520,9 @@ function renderTestGrid() {
     }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    12. FILTERS
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initFilterButtons() {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => setFilter(btn.textContent.trim()));
@@ -534,9 +534,9 @@ function setFilter(f) {
     renderTestGrid();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    13. START TEST
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 async function startTest(testName, subject, questionCount = 100, timeLimit = 90) {
     if (!Auth.isLoggedIn()) {
         alert('Please login to start the mock test.');
@@ -551,7 +551,7 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
         const res = await fetch(url);
         if (!res.ok) {
             console.error(`[NirnayPath] Fetch failed: ${res.status} ${res.statusText}`);
-            throw new Error(`HTTP ${res.status} — Subject not found`);
+            throw new Error(`HTTP ${res.status} â€” Subject not found`);
         }
         const data = await res.json();
         let raw = Array.isArray(data) ? data : (data.questions || []);
@@ -582,16 +582,16 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
     }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    14. LAUNCH EXAM ENGINE
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function launchExam() {
     const total = testState.selectedQuestions.length;
     const subName = subjectNames[testState.subject] || testState.subject;
 
     /* Header title */
     const titleEl = document.getElementById('exam-title');
-    if (titleEl) titleEl.textContent = `${examNames[testState.exam] || testState.exam} · ${subName}`;
+    if (titleEl) titleEl.textContent = `${examNames[testState.exam] || testState.exam} Â· ${subName}`;
 
     /* Update totals */
     setEl('q-total', total);
@@ -611,9 +611,9 @@ function launchExam() {
     showView('engine');
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    15. RENDER QUESTION
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function renderQuestion(dir = 'next') {
     const qData = testState.selectedQuestions[testState.currentIdx];
     if (!qData) return;
@@ -671,9 +671,9 @@ function renderQuestion(dir = 'next') {
     updateStats();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    16. PROGRESS BAR
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function updateProgressBar() {
     const total = testState.selectedQuestions.length;
     const answered = Object.keys(testState.answers).length;
@@ -683,9 +683,9 @@ function updateProgressBar() {
     setEl('progress-text', answered);
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    17. PALETTE
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function renderPalette() {
     const grid = document.getElementById('palette-grid');
     if (!grid) return;
@@ -749,9 +749,9 @@ function saveCurrentAnswer() {
     if (sel) testState.answers[testState.currentIdx] = parseInt(sel.value);
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    18. EXAM CONTROLS (bound once after DOMContentLoaded)
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function bindExamControls() {
     /* Save & Next */
     on('btn-next', 'click', () => {
@@ -826,9 +826,9 @@ function initTrendingTestButtons() {
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    19. TIMER
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function startTimer() {
     clearInterval(timerInterval);
     updateTimerDisplay();
@@ -848,9 +848,9 @@ function updateTimerDisplay() {
     setEl('countdown', `${m}:${s}`);
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    20. SUBMIT & RESULT
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function submitTest() {
     clearInterval(timerInterval);
     saveCurrentAnswer();
@@ -905,7 +905,7 @@ function submitTest() {
 
     buildReview();
     localStorage.removeItem('mockTestState');
-    /* ✅ Fully switch to result — hides exam engine completely */
+    /* âœ… Fully switch to result â€” hides exam engine completely */
     showView('result');
 
     /* Send results to backend for persistent storage */
@@ -990,7 +990,7 @@ function buildReview() {
         card.innerHTML = `
             <div class="review-q-meta">
                 <span class="q-badge">Question ${i + 1}</span>
-                <span class="status-badge">${isMatch ? '✅ Correct' : (userAnsId === undefined ? '⚪ Skipped' : '❌ Incorrect')}</span>
+                <span class="status-badge">${isMatch ? 'âœ… Correct' : (userAnsId === undefined ? 'âšª Skipped' : 'âŒ Incorrect')}</span>
             </div>
             <div class="review-q-text">${L.q(q) || q.question}</div>
             <div class="review-choices">
@@ -1012,9 +1012,9 @@ function buildReview() {
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    21. SESSION PERSISTENCE
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function saveProgress() {
     try { localStorage.setItem('mockTestState', JSON.stringify(testState)); } catch { }
 }
@@ -1034,9 +1034,9 @@ function checkExistingTestSession() {
     } catch { localStorage.removeItem('mockTestState'); }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    22. FULLSCREEN API
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function enterFullscreen() {
     const el = document.documentElement;
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
@@ -1059,7 +1059,7 @@ function showFsWarning() {
     const b = document.createElement('div');
     b.id = 'fs-warning-banner';
     b.style.cssText = 'position:fixed;top:0;left:0;width:100%;z-index:9999;background:#EF4444;color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 20px;font-weight:700;font-size:.93rem;box-shadow:0 4px 20px rgba(239,68,68,.5);font-family:Poppins,sans-serif;';
-    b.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You exited fullscreen — Return to continue exam safely.
+    b.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You exited fullscreen â€” Return to continue exam safely.
       <button onclick="enterFullscreen()" style="background:#fff;color:#EF4444;border:none;padding:7px 18px;border-radius:20px;font-weight:700;cursor:pointer;font-family:inherit;">Re-enter Fullscreen</button>`;
     document.body.appendChild(b);
 }
@@ -1067,9 +1067,9 @@ function removeFsWarningBanner() {
     document.getElementById('fs-warning-banner')?.remove();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    23. ANTI-CHEAT
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function installAntiCheat() {
     if (acInstalled) return;
     acInstalled = true;
@@ -1098,15 +1098,15 @@ function blockKeys(e) {
 function onVisChange() {
     if (!testState.isActive || !document.hidden) return;
     tabSwitchCount++;
-    showToast(`⚠️ Tab Switch Detected — Warning ${tabSwitchCount}/3`, '#F59E0B', '#1F2937');
+    showToast(`âš ï¸ Tab Switch Detected â€” Warning ${tabSwitchCount}/3`, '#F59E0B', '#1F2937');
     if (tabSwitchCount >= 3) {
         setTimeout(() => { alert('3 tab-switches detected. Test is being auto-submitted.'); submitTest(); }, 600);
     }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    24. QUESTION SLIDE ANIMATION
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function slideIn(dir = 'next') {
     const area = document.querySelector('.question-area');
     if (!area) return;
@@ -1120,18 +1120,18 @@ function slideIn(dir = 'next') {
     }));
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    25. STICKY HEADER
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initStickyHeader() {
     const h = document.querySelector('header.sticky-header');
     if (!h) return;
     window.addEventListener('scroll', () => h.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    26. BACK TO TOP
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initBackToTop() {
     const btn = document.getElementById('backToTop');
     if (!btn) return;
@@ -1139,9 +1139,9 @@ function initBackToTop() {
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    27. SCROLL REVEAL
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initScrollAnimations() {
     const io = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
@@ -1149,9 +1149,9 @@ function initScrollAnimations() {
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    28. COUNTER ANIMATION
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function animateCounters() {
     const io = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -1176,9 +1176,9 @@ function animateCounters() {
     document.querySelectorAll('.stat-counter').forEach(el => io.observe(el));
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    29. FAQ
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initFAQ() {
     document.querySelectorAll('.faq-item').forEach(item => {
         item.querySelector('.faq-header')?.addEventListener('click', () => {
@@ -1189,9 +1189,9 @@ function initFAQ() {
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    30. TYPING ANIMATION
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initTypingAnimation() {
     const el = document.getElementById('typed-text');
     if (!el) return;
@@ -1208,9 +1208,9 @@ function initTypingAnimation() {
     setTimeout(type, 600);
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    31. TIPS SLIDER
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initTipsSlider() {
     const track = document.getElementById('tips-slider');
     if (!track) return;
@@ -1241,35 +1241,35 @@ function initMobileMenu() {
     const closeBtn = document.getElementById('closeMobileMenu');
     const links = document.querySelectorAll('.mobile-nav-link');
 
-    if (!btn || !overlay || !closeBtn) return;
+    if (!btn || !overlay) return;
 
-    btn.addEventListener('click', () => {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        overlay.classList.toggle('active');
     });
 
-    const close = () => {
-        overlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    };
+    const close = () => overlay.classList.remove('active');
 
-    closeBtn.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        close();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!overlay.contains(e.target) && !btn.contains(e.target)) close();
+    });
 
     links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (link.id === 'mobileLoginBtn') {
-                close();
-                document.getElementById('loginBtn')?.click();
-            } else {
-                close();
-            }
+        link.addEventListener('click', () => {
+            close();
+            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
         });
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    32. TRENDING TESTS
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function populateTrendingTests() {
     const grid = document.getElementById('trending-tests-grid');
     if (!grid) return;
@@ -1286,7 +1286,7 @@ function populateTrendingTests() {
         <div class="update-date ${t.diff.toLowerCase()}">${t.diff[0]}<span>${t.diff.slice(1)}</span></div>
         <div class="update-text">
           <h4>${t.name}</h4>
-          <p>${t.subject.replace('_', ' ').toUpperCase()} · 2026 Pattern</p>
+          <p>${t.subject.replace('_', ' ').toUpperCase()} Â· 2026 Pattern</p>
         </div>
       </div>`).join('');
 
@@ -1303,9 +1303,9 @@ function populateTrendingTests() {
     });
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    33. UTILITIES
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1331,31 +1331,31 @@ window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
     setTimeout(() => t.remove(), 4500);
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    34. DYNAMIC CSS INJECTION
-══════════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function injectDynamicCSS() {
     const s = document.createElement('style');
     s.textContent = `
-      /* ── No text selection during exam ── */
+      /* â”€â”€ No text selection during exam â”€â”€ */
       body.exam-active { user-select:none; -webkit-user-select:none; }
 
-      /* ── Modern scrollbar ── */
+      /* â”€â”€ Modern scrollbar â”€â”€ */
       ::-webkit-scrollbar            { width:7px; height:7px; }
       ::-webkit-scrollbar-track      { background:transparent; }
       ::-webkit-scrollbar-thumb      { background:rgba(79,70,229,.22); border-radius:10px; }
       ::-webkit-scrollbar-thumb:hover{ background:rgba(79,70,229,.5); }
 
-      /* ── Palette glow on hover ── */
+      /* â”€â”€ Palette glow on hover â”€â”€ */
       .p-btn:hover              { box-shadow:0 0 0 3px rgba(79,70,229,.2); }
       .p-btn.answered:hover     { box-shadow:0 0 0 3px rgba(22,163,74,.3); }
       .p-btn.not-answered:hover { box-shadow:0 0 0 3px rgba(239,68,68,.3); }
       .p-btn.marked:hover       { box-shadow:0 0 0 3px rgba(217,119,6,.3); }
 
-      /* ── Question area transition ── */
+      /* â”€â”€ Question area transition â”€â”€ */
       .question-area { will-change:opacity,transform; }
 
-      /* ── Option ripple ── */
+      /* â”€â”€ Option ripple â”€â”€ */
       .option-row::after {
         content:''; position:absolute; inset:0;
         background:rgba(79,70,229,.06); border-radius:inherit;
@@ -1363,13 +1363,13 @@ function injectDynamicCSS() {
       }
       .option-row:active::after { opacity:1; }
 
-      /* ── Toast animation ── */
+      /* â”€â”€ Toast animation â”€â”€ */
       @keyframes toastIn {
         from { opacity:0; transform:translateY(12px) scale(.95); }
         to   { opacity:1; transform:translateY(0) scale(1); }
       }
 
-      /* ── About-page stat items (prevent exam palette style bleed) ── */
+      /* â”€â”€ About-page stat items (prevent exam palette style bleed) â”€â”€ */
       .stats-counter-section .stat-item {
         background:var(--card-bg) !important;
         padding:30px !important;
@@ -1385,20 +1385,20 @@ function injectDynamicCSS() {
       }
       .stats-counter-section .stat-item:hover { transform:translateY(-5px) !important; }
 
-      /* ── Result page review visibility ── */
+      /* â”€â”€ Result page review visibility â”€â”€ */
       #review-container { margin-top:24px; }
 
-      /* ── Exam body ensures no horizontal overflow ── */
+      /* â”€â”€ Exam body ensures no horizontal overflow â”€â”€ */
       #exam-engine { overflow-x:hidden; }
 
-      /* ── Landscape mobile: palette on right ── */
+      /* â”€â”€ Landscape mobile: palette on right â”€â”€ */
       @media (orientation:landscape) and (max-height:500px) {
         .exam-body         { flex-direction:row; }
         .palette-panel     { width:200px; min-height:100vh; }
         .palette-grid      { grid-template-columns:repeat(4,1fr); }
       }
 
-      /* ── Logo ── */
+      /* â”€â”€ Logo â”€â”€ */
       .logo-text { display:flex; flex-direction:column; line-height:1.1; }
       .logo-main { font-size:1.5rem; font-weight:900;
                    background:var(--gradient);-webkit-background-clip:text;
@@ -1454,29 +1454,32 @@ function initMobileMenu() {
     const closeBtn = document.getElementById('closeMobileMenu');
     const links = document.querySelectorAll('.mobile-nav-link');
 
-    if (!btn || !overlay || !closeBtn) return;
+    if (!btn || !overlay) return;
 
-    btn.addEventListener('click', () => {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        overlay.classList.toggle('active');
     });
 
-    const close = () => {
-        overlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    };
+    const close = () => overlay.classList.remove('active');
 
-    closeBtn.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        close();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!overlay.contains(e.target) && !btn.contains(e.target)) close();
+    });
 
     links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (link.id === 'mobileLoginBtn') {
-                close();
-                document.getElementById('loginBtn')?.click();
-            } else {
-                close();
-            }
+        link.addEventListener('click', () => {
+            close();
+            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
         });
     });
 }
 });
+
+
+initMobileMenu();
