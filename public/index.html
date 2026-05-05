@@ -172,6 +172,112 @@ header .language-toggle { display: none !important; }
   [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; color: white !important; }
 }
     </style>
+    <style id="targeted-fix">
+        /* 1. Header Buttons Fix */
+        body:not([data-theme="dark"]) .nav-link, 
+        body:not([data-theme="dark"]) #loginBtn {
+            background: rgba(79, 70, 229, 0.08) !important;
+            color: #1e293b !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            margin: 0 5px !important;
+        }
+        [data-theme="dark"] .nav-link, 
+        [data-theme="dark"] #loginBtn {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #f1f5f9 !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            margin: 0 5px !important;
+        }
+
+        /* 2. Success Voices / Testimonials Fix */
+        .testimonials-grid {
+            flex-wrap: wrap !important;
+            display: flex !important;
+            gap: 20px !important;
+            justify-content: center !important;
+        }
+        .testimonial-card {
+            max-width: 100% !important;
+            flex: 1 1 300px !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 3. About Page Fixes (Targeted) */
+        /* a. Reduce space in Founder/Mission section */
+        .founder-grid {
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            gap: 30px !important;
+        }
+        /* b. Founder Image circular fix */
+        .founder-image-wrapper {
+            width: 150px !important;
+            height: 150px !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
+            margin: 0 auto 10px !important;
+            border: 4px solid var(--primary) !important;
+            position: relative !important;
+        }
+        .founder-image-wrapper img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+        }
+        .founder-badge { 
+            display: inline-block !important;
+            margin: 10px auto !important;
+            font-size: 0.75rem !important;
+            background: var(--primary) !important;
+            color: white !important;
+            padding: 4px 12px !important;
+            border-radius: 20px !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+        }
+        .founder-visual { text-align: center !important; }
+        .founder-meta h3 { margin-top: 10px !important; }
+
+        /* c. CTA Banner Color Fix */
+        body:not([data-theme="dark"]) .cta-banner {
+            background: linear-gradient(135deg, #4F46E5, #8B5CF6) !important;
+            color: #ffffff !important;
+        }
+        body:not([data-theme="dark"]) .cta-banner h2,
+        body:not([data-theme="dark"]) .cta-banner p { color: #ffffff !important; }
+        
+        [data-theme="dark"] .cta-banner {
+            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+            color: #ffffff !important;
+        }
+
+        /* d. About Hero Dark Mode */
+        [data-theme="dark"] .about-hero {
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* 4. Home CTA Dark Mode */
+        [data-theme="dark"] .cta-banner {
+            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+            color: #ffffff !important;
+        }
+
+        /* 5. Home Hero Light Mode readable */
+        body:not([data-theme="dark"]) .hero {
+            background: linear-gradient(135deg, #f0f4ff, #fff) !important;
+            color: #1e293b !important;
+        }
+        body:not([data-theme="dark"]) .hero h1,
+        body:not([data-theme="dark"]) .hero p,
+        body:not([data-theme="dark"]) .hero .badge-text {
+            color: #1e293b !important;
+        }
+    </style>
 </head>
 <body>
     <header class="sticky-header">
