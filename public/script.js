@@ -1384,6 +1384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             nav.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
             const icon = menuBtn.querySelector('i');
             if (icon) {
                 if (nav.classList.contains('active')) {
