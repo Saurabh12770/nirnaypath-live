@@ -1,92 +1,319 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NirnayPath – प्रतियोगी परीक्षाओं के लिए नि:शुल्क मॉक टेस्ट</title>
+    <title>NirnayPath â€“ Free Mock Tests for Competitive Exams</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css?v=2.0.0">
     <link rel="manifest" href="/manifest.json?v=2.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=2.0.0">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style id="critical-fix">
+/* ---------- CRITICAL FIX BLOCK ---------- */
+/* Prevent horizontal overflow */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+*, *::before, *::after {
+  box-sizing: border-box !important;
+}
+img, video, iframe {
+  max-width: 100% !important;
+  height: auto !important;
+}
 
-    
-    <style id="nirnaypath-ultimate-ui">
-        /* 1. Header Sticky */
-        header.sticky-header {
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1000 !important;
-            background: var(--bg-secondary) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
-        }
+/* Hero must fit viewport exactly */
+.hero {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+}
+.hero h1 { font-size: clamp(1.8rem, 5vw, 3rem) !important; margin-bottom: 0.8rem !important; }
+.hero p  { margin-bottom: 1rem !important; }
 
-        /* 2. Nav Button Colors */
+/* FIX LIGHT MODE: dark text on white cards */
+body:not([data-theme="dark"]) .card,
+body:not([data-theme="dark"]) .feature-card,
+body:not([data-theme="dark"]) .category-card,
+body:not([data-theme="dark"]) .testimonial-card,
+body:not([data-theme="dark"]) .faq-item,
+body:not([data-theme="dark"]) .why-card,
+body:not([data-theme="dark"]) .trend-card,
+body:not([data-theme="dark"]) .tip-card,
+body:not([data-theme="dark"]) .quote-card,
+body:not([data-theme="dark"]) .update-card,
+body:not([data-theme="dark"]) .mission-box,
+body:not([data-theme="dark"]) .about-platform-card,
+body:not([data-theme="dark"]) .contact-card,
+body:not([data-theme="dark"]) .glass-card,
+body:not([data-theme="dark"]) .premium-card,
+body:not([data-theme="dark"]) .exam-card,
+body:not([data-theme="dark"]) .subject-card,
+body:not([data-theme="dark"]) .step-card,
+body:not([data-theme="dark"]) .mentor-card {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+/* All text inside cards in light mode */
+body:not([data-theme="dark"]) .card h2,
+body:not([data-theme="dark"]) .card h3,
+body:not([data-theme="dark"]) .card h4,
+body:not([data-theme="dark"]) .card p,
+body:not([data-theme="dark"]) .card span,
+body:not([data-theme="dark"]) .card li,
+body:not([data-theme="dark"]) .feature-card h3,
+body:not([data-theme="dark"]) .feature-card h4,
+body:not([data-theme="dark"]) .feature-card p,
+body:not([data-theme="dark"]) .category-card h3,
+body:not([data-theme="dark"]) .category-card p,
+body:not([data-theme="dark"]) .testimonial-card p,
+body:not([data-theme="dark"]) .faq-header,
+body:not([data-theme="dark"]) .faq-content,
+body:not([data-theme="dark"]) .why-card h4,
+body:not([data-theme="dark"]) .why-card p,
+body:not([data-theme="dark"]) .trend-card h3,
+body:not([data-theme="dark"]) .trend-card p,
+body:not([data-theme="dark"]) .tip-card h3,
+body:not([data-theme="dark"]) .tip-card p,
+body:not([data-theme="dark"]) .quote-text,
+body:not([data-theme="dark"]) .quote-author,
+body:not([data-theme="dark"]) .update-text h4,
+body:not([data-theme="dark"]) .update-text p {
+  color: #1e293b !important;
+}
+
+/* FIX DARK MODE: light text on dark cards */
+[data-theme="dark"] .card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .why-card,
+[data-theme="dark"] .trend-card,
+[data-theme="dark"] .tip-card,
+[data-theme="dark"] .quote-card,
+[data-theme="dark"] .update-card,
+[data-theme="dark"] .mission-box,
+[data-theme="dark"] .about-platform-card,
+[data-theme="dark"] .contact-card,
+[data-theme="dark"] .glass-card,
+[data-theme="dark"] .premium-card,
+[data-theme="dark"] .exam-card,
+[data-theme="dark"] .subject-card,
+[data-theme="dark"] .step-card,
+[data-theme="dark"] .mentor-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .card h4,
+[data-theme="dark"] .card p,
+[data-theme="dark"] .card span,
+[data-theme="dark"] .card li,
+[data-theme="dark"] .feature-card h3,
+[data-theme="dark"] .feature-card h4,
+[data-theme="dark"] .feature-card p,
+[data-theme="dark"] .category-card h3,
+[data-theme="dark"] .category-card p,
+[data-theme="dark"] .testimonial-card p,
+[data-theme="dark"] .faq-header,
+[data-theme="dark"] .faq-content,
+[data-theme="dark"] .why-card h4,
+[data-theme="dark"] .why-card p,
+[data-theme="dark"] .trend-card h3,
+[data-theme="dark"] .trend-card p,
+[data-theme="dark"] .tip-card h3,
+[data-theme="dark"] .tip-card p,
+[data-theme="dark"] .quote-text,
+[data-theme="dark"] .quote-author,
+[data-theme="dark"] .update-text h4,
+[data-theme="dark"] .update-text p {
+  color: #f1f5f9 !important;
+}
+
+/* Menu: hide language toggle in header */
+header .language-toggle { display: none !important; }
+
+/* Back to top / chatbot positioning */
+.back-to-top { position: fixed !important; bottom: 30px !important; left: 30px !important; z-index: 1200 !important; }
+.chatbot-toggle { position: fixed !important; bottom: 30px !important; right: 30px !important; z-index: 1201 !important; }
+
+/* Mobile Menu Dropdown Positioning */
+@media (max-width: 768px) {
+  .mobile-menu-overlay {
+    position: absolute !important;
+    top: 70px !important;
+    right: 20px !important;
+    left: auto !important;
+    width: 200px !important;
+    height: auto !important;
+    background: white !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    display: none !important;
+    z-index: 1001 !important;
+  }
+  .mobile-menu-overlay.active { display: flex !important; flex-direction: column !important; }
+  [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; color: white !important; }
+}
+    </style>
+    <style id="targeted-fix">
+        /* 1. Header Buttons Fix */
         body:not([data-theme="dark"]) .nav-link, 
-        body:not([data-theme="dark"]) #loginBtn, 
-        body:not([data-theme="dark"]) .nav-link.active {
-            background: #1e293b !important;
-            color: #ffffff !important;
-            padding: 10px 20px !important;
-            border-radius: 10px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
+        body:not([data-theme="dark"]) #loginBtn {
+            background: rgba(79, 70, 229, 0.08) !important;
+            color: #1e293b !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            margin: 0 5px !important;
         }
         [data-theme="dark"] .nav-link, 
-        [data-theme="dark"] #loginBtn, 
-        [data-theme="dark"] .nav-link.active {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            padding: 10px 20px !important;
-            border-radius: 10px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
+        [data-theme="dark"] #loginBtn {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #f1f5f9 !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            margin: 0 5px !important;
         }
 
-        /* 6. Global Grey Text Replacement */
-        header *, footer *, .hero *, .cta-banner * {
-            color: inherit;
+        /* 2. Success Voices / Testimonials Fix */
+        .testimonials-grid {
+            flex-wrap: wrap !important;
+            display: flex !important;
+            gap: 20px !important;
+            justify-content: center !important;
         }
-        header .logo-main, footer h3, .hero h1, .cta-banner h2 {
+        .testimonial-card {
+            max-width: 100% !important;
+            flex: 1 1 300px !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* 3. About Page Fixes (Targeted) */
+        /* a. Reduce space in Founder/Mission section */
+        .founder-grid {
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            gap: 30px !important;
+        }
+        /* b. Founder Image circular fix */
+        .founder-image-wrapper {
+            width: 150px !important;
+            height: 150px !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
+            margin: 0 auto 10px !important;
+            border: 4px solid var(--primary) !important;
+            position: relative !important;
+        }
+        .founder-image-wrapper img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+        }
+        .founder-badge { 
+            display: inline-block !important;
+            margin: 10px auto !important;
+            font-size: 0.75rem !important;
+            background: var(--primary) !important;
+            color: white !important;
+            padding: 4px 12px !important;
+            border-radius: 20px !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+        }
+        .founder-visual { text-align: center !important; }
+        .founder-meta h3 { margin-top: 10px !important; }
+
+        /* c. CTA Banner Color Fix */
+        body:not([data-theme="dark"]) .cta-banner {
+            background: linear-gradient(135deg, #4F46E5, #8B5CF6) !important;
             color: #ffffff !important;
         }
-        [data-theme="dark"] header .logo-main, [data-theme="dark"] footer h3, [data-theme="dark"] .hero h1, [data-theme="dark"] .cta-banner h2 {
+        body:not([data-theme="dark"]) .cta-banner h2,
+        body:not([data-theme="dark"]) .cta-banner p { color: #ffffff !important; }
+        
+        [data-theme="dark"] .cta-banner {
+            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+            color: #ffffff !important;
+        }
+
+        /* d. About Hero Dark Mode */
+        [data-theme="dark"] .about-hero {
+            background: #0f172a !important;
             color: #f1f5f9 !important;
         }
 
-        /* 9. Premium Card Design System */
+        /* 4. Home CTA Dark Mode */
+        [data-theme="dark"] .cta-banner {
+            background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+            color: #ffffff !important;
+        }
+
+        /* 5. Home Hero Light Mode readable */
+        body:not([data-theme="dark"]) .hero {
+            background: linear-gradient(135deg, #f0f4ff, #fff) !important;
+            color: #1e293b !important;
+        }
+        body:not([data-theme="dark"]) .hero h1,
+        body:not([data-theme="dark"]) .hero p,
+        body:not([data-theme="dark"]) .hero .badge-text {
+            color: #1e293b !important;
+        }
+    </style>
+
+    <style id="premium-cards">
+        /* 6. Premium Card Design */
         .card, .feature-card, .category-card, .testimonial-card, .faq-item, .why-card, .trend-card, 
         .tip-card, .quote-card, .update-card, .mission-box, .about-platform-card, .contact-card, 
         .mentor-card, .exam-card, .subject-card, .step-card, .np-card, .premium-card {
             border-top: 4px solid #4F46E5 !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
             background: var(--bg-secondary) !important;
-            border-radius: 15px !important;
+            border-radius: 12px !important;
             overflow: hidden !important;
         }
-        .card:nth-child(2n), .category-card:nth-child(2n) { border-top-color: #EC4899 !important; }
-        .card:nth-child(3n), .category-card:nth-child(3n) { border-top-color: #10B981 !important; }
-        .card:nth-child(4n), .category-card:nth-child(4n) { border-top-color: #F59E0B !important; }
 
-        /* 7. Overflow/Underflow Fix */
-        html, body {
-            overflow-x: hidden !important;
-            max-width: 100vw !important;
+        .card:nth-child(2n), .feature-card:nth-child(2n), .exam-card:nth-child(2n), .trend-card:nth-child(2n) { border-top-color: #EC4899 !important; --hover-glow: rgba(236, 72, 153, 0.25); }
+        .card:nth-child(3n), .feature-card:nth-child(3n), .exam-card:nth-child(3n), .trend-card:nth-child(3n) { border-top-color: #10B981 !important; --hover-glow: rgba(16, 185, 129, 0.25); }
+        .card:nth-child(4n), .feature-card:nth-child(4n), .exam-card:nth-child(4n), .trend-card:nth-child(4n) { border-top-color: #F59E0B !important; --hover-glow: rgba(245, 158, 11, 0.25); }
+        .card:nth-child(5n), .feature-card:nth-child(5n), .exam-card:nth-child(5n), .trend-card:nth-child(5n) { border-top-color: #8B5CF6 !important; --hover-glow: rgba(139, 92, 246, 0.25); }
+
+        .card:hover, .feature-card:hover, .category-card:hover, .testimonial-card:hover, 
+        .faq-item:hover, .why-card:hover, .trend-card:hover, .np-card:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15), 0 0 20px var(--hover-glow, rgba(79, 70, 229, 0.25)) !important;
         }
-        .hero {
-            height: 100vh !important;
-            min-height: 100vh !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
-        .container { max-width: 100vw !important; }
+        .trend-card:hover, .feature-card:hover { animation: float 3s ease-in-out infinite !important; }
+        
+        [data-theme="dark"] .card, [data-theme="dark"] .feature-card, [data-theme="dark"] .exam-card {
+            background: #1e293b !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        }
     </style>
-
 </head>
 <body>
     <header class="sticky-header">
@@ -175,7 +402,7 @@
                 <div class="hero-bg-accent"></div>
                 <div class="hero-content">
                     <div class="hero-badge reveal">
-                        <span class="badge-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥</span>
+                        <span class="badge-icon">🔥</span>
                         <span class="badge-text">Premier Mock Test Series 2026</span>
                     </div>
                     <h1 class="hero-title reveal">Unlock Your Potential with <br><span class="gradient-text">NirnayPath</span></h1>
@@ -214,7 +441,7 @@
 
             <!-- Popular Exams Section -->
             <section id="popular-exams" class="popular-exams reveal">
-                <h2 class="section-title text-center">ÃƒÂ°Ã…Â¸Ã‚ÂÃ¢â‚¬Â  Popular <span class="gradient-text">Exam Categories</span></h2>
+                <h2 class="section-title text-center">ðŸ† Popular <span class="gradient-text">Exam Categories</span></h2>
                 <div class="exam-grid-4">
                     <div class="category-card np-card hover-lift" onclick="setActiveExam('upsc')" style="--card-accent: var(--primary);">
                         <div class="cat-icon" style="background:rgba(99,102,241,0.1); color:var(--primary)"><i class="fas fa-crown"></i></div>
@@ -246,15 +473,15 @@
                 <div class="sectional-entry-banner reveal">
                     <div class="scrolling-wrapper">
                         <div class="scrolling-text">
-                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-landmark"></i> General Studies</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-brain"></i> Reasoning</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-language"></i> English Language</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-newspaper"></i> Current Affairs</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-landmark"></i> General Studies</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-brain"></i> Reasoning</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
-                            <span><i class="fas fa-language"></i> English Language</span> ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 
+                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> â€¢ 
+                            <span><i class="fas fa-landmark"></i> General Studies</span> â€¢ 
+                            <span><i class="fas fa-brain"></i> Reasoning</span> â€¢ 
+                            <span><i class="fas fa-language"></i> English Language</span> â€¢ 
+                            <span><i class="fas fa-newspaper"></i> Current Affairs</span> â€¢ 
+                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> â€¢ 
+                            <span><i class="fas fa-landmark"></i> General Studies</span> â€¢ 
+                            <span><i class="fas fa-brain"></i> Reasoning</span> â€¢ 
+                            <span><i class="fas fa-language"></i> English Language</span> â€¢ 
                             <span><i class="fas fa-newspaper"></i> Current Affairs</span>
                         </div>
                     </div>
@@ -380,7 +607,7 @@
         <!-- Expert Preparation Tips Section -->
         <section class="expert-tips-section reveal">
             <div class="container">
-                <h2 class="section-title text-center">ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Expert Preparation Tips</h2>
+                <h2 class="section-title text-center">ðŸŽ¯ Expert Preparation Tips</h2>
                 <p class="section-subtitle text-center">Proven strategies from top rankers to maximize your exam performance</p>
                 
                 <div class="tips-grid">
@@ -388,7 +615,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-calendar-check" style="color: var(--primary);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã¢â‚¬Â¦ Consistent Study Routine</h3>
+                        <h3>ðŸ“… Consistent Study Routine</h3>
                         <p>Create a daily study schedule and stick to it. Consistency builds discipline and ensures steady progress.</p>
                     </div>
                     
@@ -396,7 +623,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-bullseye" style="color: var(--success);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Focus on Weak Areas</h3>
+                        <h3>ðŸŽ¯ Focus on Weak Areas</h3>
                         <p>Identify your weak subjects through mock tests and allocate extra time to improve them systematically.</p>
                     </div>
                     
@@ -404,7 +631,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-clock" style="color: var(--accent);"></i>
                         </div>
-                        <h3>ÃƒÂ¢Ã‚ÂÃ‚Â± Time Management Practice</h3>
+                        <h3>â± Time Management Practice</h3>
                         <p>Practice solving questions within time limits to improve speed and accuracy for the actual exam.</p>
                     </div>
                     
@@ -412,7 +639,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-chart-bar" style="color: var(--warning);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  Mock Test Analysis</h3>
+                        <h3>ðŸ“Š Mock Test Analysis</h3>
                         <p>After each mock test, analyze mistakes thoroughly to avoid repeating them in future attempts.</p>
                     </div>
                     
@@ -420,7 +647,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-book-open" style="color: var(--info);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â¡ Concept Clarity First</h3>
+                        <h3>ðŸ“š Concept Clarity First</h3>
                         <p>Focus on understanding concepts deeply rather than rote memorization for long-term retention.</p>
                     </div>
                     
@@ -428,7 +655,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-sync-alt" style="color: var(--teal);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â Regular Revision</h3>
+                        <h3>ðŸ” Regular Revision</h3>
                         <p>Schedule weekly revision sessions to reinforce learning and prevent forgetting important topics.</p>
                     </div>
                     
@@ -436,7 +663,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-brain" style="color: var(--rose);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â  Active Recall Practice</h3>
+                        <h3>ðŸ§  Active Recall Practice</h3>
                         <p>Test yourself frequently without looking at notes to strengthen memory and recall ability.</p>
                     </div>
                     
@@ -444,7 +671,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-heartbeat" style="color: var(--purple);"></i>
                         </div>
-                        <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Âª Health & Wellness</h3>
+                        <h3>ðŸ’ª Health & Wellness</h3>
                         <p>Maintain proper sleep, nutrition, and exercise to keep your mind sharp and focused during preparation.</p>
                     </div>
                 </div>
@@ -481,7 +708,7 @@
         <!-- Subject Selection (hidden by default, shown on exam click) -->
         <section id="subject-selection-area" style="display:none" class="reveal">
             <div class="subject-selection-header">
-                <h2 class="section-title">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â¡ Choose Your Subject ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â <span id="current-exam-name" class="gradient-text">UPSC</span></h2>
+                <h2 class="section-title">ðŸ“š Choose Your Subject â€” <span id="current-exam-name" class="gradient-text">UPSC</span></h2>
                 <div class="practice-modes-toggle">
                     <button class="mode-toggle-btn active" onclick="switchPracticeMode('full')">Full Mock Tests</button>
                     <button class="mode-toggle-btn" onclick="switchPracticeMode('drill')">Topic-wise Drills</button>
@@ -521,14 +748,14 @@
             <div class="test-grid" id="testGrid"></div>
             <div class="test-grid-info">
                 <div class="grid-info-item"><i class="fas fa-info-circle"></i><span>Click any card or "Start Test" to begin</span></div>
-                <div class="grid-info-item"><i class="fas fa-sync-alt"></i><span>Tests are auto-saved ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â resume anytime</span></div>
+                <div class="grid-info-item"><i class="fas fa-sync-alt"></i><span>Tests are auto-saved â€” resume anytime</span></div>
             </div>
         </div>
 
             <!-- Trending Tests Section -->
             <section class="trending-section reveal">
                 <div class="section-header">
-                    <h2 class="section-title">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¥ Trending <span class="gradient-text">Mock Tests</span></h2>
+                    <h2 class="section-title">ðŸ”¥ Trending <span class="gradient-text">Mock Tests</span></h2>
                     <p>Recently updated high-yield tests based on the latest 2026 patterns</p>
                 </div>
                 <div class="trending-cards-grid">
@@ -539,7 +766,7 @@
                             <span class="trend-badge hard">Expert Tier</span>
                         </div>
                         <h3>BPSC 71st Combined Prelims</h3>
-                        <p>All Subjects Ãƒâ€šÃ‚Â· Comprehensive GS</p>
+                        <p>All Subjects Â· Comprehensive GS</p>
                         <div class="trend-meta">
                             <span><i class="fas fa-question-circle"></i> 150 Qs</span>
                             <span><i class="fas fa-clock"></i> 120 Mins</span>
@@ -569,7 +796,7 @@
                             <span class="trend-badge easy">Base Tier</span>
                         </div>
                         <h3>UPSC Ethics & Aptitude</h3>
-                        <p>GS Paper IV Ãƒâ€šÃ‚Â· Case Studies</p>
+                        <p>GS Paper IV Â· Case Studies</p>
                         <div class="trend-meta">
                             <span><i class="fas fa-question-circle"></i> 80 Qs</span>
                             <span><i class="fas fa-clock"></i> 120 Mins</span>
@@ -631,7 +858,7 @@
             <!-- Motivational Quotes Section -->
             <section class="motivational-quotes-section reveal">
                 <div class="container">
-                    <h2 class="section-title text-center">ÃƒÂ¢Ã…â€œÃ‚Â¨ Daily Motivation for Aspirants ÃƒÂ¢Ã…â€œÃ‚Â¨</h2>
+                    <h2 class="section-title text-center">âœ¨ Daily Motivation for Aspirants âœ¨</h2>
                     <p class="section-subtitle text-center">Fuel your preparation journey with powerful words from visionaries and achievers</p>
                     
                     <div class="quotes-grid">
@@ -903,6 +1130,7 @@
                         <span>Tests are automatically saved - resume anytime</span>
                     </div>
                 </div>
+            </div>
         </section><!-- /dashboard -->
 
         <!-- Loading Screen -->
@@ -1064,7 +1292,7 @@
                             </div>
                         </div>
                         <div id="dashboard-upgrade-cta" style="display:none; margin-left: auto; padding: 15px; background: rgba(255,215,0,0.1); border: 1px dashed #ffd700; border-radius: 12px; text-align: center;">
-                            <p style="margin: 0 0 10px 0; font-size: 0.85rem; font-weight: 600; color: #b8860b;">ÃƒÂ°Ã…Â¸Ã…Â¡Ã¢â€šÂ¬ Upgrade to Pro for unlimited tests!</p>
+                            <p style="margin: 0 0 10px 0; font-size: 0.85rem; font-weight: 600; color: #b8860b;">ðŸš€ Upgrade to Pro for unlimited tests!</p>
                             <button class="btn-primary-sm" onclick="document.getElementById('upgradeModal').style.display='flex'">View Plans</button>
                         </div>
                     </div>
@@ -1250,7 +1478,7 @@
                     <div class="motivation-card">
                         <i class="fas fa-quote-left"></i>
                         <p class="motivation-text">"Every successful officer started with a single mock test. Your journey begins here."</p>
-                        <div class="motivation-author">ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â NirnayPath Team</div>
+                        <div class="motivation-author">â€” NirnayPath Team</div>
                     </div>
                 </div>
             </div>
@@ -1282,12 +1510,12 @@
                 <!-- Mission & Vision -->
                 <div class="mission-section">
                     <h3><i class="fas fa-bullseye"></i> Our Mission</h3>
-                    <p>To provide <strong>free, highÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Ëœquality mock tests</strong> for every competitive exam aspirant in India, regardless of their financial background. We believe that access to quality practice should be a right, not a privilege.</p>
+                    <p>To provide <strong>free, highâ€‘quality mock tests</strong> for every competitive exam aspirant in India, regardless of their financial background. We believe that access to quality practice should be a right, not a privilege.</p>
                     
                     <h3><i class="fas fa-eye"></i> Our Vision</h3>
                     <p>To create a future where <strong>equal education opportunity</strong> is a reality for all. We envision a nation where every student can prepare for UPSC, BPSC, SSC, Banking, and other exams without worrying about cost.</p>
                     
-                    <div class="highlight">ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ "Built in 2026 for ALL aspirants ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ poor and rich alike."</div>
+                    <div class="highlight">ðŸŽ¯ "Built in 2026 for ALL aspirants â€“ poor and rich alike."</div>
                 </div>
 
                 <!-- Feature Cards -->
@@ -1307,12 +1535,12 @@
                         <div class="feature-card-about">
                             <i class="fas fa-brain"></i>
                             <h4>Smart Learning</h4>
-                            <p>AIÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Ëœpowered analytics, performance tracking, and personalized insights.</p>
+                            <p>AIâ€‘powered analytics, performance tracking, and personalized insights.</p>
                         </div>
                         <div class="feature-card-about">
                             <i class="fas fa-chart-line"></i>
                             <h4>Performance Analysis</h4>
-                            <p>Detailed reports, weakÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Ëœarea identification, and improvement roadmap.</p>
+                            <p>Detailed reports, weakâ€‘area identification, and improvement roadmap.</p>
                         </div>
                     </div>
                 </div>
@@ -1321,7 +1549,7 @@
                 <div class="story-section">
                     <h3><i class="fas fa-book-open"></i> The Story Behind NirnayPath</h3>
                     <p>I am a <strong>Software Engineer</strong> who built this platform in <strong>2026</strong> after witnessing the struggles of my fellow aspirants. The high cost of mock test series was shutting doors for talented students from humble backgrounds.</p>
-                    <p>NirnayPath was born from a simple idea: <strong>democratize exam preparation</strong>. Today, we serve thousands of aspirants across UPSC, BPSC, SSC, Banking, Railway, and more ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ all for free.</p>
+                    <p>NirnayPath was born from a simple idea: <strong>democratize exam preparation</strong>. Today, we serve thousands of aspirants across UPSC, BPSC, SSC, Banking, Railway, and more â€“ all for free.</p>
                     <p>This platform is created for <strong>ALL aspirants (poor and rich)</strong> because your dreams shouldn't have a price tag.</p>
                 </div>
 
@@ -1330,7 +1558,7 @@
                     <h3><i class="fas fa-heart"></i> Our Core Values</h3>
                     <ul>
                         <li><i class="fas fa-check-circle"></i> <strong>Equity:</strong> Equal opportunity for every student</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>Excellence:</strong> RealÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Ëœexam quality in every test</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Excellence:</strong> Realâ€‘exam quality in every test</li>
                         <li><i class="fas fa-check-circle"></i> <strong>Empathy:</strong> Built by aspirants, for aspirants</li>
                         <li><i class="fas fa-check-circle"></i> <strong>Innovation:</strong> Constantly evolving with technology</li>
                     </ul>
@@ -1476,7 +1704,7 @@
         <div class="footer-bottom">
             <div class="footer-bottom-content">
                 <div class="copyright">
-                    <p>Ãƒâ€šÃ‚Â© 2026 NirnayPath ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Created with <i class="fas fa-heart" style="color: #ef4444;"></i> by Saurabh Kumar. All rights reserved.</p>
+                    <p>Â© 2026 NirnayPath â€“ Created with <i class="fas fa-heart" style="color: #ef4444;"></i> by Saurabh Kumar. All rights reserved.</p>
                     <p class="copyright-note">NirnayPath is an independent platform and is not affiliated with any government exam conducting body.</p>
                 </div>
                 <div class="footer-bottom-links">
@@ -1533,7 +1761,7 @@
                 <div class="plans-comparison">
                     <div class="plan-card">
                         <h4>Free Plan</h4>
-                        <div class="plan-price">ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹0<span>/mo</span></div>
+                        <div class="plan-price">₹0<span>/mo</span></div>
                         <ul class="plan-features">
                             <li><i class="fas fa-check"></i> Daily Full Mocks</li>
                             <li><i class="fas fa-check"></i> Topic Drills (20 Qs)</li>
@@ -1544,7 +1772,7 @@
                     <div class="plan-card pro">
                         <div class="plan-badge">Popular</div>
                         <h4>Pro Path</h4>
-                        <div class="plan-price">ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹199<span>/mo</span></div>
+                        <div class="plan-price">₹199<span>/mo</span></div>
                         <ul class="plan-features">
                             <li><i class="fas fa-check"></i> Unlimited Topic Drills</li>
                             <li><i class="fas fa-check"></i> Unlimited Sectional Tests</li>

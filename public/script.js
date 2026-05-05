@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NirnayPath Ã¢â‚¬â€œ Main Script v3.0
    Ã¢Å“â€¦ Single DOMContentLoaded
    Ã¢Å“â€¦ Proper view switching (dashboard shown on load)
@@ -1448,6 +1448,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+});
+
+// ---------- PREMIUM UI: MOBILE MENU ----------
 function initMobileMenu() {
     const btn = document.getElementById('mobileMenuBtn');
     const overlay = document.getElementById('mobileMenuOverlay');
@@ -1479,16 +1482,10 @@ function initMobileMenu() {
         });
     });
 }
-});
-
-
-initMobileMenu();
-
-
 
 // ---------- PREMIUM UI: INFINITE CAROUSEL ----------
 function initTestimonialsCarousel() {
-    const slider = document.getElementById("testimonials-slider") || document.getElementById("tips-slider");
+    const slider = document.getElementById('testimonials-slider') || document.getElementById('tips-slider');
     if (!slider) return;
 
     // Clone cards for infinite loop
@@ -1512,13 +1509,13 @@ function initTestimonialsCarousel() {
     }
 
     let interval = setInterval(autoScroll, scrollInterval);
-    slider.addEventListener("mouseenter", () => isPaused = true);
-    slider.addEventListener("mouseleave", () => isPaused = false);
+    slider.addEventListener('mouseenter', () => isPaused = true);
+    slider.addEventListener('mouseleave', () => isPaused = false);
 }
 
 // ---------- HERO ACTIVITY CAROUSEL ----------
 function initHeroActivity() {
-    const track = document.getElementById("heroActivityTrack");
+    const track = document.getElementById('heroActivityTrack');
     if (!track) return;
 
     let index = 0;
@@ -1532,25 +1529,25 @@ function initHeroActivity() {
 
 // ---------- PREMIUM UI: FAQ ACCORDION ----------
 function initFAQAccordion() {
-    const faqItems = document.querySelectorAll(".faq-item");
+    const faqItems = document.querySelectorAll('.faq-item');
     if (!faqItems.length) return;
 
     faqItems.forEach(item => {
-        const header = item.querySelector(".faq-question") || item.querySelector(".faq-header");
+        const header = item.querySelector('.faq-question') || item.querySelector('.faq-header');
         if (!header) return;
         
-        header.addEventListener("click", () => {
-            const isActive = item.classList.contains("active");
-            faqItems.forEach(i => i.classList.remove("active"));
-            if (!isActive) item.classList.add("active");
+        header.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            faqItems.forEach(i => i.classList.remove('active'));
+            if (!isActive) item.classList.add('active');
         });
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
+    initMobileMenu();
     initTestimonialsCarousel();
     initFAQAccordion();
     initHeroActivity();
 });
-
 
