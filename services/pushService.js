@@ -1,18 +1,34 @@
-const webpush = require('web-push');
+const webPush = require('web-push');
 const User = require('../models/User');
 
-const vapidKeys = {
-    publicKey: process.env.VAPID_PUBLIC_KEY,
-    privateKey: process.env.VAPID_PRIVATE_KEY
-};
+let isConfigured = false;
 
-webpush.setVapidDetails(
-    process.env.VAPID_EMAIL || 'mailto:admin@nirnaypath.com',
-    vapidKeys.publicKey,
-    vapidKeys.privateKey
-);
+try {
+    if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+        webPush.setVapidDetails(
+            process.env.VAPID_EMAIL || 'mailto:support@nirnaypath.com',
+            process.env.VAPID_PUBLIC_KEY,
+            process.env.VAPID_PRIVATE_KEY
+        );
+        isConfigured = true;
+        console.log('Push notifications configured.');
+    } else {
+        console.log('Push notifications disabled: missing VAPID keys.');
+    }
+} catch (err) {
+    console.warn('Push notifications not configured:', err.message);
+}
 
-const sendPushNotification = async (userId, payload) => {
+/**
+ * Sends a push notification to a specific user.
+ * Gracefully handles cases where push is not configured.
+ */
+async function sendPushNotification(userId, payload) {
+    if (!isConfigured) {
+        console.log(`Push skipped for user ${userId}: Service not configured.`);
+        return { success: false, error: 'Push service not configured' };
+    }
+
     try {
         const user = await User.findById(userId);
         if (!user || !user.pushSubscription) {
@@ -20,7 +36,7 @@ const sendPushNotification = async (userId, payload) => {
         }
 
         const notificationPayload = JSON.stringify(payload);
-        await webpush.sendNotification(user.pushSubscription, notificationPayload);
+        await webPush.sendNotification(user.pushSubscription, notificationPayload);
         
         console.log(`Push notification sent to user ${userId}`);
         return { success: true };
@@ -33,6 +49,9 @@ const sendPushNotification = async (userId, payload) => {
         }
         return { success: false, error: error.message };
     }
-};
+}
 
-module.exports = { sendPushNotification };
+module.exports = { 
+    sendPush: sendPushNotification, 
+    sendPushNotification 
+};
