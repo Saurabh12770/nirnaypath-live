@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAnimations();
     initFAQ();
     initTypingAnimation();
+    initMobileMenu();
     initTipsSlider();
     animateCounters();
     initTrendingTestButtons();
@@ -1234,6 +1235,38 @@ function initTipsSlider() {
     }, 3800);
 }
 
+function initMobileMenu() {
+    const btn = document.getElementById('mobileMenuBtn');
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const links = document.querySelectorAll('.mobile-nav-link');
+
+    if (!btn || !overlay || !closeBtn) return;
+
+    btn.addEventListener('click', () => {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    };
+
+    closeBtn.addEventListener('click', close);
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (link.id === 'mobileLoginBtn') {
+                close();
+                document.getElementById('loginBtn')?.click();
+            } else {
+                close();
+            }
+        });
+    });
+}
+
 /* ══════════════════════════════════════════════════════════
    32. TRENDING TESTS
 ══════════════════════════════════════════════════════════ */
@@ -1414,5 +1447,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-    }
+    }function initMobileMenu() {
+    const btn = document.getElementById('mobileMenuBtn');
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const links = document.querySelectorAll('.mobile-nav-link');
+
+    if (!btn || !overlay || !closeBtn) return;
+
+    btn.addEventListener('click', () => {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    };
+
+    closeBtn.addEventListener('click', close);
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (link.id === 'mobileLoginBtn') {
+                close();
+                document.getElementById('loginBtn')?.click();
+            } else {
+                close();
+            }
+        });
+    });
+}
 });
