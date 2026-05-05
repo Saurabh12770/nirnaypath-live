@@ -1381,8 +1381,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuBtn = document.getElementById('mobileMenuBtn');
     const nav = document.querySelector('.sticky-header nav');
     if (menuBtn && nav) {
-        menuBtn.addEventListener('click', () => {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             nav.classList.toggle('active');
+            const icon = menuBtn.querySelector('i');
+            if (icon) {
+                if (nav.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (nav.classList.contains('active') && !nav.contains(e.target) && !menuBtn.contains(e.target)) {
+                nav.classList.remove('active');
+                const icon = menuBtn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Close menu when a link is clicked
+        nav.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (nav.classList.contains('active')) {
+                    nav.classList.remove('active');
+                    const icon = menuBtn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
+            });
         });
     }
 });
