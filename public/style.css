@@ -8479,26 +8479,39 @@ body[data-theme="dark"] {
     background: #1e293b !important;
 }
 
-/* Mobile Menu Overlay System */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(15px);
-    z-index: 9999;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.4s ease;
+
+/* Mobile Menu Overlay System - Only for Mobile */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block !important;
+    }
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Start off-screen */
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: blur(15px);
+        z-index: 9999;
+        display: flex; /* Always flex but hidden via right */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: right 0.4s ease;
+    }
+    .mobile-menu-overlay.active {
+        right: 0; /* Slide in */
+    }
 }
 
-.mobile-menu-overlay.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
+@media (min-width: 769px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    .mobile-menu-overlay {
+        display: none !important;
+    }
 }
 
 .close-menu-btn {
@@ -8546,6 +8559,37 @@ body[data-theme="dark"] {
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .exam-ribbon { top: 56px !important; }
+}
+
+
+/* About Page Contrast Fixes (Light Mode) */
+body:not([data-theme="dark"]) .about-hero h1,
+body:not([data-theme="dark"]) .about-hero .hero-title,
+body:not([data-theme="dark"]) .founder-content h2,
+body:not([data-theme="dark"]) .mission-card h3,
+body:not([data-theme="dark"]) .value-card h4,
+body:not([data-theme="dark"]) .contact-section h2,
+body:not([data-theme="dark"]) .cta-banner h2 {
+    color: #1e293b !important;
+}
+
+body:not([data-theme="dark"]) .about-hero p,
+body:not([data-theme="dark"]) .founder-text p,
+body:not([data-theme="dark"]) .founder-quote p,
+body:not([data-theme="dark"]) .mission-card p,
+body:not([data-theme="dark"]) .value-card p,
+body:not([data-theme="dark"]) .mission-list li,
+body:not([data-theme="dark"]) .contact-info p,
+body:not([data-theme="dark"]) .cta-banner p {
+    color: #475569 !important;
+}
+
+body:not([data-theme="dark"]) .glass-card,
+body:not([data-theme="dark"]) .mission-card,
+body:not([data-theme="dark"]) .value-card,
+body:not([data-theme="dark"]) .contact-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
 }
 
 /* End of NirnayPath Style Sheet */
