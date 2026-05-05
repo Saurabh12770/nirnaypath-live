@@ -17,6 +17,8 @@ router.get('/me', auth, async (req, res) => {
             user: {
                 name: req.user.name,
                 email: req.user.email,
+                role: req.user.role,
+                plan: req.user.plan,
                 createdAt: req.user.createdAt,
                 streakCount: req.user.streakCount || 0,
                 lastActiveDate: req.user.lastActiveDate,
