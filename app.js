@@ -28,6 +28,28 @@ const pagesRoutes = require('./routes/pages');
 const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { initCronJobs } = require('./services/cronService');
+const User = require('./models/User');
+
+async function autoPromoteAdmin() {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) return;
+    try {
+        const user = await User.findOne({ email: adminEmail.toLowerCase() });
+        if (user) {
+            if (user.role !== 'admin') {
+                user.role = 'admin';
+                await user.save();
+                console.log(`[Admin] User ${adminEmail} promoted to admin.`);
+            } else {
+                console.log(`[Admin] ${adminEmail} is already an admin.`);
+            }
+        } else {
+            console.log(`[Admin] No user found with email ${adminEmail}. Sign up first, then redeploy.`);
+        }
+    } catch (err) {
+        console.error('[Admin] Auto-promote error:', err.message);
+    }
+}
 
 
 // Initialize app
@@ -40,7 +62,10 @@ if (process.env.NODE_ENV === 'production') {
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath')
-    .then(() => console.log('Connected to MongoDB'))
+    .then(async () => {
+        console.log('Connected to MongoDB');
+        await autoPromoteAdmin();
+    })
     .catch(err => console.error('MongoDB connection error:', err));
 
 app.use(express.json());
