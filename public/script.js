@@ -1235,37 +1235,6 @@ function initTipsSlider() {
     }, 3800);
 }
 
-function initMobileMenu() {
-    const btn = document.getElementById('mobileMenuBtn');
-    const overlay = document.getElementById('mobileMenuOverlay');
-    const closeBtn = document.getElementById('closeMobileMenu');
-    const links = document.querySelectorAll('.mobile-nav-link');
-
-    if (!btn || !overlay) return;
-
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        overlay.classList.toggle('active');
-    });
-
-    const close = () => overlay.classList.remove('active');
-
-    if (closeBtn) closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        close();
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!overlay.contains(e.target) && !btn.contains(e.target)) close();
-    });
-
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            close();
-            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
-        });
-    });
-}
 
 /* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
    32. TRENDING TESTS
@@ -1409,48 +1378,7 @@ function injectDynamicCSS() {
     document.head.appendChild(s);
 }
 
-/* -- 32. MOBILE MENU TOGGLE ------------------------------------------- */
-document.addEventListener('DOMContentLoaded', () => {
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const nav = document.querySelector('.sticky-header nav');
-    if (menuBtn && nav) {
-        menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nav.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
-            const icon = menuBtn.querySelector('i');
-            if (icon) {
-                if (nav.classList.contains('active')) {
-                    icon.className = 'fas fa-times';
-                } else {
-                    icon.className = 'fas fa-bars';
-                }
-            }
-        });
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (nav.classList.contains('active') && !nav.contains(e.target) && !menuBtn.contains(e.target)) {
-                nav.classList.remove('active');
-                const icon = menuBtn.querySelector('i');
-                if (icon) icon.className = 'fas fa-bars';
-            }
-        });
-        
-        // Close menu when a link is clicked
-        nav.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if (nav.classList.contains('active')) {
-                    nav.classList.remove('active');
-                    const icon = menuBtn.querySelector('i');
-                    if (icon) icon.className = 'fas fa-bars';
-                }
-            });
-        });
-    }
-});
-
-// ---------- PREMIUM UI: MOBILE MENU ----------
+/* -- 32. MOBILE MENU TOGGLE (UNIFIED) ------------------------------------------- */
 function initMobileMenu() {
     const btn = document.getElementById('mobileMenuBtn');
     const overlay = document.getElementById('mobileMenuOverlay');
@@ -1459,20 +1387,30 @@ function initMobileMenu() {
 
     if (!btn || !overlay) return;
 
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
+    const toggle = (e) => {
+        if (e) e.stopPropagation();
         overlay.classList.toggle('active');
-    });
+        document.body.classList.toggle('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+        }
+    };
 
-    const close = () => overlay.classList.remove('active');
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fas fa-bars';
+    };
 
-    if (closeBtn) closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        close();
-    });
+    btn.addEventListener('click', toggle);
+    if (closeBtn) closeBtn.addEventListener('click', close);
 
     document.addEventListener('click', (e) => {
-        if (!overlay.contains(e.target) && !btn.contains(e.target)) close();
+        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
+            close();
+        }
     });
 
     links.forEach(link => {
@@ -1482,6 +1420,8 @@ function initMobileMenu() {
         });
     });
 }
+
+// ---------- PREMIUM UI: MOBILE MENU ----------
 
 
 // ─── INFINITE CAROUSEL ENGINE ──────────────────────────────────────────────

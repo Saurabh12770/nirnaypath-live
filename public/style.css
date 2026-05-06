@@ -7542,7 +7542,7 @@ img.loaded {
 .sectional-entry-banner {
     margin-top: 40px;
     padding: 30px;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%) !important;
     border-radius: var(--r-xl);
     color: white;
     display: flex;
@@ -8283,6 +8283,13 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     font-weight: 700;
     box-shadow: var(--shadow-md);
 }
+.sectional-entry-banner {
+    margin-top: 40px;
+    padding: 60px 40px !important;
+    background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%) !important;
+    border-radius: var(--r-xl);
+    color: var(--text-main) !important;
+}
 .founder-meta h3 {
     font-size: 2rem;
     margin-bottom: 10px;
@@ -8672,37 +8679,42 @@ body:not([data-theme="dark"]) .contact-card {
 }
 
 /* Mobile Menu Slide-in P/* Remove any dark mode footer overrides to ensure same appearance */
+footer, .footer-bottom, .footer-content {
+    background: #0F172A !important;
+    color: #ffffff !important;
+}
 [data-theme="dark"] footer,
 [data-theme="dark"] .footer-bottom,
 [data-theme="dark"] .footer-content {
-    background: #0F172A !important;
+    background: #020617 !important;
     color: #ffffff !important;
 }
 
 /* ── 15. CTA BANNER (CONSOLIDATED AUDIT FIX) ────────────────── */
 .cta-banner {
     margin: 80px 0 !important;
-    padding: 60px 20px !important;
-    background: linear-gradient(135deg, #0F172A 0%, #4338CA 100%) !important;
+    padding: 80px 40px !important;
+    background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%) !important;
     border-radius: 24px !important;
     text-align: center !important;
-    color: #ffffff !important;
+    color: var(--text-main) !important;
     position: relative !important;
     overflow: hidden !important;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+    border: 1px solid rgba(79, 70, 229, 0.1) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1) !important;
 }
 
 .cta-banner h2 {
-    font-size: clamp(2rem, 5vw, 3.5rem) !important;
-    margin-bottom: 20px !important;
-    color: #ffffff !important;
+    font-size: clamp(2.2rem, 5vw, 3.8rem) !important;
+    margin-bottom: 25px !important;
+    color: var(--primary-dark) !important;
     font-weight: 800 !important;
 }
 
 .cta-banner p {
-    font-size: clamp(1rem, 2vw, 1.25rem) !important;
-    margin-bottom: 30px !important;
-    color: rgba(255,255,255,0.95) !important;
+    font-size: clamp(1.1rem, 2vw, 1.35rem) !important;
+    margin-bottom: 35px !important;
+    color: var(--text-secondary) !important;
     max-width: 800px !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -8949,7 +8961,23 @@ img { max-width: 100%; height: auto; }
 /* ── 12. MOBILE MENU ───────────────────────────────────────── */
 @media (max-width: 768px) {
     #desktopNav { display: none !important; }
-    .mobile-menu-btn { display: flex !important; }
+    .mobile-menu-btn {
+        display: flex !important;
+        background: var(--gradient-vibrant) !important;
+        color: #ffffff !important;
+        width: 45px !important;
+        height: 45px !important;
+        border-radius: 12px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .mobile-menu-btn:hover {
+        transform: scale(1.1) rotate(5deg) !important;
+    }
     .mobile-menu-overlay {
         display: none;
         position: absolute;
@@ -9195,4 +9223,72 @@ img { max-width: 100%; height: auto; }
     color: var(--primary);
     font-weight: 600;
 }
+
+/* ================================================================
+   NIRNAYPATH – VIBRANT MULTI-COLOR UI SYSTEM
+   ================================================================ */
+
+/* ── 20. MULTI-COLOR CARD SYSTEM (AUDIT FIX) ────────────────── */
+.card, .feature-card, .category-card, .testimonial-card, .faq-item,
+.why-card, .trend-card, .tip-card, .quote-card, .update-card,
+.mission-box, .about-platform-card, .contact-card, .mentor-card,
+.exam-card, .subject-card, .step-card, .np-card, .premium-card, .plan-card {
+    border-radius: 20px !important;
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 30px !important;
+    margin: 10px !important;
+}
+
+/* Multi-color top borders */
+.card:nth-child(7n+1), .feature-card:nth-child(7n+1), .category-card:nth-child(7n+1), .exam-card:nth-child(7n+1) { border-top: 5px solid #EF4444 !important; --accent-glow: rgba(239, 68, 68, 0.3); }
+.card:nth-child(7n+2), .feature-card:nth-child(7n+2), .category-card:nth-child(7n+2), .testimonial-card:nth-child(7n+2) { border-top: 5px solid #EC4899 !important; --accent-glow: rgba(236, 72, 153, 0.3); }
+.card:nth-child(7n+3), .feature-card:nth-child(7n+3), .why-card:nth-child(7n+3), .np-card:nth-child(7n+3) { border-top: 5px solid #F43F5E !important; --accent-glow: rgba(244, 63, 94, 0.3); }
+.card:nth-child(7n+4), .feature-card:nth-child(7n+4), .update-card:nth-child(7n+4), .subject-card:nth-child(7n+4) { border-top: 5px solid #8B5CF6 !important; --accent-glow: rgba(139, 92, 246, 0.3); }
+.card:nth-child(7n+5), .feature-card:nth-child(7n+5), .tip-card:nth-child(7n+5), .step-card:nth-child(7n+5) { border-top: 5px solid #EAB308 !important; --accent-glow: rgba(234, 179, 8, 0.3); }
+.card:nth-child(7n+6), .feature-card:nth-child(7n+6), .mission-box:nth-child(7n+6), .mentor-card:nth-child(7n+6) { border-top: 5px solid #10B981 !important; --accent-glow: rgba(16, 185, 129, 0.3); }
+.card:nth-child(7n+7), .feature-card:nth-child(7n+7), .contact-card:nth-child(7n+7), .plan-card:nth-child(7n+7) { border-top: 5px solid #F97316 !important; --accent-glow: rgba(249, 115, 22, 0.3); }
+
+/* Card Hover Effects */
+.card:hover, .feature-card:hover, .category-card:hover, .testimonial-card:hover, .exam-card:hover, .subject-card:hover, .np-card:hover {
+    transform: translateY(-12px) !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 0 25px var(--accent-glow) !important;
+    border-color: transparent !important;
+}
+
+/* ── 21. VIBRANT GRADIENT ICONS ────────────────────────────── */
+.card i, .feature-card i, .category-card i, .cat-icon i, .stat i, .why-card i, .step-card i, .np-card i, .about-platform-card i {
+    background: var(--gradient-vibrant) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-size: 2.8rem !important;
+    margin-bottom: 25px !important;
+    display: inline-block !important;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15)) !important;
+}
+
+/* ── 22. SPACING & LAYOUT REFINEMENT ──────────────────────── */
+section {
+    padding: 60px 0 !important;
+}
+.container {
+    padding: 0 20px !important;
+}
+.section-title {
+    margin-bottom: 50px !important;
+    font-size: clamp(2rem, 4vw, 3rem) !important;
+}
+.section-subtitle {
+    margin-top: -40px !important;
+    margin-bottom: 40px !important;
+    color: var(--text-secondary) !important;
+    font-size: 1.1rem !important;
+    opacity: 0.8 !important;
+    text-align: center;
+}
+
 
