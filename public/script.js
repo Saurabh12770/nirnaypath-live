@@ -1532,12 +1532,12 @@ function initHeroDashboardStrip() {
     if (!strip) return;
 
     const dashCards = [
-        { icon: '🏆', title: 'Top Scorer', text: 'Rahul – 94% in UPSC Mock' },
-        { icon: '⚡', title: 'Live Now', text: '248 students taking tests' },
-        { icon: '📈', title: 'This Week', text: '500 new Q&A added' },
-        { icon: '🎯', title: 'Next Event', text: 'Free BPSC Mock – Sunday 10AM' },
-        { icon: '✅', title: 'Community', text: '50,000+ aspirants trust us' },
-        { icon: '🔥', title: 'Trending', text: 'SSC CGL 2026 series is live!' }
+        { icon: '<i class="fas fa-users"></i>', title: '50K+ Aspirants', text: 'Active learning community' },
+        { icon: '<i class="fas fa-check-double"></i>', title: '100% Free', text: 'Democratizing education' },
+        { icon: '<i class="fas fa-language"></i>', title: 'Bilingual', text: 'Tests in Hindi & English' },
+        { icon: '<i class="fas fa-desktop"></i>', title: 'Real Interface', text: 'Mirroring exam software' },
+        { icon: '<i class="fas fa-file-invoice"></i>', title: 'Latest Pattern', text: 'Based on 2026 syllabus' },
+        { icon: '<i class="fas fa-chart-pie"></i>', title: 'Deep Analytics', text: 'Identify your weak areas' }
     ];
 
     // Build cards
@@ -1556,6 +1556,28 @@ function initHeroDashboardStrip() {
     setInterval(autoSlide, 30);
     strip.addEventListener('mouseenter', () => scrolling = false);
     strip.addEventListener('mouseleave', () => scrolling = true);
+}
+
+// ─── ABOUT STATS COUNTER ──────────────────────────────────────────────────
+function initAboutStats() {
+    const stats = document.querySelectorAll('.stat-box h3');
+    if (!stats.length) return;
+    
+    stats.forEach(stat => {
+        const target = parseInt(stat.innerText.replace(/\D/g, ''));
+        const suffix = stat.innerText.replace(/[0-9]/g, '');
+        let current = 0;
+        const increment = target / 50;
+        const interval = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                stat.innerText = target + suffix;
+                clearInterval(interval);
+            } else {
+                stat.innerText = Math.ceil(current) + suffix;
+            }
+        }, 30);
+    });
 }
 
 // ─── FAQ ACCORDION ────────────────────────────────────────────────────────────
@@ -1584,19 +1606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initInfiniteCarousel('why-us-grid');
     initHeroActivity();
     initHeroDashboardStrip();
+    initAboutStats();
     initFAQAccordion();
-    initHeroTicker();
 });
-
-function initHeroTicker() {
-    const ticker = document.querySelector('.hero-ticker');
-    if (!ticker) return;
-    
-    // Clone items for seamless loop
-    const items = Array.from(ticker.children);
-    items.forEach(item => {
-        const clone = item.cloneNode(true);
-        ticker.appendChild(clone);
-    });
-}
 

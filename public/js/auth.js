@@ -132,14 +132,8 @@ const Auth = {
         const loginBtn = document.getElementById('loginBtn');
         const userNameDisplay = document.getElementById('userNameDisplay');
         const candName = document.getElementById('cand-name');
-        
-        // Mobile Menu Elements
-        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
-        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-        const mobileAdminLink = document.getElementById('mobileAdminLink');
 
         if (isLoggedIn && user) {
-            // Desktop UI
             if (loginBtn) {
                 loginBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout`;
                 loginBtn.onclick = () => this.logout();
@@ -153,33 +147,18 @@ const Auth = {
             if (user.role === 'admin') {
                 const adminLink = document.getElementById('adminNavLink');
                 if (adminLink) adminLink.style.display = 'inline-block';
-                if (mobileAdminLink) mobileAdminLink.style.display = 'flex';
             }
             if (candName) {
                 candName.textContent = user.name;
             }
-
-            // Mobile UI
-            if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
-            if (mobileLogoutBtn) {
-                mobileLogoutBtn.style.display = 'flex';
-                mobileLogoutBtn.onclick = () => this.logout();
-            }
         } else {
-            // Desktop UI
             if (loginBtn) {
                 loginBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Login`;
                 loginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
             }
-            if (userNameDisplay) userNameDisplay.style.display = 'none';
-            
-            // Mobile UI
-            if (mobileLoginBtn) {
-                mobileLoginBtn.style.display = 'flex';
-                mobileLoginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
+            if (userNameDisplay) {
+                userNameDisplay.style.display = 'none';
             }
-            if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'none';
-            if (mobileAdminLink) mobileAdminLink.style.display = 'none';
         }
     },
 
