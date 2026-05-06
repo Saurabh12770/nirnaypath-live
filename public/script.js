@@ -1585,5 +1585,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroActivity();
     initHeroDashboardStrip();
     initFAQAccordion();
+    initHeroTicker();
 });
+
+function initHeroTicker() {
+    const ticker = document.querySelector('.hero-ticker');
+    if (!ticker) return;
+    
+    // Clone items for seamless loop
+    const items = Array.from(ticker.children);
+    items.forEach(item => {
+        const clone = item.cloneNode(true);
+        ticker.appendChild(clone);
+    });
+}
 

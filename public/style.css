@@ -8803,7 +8803,7 @@ footer, .footer-bottom, .footer-content {
         right: 0 !important;
     }
     .mobile-nav-link {
-        display: block !important;
+        display: flex !important;
         padding: 15px !important;
         color: var(--text-main) !important;
         font-weight: 700 !important;
@@ -8978,22 +8978,6 @@ img { max-width: 100%; height: auto; }
     .mobile-menu-btn:hover {
         transform: scale(1.1) rotate(5deg) !important;
     }
-    .mobile-menu-overlay {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.15);
-        padding: 16px;
-        flex-direction: column;
-        gap: 8px;
-        min-width: 200px;
-        z-index: 999;
-    }
-    .mobile-menu-overlay.active { display: flex !important; }
-    [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; }
     .mobile-nav-link { color: #1e293b !important; font-weight: 600; }
     [data-theme="dark"] .mobile-nav-link { color: #f1f5f9 !important; }
 }

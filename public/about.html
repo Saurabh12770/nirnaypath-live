@@ -102,9 +102,11 @@
             <div id="mobileMenuOverlay" class="mobile-menu-overlay">
                 <button id="closeMobileMenu" class="close-dropdown" style="align-self: flex-end; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
                 <nav class="mobile-nav">
-                    <a href="index.html" class="mobile-nav-link">Home</a>
-                    <a href="about.html" class="mobile-nav-link active">About Us</a>
-                    <button id="mobileLoginBtn" class="mobile-nav-link">Login</button>
+                    <a href="index.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+                    <a href="about.html" class="mobile-nav-link active"><i class="fas fa-info-circle"></i> About Us</a>
+                    <a href="/admin" id="mobileAdminLink" class="mobile-nav-link" style="display: none; color: #f59e0b;"><i class="fas fa-user-shield"></i> Admin</a>
+                    <button id="mobileLoginBtn" class="mobile-nav-link"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button id="mobileLogoutBtn" class="mobile-nav-link" style="display: none; color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </nav>
             </div>
         </div>
@@ -124,87 +126,125 @@
             </div>
         </section>
 
-        <!-- 2. Founder's Message -->
+        <!-- 2. Founder's Message - ENHANCED -->
         <section class="founder-section reveal">
             <div class="container">
                 <div class="founder-grid">
                     <div class="founder-visual">
-                        <div class="founder-image-wrapper">
+                        <div class="founder-image-wrapper premium-frame">
                             <img src="founder.jpeg" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
                         </div>
-                        <div class="founder-badge">Built by an Engineer, For Every Aspirant</div>
                         <div class="founder-meta">
-                            <h3>Saurabh Kumar</h3>
+                            <h3 class="gradient-text">Saurabh Kumar</h3>
+                            <p class="founder-title">Founder & Visionary, NirnayPath</p>
                             <div class="social-links">
-                                <a href="#"><i class="fab fa-linkedin"></i></a>
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="#"><i class="fas fa-envelope"></i></a>
+                                <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" title="Email"><i class="fas fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="founder-content">
                         <h2 class="section-title">From an Aspirant's Heart to <span class="gradient-text">India's Future</span></h2>
                         <div class="founder-text">
-                            <p>"As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams—not because of a lack of ability, but because they couldn't afford expensive test series that cost thousands of rupees. The coaching industry had turned mock tests into a luxury product, and I knew this was deeply unfair."</p>
+                            <p class="lead-text">"As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams—not because of a lack of ability, but because they couldn't afford expensive test series that cost thousands of rupees. The coaching industry had turned mock tests into a luxury product, and I knew this was deeply unfair."</p>
                             <p>"I built NirnayPath in 2026 with a single promise: every Indian student, whether from a metro city or a remote village in Bihar, deserves access to world-class mock tests absolutely free. This platform is not a business for me—it is a mission to level the playing field and ensure that financial constraints never kill a dream again."</p>
+                            <p>"We are here to provide the most realistic, high-quality, and bilingual practice environment. Our goal is to serve 1 Crore aspirants by 2030, ensuring that merit is the only currency that matters in India's competitive landscape."</p>
                         </div>
                         <div class="founder-quote">
                             <i class="fas fa-quote-left"></i>
-                            <p>Success is not about having resources, but about making the most of what you have. Your determination is your greatest asset.</p>
+                            <p>Success is not about having resources, but about making the most of what you have. Your determination is your greatest asset. We are here to fuel that determination.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. Mission & Vision -->
+        <!-- 3. Mission & Vision - ENHANCED -->
         <section class="mission-vision-section reveal">
             <div class="container">
-                <h2 class="section-title text-center">Our Core <span class="gradient-text">Beliefs</span></h2>
+                <h2 class="section-title text-center">Our Core <span class="gradient-text">Beliefs & Commitment</span></h2>
                 <div class="mission-grid">
-                    <div class="mission-card mission" style="border-left: 5px solid var(--primary);">
-                        <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+                    <div class="mission-card mission np-card" style="border-top: 5px solid #4F46E5;">
+                        <div class="card-icon"><i class="fas fa-bullseye gradient-icon"></i></div>
                         <h3>Our Mission</h3>
                         <p>We exist to demolish the financial barriers that prevent brilliant minds from competing in India's toughest government exams. By providing completely free, high-quality, bilingual mock tests that mirror the real exam experience, we empower every aspirant to walk into the examination hall with confidence, not worry about the cost of their preparation.</p>
                         <ul class="mission-list">
                             <li><i class="fas fa-check-circle"></i> Free forever, zero hidden costs</li>
-                            <li><i class="fas fa-check-circle"></i> Authentic exam patterns</li>
-                            <li><i class="fas fa-check-circle"></i> Bilingual (Hindi/English)</li>
+                            <li><i class="fas fa-check-circle"></i> Authentic exam patterns & difficulty</li>
+                            <li><i class="fas fa-check-circle"></i> Instant Analytics & Personalised Feedback</li>
                         </ul>
                     </div>
-                    <div class="mission-card vision" style="border-left: 5px solid var(--warning);">
-                        <div class="card-icon"><i class="fas fa-eye"></i></div>
+                    <div class="mission-card vision np-card" style="border-top: 5px solid #EAB308;">
+                        <div class="card-icon"><i class="fas fa-eye gradient-icon"></i></div>
                         <h3>Our Vision</h3>
                         <p>We envision an India where the only thing that determines a candidate's success is their hard work and dedication—not their wallet. Our goal is to reach every district, every village, and every student who dares to dream of serving the nation through civil services, banking, railways, or any government sector.</p>
                         <ul class="mission-list">
-                            <li><i class="fas fa-star"></i> Reaching the remotest villages</li>
-                            <li><i class="fas fa-star"></i> 100% Equal Opportunity</li>
-                            <li><i class="fas fa-star"></i> Success based on merit</li>
+                            <li><i class="fas fa-star"></i> Reaching the remotest corners of India</li>
+                            <li><i class="fas fa-star"></i> 100% Equal Opportunity for every student</li>
+                            <li><i class="fas fa-star"></i> Creating a Meritocratic India</li>
                         </ul>
                     </div>
                 </div>
                 
-                <!-- Core Values Grid -->
-                <div class="values-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 50px;">
-                    <div class="value-card glass-card" style="padding: 30px; border-radius: var(--r-lg); border-top: 4px solid var(--primary);">
-                        <i class="fas fa-heart" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <!-- Core Values Grid - ENHANCED -->
+                <div class="section-header text-center mt-5">
+                    <h3 class="section-title">Values That <span class="gradient-text">Drive Us</span></h3>
+                </div>
+                <div class="values-grid">
+                    <div class="value-card np-card" style="border-top: 4px solid #EF4444;">
+                        <i class="fas fa-heart gradient-icon"></i>
                         <h4>Empathy First</h4>
-                        <p>Built by aspirants, for aspirants. We understand your struggle.</p>
+                        <p>Built by aspirants, for aspirants. We understand your struggle because we've lived it. Every feature is designed to reduce your preparation stress.</p>
                     </div>
-                    <div class="value-card glass-card" style="padding: 30px; border-radius: var(--r-lg); border-top: 4px solid var(--success);">
-                        <i class="fas fa-balance-scale" style="font-size: 2rem; color: var(--success); margin-bottom: 15px;"></i>
+                    <div class="value-card np-card" style="border-top: 4px solid #10B981;">
+                        <i class="fas fa-balance-scale gradient-icon"></i>
                         <h4>Radical Equity</h4>
-                        <p>100% free forever. No premium tiers that gatekeep essential features.</p>
+                        <p>100% free forever. We believe education is a right, not a privilege. No premium tiers that gatekeep your success.</p>
                     </div>
-                    <div class="value-card glass-card" style="padding: 30px; border-radius: var(--r-lg); border-top: 4px solid var(--accent);">
-                        <i class="fas fa-award" style="font-size: 2rem; color: var(--accent); margin-bottom: 15px;"></i>
-                        <h4>Excellence Without Compromise</h4>
-                        <p>Every question is crafted to match the latest exam patterns.</p>
+                    <div class="value-card np-card" style="border-top: 4px solid #8B5CF6;">
+                        <i class="fas fa-award gradient-icon"></i>
+                        <h4>Excellence</h4>
+                        <p>No compromises on quality. Every question is crafted by subject experts to match the rigorous standards of UPSC and State PSCs.</p>
                     </div>
-                    <div class="value-card glass-card" style="padding: 30px; border-radius: var(--r-lg); border-top: 4px solid var(--warning);">
-                        <i class="fas fa-users" style="font-size: 2rem; color: var(--warning); margin-bottom: 15px;"></i>
-                        <h4>Community Over Commerce</h4>
-                        <p>We measure success by the number of aspirants we serve, not revenue.</p>
+                    <div class="value-card np-card" style="border-top: 4px solid #F97316;">
+                        <i class="fas fa-microchip gradient-icon"></i>
+                        <h4>Innovation</h4>
+                        <p>Using technology to level the playing field. Our AI-driven analytics provide insights that were previously only available to elite coaching students.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Academic Mentors - NEW -->
+        <section class="mentors-section reveal">
+            <div class="container">
+                <h2 class="section-title text-center">Guided by <span class="gradient-text">Academic Experts</span></h2>
+                <p class="section-subtitle text-center">Our content is curated by veterans who have mastered the art of competitive exams.</p>
+                <div class="mentors-grid">
+                    <div class="mentor-card np-card" style="border-top: 4px solid #EC4899;">
+                        <div class="mentor-img">
+                            <img src="https://ui-avatars.com/api/?name=Dr.+Anand+Kumar&background=random" alt="Mentor">
+                        </div>
+                        <h4>Dr. Anand Kumar</h4>
+                        <p>GS & History Expert</p>
+                        <span class="mentor-tag">15+ Years Exp</span>
+                    </div>
+                    <div class="mentor-card np-card" style="border-top: 4px solid #3B82F6;">
+                        <div class="mentor-img">
+                            <img src="https://ui-avatars.com/api/?name=Prof.+Meera+Iyer&background=random" alt="Mentor">
+                        </div>
+                        <h4>Prof. Meera Iyer</h4>
+                        <p>Polity & Governance</p>
+                        <span class="mentor-tag">Ex-Civil Servant</span>
+                    </div>
+                    <div class="mentor-card np-card" style="border-top: 4px solid #F43F5E;">
+                        <div class="mentor-img">
+                            <img src="https://ui-avatars.com/api/?name=Sanjay+Singh&background=random" alt="Mentor">
+                        </div>
+                        <h4>Sanjay Singh</h4>
+                        <p>Quantitative Aptitude</p>
+                        <span class="mentor-tag">SSC Specialist</span>
                     </div>
                 </div>
             </div>

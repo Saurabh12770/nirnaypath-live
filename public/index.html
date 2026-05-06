@@ -49,9 +49,11 @@
             <div id="mobileMenuOverlay" class="mobile-menu-overlay">
                 <button id="closeMobileMenu" class="close-dropdown" style="align-self: flex-end; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
                 <nav class="mobile-nav">
-                    <a href="index.html" class="mobile-nav-link active">Home</a>
-                    <a href="about.html" class="mobile-nav-link">About Us</a>
-                    <button id="mobileLoginBtn" class="mobile-nav-link">Login</button>
+                    <a href="index.html" class="mobile-nav-link active"><i class="fas fa-home"></i> Home</a>
+                    <a href="about.html" class="mobile-nav-link"><i class="fas fa-info-circle"></i> About Us</a>
+                    <a href="/admin" id="mobileAdminLink" class="mobile-nav-link" style="display: none; color: #f59e0b;"><i class="fas fa-user-shield"></i> Admin</a>
+                    <button id="mobileLoginBtn" class="mobile-nav-link"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button id="mobileLogoutBtn" class="mobile-nav-link" style="display: none; color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </nav>
             </div>
         </div>
@@ -94,21 +96,27 @@
         <!-- Dashboard Section (Homepage) -->
         <section id="dashboard" class="view-section active">
 
-            <!-- New Hero Section -->
+            <!-- 1. POWERFUL HERO SECTION - REDESIGNED -->
             <section class="hero-new reveal">
                 <div class="hero-new-container">
                     <div class="hero-new-content">
-                        <div class="hero-new-badges">
-                            <span class="hero-badge-item">50,000+ Aspirants</span>
-                            <span class="hero-badge-item">100% Free</span>
-                            <span class="hero-badge-item">Bilingual</span>
-                            <span class="hero-badge-item">Real Exam Interface</span>
-                        </div>
                         <h1 class="hero-new-title">Your Dream. Our Mission. <br><span class="gradient-text">One Platform – NirnayPath</span></h1>
-                        <p class="hero-new-subtitle">Empowering every aspirant with high-quality, expert-designed mock tests. Practice for UPSC, BPSC, SSC, and Banking in a realistic exam ecosystem – completely free.</p>
+                        <p class="hero-new-subtitle">Democratising elite exam preparation for every Indian aspirant. Practice with world-class, expert-curated mock tests for UPSC, BPSC, SSC, and Banking – **100% Free Forever.**</p>
                         <div class="hero-new-actions">
                             <a href="#popular-exams" class="hero-btn-primary">Start Free Test <i class="fas fa-rocket"></i></a>
-                            <a href="#how-it-works" class="hero-btn-secondary">Learn More <i class="fas fa-arrow-right"></i></a>
+                            <a href="about.html" class="hero-btn-secondary">Our Story <i class="fas fa-heart"></i></a>
+                        </div>
+                        
+                        <!-- Dynamic Dashboard Ticker -->
+                        <div class="hero-ticker-container">
+                            <div class="hero-ticker">
+                                <div class="ticker-item"><i class="fas fa-users"></i> 50,000+ Aspirants</div>
+                                <div class="ticker-item"><i class="fas fa-language"></i> Bilingual Mocks</div>
+                                <div class="ticker-item"><i class="fas fa-bolt"></i> Real Exam Interface</div>
+                                <div class="ticker-item"><i class="fas fa-check-double"></i> Latest 2026 Patterns</div>
+                                <div class="ticker-item"><i class="fas fa-graduation-cap"></i> Expert Curated</div>
+                                <div class="ticker-item"><i class="fas fa-shield-halved"></i> 100% Secure</div>
+                            </div>
                         </div>
                     </div>
                 </div>
