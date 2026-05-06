@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    NirnayPath – Global Design System
    Font: Poppins / Inter | Colors: Indigo #4F46E5, Orange #F97316
    ============================================================ */
@@ -285,14 +285,19 @@
     box-sizing: border-box;
 }
 
-html, body {
+html {
+    width: 100%;
+    scroll-behavior: smooth;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+body {
     overflow-x: hidden;
-    width: 100vw;
+    width: 100%;
     max-width: 100%;
     margin: 0;
     padding: 0;
-    scroll-behavior: smooth;
-    font-size: 16px;
     box-sizing: border-box;
 }
 
@@ -8883,49 +8888,247 @@ body:not([data-theme='dark']) #loginBtn {
 }
 
 
-/* ---------- GLOBAL UI REFINEMENTS ---------- */
-/* 1. Header Sticky */
+
+/* ================================================================
+   NIRNAYPATH – MASTER UI SYSTEM (v3.0)
+   All fixes consolidated in one place, no conflicts.
+   ================================================================ */
+
+/* ── 1. STICKY HEADER ──────────────────────────────────────── */
 header.sticky-header {
     position: sticky !important;
     top: 0 !important;
     z-index: 1000 !important;
-    background: var(--bg-secondary) !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+    background: var(--bg-secondary, #ffffff) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.13) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+[data-theme="dark"] header.sticky-header {
+    background: rgba(15,23,42,0.95) !important;
 }
 
-/* 2. Nav Button Colors */
-body:not([data-theme='dark']) .nav-link, 
-body:not([data-theme='dark']) #loginBtn, 
-body:not([data-theme='dark']) .nav-link.active {
+/* ── 2. NAV LINKS & LOGIN BUTTON ───────────────────────────── */
+.nav-link, #loginBtn {
     background: #1e293b !important;
     color: #ffffff !important;
-    padding: 10px 20px !important;
+    padding: 9px 18px !important;
     border-radius: 10px !important;
+    border: none !important;
+    font-weight: 600 !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 7px !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: all 0.25s ease !important;
 }
-[data-theme='dark'] .nav-link, 
-[data-theme='dark'] #loginBtn, 
-[data-theme='dark'] .nav-link.active {
+.nav-link:hover, #loginBtn:hover, .nav-link.active {
+    background: #4F46E5 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(79,70,229,0.35) !important;
+}
+[data-theme="dark"] .nav-link, [data-theme="dark"] #loginBtn {
     background: #f1f5f9 !important;
     color: #0f172a !important;
-    padding: 10px 20px !important;
-    border-radius: 10px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
 }
-
-/* 6. Global Grey Text Replacement */
-header *, footer *, .hero *, .cta-banner * {
+[data-theme="dark"] .nav-link:hover, [data-theme="dark"] #loginBtn:hover, [data-theme="dark"] .nav-link.active {
+    background: #4F46E5 !important;
     color: #ffffff !important;
 }
-[data-theme="dark"] header *, [data-theme="dark"] footer *, [data-theme="dark"] .hero *, [data-theme="dark"] .cta-banner * {
-    color: #f1f5f9 !important;
+
+/* ── 3. GREY TEXT → WHITE/VISIBLE IN KEY ZONES ─────────────── */
+header .logo-main { color: #4F46E5 !important; font-weight: 800 !important; }
+header .logo-sub  { color: #64748b !important; }
+[data-theme="dark"] header .logo-sub { color: #94a3b8 !important; }
+
+.hero h1, .hero .hero-title { color: #ffffff !important; }
+.hero p, .hero .hero-desc   { color: rgba(255,255,255,0.9) !important; }
+.hero .badge-text            { color: #ffffff !important; }
+.hero .trust-badge           { color: #ffffff !important; background: rgba(255,255,255,0.15) !important; }
+
+footer h3, footer h4          { color: #ffffff !important; }
+footer p, footer a            { color: rgba(255,255,255,0.8) !important; }
+footer .footer-tagline        { color: rgba(255,255,255,0.7) !important; }
+footer .stat h4               { color: #ffffff !important; }
+footer .stat p                { color: rgba(255,255,255,0.7) !important; }
+
+.cta-banner h2, .cta-banner p { color: #ffffff !important; }
+
+/* ── 4. HERO SECTION LAYOUT ────────────────────────────────── */
+.hero {
+    min-height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-/* 5. About Page Image & Founder Fix */
+/* ── 5. HERO DASHBOARD TICKER ──────────────────────────────── */
+.hero-activity-carousel {
+    margin-top: 22px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    padding: 4px 20px;
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+    height: 40px;
+}
+.activity-track {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+.activity-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff !important;
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.activity-item i { color: #fbbf24 !important; }
+
+/* ── 6. HERO DASHBOARD CARDS (new feature) ─────────────────── */
+.hero-dashboard-strip {
+    display: flex;
+    gap: 14px;
+    margin-top: 28px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+}
+.hero-dashboard-strip .dash-card {
+    flex: 0 0 auto;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 14px 20px;
+    color: #ffffff;
+    font-size: 0.82rem;
+    min-width: 200px;
+    text-align: left;
+    transition: transform 0.3s;
+}
+.hero-dashboard-strip .dash-card strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 4px;
+    color: #fbbf24;
+}
+.hero-dashboard-strip .dash-card span {
+    color: rgba(255,255,255,0.85);
+}
+
+/* ── 7. CAROUSEL / SLIDER ──────────────────────────────────── */
+.tips-slider, #tips-slider, #testimonials-slider {
+    display: flex !important;
+    gap: 24px !important;
+    overflow-x: auto !important;
+    scroll-behavior: smooth !important;
+    padding: 16px 8px 24px !important;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+.tips-slider::-webkit-scrollbar,
+#tips-slider::-webkit-scrollbar,
+#testimonials-slider::-webkit-scrollbar { display: none !important; }
+
+.testimonial-card, .tip-card {
+    flex: 0 0 320px !important;
+    max-width: 320px !important;
+    white-space: normal !important;
+}
+@media (max-width: 768px) {
+    .testimonial-card, .tip-card { flex: 0 0 270px !important; max-width: 270px !important; }
+}
+
+/* ── 8. PREMIUM MULTI-COLOR CARD SYSTEM ────────────────────── */
+/* Base card — indigo */
+.card, .feature-card, .category-card, .testimonial-card, .faq-item,
+.why-card, .trend-card, .tip-card, .quote-card, .update-card,
+.mission-box, .about-platform-card, .contact-card, .mentor-card,
+.exam-card, .subject-card, .step-card, .np-card, .premium-card {
+    border-top: 4px solid #4F46E5 !important;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.10) !important;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+}
+.category-card:nth-child(2n), .testimonial-card:nth-child(2n),
+.feature-card:nth-child(2n), .tip-card:nth-child(2n),
+.np-card:nth-child(2n), .why-card:nth-child(2n) {
+    border-top-color: #EC4899 !important;
+    box-shadow: 0 8px 24px rgba(236,72,153,0.10) !important;
+}
+.category-card:nth-child(3n), .testimonial-card:nth-child(3n),
+.feature-card:nth-child(3n), .tip-card:nth-child(3n),
+.np-card:nth-child(3n), .why-card:nth-child(3n) {
+    border-top-color: #10B981 !important;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.10) !important;
+}
+.category-card:nth-child(4n), .testimonial-card:nth-child(4n),
+.feature-card:nth-child(4n), .tip-card:nth-child(4n),
+.np-card:nth-child(4n), .why-card:nth-child(4n) {
+    border-top-color: #F59E0B !important;
+    box-shadow: 0 8px 24px rgba(245,158,11,0.10) !important;
+}
+.category-card:nth-child(5n), .testimonial-card:nth-child(5n),
+.feature-card:nth-child(5n), .tip-card:nth-child(5n) {
+    border-top-color: #EF4444 !important;
+    box-shadow: 0 8px 24px rgba(239,68,68,0.10) !important;
+}
+
+/* Hover lift effect */
+.card:hover, .feature-card:hover, .category-card:hover, .testimonial-card:hover,
+.faq-item:hover, .why-card:hover, .trend-card:hover, .tip-card:hover,
+.quote-card:hover, .update-card:hover, .mission-box:hover, .mentor-card:hover,
+.exam-card:hover, .subject-card:hover, .step-card:hover, .np-card:hover,
+.premium-card:hover {
+    transform: translateY(-7px) !important;
+    box-shadow: 0 20px 48px rgba(79,70,229,0.18) !important;
+}
+
+/* Card text visibility */
+.category-card h3, .testimonial-card h4, .feature-card h3,
+.tip-card h3, .np-card h3, .why-card h3 {
+    color: var(--text-primary, #1e293b) !important;
+}
+[data-theme="dark"] .category-card h3, [data-theme="dark"] .testimonial-card h4,
+[data-theme="dark"] .feature-card h3, [data-theme="dark"] .tip-card h3,
+[data-theme="dark"] .np-card h3, [data-theme="dark"] .why-card h3 {
+    color: #f1f5f9 !important;
+}
+.category-card p, .testimonial-card p, .feature-card p,
+.tip-card p, .np-card p, .why-card p {
+    color: #475569 !important;
+}
+[data-theme="dark"] .category-card p, [data-theme="dark"] .testimonial-card p,
+[data-theme="dark"] .feature-card p, [data-theme="dark"] .tip-card p,
+[data-theme="dark"] .np-card p, [data-theme="dark"] .why-card p {
+    color: #94a3b8 !important;
+}
+
+/* ── 9. OVERFLOW / UNDERFLOW FIX ───────────────────────────── */
+.container, section { max-width: 100% !important; }
+img { max-width: 100%; height: auto; }
+.popular-exams .exam-grid-4,
+.features-grid, .mentors-grid, .testimonials-grid,
+.stats-grid, .plans-comparison {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    max-width: 100% !important;
+}
+
+/* ── 10. ABOUT PAGE – FOUNDER SECTION ─────────────────────── */
 .founder-image-wrapper {
     width: 200px !important;
     height: 200px !important;
@@ -8933,60 +9136,59 @@ header *, footer *, .hero *, .cta-banner * {
     overflow: hidden !important;
     margin: 0 auto 20px !important;
     display: block !important;
-    border: 6px solid var(--primary) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    border: 6px solid #4F46E5 !important;
+    box-shadow: 0 12px 36px rgba(79,70,229,0.22) !important;
 }
 .founder-image-wrapper img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
     display: block !important;
+    border-radius: 50% !important;
 }
 .founder-visual { text-align: center !important; }
-.founder-content { padding: 1rem 1.5rem !important; max-width: 800px !important; margin: 0 auto !important; }
+.founder-section { padding: 40px 20px !important; }
+.founder-content { padding: 1rem 1.5rem !important; }
+.founder-grid { gap: 20px !important; }
 
-/* 9. Premium Card Design System */
-.card, .feature-card, .category-card, .testimonial-card, .faq-item, .why-card, .trend-card, 
-.tip-card, .quote-card, .update-card, .mission-box, .about-platform-card, .contact-card, 
-.mentor-card, .exam-card, .subject-card, .step-card, .np-card, .premium-card {
-    border-top: 4px solid #4F46E5 !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    border-radius: 15px !important;
-    background: var(--bg-secondary) !important;
-    overflow: hidden !important;
-}
-.card:nth-child(2n), .category-card:nth-child(2n), .testimonial-card:nth-child(2n) { border-top-color: #EC4899 !important; }
-.card:nth-child(3n), .category-card:nth-child(3n), .testimonial-card:nth-child(3n) { border-top-color: #10B981 !important; }
-.card:nth-child(4n), .category-card:nth-child(4n), .testimonial-card:nth-child(4n) { border-top-color: #F59E0B !important; }
-
-.card:hover, .feature-card:hover, .category-card:hover, .testimonial-card:hover, .faq-item:hover, .why-card:hover, .trend-card:hover, 
-.tip-card:hover, .quote-card:hover, .update-card:hover, .mission-box:hover, .about-platform-card:hover, .contact-card:hover, 
-.mentor-card:hover, .exam-card:hover, .subject-card:hover, .step-card:hover, .np-card:hover, .premium-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.12) !important;
-}
-
-/* 7. Overflow/Underflow Fix */
-html, body { overflow-x: hidden !important; max-width: 100vw !important; }
-.hero { height: 100vh !important; min-height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-.container, .grid, .flex-row, section { max-width: 100% !important; }
-.card, .testimonial-card, .trend-card, .np-card { word-wrap: break-word !important; overflow-wrap: break-word !important; }
-.popular-exams .exam-grid-4, .mentors-grid, .testimonials-grid { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; max-width: 100% !important; }
-
-/* 8. Hero Activity Carousel Styling */
-.hero-activity-carousel {
-    margin-top: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    padding: 5px 20px;
-    width: 100%;
-    max-width: 500px;
+/* ── 11. FAQ ACCORDION ─────────────────────────────────────── */
+.faq-answer, .faq-content {
+    max-height: 0;
     overflow: hidden;
-    height: 40px;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+    opacity: 0;
 }
-.activity-track { display: flex; flex-direction: column; transition: transform 0.5s ease-in-out; }
-.activity-item { height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; color: white !important; font-size: 0.9rem; }
+.faq-item.active .faq-answer, .faq-item.active .faq-content {
+    max-height: 600px;
+    opacity: 1;
+    padding-top: 12px;
+}
+.faq-item.active .fa-chevron-down { transform: rotate(180deg) !important; }
+
+/* ── 12. MOBILE MENU ───────────────────────────────────────── */
+@media (max-width: 768px) {
+    #desktopNav { display: none !important; }
+    .mobile-menu-btn { display: flex !important; }
+    .mobile-menu-overlay {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+        padding: 16px;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 200px;
+        z-index: 999;
+    }
+    .mobile-menu-overlay.active { display: flex !important; }
+    [data-theme="dark"] .mobile-menu-overlay { background: #1e293b !important; }
+    .mobile-nav-link { color: #1e293b !important; font-weight: 600; }
+    [data-theme="dark"] .mobile-nav-link { color: #f1f5f9 !important; }
+}
+@media (min-width: 769px) {
+    .mobile-menu-btn { display: none !important; }
+}
 

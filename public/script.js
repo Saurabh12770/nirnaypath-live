@@ -1483,65 +1483,121 @@ function initMobileMenu() {
     });
 }
 
-// ---------- PREMIUM UI: INFINITE CAROUSEL ----------
+
+// ─── INFINITE TESTIMONIALS CAROUSEL ──────────────────────────────────────────
 function initTestimonialsCarousel() {
-    const slider = document.getElementById('testimonials-slider') || document.getElementById('tips-slider');
+    const slider = document.getElementById('testimonials-slider') ||
+                   document.getElementById('tips-slider');
     if (!slider) return;
 
-    // Clone cards for infinite loop
-    const cards = Array.from(slider.children);
-    cards.forEach(card => {
-        const clone = card.cloneNode(true);
-        slider.appendChild(clone);
-    });
+    // Clone all cards to enable seamless infinite loop
+    const origCards = Array.from(slider.children);
+    if (origCards.length === 0) return;
+    origCards.forEach(card => slider.appendChild(card.cloneNode(true)));
 
     let isPaused = false;
-    const scrollInterval = 3000; // 3 seconds
+    let currentIndex = 0;
+    const totalOrig = origCards.length;
 
-    function autoScroll() {
-        if (!isPaused) {
-            const cardWidth = slider.children[0].offsetWidth + parseInt(window.getComputedStyle(slider.children[0]).marginRight || 0) + 30; // 30 is gap
-            slider.style.scrollBehavior = 'smooth';
-            slider.scrollLeft += cardWidth;
-            
-            // Check if we need to loop back
+    function getCardWidth() {
+        const card = slider.children[0];
+        if (!card) return 320;
+        const style = window.getComputedStyle(card);
+        return card.offsetWidth + parseInt(style.marginRight || '0') + 24; // 24 = gap
+    }
+
+    function slide() {
+        if (isPaused) return;
+        currentIndex++;
+        const cardW = getCardWidth();
+        slider.style.scrollBehavior = 'smooth';
+        slider.scrollLeft = currentIndex * cardW;
+
+        // Seamless reset after reaching cloned cards
+        if (currentIndex >= totalOrig) {
             setTimeout(() => {
-                if (slider.scrollLeft >= slider.scrollWidth / 2) {
-                    slider.style.scrollBehavior = 'auto'; // Disable smooth scroll to snap back instantly
-                    slider.scrollLeft = 0;
-                }
-            }, 600); // Wait for smooth scroll to finish
+                slider.style.scrollBehavior = 'auto';
+                slider.scrollLeft = 0;
+                currentIndex = 0;
+            }, 550);
         }
     }
 
-    let interval = setInterval(autoScroll, scrollInterval);
+    setInterval(slide, 3000);
     slider.addEventListener('mouseenter', () => isPaused = true);
     slider.addEventListener('mouseleave', () => isPaused = false);
+    slider.addEventListener('touchstart', () => isPaused = true, { passive: true });
+    slider.addEventListener('touchend', () => setTimeout(() => isPaused = false, 2000));
 }
 
-// ---------- HERO ACTIVITY CAROUSEL ----------
+// ─── HERO ACTIVITY TICKER ─────────────────────────────────────────────────────
 function initHeroActivity() {
     const track = document.getElementById('heroActivityTrack');
     if (!track) return;
 
-    let index = 0;
-    const items = track.children.length;
-    
+    const messages = [
+        '🔥 Rahul scored 92% in UPSC GS Mock Test!',
+        '⚡ Priya topped BPSC Teacher Mock – Rank #1!',
+        '🏆 500+ new questions added this week!',
+        '📅 Free live test this Sunday – Register now!',
+        '💡 Amit cleared SSC CGL Prelims in first attempt!',
+        '✅ 50,000+ aspirants trust NirnayPath – Join free!',
+        '🌟 Neha improved her score by 35% in 7 days!',
+        '🎯 Bihar Police Mock Test series now live!'
+    ];
+
+    // Build items
+    track.innerHTML = messages.map(m => `<div class="activity-item"><i class="fas fa-circle-dot" style="color:#fbbf24"></i> ${m}</div>`).join('');
+
+    let idx = 0;
+    const ITEM_HEIGHT = 40;
+
     setInterval(() => {
-        index = (index + 1) % items;
-        track.style.transform = `translateY(-${index * 40}px)`;
-    }, 5000);
+        idx = (idx + 1) % messages.length;
+        track.style.transform = `translateY(-${idx * ITEM_HEIGHT}px)`;
+    }, 4000);
 }
 
-// ---------- PREMIUM UI: FAQ ACCORDION ----------
+// ─── HERO DASHBOARD CARDS (auto-slide strip) ──────────────────────────────────
+function initHeroDashboardStrip() {
+    const strip = document.getElementById('heroDashboardStrip');
+    if (!strip) return;
+
+    const dashCards = [
+        { icon: '🏆', title: 'Top Scorer', text: 'Rahul – 94% in UPSC Mock' },
+        { icon: '⚡', title: 'Live Now', text: '248 students taking tests' },
+        { icon: '📈', title: 'This Week', text: '500 new Q&A added' },
+        { icon: '🎯', title: 'Next Event', text: 'Free BPSC Mock – Sunday 10AM' },
+        { icon: '✅', title: 'Community', text: '50,000+ aspirants trust us' },
+        { icon: '🔥', title: 'Trending', text: 'SSC CGL 2026 series is live!' }
+    ];
+
+    // Build cards
+    strip.innerHTML = dashCards.concat(dashCards).map(c => `
+        <div class="dash-card">
+            <strong>${c.icon} ${c.title}</strong>
+            <span>${c.text}</span>
+        </div>`).join('');
+
+    let scrolling = true;
+    function autoSlide() {
+        if (!scrolling) return;
+        strip.scrollLeft += 1;
+        if (strip.scrollLeft >= strip.scrollWidth / 2) strip.scrollLeft = 0;
+    }
+    setInterval(autoSlide, 30);
+    strip.addEventListener('mouseenter', () => scrolling = false);
+    strip.addEventListener('mouseleave', () => scrolling = true);
+}
+
+// ─── FAQ ACCORDION ────────────────────────────────────────────────────────────
 function initFAQAccordion() {
     const faqItems = document.querySelectorAll('.faq-item');
     if (!faqItems.length) return;
-
     faqItems.forEach(item => {
         const header = item.querySelector('.faq-question') || item.querySelector('.faq-header');
         if (!header) return;
-        
+        header.style.cursor = 'pointer';
         header.addEventListener('click', () => {
             const isActive = item.classList.contains('active');
             faqItems.forEach(i => i.classList.remove('active'));
@@ -1550,10 +1606,12 @@ function initFAQAccordion() {
     });
 }
 
+// ─── BOOTSTRAP ALL UI ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initTestimonialsCarousel();
-    initFAQAccordion();
     initHeroActivity();
+    initHeroDashboardStrip();
+    initFAQAccordion();
 });
 
