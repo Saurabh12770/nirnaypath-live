@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="/style.css?v=3.0.0">
     <link rel="manifest" href="/manifest.json?v=3.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=3.0.0">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script></head>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    
+
+    
+</head>
 <body>
     <header class="sticky-header">
         <div class="logo">
@@ -88,26 +93,35 @@
     </div>
 
     <main>
+        <!-- Dashboard Section (Homepage) -->
+        <section id="dashboard" class="view-section active">
 
-        <!-- 1. POWERFUL HERO SECTION - REBUILT -->
-        <section class="hero-new reveal">
-            <div class="hero-new-container">
-                <div class="hero-new-content">
-                    <h1 class="hero-new-title">NirnayPath: Your Gateway to <br><span class="gradient-text">Government Excellence</span></h1>
-                    <p class="hero-new-subtitle">The most realistic, high-fidelity mock test platform in India. Practice UPSC, BPSC, SSC, and Banking with expert-curated content – **100% Free Forever.**</p>
-                    <div class="hero-new-actions">
-                        <a href="#popular-exams" class="hero-btn-primary" style="padding: 18px 40px; background: #4F46E5; color: white; border-radius: 12px; font-weight: 700; text-decoration: none; display: inline-block; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);">Start Free Test Now <i class="fas fa-rocket"></i></a>
-                    </div>
-                    
-                    <div class="hero-badges">
-                        <div class="badge-item"><i class="fas fa-users"></i> 50,000+ Students</div>
-                        <div class="badge-item"><i class="fas fa-file-alt"></i> 10,000+ Mock Tests</div>
-                        <div class="badge-item"><i class="fas fa-language"></i> Bilingual Support</div>
-                        <div class="badge-item"><i class="fas fa-check-circle"></i> 2026 Exam Pattern</div>
+            <!-- 1. POWERFUL HERO SECTION - REDESIGNED -->
+            <section class="hero-new reveal">
+                <div class="hero-new-container">
+                    <div class="hero-new-content">
+                        <h1 class="hero-new-title">Your Dream. Our Mission. <br><span class="gradient-text">One Platform – NirnayPath</span></h1>
+                        <p class="hero-new-subtitle">Democratising elite exam preparation for every Indian aspirant. Practice with world-class, expert-curated mock tests for UPSC, BPSC, SSC, and Banking – **100% Free Forever.**</p>
+                        <div class="hero-new-actions">
+                            <a href="#popular-exams" class="hero-btn-primary">Start Free Test <i class="fas fa-rocket"></i></a>
+                            <a href="about.html" class="hero-btn-secondary">Our Story <i class="fas fa-heart"></i></a>
+                        </div>
+                        
+                        <!-- Dynamic Dashboard Ticker -->
+                        <div class="hero-ticker-container">
+                            <div class="hero-ticker">
+                                <div class="ticker-item"><i class="fas fa-users"></i> 50,000+ Aspirants</div>
+                                <div class="ticker-item"><i class="fas fa-language"></i> Bilingual Mocks</div>
+                                <div class="ticker-item"><i class="fas fa-bolt"></i> Real Exam Interface</div>
+                                <div class="ticker-item"><i class="fas fa-check-double"></i> Latest 2026 Patterns</div>
+                                <div class="ticker-item"><i class="fas fa-graduation-cap"></i> Expert Curated</div>
+                                <div class="ticker-item"><i class="fas fa-shield-halved"></i> 100% Secure</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
             <!-- Popular Exams Section -->
             <section id="popular-exams" class="popular-exams reveal">
                 <h2 class="section-title text-center">🌟  Popular <span class="gradient-text">Exam Categories</span></h2>
@@ -689,6 +703,53 @@
                 </div>
             </section>
 
+            <!-- Testimonials Section -->
+            <section class="testimonials-section reveal">
+                <div class="container">
+                    <h2 class="section-title text-center">Voices of <span class="gradient-text">Success</span></h2>
+                    <div class="testimonials-grid">
+                        <div class="testimonial-card" style="border-left: 4px solid var(--primary);">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon" style="color: var(--primary-light);"></i>
+                                <p>"The bilingual toggle is a lifesaver! I can instantly switch between Hindi and English when I get stuck on complex terms. Truly realistic interface."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://ui-avatars.com/api/?name=Amit+Sharma&background=4f46e5&color=fff&size=120" alt="Amit Sharma">
+                                <div class="user-info">
+                                    <h4>Amit Sharma</h4>
+                                    <span>BPSC Aspirant</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card" style="border-left: 4px solid var(--success);">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon" style="color: var(--success-light);"></i>
+                                <p>"NirnayPath's analytics showed me exactly where I was losing time. My score improved by 30% in just two months."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://ui-avatars.com/api/?name=Priya+Verma&background=10b981&color=fff&size=120" alt="Priya Verma">
+                                <div class="user-info">
+                                    <h4>Priya Verma</h4>
+                                    <span>UPSC Candidate</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card" style="border-left: 4px solid var(--accent);">
+                            <div class="testi-content">
+                                <i class="fas fa-quote-left quote-icon" style="color: var(--accent-light);"></i>
+                                <p>"Completely free and high quality. This platform is a blessing for my SSC CGL preparation."</p>
+                            </div>
+                            <div class="testi-user">
+                                <img src="https://ui-avatars.com/api/?name=Rahul+Kumar&background=ec4899&color=fff&size=120" alt="Rahul Kumar">
+                                <div class="user-info">
+                                    <h4>Rahul Kumar</h4>
+                                    <span>SSC Aspirant</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Latest Updates Section -->
             <section class="updates-section container reveal">
