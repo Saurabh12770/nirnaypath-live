@@ -293,7 +293,7 @@ html {
 }
 
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -7867,7 +7867,7 @@ img.loaded {
 
 /* -- 31. GLOBAL MOBILE FIXES ------------------------------------------- */
 html, body {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100%;
 }
 @media (max-width: 768px) {
