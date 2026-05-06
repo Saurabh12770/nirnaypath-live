@@ -9,62 +9,6 @@
     <link rel="stylesheet" href="/style.css?v=3.0.0">
     <link rel="manifest" href="/manifest.json?v=3.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=3.0.0">
-    <style>
-        :root {
-            --primary: #4F46E5;
-            --accent: #EC4899;
-        }
-
-        .about-hero {
-            padding: 120px 0 60px;
-            text-align: center;
-            background: var(--bg-main);
-        }
-
-        .founder-section {
-            padding: 80px 0;
-        }
-
-        .founder-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .founder-image-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .founder-image-wrapper img {
-            width: 100%;
-            border-radius: var(--r-xl);
-            box-shadow: var(--shadow-premium);
-        }
-
-        .founder-badge {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--dark);
-            color: white;
-            padding: 10px 20px;
-            border-radius: var(--r-pill);
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 768px) {
-            .founder-grid {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-        }
-    </style>
     
     
 
@@ -110,50 +54,49 @@
                 </nav>
             </div>
         </div>
-    </header>
 
-    <main>
-        <!-- New Hero Section -->
+        <!-- 1. POWERFUL HERO SECTION - REBUILT -->
         <section class="hero-new reveal">
             <div class="hero-new-container">
                 <div class="hero-new-content">
-                    <h1 class="hero-new-title">About NirnayPath – <br><span class="gradient-text">Built for Every Aspirant</span></h1>
-                    <p class="hero-new-subtitle">Our mission is to democratize education by providing premium-grade practice resources to every student, regardless of their background. Join thousands of successful aspirants today.</p>
+                    <h1 class="hero-new-title">About NirnayPath – <br><span class="gradient-text">India's Choice for Success</span></h1>
+                    <p class="hero-new-subtitle">We are more than just a mock test platform. We are a movement dedicated to ensuring that every Indian student has the resources to succeed in their government exam journey, regardless of their financial status.</p>
                     <div class="hero-new-actions">
-                        <a href="index.html#popular-exams" class="hero-btn-primary">Start Practicing <i class="fas fa-graduation-cap"></i></a>
+                        <a href="index.html#popular-exams" class="hero-btn-primary" style="padding: 18px 40px; background: #4F46E5; color: white; border-radius: 12px; font-weight: 700; text-decoration: none; display: inline-block; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);">Start Practicing <i class="fas fa-graduation-cap"></i></a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. Founder's Message - ENHANCED -->
+
+        <!-- 2. Founder's Message - PREMIUM OVERHAUL -->
         <section class="founder-section reveal">
             <div class="container">
-                <div class="founder-grid">
-                    <div class="founder-visual">
-                        <div class="founder-image-wrapper premium-frame">
-                            <img src="founder.jpeg" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
+                <div class="founder-grid" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: center;">
+                    <div class="founder-visual" style="text-align: center;">
+                        <div class="founder-image-wrapper">
+                            <img src="founder.jpeg" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'" style="width: 350px !important; height: 350px !important; border-radius: 30px !important; border: 8px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
                         </div>
-                        <div class="founder-meta">
-                            <h3 class="gradient-text">Saurabh Kumar</h3>
-                            <p class="founder-title">Founder & Visionary, NirnayPath</p>
-                            <div class="social-links">
-                                <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                                <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
-                                <a href="#" title="Email"><i class="fas fa-envelope"></i></a>
+                        <div class="founder-meta" style="margin-top: 25px;">
+                            <h3 class="gradient-text" style="font-size: 2.2rem; margin-bottom: 5px;">Saurabh Kumar</h3>
+                            <p class="founder-title" style="font-weight: 700; color: #475569;">Founder & Visionary, NirnayPath</p>
+                            <div class="social-links" style="margin-top: 15px; display: flex; justify-content: center; gap: 15px;">
+                                <a href="#" style="color: #4F46E5; font-size: 1.5rem;"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" style="color: #1DA1F2; font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                                <a href="#" style="color: #EA4335; font-size: 1.5rem;"><i class="fas fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="founder-content">
-                        <h2 class="section-title">From an Aspirant's Heart to <span class="gradient-text">India's Future</span></h2>
-                        <div class="founder-text">
-                            <p class="lead-text">"As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams—not because of a lack of ability, but because they couldn't afford expensive test series that cost thousands of rupees. The coaching industry had turned mock tests into a luxury product, and I knew this was deeply unfair."</p>
-                            <p>"I built NirnayPath in 2026 with a single promise: every Indian student, whether from a metro city or a remote village in Bihar, deserves access to world-class mock tests absolutely free. This platform is not a business for me—it is a mission to level the playing field and ensure that financial constraints never kill a dream again."</p>
-                            <p>"We are here to provide the most realistic, high-quality, and bilingual practice environment. Our goal is to serve 1 Crore aspirants by 2030, ensuring that merit is the only currency that matters in India's competitive landscape."</p>
+                        <h2 class="section-title" style="font-size: 2.8rem; margin-bottom: 30px;">From an Aspirant's Heart to <span class="gradient-text">India's Future</span></h2>
+                        <div class="founder-text" style="font-size: 1.15rem; line-height: 1.8; color: #334155;">
+                            <p style="margin-bottom: 20px;">"As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams—not because of a lack of ability, but because they couldn't afford expensive test series that cost thousands of rupees. The coaching industry had turned mock tests into a luxury product, and I knew this was deeply unfair."</p>
+                            <p style="margin-bottom: 20px;">"I built NirnayPath with a single promise: every Indian student, whether from a metro city or a remote village, deserves access to world-class mock tests absolutely free. This platform is not a business for me—it is a mission to level the playing field and ensure that financial constraints never kill a dream again."</p>
+                            <p>"We are here to provide the most realistic, high-quality, and bilingual practice environment. Our goal is to serve 1 Crore aspirants by 2030, ensuring that merit is the only currency that matters in India's competitive landscape. Together, we will build a stronger, smarter India."</p>
                         </div>
-                        <div class="founder-quote">
-                            <i class="fas fa-quote-left"></i>
-                            <p>Success is not about having resources, but about making the most of what you have. Your determination is your greatest asset. We are here to fuel that determination.</p>
+                        <div class="founder-quote" style="margin-top: 40px; padding: 30px; background: #EEF2FF; border-left: 6px solid #4F46E5; border-radius: 0 20px 20px 0;">
+                            <i class="fas fa-quote-left" style="font-size: 2rem; color: #4F46E5; opacity: 0.3; display: block; margin-bottom: 15px;"></i>
+                            <p style="font-style: italic; font-weight: 600; font-size: 1.2rem; color: #1E293B;">"Success is not about having resources, but about making the most of what you have. Your determination is your greatest asset. We are here to fuel that determination."</p>
                         </div>
                     </div>
                 </div>

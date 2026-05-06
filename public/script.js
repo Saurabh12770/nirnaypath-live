@@ -1498,66 +1498,6 @@ function initTestimonials() {
       </div>`).join('');
 }
 
-// ─── HERO ACTIVITY TICKER ─────────────────────────────────────────────────────
-function initHeroActivity() {
-    const track = document.getElementById('heroActivityTrack');
-    if (!track) return;
-
-    const messages = [
-        '🔥 Rahul scored 92% in UPSC GS Mock Test!',
-        '⚡ Priya topped BPSC Teacher Mock – Rank #1!',
-        '🏆 500+ new questions added this week!',
-        '📅 Free live test this Sunday – Register now!',
-        '💡 Amit cleared SSC CGL Prelims in first attempt!',
-        '✅ 50,000+ aspirants trust NirnayPath – Join free!',
-        '🌟 Neha improved her score by 35% in 7 days!',
-        '🎯 Bihar Police Mock Test series now live!'
-    ];
-
-    // Build items
-    track.innerHTML = messages.map(m => `<div class="activity-item"><i class="fas fa-circle-dot" style="color:#fbbf24"></i> ${m}</div>`).join('');
-
-    let idx = 0;
-    const ITEM_HEIGHT = 40;
-
-    setInterval(() => {
-        idx = (idx + 1) % messages.length;
-        track.style.transform = `translateY(-${idx * ITEM_HEIGHT}px)`;
-    }, 4000);
-}
-
-// ─── HERO DASHBOARD CARDS (auto-slide strip) ──────────────────────────────────
-function initHeroDashboardStrip() {
-    const strip = document.getElementById('heroDashboardStrip');
-    if (!strip) return;
-
-    const dashCards = [
-        { icon: '🏆', title: 'Top Scorer', text: 'Rahul – 94% in UPSC Mock' },
-        { icon: '⚡', title: 'Live Now', text: '248 students taking tests' },
-        { icon: '📈', title: 'This Week', text: '500 new Q&A added' },
-        { icon: '🎯', title: 'Next Event', text: 'Free BPSC Mock – Sunday 10AM' },
-        { icon: '✅', title: 'Community', text: '50,000+ aspirants trust us' },
-        { icon: '🔥', title: 'Trending', text: 'SSC CGL 2026 series is live!' }
-    ];
-
-    // Build cards
-    strip.innerHTML = dashCards.concat(dashCards).map(c => `
-        <div class="dash-card">
-            <strong>${c.icon} ${c.title}</strong>
-            <span>${c.text}</span>
-        </div>`).join('');
-
-    let scrolling = true;
-    function autoSlide() {
-        if (!scrolling) return;
-        strip.scrollLeft += 1;
-        if (strip.scrollLeft >= strip.scrollWidth / 2) strip.scrollLeft = 0;
-    }
-    setInterval(autoSlide, 30);
-    strip.addEventListener('mouseenter', () => scrolling = false);
-    strip.addEventListener('mouseleave', () => scrolling = true);
-}
-
 // ─── FAQ ACCORDION ────────────────────────────────────────────────────────────
 function initFAQAccordion() {
     const faqItems = document.querySelectorAll('.faq-item');
@@ -1582,21 +1522,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initInfiniteCarousel('tips-slider');
     initInfiniteCarousel('testimonials-slider');
     initInfiniteCarousel('why-us-grid');
-    initHeroActivity();
-    initHeroDashboardStrip();
     initFAQAccordion();
-    initHeroTicker();
 });
-
-function initHeroTicker() {
-    const ticker = document.querySelector('.hero-ticker');
-    if (!ticker) return;
-    
-    // Clone items for seamless loop
-    const items = Array.from(ticker.children);
-    items.forEach(item => {
-        const clone = item.cloneNode(true);
-        ticker.appendChild(clone);
-    });
-}
 
