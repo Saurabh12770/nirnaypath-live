@@ -1496,15 +1496,21 @@ function initTestimonialsCarousel() {
     });
 
     let isPaused = false;
-    const scrollInterval = 30; // ms
-    const scrollStep = 1;
+    const scrollInterval = 3000; // 3 seconds
 
     function autoScroll() {
         if (!isPaused) {
-            slider.scrollLeft += scrollStep;
-            if (slider.scrollLeft >= slider.scrollWidth / 2) {
-                slider.scrollLeft = 0;
-            }
+            const cardWidth = slider.children[0].offsetWidth + parseInt(window.getComputedStyle(slider.children[0]).marginRight || 0) + 30; // 30 is gap
+            slider.style.scrollBehavior = 'smooth';
+            slider.scrollLeft += cardWidth;
+            
+            // Check if we need to loop back
+            setTimeout(() => {
+                if (slider.scrollLeft >= slider.scrollWidth / 2) {
+                    slider.style.scrollBehavior = 'auto'; // Disable smooth scroll to snap back instantly
+                    slider.scrollLeft = 0;
+                }
+            }, 600); // Wait for smooth scroll to finish
         }
     }
 
@@ -1524,7 +1530,7 @@ function initHeroActivity() {
     setInterval(() => {
         index = (index + 1) % items;
         track.style.transform = `translateY(-${index * 40}px)`;
-    }, 4000);
+    }, 5000);
 }
 
 // ---------- PREMIUM UI: FAQ ACCORDION ----------
