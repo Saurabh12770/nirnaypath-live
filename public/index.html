@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -38,10 +38,7 @@
             <button id="installAppBtn" class="cta-btn" style="display:none; background: var(--success);" onclick="PWA.install()">
                 <i class="fas fa-download"></i> <span class="cta-text">Install</span>
             </button>
-            <button class="cta-btn primary-btn" onclick="document.getElementById('popular-exams').scrollIntoView({behavior:'smooth'})">
-                <span class="cta-text">Start Test</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
+            <!-- Header CTA Removed as per request -->
             <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
@@ -177,15 +174,15 @@
                 <div class="sectional-entry-banner reveal">
                     <div class="scrolling-wrapper">
                         <div class="scrolling-text">
-                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-landmark"></i> General Studies</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-brain"></i> Reasoning</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-language"></i> English Language</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-newspaper"></i> Current Affairs</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-landmark"></i> General Studies</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-brain"></i> Reasoning</span> Ã¢â‚¬ 
-                            <span><i class="fas fa-language"></i> English Language</span> Ã¢â‚¬ 
+                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> • 
+                            <span><i class="fas fa-landmark"></i> General Studies</span> • 
+                            <span><i class="fas fa-brain"></i> Reasoning</span> • 
+                            <span><i class="fas fa-language"></i> English Language</span> • 
+                            <span><i class="fas fa-newspaper"></i> Current Affairs</span> • 
+                            <span><i class="fas fa-calculator"></i> Quantitative Aptitude</span> • 
+                            <span><i class="fas fa-landmark"></i> General Studies</span> • 
+                            <span><i class="fas fa-brain"></i> Reasoning</span> • 
+                            <span><i class="fas fa-language"></i> English Language</span> • 
                             <span><i class="fas fa-newspaper"></i> Current Affairs</span>
                         </div>
                     </div>
@@ -335,7 +332,7 @@
                         <div class="tip-icon">
                             <i class="fas fa-clock" style="color: var(--accent);"></i>
                         </div>
-                        <h3>Ã¢ Time Management Practice</h3>
+                        <h3>✨ Time Management Practice</h3>
                         <p>Practice solving questions within time limits to improve speed and accuracy for the actual exam.</p>
                     </div>
                     
@@ -412,7 +409,7 @@
         <!-- Subject Selection (hidden by default, shown on exam click) -->
         <section id="subject-selection-area" style="display:none" class="reveal">
             <div class="subject-selection-header">
-                <h2 class="section-title">🌟 Choose Your Subject Ã¢â‚¬" <span id="current-exam-name" class="gradient-text">UPSC</span></h2>
+                <h2 class="section-title">🌟 Choose Your Subject — <span id="current-exam-name" class="gradient-text">UPSC</span></h2>
                 <div class="practice-modes-toggle">
                     <button class="mode-toggle-btn active" onclick="switchPracticeMode('full')">Full Mock Tests</button>
                     <button class="mode-toggle-btn" onclick="switchPracticeMode('drill')">Topic-wise Drills</button>
@@ -452,7 +449,7 @@
             <div class="test-grid" id="testGrid"></div>
             <div class="test-grid-info">
                 <div class="grid-info-item"><i class="fas fa-info-circle"></i><span>Click any card or "Start Test" to begin</span></div>
-                <div class="grid-info-item"><i class="fas fa-sync-alt"></i><span>Tests are auto-saved Ã¢â‚¬" resume anytime</span></div>
+                <div class="grid-info-item"><i class="fas fa-sync-alt"></i><span>Tests are auto-saved — resume anytime</span></div>
             </div>
         </div>
 
@@ -470,7 +467,7 @@
                             <span class="trend-badge hard">Expert Tier</span>
                         </div>
                         <h3>BPSC 71st Combined Prelims</h3>
-                        <p>All Subjects Ã‚ Comprehensive GS</p>
+                        <p>All Subjects • Comprehensive GS</p>
                         <div class="trend-meta">
                             <span><i class="fas fa-question-circle"></i> 150 Qs</span>
                             <span><i class="fas fa-clock"></i> 120 Mins</span>
@@ -500,7 +497,7 @@
                             <span class="trend-badge easy">Base Tier</span>
                         </div>
                         <h3>UPSC Ethics & Aptitude</h3>
-                        <p>GS Paper IV Ã‚ Case Studies</p>
+                        <p>GS Paper IV • Case Studies</p>
                         <div class="trend-meta">
                             <span><i class="fas fa-question-circle"></i> 80 Qs</span>
                             <span><i class="fas fa-clock"></i> 120 Mins</span>
@@ -517,7 +514,7 @@
                     <h2 class="section-title">Why Aspirants Choose <span class="text-primary">NirnayPath?</span></h2>
                     <p>We provide everything you need to ace your exams in one single place.</p>
                 </div>
-                <div class="why-us-grid">
+                <div class="why-us-grid" id="why-us-grid">
                     <div class="why-card hover-lift">
                         <div class="why-icon"><i class="fas fa-desktop"></i></div>
                         <h4>Real Exam Interface</h4>
@@ -562,7 +559,7 @@
             <!-- Motivational Quotes Section -->
             <section class="motivational-quotes-section reveal">
                 <div class="container">
-                    <h2 class="section-title text-center">Ã¢Å“ Daily Motivation for Aspirants Ã¢Å“</h2>
+                    <h2 class="section-title text-center">⭐ Daily Motivation for Aspirants ⭐</h2>
                     <p class="section-subtitle text-center">Fuel your preparation journey with powerful words from visionaries and achievers</p>
                     
                     <div class="quotes-grid">
@@ -1182,7 +1179,7 @@
                     <div class="motivation-card">
                         <i class="fas fa-quote-left"></i>
                         <p class="motivation-text">"Every successful officer started with a single mock test. Your journey begins here."</p>
-                        <div class="motivation-author">Ã¢â‚¬" NirnayPath Team</div>
+                        <div class="motivation-author">— NirnayPath Team</div>
                     </div>
                 </div>
             </div>
@@ -1214,12 +1211,12 @@
                 <!-- Mission & Vision -->
                 <div class="mission-section">
                     <h3><i class="fas fa-bullseye"></i> Our Mission</h3>
-                    <p>To provide <strong>free, highÃ¢â‚¬'quality mock tests</strong> for every competitive exam aspirant in India, regardless of their financial background. We believe that access to quality practice should be a right, not a privilege.</p>
+                    <p>To provide <strong>free, high-quality mock tests</strong> for every competitive exam aspirant in India, regardless of their financial background. We believe that access to quality practice should be a right, not a privilege.</p>
                     
                     <h3><i class="fas fa-eye"></i> Our Vision</h3>
                     <p>To create a future where <strong>equal education opportunity</strong> is a reality for all. We envision a nation where every student can prepare for UPSC, BPSC, SSC, Banking, and other exams without worrying about cost.</p>
                     
-                    <div class="highlight">🎯 "Built in 2026 for ALL aspirants Ã¢â‚¬" poor and rich alike."</div>
+                    <div class="highlight">🎯 "Built in 2026 for ALL aspirants — poor and rich alike."</div>
                 </div>
 
                 <!-- Feature Cards -->
@@ -1239,12 +1236,12 @@
                         <div class="feature-card-about">
                             <i class="fas fa-brain"></i>
                             <h4>Smart Learning</h4>
-                            <p>AIÃ¢â‚¬'powered analytics, performance tracking, and personalized insights.</p>
+                            <p>AI-powered analytics, performance tracking, and personalized insights.</p>
                         </div>
                         <div class="feature-card-about">
                             <i class="fas fa-chart-line"></i>
                             <h4>Performance Analysis</h4>
-                            <p>Detailed reports, weakÃ¢â‚¬'area identification, and improvement roadmap.</p>
+                            <p>Detailed reports, weak-area identification, and improvement roadmap.</p>
                         </div>
                     </div>
                 </div>
@@ -1253,7 +1250,7 @@
                 <div class="story-section">
                     <h3><i class="fas fa-book-open"></i> The Story Behind NirnayPath</h3>
                     <p>I am a <strong>Software Engineer</strong> who built this platform in <strong>2026</strong> after witnessing the struggles of my fellow aspirants. The high cost of mock test series was shutting doors for talented students from humble backgrounds.</p>
-                    <p>NirnayPath was born from a simple idea: <strong>democratize exam preparation</strong>. Today, we serve thousands of aspirants across UPSC, BPSC, SSC, Banking, Railway, and more Ã¢â‚¬" all for free.</p>
+                    <p>NirnayPath was born from a simple idea: <strong>democratize exam preparation</strong>. Today, we serve thousands of aspirants across UPSC, BPSC, SSC, Banking, Railway, and more — all for free.</p>
                     <p>This platform is created for <strong>ALL aspirants (poor and rich)</strong> because your dreams shouldn't have a price tag.</p>
                 </div>
 
@@ -1262,7 +1259,7 @@
                     <h3><i class="fas fa-heart"></i> Our Core Values</h3>
                     <ul>
                         <li><i class="fas fa-check-circle"></i> <strong>Equity:</strong> Equal opportunity for every student</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>Excellence:</strong> RealÃ¢â‚¬'exam quality in every test</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Excellence:</strong> Real-exam quality in every test</li>
                         <li><i class="fas fa-check-circle"></i> <strong>Empathy:</strong> Built by aspirants, for aspirants</li>
                         <li><i class="fas fa-check-circle"></i> <strong>Innovation:</strong> Constantly evolving with technology</li>
                     </ul>
@@ -1408,7 +1405,7 @@
         <div class="footer-bottom">
             <div class="footer-bottom-content">
                 <div class="copyright">
-                    <p>Ã‚© 2026 NirnayPath Ã¢â‚¬" Created with <i class="fas fa-heart" style="color: #ef4444;"></i> by Saurabh Kumar. All rights reserved.</p>
+                    <p>© 2026 NirnayPath — Created with <i class="fas fa-heart" style="color: #ef4444;"></i> by Saurabh Kumar. All rights reserved.</p>
                     <p class="copyright-note">NirnayPath is an independent platform and is not affiliated with any government exam conducting body.</p>
                 </div>
                 <div class="footer-bottom-links">

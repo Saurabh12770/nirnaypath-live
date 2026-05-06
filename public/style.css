@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NirnayPath – Global Design System
    Font: Poppins / Inter | Colors: Indigo #4F46E5, Orange #F97316
    ============================================================ */
@@ -8910,32 +8910,29 @@ header.sticky-header {
 
 /* ── 2. NAV LINKS & LOGIN BUTTON ───────────────────────────── */
 .nav-link, #loginBtn {
-    background: #1e293b !important;
-    color: #ffffff !important;
-    padding: 9px 18px !important;
-    border-radius: 10px !important;
-    border: none !important;
-    font-weight: 600 !important;
+    background: #0f172a !important; /* Even darker for premium feel */
+    color: #f8fafc !important; /* Lighter font */
+    padding: 10px 22px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    font-weight: 700 !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 7px !important;
+    gap: 8px !important;
     cursor: pointer !important;
     text-decoration: none !important;
-    transition: all 0.25s ease !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 .nav-link:hover, #loginBtn:hover, .nav-link.active {
-    background: #4F46E5 !important;
+    background: var(--gradient-vibrant) !important;
     color: #ffffff !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(79,70,229,0.35) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 10px 25px rgba(79,70,229,0.4) !important;
 }
 [data-theme="dark"] .nav-link, [data-theme="dark"] #loginBtn {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-}
-[data-theme="dark"] .nav-link:hover, [data-theme="dark"] #loginBtn:hover, [data-theme="dark"] .nav-link.active {
-    background: #4F46E5 !important;
-    color: #ffffff !important;
+    background: rgba(255,255,255,0.1) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
 /* ── 3. GREY TEXT → WHITE/VISIBLE IN KEY ZONES ─────────────── */
@@ -8966,32 +8963,36 @@ footer .stat p                { color: rgba(255,255,255,0.7) !important; }
 }
 
 /* ── 5. HERO DASHBOARD TICKER ──────────────────────────────── */
-.hero-activity-carousel {
-    margin-top: 22px;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 14px;
-    padding: 4px 20px;
-    width: 100%;
-    max-width: 520px;
-    overflow: hidden;
-    height: 40px;
+/* ── 6. MULTI-COLOR PREMIUM CARD ENHANCEMENTS ──────────────── */
+.card, .feature-card, .why-card, .exam-card, .subject-card, .tip-card, .testimonial-card, .update-card {
+    border-radius: 20px !important;
+    border-width: 2px !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
-.activity-track {
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+
+/* Assign multi-color combinations */
+.card:nth-child(4n+1), .why-card:nth-child(4n+1), .tip-card:nth-child(4n+1) { 
+    border-top-color: #4F46E5 !important; 
+    box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.3) !important; 
 }
-.activity-item {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #ffffff !important;
-    font-size: 0.88rem;
-    font-weight: 500;
+.card:nth-child(4n+2), .why-card:nth-child(4n+2), .tip-card:nth-child(4n+2) { 
+    border-top-color: #EC4899 !important; 
+    box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.3) !important; 
+}
+.card:nth-child(4n+3), .why-card:nth-child(4n+3), .tip-card:nth-child(4n+3) { 
+    border-top-color: #10B981 !important; 
+    box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3) !important; 
+}
+.card:nth-child(4n+4), .why-card:nth-child(4n+4), .tip-card:nth-child(4n+4) { 
+    border-top-color: #F59E0B !important; 
+    box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.3) !important; 
+}
+
+.card:hover, .why-card:hover, .tip-card:hover {
+    transform: translateY(-10px) !important;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2) !important;
+}
+
     white-space: nowrap;
 }
 .activity-item i { color: #fbbf24 !important; }
@@ -9190,5 +9191,180 @@ img { max-width: 100%; height: auto; }
 }
 @media (min-width: 769px) {
     .mobile-menu-btn { display: none !important; }
+}
+
+/* ================================================================
+   FINAL STABILIZATION OVERRIDES (FORENSIC AUDIT FIX)
+   ================================================================ */
+
+/* 1. Mobile Menu Fix (Ensuring buttons are visible and clickable) */
+@media (max-width: 768px) {
+    .mobile-menu-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        width: 280px !important;
+        height: 100vh !important;
+        background: #ffffff !important;
+        z-index: 10000 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding-top: 80px !important;
+        box-shadow: -10px 0 40px rgba(0,0,0,0.2) !important;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .mobile-menu-overlay.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+    .mobile-nav-link {
+        color: #1e293b !important;
+        font-weight: 700 !important;
+        font-size: 1.2rem !important;
+        padding: 15px 25px !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    [data-theme="dark"] .mobile-menu-overlay {
+        background: #1e293b !important;
+    }
+    [data-theme="dark"] .mobile-nav-link {
+        color: #f1f5f9 !important;
+        border-bottom-color: rgba(255,255,255,0.05) !important;
+    }
+}
+
+/* 2. Horizontal Infinite Sliders (Why Us, Testimonials, Tips) */
+.why-us-grid, #testimonials-slider, #tips-slider {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 30px !important;
+    padding: 20px 10px !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    scroll-behavior: smooth !important;
+}
+.why-us-grid::-webkit-scrollbar, #testimonials-slider::-webkit-scrollbar, #tips-slider::-webkit-scrollbar {
+    display: none !important;
+}
+.why-card, .testimonial-card, .tip-card {
+    flex: 0 0 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    white-space: normal !important;
+    margin: 10px 0 !important;
+}
+
+/* 3. Multi-color Design System (Borders, Shadows, Hovers) */
+.why-card, .testimonial-card, .tip-card, .feature-card, .exam-card, .subject-card {
+    border-top: 5px solid #4F46E5 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.why-card:nth-child(4n+1), .tip-card:nth-child(4n+1) { border-top-color: #4F46E5 !important; }
+.why-card:nth-child(4n+2), .tip-card:nth-child(4n+2) { border-top-color: #EC4899 !important; }
+.why-card:nth-child(4n+3), .tip-card:nth-child(4n+3) { border-top-color: #10B981 !important; }
+.why-card:nth-child(4n+4), .tip-card:nth-child(4n+4) { border-top-color: #F59E0B !important; }
+
+.why-card:hover, .testimonial-card:hover, .tip-card:hover {
+    transform: translateY(-12px) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+
+/* 4. Nav Button Polishing (Darker bg, Lighter font) */
+.nav-link, #loginBtn {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 700 !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+[data-theme="dark"] .nav-link, [data-theme="dark"] #loginBtn {
+    background: rgba(255,255,255,0.1) !important;
+}
+.nav-link:hover, #loginBtn:hover, .nav-link.active {
+    background: var(--gradient-vibrant) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(79,70,229,0.4) !important;
+}
+
+/* 5. Hero Dashboard Carousel Styling */
+#heroDashboardStrip {
+    display: flex !important;
+    gap: 20px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    padding: 15px 0 !important;
+}
+.dash-card {
+    flex: 0 0 240px !important;
+    background: rgba(255,255,255,0.1) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    border-radius: 15px !important;
+    padding: 15px !important;
+    color: #ffffff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+}
+[data-theme="dark"] .dash-card {
+    background: rgba(0,0,0,0.2) !important;
+}
+
+
+
+/* Testimonial Card Internal Layout */
+.testimonial-card {
+    padding: 30px !important;
+    background: var(--bg-secondary) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    height: 100% !important;
+}
+.testimonial-quote {
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    opacity: 0.3;
+}
+.testimonial-text {
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+.testimonial-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+.user-info strong {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+.user-info span {
+    font-size: 0.8rem;
+    color: var(--primary);
+    font-weight: 600;
 }
 
