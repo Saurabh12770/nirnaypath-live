@@ -8288,12 +8288,20 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     position: absolute;
     bottom: 20px;
     right: 0;
-    background: var(--text-main);
-    color: var(--bg-main);
-    padding: 8px 16px;
+    background: var(--primary);
+    color: #ffffff;
+    padding: 10px 20px;
     border-radius: 99px;
     font-weight: 700;
-    box-shadow: var(--shadow-md);
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 5;
+    border: 2px solid #ffffff;
+}
+[data-theme="dark"] .founder-badge {
+    background: #ffffff;
+    color: var(--primary);
+    border-color: var(--primary);
 }
 .sectional-entry-banner {
     margin-top: 40px;
@@ -8996,4 +9004,209 @@ body[data-theme="dark"] {
     .about-hero-stats {
         grid-template-columns: 1fr;
     }
+}
+
+/* --- PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE --- */
+.testimonial-card {
+    width: 280px !important;
+    min-width: 280px !important;
+    flex: 0 0 280px !important;
+    padding: 1rem !important;
+    min-height: 380px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    margin: 10px;
+    background: var(--card-bg);
+    border-radius: var(--r-lg);
+}
+.testi-content {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 1.5rem !important;
+}
+.testi-user {
+    margin-top: auto !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.testi-user h4 {
+    font-size: 0.95rem !important;
+    margin-bottom: 2px !important;
+}
+.testi-user span {
+    font-size: 0.8rem !important;
+}
+
+/* --- PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW --- */
+.trend-start-btn {
+    white-space: nowrap !important;
+    padding: 12px 20px !important;
+    font-size: 0.95rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+/* --- PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM --- */
+.card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .info-card, .mission-card, .about-stat-card {
+    border-top: 3px solid var(--primary) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Color cycling via nth-child */
+.feature-card:nth-child(6n+1), .category-card:nth-child(6n+1), .trend-card:nth-child(6n+1), .testimonial-card:nth-child(6n+1), .np-card:nth-child(6n+1), .why-card:nth-child(6n+1) { border-top-color: #EF4444 !important; }
+.feature-card:nth-child(6n+2), .category-card:nth-child(6n+2), .trend-card:nth-child(6n+2), .testimonial-card:nth-child(6n+2), .np-card:nth-child(6n+2), .why-card:nth-child(6n+2) { border-top-color: #EC4899 !important; }
+.feature-card:nth-child(6n+3), .category-card:nth-child(6n+3), .trend-card:nth-child(6n+3), .testimonial-card:nth-child(6n+3), .np-card:nth-child(6n+3), .why-card:nth-child(6n+3) { border-top-color: #8B5CF6 !important; }
+.feature-card:nth-child(6n+4), .category-card:nth-child(6n+4), .trend-card:nth-child(6n+4), .testimonial-card:nth-child(6n+4), .np-card:nth-child(6n+4), .why-card:nth-child(6n+4) { border-top-color: #10B981 !important; }
+.feature-card:nth-child(6n+5), .category-card:nth-child(6n+5), .trend-card:nth-child(6n+5), .testimonial-card:nth-child(6n+5), .np-card:nth-child(6n+5), .why-card:nth-child(6n+5) { border-top-color: #F97316 !important; }
+.feature-card:nth-child(6n+6), .category-card:nth-child(6n+6), .trend-card:nth-child(6n+6), .testimonial-card:nth-child(6n+6), .np-card:nth-child(6n+6), .why-card:nth-child(6n+6) { border-top-color: #3B82F6 !important; }
+
+/* Hover animations and glows */
+.feature-card:hover, .category-card:hover, .trend-card:hover, .testimonial-card:hover, .np-card:hover, .subject-card:hover, .update-card:hover, .why-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12) !important;
+}
+
+/* Icon Enhancement */
+.np-card i, .feature-card i, .trend-card i, .category-card i, .testimonial-card i, .subject-card i, .update-card i, .why-card i {
+    background: var(--gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    display: inline-block !important;
+    transition: transform 0.3s ease !important;
+}
+
+.np-card:hover i, .feature-card:hover i, .trend-card:hover i {
+    transform: scale(1.2) rotate(5deg) !important;
+}
+
+/* Dark Mode Overrides for consistency */
+[data-theme="dark"] .card, 
+[data-theme="dark"] .np-card, 
+[data-theme="dark"] .feature-card, 
+[data-theme="dark"] .trend-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .why-card,
+[data-theme="dark"] .update-card {
+    background: #1E293B !important;
+    color: #F1F5F9 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+/* --- PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE --- */
+.testimonial-card {
+    width: 280px !important;
+    min-width: 280px !important;
+    flex: 0 0 280px !important;
+    padding: 1.25rem !important;
+    min-height: 400px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    margin: 15px !important;
+    border-radius: 20px !important;
+}
+
+.testi-content {
+    font-size: 0.9rem !important;
+    line-height: 1.6 !important;
+    color: var(--text-main) !important;
+    font-style: italic;
+}
+
+.testi-user h4 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+}
+
+/* --- PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW --- */
+.trend-start-btn {
+    white-space: nowrap !important;
+    padding: 14px 24px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    border-radius: 12px !important;
+    background: var(--gradient) !important;
+    color: #fff !important;
+    transition: all 0.3s ease !important;
+}
+
+.trend-start-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+}
+
+/* --- PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM --- */
+/* Base styles for all card types */
+.card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .about-stat-card {
+    border-top: 3px solid var(--primary) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+    background: var(--card-bg) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Multi-color border cycling */
+.feature-card:nth-child(6n+1), .category-card:nth-child(6n+1), .trend-card:nth-child(6n+1), .testimonial-card:nth-child(6n+1), .np-card:nth-child(6n+1) { border-top-color: #EF4444 !important; } /* Red */
+.feature-card:nth-child(6n+2), .category-card:nth-child(6n+2), .trend-card:nth-child(6n+2), .testimonial-card:nth-child(6n+2), .np-card:nth-child(6n+2) { border-top-color: #EC4899 !important; } /* Pink */
+.feature-card:nth-child(6n+3), .category-card:nth-child(6n+3), .trend-card:nth-child(6n+3), .testimonial-card:nth-child(6n+3), .np-card:nth-child(6n+3) { border-top-color: #8B5CF6 !important; } /* Violet */
+.feature-card:nth-child(6n+4), .category-card:nth-child(6n+4), .trend-card:nth-child(6n+4), .testimonial-card:nth-child(6n+4), .np-card:nth-child(6n+4) { border-top-color: #10B981 !important; } /* Emerald */
+.feature-card:nth-child(6n+5), .category-card:nth-child(6n+5), .trend-card:nth-child(6n+5), .testimonial-card:nth-child(6n+5), .np-card:nth-child(6n+5) { border-top-color: #F97316 !important; } /* Orange */
+.feature-card:nth-child(6n+6), .category-card:nth-child(6n+6), .trend-card:nth-child(6n+6), .testimonial-card:nth-child(6n+6), .np-card:nth-child(6n+6) { border-top-color: #3B82F6 !important; } /* Blue */
+
+/* Hover interactions */
+.feature-card:hover, .category-card:hover, .trend-card:hover, .testimonial-card:hover, .np-card:hover, .subject-card:hover, .update-card:hover {
+    transform: translateY(-10px) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+}
+
+/* Icon Enhancement */
+.card i, .feature-card i, .category-card i, .why-card i, .trend-card i, .testimonial-card i, .np-card i, .subject-card i, .update-date {
+    background: var(--gradient) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+    transition: transform 0.3s ease !important;
+}
+
+.card:hover i, .feature-card:hover i, .trend-card:hover i, .category-card:hover i {
+    transform: scale(1.15) rotate(5deg) !important;
+}
+
+/* Specific fix for About Platform Card Icon wrap (if needed) */
+.about-platform-card i {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+/* Dark Mode Consistency */
+[data-theme="dark"] .card, 
+[data-theme="dark"] .np-card, 
+[data-theme="dark"] .feature-card, 
+[data-theme="dark"] .trend-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .about-stat-card {
+    background: #1E293B !important;
+    color: #F1F5F9 !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+
+[data-theme="dark"] .testi-content {
+    color: #CBD5E1 !important;
 }
