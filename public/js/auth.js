@@ -164,11 +164,17 @@ const Auth = {
             const loginHtml = `<i class="fas fa-sign-in-alt"></i> Login`;
             if (loginBtn) {
                 loginBtn.innerHTML = loginHtml;
-                loginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
+                loginBtn.onclick = () => {
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = 'flex';
+                };
             }
             if (mobileLoginBtn) {
                 mobileLoginBtn.innerHTML = loginHtml;
-                mobileLoginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
+                mobileLoginBtn.onclick = () => {
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = 'flex';
+                };
             }
             if (userNameDisplay) userNameDisplay.style.display = 'none';
             if (adminNavLink) adminNavLink.style.display = 'none';
