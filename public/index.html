@@ -38,33 +38,35 @@
             <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Menu">
-                <i class="fas fa-bars"></i>
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle Menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
         </div>
     </header>
 
     <!-- Mobile Menu Overlay (Outside Header for clipping safety) -->
-    <div id="mobileMenuOverlay" class="mobile-menu-overlay">
-        <div class="mobile-menu-header">
+    <!-- New Side Navigation Panel -->
+    <div id="mobileNavPanel" class="mobile-nav-panel">
+        <div class="panel-header">
             <div class="logo">
                 <div class="logo-icon"><i class="fas fa-compass"></i></div>
-                <div class="logo-text">
-                    <span class="logo-main">NirnayPath</span>
-                </div>
+                <div class="logo-text"><span class="logo-main">NirnayPath</span></div>
             </div>
-            <button id="closeMobileMenu" class="close-btn">&times;</button>
+            <button id="closePanelBtn" class="close-panel-btn">&times;</button>
         </div>
-        <nav class="mobile-nav">
-            <a href="index.html" class="mobile-nav-link active"><i class="fas fa-home"></i> Home</a>
-            <a href="about.html" class="mobile-nav-link"><i class="fas fa-info-circle"></i> About Us</a>
-            <a href="/admin" class="mobile-nav-link"><i class="fas fa-user-shield"></i> Admin Panel</a>
-            <button id="mobileLoginBtn" class="mobile-nav-link"><i class="fas fa-sign-in-alt"></i> Login / Register</button>
+        <nav class="panel-nav">
+            <a href="index.html" class="panel-link active"><i class="fas fa-home"></i> Home</a>
+            <a href="about.html" class="panel-link"><i class="fas fa-info-circle"></i> About Us</a>
+            <a href="/admin" id="mobileAdminNavLink" class="panel-link"><i class="fas fa-user-shield"></i> Admin Panel</a>
+            <button id="mobileLoginBtn" class="panel-link login-btn-mobile"><i class="fas fa-sign-in-alt"></i> Login / Register</button>
         </nav>
-        <div class="mobile-menu-footer">
+        <div class="panel-footer">
             <p>India's Most Trusted Free Mock Test Platform</p>
         </div>
     </div>
+    <div id="panelOverlay" class="panel-overlay"></div>
 
     <!-- Exam Ribbon -->
     <div class="exam-ribbon">

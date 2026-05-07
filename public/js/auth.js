@@ -130,13 +130,21 @@ const Auth = {
 
     updateUI(isLoggedIn, user = null) {
         const loginBtn = document.getElementById('loginBtn');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
         const userNameDisplay = document.getElementById('userNameDisplay');
         const candName = document.getElementById('cand-name');
+        const adminNavLink = document.getElementById('adminNavLink');
+        const mobileAdminNavLink = document.getElementById('mobileAdminNavLink');
 
         if (isLoggedIn && user) {
+            const logoutHtml = `<i class="fas fa-sign-out-alt"></i> Logout`;
             if (loginBtn) {
-                loginBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout`;
+                loginBtn.innerHTML = logoutHtml;
                 loginBtn.onclick = () => this.logout();
+            }
+            if (mobileLoginBtn) {
+                mobileLoginBtn.innerHTML = logoutHtml;
+                mobileLoginBtn.onclick = () => this.logout();
             }
             if (userNameDisplay) {
                 userNameDisplay.textContent = user.name;
@@ -145,20 +153,26 @@ const Auth = {
                 userNameDisplay.onclick = () => Dashboard.show();
             }
             if (user.role === 'admin') {
-                const adminLink = document.getElementById('adminNavLink');
-                if (adminLink) adminLink.style.display = 'inline-block';
+                if (adminNavLink) adminNavLink.style.display = 'inline-block';
+                if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'flex';
+            } else {
+                if (adminNavLink) adminNavLink.style.display = 'none';
+                if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'none';
             }
-            if (candName) {
-                candName.textContent = user.name;
-            }
+            if (candName) candName.textContent = user.name;
         } else {
+            const loginHtml = `<i class="fas fa-sign-in-alt"></i> Login`;
             if (loginBtn) {
-                loginBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Login`;
+                loginBtn.innerHTML = loginHtml;
                 loginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
             }
-            if (userNameDisplay) {
-                userNameDisplay.style.display = 'none';
+            if (mobileLoginBtn) {
+                mobileLoginBtn.innerHTML = loginHtml;
+                mobileLoginBtn.onclick = () => document.getElementById('loginModal').style.display = 'flex';
             }
+            if (userNameDisplay) userNameDisplay.style.display = 'none';
+            if (adminNavLink) adminNavLink.style.display = 'none';
+            if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'none';
         }
     },
 
