@@ -36,6 +36,14 @@ const Auth = {
             });
         }
 
+        const closeLoginBtn = document.getElementById('closeLogin');
+        const loginModal = document.getElementById('loginModal');
+        if (closeLoginBtn && loginModal) {
+            closeLoginBtn.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+        }
+
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
