@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQ();
     initTypingAnimation();
     initMobileMenu();
+    initTipsSlider();
     animateCounters();
     initTrendingTestButtons();
 
@@ -173,7 +174,7 @@ function switchPracticeMode(mode) {
     const topicArea = document.getElementById('topic-selection-area');
     const toggles = document.querySelectorAll('.mode-toggle-btn');
     const testSel = document.getElementById('testSelection');
-    
+
     toggles.forEach(btn => {
         btn.classList.toggle('active', (mode === 'full' && btn.innerText.includes('Full')) || (mode === 'drill' && btn.innerText.includes('Topic')));
     });
@@ -195,20 +196,20 @@ const TopicDrills = {
         const container = document.getElementById('topic-chips-container');
         const nameEl = document.getElementById('drill-subject-name');
         if (!container) return;
-        
+
         nameEl.textContent = subjectNames[subject] || subject.toUpperCase();
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading topics...</div>';
-        
+
         try {
             const res = await fetch(`/api/subject/${subject}/topics`);
             const topics = await res.json();
-            
+
             container.innerHTML = '';
             if (topics.length === 0) {
                 container.innerHTML = '<p>No topics found for this subject yet.</p>';
                 return;
             }
-            
+
             topics.forEach(topic => {
                 const chip = document.createElement('div');
                 chip.className = 'topic-chip hover-lift';
@@ -235,7 +236,7 @@ const TopicDrills = {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
             const questions = await res.json();
-            
+
             if (!res.ok) throw new Error(questions.error || 'Failed to load drill');
 
             const normalized = questions.map(q => ({
@@ -252,7 +253,7 @@ const TopicDrills = {
                 isActive: true, selectedQuestions: normalized,
                 mode: 'drill', modeValue: topic
             };
-            
+
             saveProgress();
             launchExam();
         } catch (error) {
@@ -279,7 +280,7 @@ const SectionalTests = {
         const modal = document.getElementById('sectionalModal');
         const grid = document.getElementById('sections-grid');
         modal.style.display = 'flex';
-        
+
         grid.innerHTML = '';
         this.sections.forEach(sec => {
             const card = document.createElement('div');
@@ -301,13 +302,13 @@ const SectionalTests = {
     async startSection(sectionName) {
         this.closeModal();
         showView('loading');
-        
+
         try {
             const res = await fetch(`/api/section/${encodeURIComponent(sectionName)}?count=75`, {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
             const data = await res.json();
-            
+
             if (!res.ok) throw new Error(data.error || 'Failed to load section');
 
             const normalized = data.questions.map(q => ({
@@ -324,7 +325,7 @@ const SectionalTests = {
                 isActive: true, selectedQuestions: normalized,
                 mode: 'section', modeValue: sectionName
             };
-            
+
             saveProgress();
             launchExam();
         } catch (error) {
@@ -937,9 +938,9 @@ function submitTest() {
         },
         body: JSON.stringify(resultsData)
     })
-    .then(res => res.json())
-    .then(data => console.log('Test submitted to server:', data))
-    .catch(err => console.error('Error submitting test to server:', err));
+        .then(res => res.json())
+        .then(data => console.log('Test submitted to server:', data))
+        .catch(err => console.error('Error submitting test to server:', err));
 }
 
 function buildReview() {
@@ -1227,7 +1228,11 @@ function initTipsSlider() {
         <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    // Auto-scroll handled by makeInfiniteSlider() — no setInterval needed here
+    let pos = 0;
+    setInterval(() => {
+        pos = pos + 294 > track.scrollWidth - track.clientWidth ? 0 : pos + 294;
+        track.scrollTo({ left: pos, behavior: 'smooth' });
+    }, 3800);
 }
 
 
@@ -1287,7 +1292,7 @@ function on(id, ev, fn) {
     document.getElementById(id)?.addEventListener(ev, fn);
 }
 
-window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
+window.showToast = function (msg, bg = '#1F2937', color = '#FCD34D') {
     const t = document.createElement('div');
     t.style.cssText = `position:fixed;bottom:90px;right:20px;z-index:9999;background:${bg};color:${color};padding:14px 22px;border-radius:10px;font-weight:700;font-size:.87rem;box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:340px;font-family:Poppins,sans-serif;border:2px solid ${color};animation:toastIn .35s ease;`;
     t.textContent = msg;
@@ -1375,60 +1380,46 @@ function injectDynamicCSS() {
 
 /* -- 32. MOBILE MENU TOGGLE (UNIFIED) ------------------------------------------- */
 function initMobileMenu() {
-    const setupMenu = () => {
-        const btn = document.getElementById('mobileMenuBtn');
-        const overlay = document.getElementById('mobileMenuOverlay');
-        const links = document.querySelectorAll('.mobile-nav-link');
+    const btn = document.getElementById('mobileMenuBtn');
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const links = document.querySelectorAll('.mobile-nav-link');
 
-        if (!btn || !overlay) return;
+    if (!btn || !overlay) return;
 
-        // Clean up existing listeners to avoid duplicates if re-called
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-
-        const toggle = (e) => {
-            if (e) e.stopPropagation();
-            const isActive = overlay.classList.toggle('active');
-            document.body.classList.toggle('menu-open', isActive);
-            const icon = newBtn.querySelector('i');
-            if (icon) {
-                icon.className = isActive ? 'fas fa-times' : 'fas fa-bars';
-            }
-        };
-
-        const close = () => {
-            overlay.classList.remove('active');
-            document.body.classList.remove('menu-open');
-            const icon = newBtn.querySelector('i');
-            if (icon) icon.className = 'fas fa-bars';
-        };
-
-        newBtn.addEventListener('click', toggle);
-
-        // Also close on any link click (especially for SPAs or hash links)
-        links.forEach(link => {
-            link.addEventListener('click', () => {
-                close();
-                if (link.id === 'mobileLoginBtn') {
-                    const loginBtn = document.getElementById('loginBtn');
-                    if (loginBtn) loginBtn.click();
-                }
-            });
-        });
-
-        // Close on outside click
-        document.addEventListener('click', (e) => {
-            if (overlay.classList.contains('active') && !overlay.contains(e.target) && !newBtn.contains(e.target)) {
-                close();
-            }
-        }, { passive: true });
+    const toggle = (e) => {
+        if (e) e.stopPropagation();
+        overlay.classList.toggle('active');
+        document.body.classList.toggle('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+        }
     };
 
-    setupMenu();
-    // Re-run on pageshow to handle back/forward cache
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) setupMenu();
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fas fa-bars';
+    };
+
+    btn.addEventListener('click', toggle);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    document.addEventListener('click', (e) => {
+        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
+            close();
+        }
     });
+
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            close();
+            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
+        });
+    });
+}
 
 // ─── INFINITE SLIDER ENGINE (PIXEL SCROLL, RAF-BASED) ─────────────────────
 /**
@@ -1488,7 +1479,7 @@ function makeInfiniteSlider(containerEl) {
 function initTestimonials() {
     const track = document.getElementById('testimonials-slider');
     if (!track) return;
-    
+
     const testimonials = [
         { name: 'Rahul Sharma', rank: 'UPSC CSE 2023 Rank 124', text: 'NirnayPath bilingual mock tests were a game changer for my GS preparation. The level of questions is exactly like the actual exam.' },
         { name: 'Priya Verma', rank: 'BPSC 68th Topper', text: 'The free test series here is better than many paid ones. Detailed explanations helped me clear my basics in Modern History.' },
@@ -1497,7 +1488,7 @@ function initTestimonials() {
         { name: 'Vikram Aditya', rank: 'Bihar Police SI', text: 'Authentic Bihar GK questions which are hard to find elsewhere. Highly recommended for all state-level aspirants.' },
         { name: 'Meera Das', rank: 'Bank PO Selected', text: 'The interface is so clean and professional. It feels like you are sitting in the actual exam hall.' }
     ];
-    
+
     track.innerHTML = testimonials.map(t => `
       <div class="testimonial-card">
         <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
@@ -1576,7 +1567,7 @@ function initHeroDashboardStrip() {
 function initAboutStats() {
     const stats = document.querySelectorAll('.stat-box h3');
     if (!stats.length) return;
-    
+
     stats.forEach(stat => {
         const target = parseInt(stat.innerText.replace(/\D/g, ''));
         const suffix = stat.innerText.replace(/[0-9]/g, '');
@@ -1612,10 +1603,10 @@ function initFAQAccordion() {
 
 // ─── BOOTSTRAP ALL UI ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    // Note: initMobileMenu() already called in first DOMContentLoaded above
-    initTipsSlider();        // Build HTML for tips slider
-    initTestimonials();      // Build HTML for testimonials slider
-    // Apply infinite pixel-scroll AFTER HTML is built
+    initMobileMenu();
+    initTipsSlider();
+    initTestimonials();
+    // Apply infinite pixel-scroll to actual slider containers only
     makeInfiniteSlider(document.getElementById('tips-slider'));
     makeInfiniteSlider(document.getElementById('testimonials-slider'));
     initHeroActivity();
@@ -1624,16 +1615,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQAccordion();
     initGlobalReveal();
 });
-
-/* scrollToDashboard – used by CTA button */
-function scrollToDashboard() {
-    const subArea = document.getElementById('popular-exams');
-    if (subArea) {
-        subArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
 
 function initGlobalReveal() {
     const reveal = () => {
