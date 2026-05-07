@@ -108,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initTipsSlider();
     makeInfiniteSlider('testimonial-slider', 4000);
-    makeInfiniteSlider('quotes-slider', 5000);
     animateCounters();
     initTrendingTestButtons();
 
@@ -1208,11 +1207,10 @@ function initTipsSlider() {
     const track = document.getElementById('tips-slider');
     if (!track) return;
     const tips = [
-        { icon: 'fas fa-clock', title: 'Time Management', text: 'Spend no more than 40s per question in competitive exams.' },
-        { icon: 'fas fa-filter', title: 'Elimination Tech', text: "Avoid options with absolutes like 'Always' or 'Never'." },
-        { icon: 'fas fa-sync', title: 'Revision Cycle', text: 'Revisit weak topics every 48 hours for best retention.' },
-        { icon: 'fas fa-trophy', title: 'Mock Frequency', text: 'Take at least 2 full-length mocks every week.' },
-        { icon: 'fas fa-language', title: 'Bilingual Prep', text: 'Switching to Hindi builds confidence for the actual exam.' }
+        { icon: 'fas fa-clock', title: 'Time Management', text: 'Spend no more than 40s per question in competitive exams. Set a daily target and track your progress to stay on schedule.' },
+        { icon: 'fas fa-filter', title: 'Elimination Tech', text: "Avoid options with absolutes like 'Always' or 'Never'. Practice this daily to improve your accuracy in multiple-choice questions." },
+        { icon: 'fas fa-sync', title: 'Revision Cycle', text: 'Revisit weak topics every 48 hours for best retention. Consistent revision is the key to mastering complex subjects over time.' },
+        { icon: 'fas fa-trophy', title: 'Mock Frequency', text: 'Take at least 2 full-length mocks every week. Analyzing your performance in these tests is essential for steady improvement.' }
     ];
     track.innerHTML = tips.map(t => `
       <div class="testimonial-card">
