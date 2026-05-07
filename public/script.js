@@ -1375,46 +1375,60 @@ function injectDynamicCSS() {
 
 /* -- 32. MOBILE MENU TOGGLE (UNIFIED) ------------------------------------------- */
 function initMobileMenu() {
-    const btn = document.getElementById('mobileMenuBtn');
-    const overlay = document.getElementById('mobileMenuOverlay');
-    const closeBtn = document.getElementById('closeMobileMenu');
-    const links = document.querySelectorAll('.mobile-nav-link');
+    const setupMenu = () => {
+        const btn = document.getElementById('mobileMenuBtn');
+        const overlay = document.getElementById('mobileMenuOverlay');
+        const links = document.querySelectorAll('.mobile-nav-link');
 
-    if (!btn || !overlay) return;
+        if (!btn || !overlay) return;
 
-    const toggle = (e) => {
-        if (e) e.stopPropagation();
-        overlay.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) {
-            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-    };
+        // Clean up existing listeners to avoid duplicates if re-called
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
 
-    const close = () => {
-        overlay.classList.remove('active');
-        document.body.classList.remove('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) icon.className = 'fas fa-bars';
-    };
+        const toggle = (e) => {
+            if (e) e.stopPropagation();
+            const isActive = overlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open', isActive);
+            const icon = newBtn.querySelector('i');
+            if (icon) {
+                icon.className = isActive ? 'fas fa-times' : 'fas fa-bars';
+            }
+        };
 
-    btn.addEventListener('click', toggle);
-    if (closeBtn) closeBtn.addEventListener('click', close);
+        const close = () => {
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const icon = newBtn.querySelector('i');
+            if (icon) icon.className = 'fas fa-bars';
+        };
 
-    document.addEventListener('click', (e) => {
-        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
-            close();
-        }
-    });
+        newBtn.addEventListener('click', toggle);
 
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            close();
-            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
+        // Also close on any link click (especially for SPAs or hash links)
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                close();
+                if (link.id === 'mobileLoginBtn') {
+                    const loginBtn = document.getElementById('loginBtn');
+                    if (loginBtn) loginBtn.click();
+                }
+            });
         });
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (overlay.classList.contains('active') && !overlay.contains(e.target) && !newBtn.contains(e.target)) {
+                close();
+            }
+        }, { passive: true });
+    };
+
+    setupMenu();
+    // Re-run on pageshow to handle back/forward cache
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) setupMenu();
     });
-}
 
 // ─── INFINITE SLIDER ENGINE (PIXEL SCROLL, RAF-BASED) ─────────────────────
 /**
