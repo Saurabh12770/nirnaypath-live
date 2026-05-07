@@ -1421,41 +1421,58 @@ function initMobileMenu() {
     });
 }
 
-// ---------- PREMIUM UI: MOBILE MENU ----------
+// ─── INFINITE SLIDER ENGINE (PIXEL SCROLL, RAF-BASED) ─────────────────────
+/**
+ * makeInfiniteSlider(containerEl)
+ * Works on any flex-row container. Clones children, pixel-scrolls via rAF.
+ * Pauses on hover/touch. Resets seamlessly at midpoint.
+ */
+function makeInfiniteSlider(containerEl) {
+    if (!containerEl) return;
+    const origChildren = Array.from(containerEl.children);
+    if (origChildren.length < 1) return;
 
+    // Ensure container is a scrollable flex row
+    containerEl.style.cssText += [
+        'display:flex',
+        'flex-wrap:nowrap',
+        'overflow-x:hidden',
+        'gap:1.25rem',
+        'scroll-behavior:auto'
+    ].join(';') + ';';
 
-// ─── INFINITE CAROUSEL ENGINE ──────────────────────────────────────────────
-function initInfiniteCarousel(sliderId) {
-    const slider = document.getElementById(sliderId);
-    if (!slider || slider.children.length < 2) return;
-
-    // Clone first few items for seamless loop
-    const children = Array.from(slider.children);
-    children.forEach(child => {
-        const clone = child.cloneNode(true);
-        slider.appendChild(clone);
+    // Fix each child width
+    origChildren.forEach(child => {
+        child.style.cssText += 'flex:0 0 auto;min-width:280px;max-width:320px;';
     });
 
-    let isPaused = false;
-    let scrollAmount = 0;
-    const speed = 1; // Pixels per frame
+    // Clone all children and append
+    origChildren.forEach(child => {
+        const clone = child.cloneNode(true);
+        clone.style.cssText += 'flex:0 0 auto;min-width:280px;max-width:320px;';
+        containerEl.appendChild(clone);
+    });
 
-    function step() {
-        if (!isPaused) {
-            slider.scrollLeft += speed;
-            if (slider.scrollLeft >= slider.scrollWidth / 2) {
-                slider.scrollLeft = 0;
+    let paused = false;
+    const SPEED = 0.8; // px per frame
+
+    function tick() {
+        if (!paused) {
+            containerEl.scrollLeft += SPEED;
+            // When we've scrolled past original half, jump back silently
+            if (containerEl.scrollLeft >= containerEl.scrollWidth / 2) {
+                containerEl.scrollLeft = 0;
             }
         }
-        requestAnimationFrame(step);
+        requestAnimationFrame(tick);
     }
 
-    slider.addEventListener('mouseenter', () => isPaused = true);
-    slider.addEventListener('mouseleave', () => isPaused = false);
-    slider.addEventListener('touchstart', () => isPaused = true, { passive: true });
-    slider.addEventListener('touchend', () => isPaused = false);
+    containerEl.addEventListener('mouseenter', () => paused = true);
+    containerEl.addEventListener('mouseleave', () => paused = false);
+    containerEl.addEventListener('touchstart', () => paused = true, { passive: true });
+    containerEl.addEventListener('touchend', () => { setTimeout(() => paused = false, 1500); });
 
-    requestAnimationFrame(step);
+    requestAnimationFrame(tick);
 }
 
 // ─── STUDENT SUCCESS VOICES (Testimonials) ──────────────────────────────────
@@ -1589,9 +1606,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initTipsSlider();
     initTestimonials();
-    initInfiniteCarousel('tips-slider');
-    initInfiniteCarousel('testimonials-slider');
-    initInfiniteCarousel('why-us-grid');
+    // Apply infinite pixel-scroll to actual slider containers only
+    makeInfiniteSlider(document.getElementById('tips-slider'));
+    makeInfiniteSlider(document.getElementById('testimonials-slider'));
     initHeroActivity();
     initHeroDashboardStrip();
     initAboutStats();
@@ -1601,17 +1618,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initGlobalReveal() {
     const reveal = () => {
-        const reveals = document.querySelectorAll(".reveal");
-        reveals.forEach(el => {
-            const windowHeight = window.innerHeight;
-            const elementTop = el.getBoundingClientRect().top;
-            const elementVisible = 100;
-            if (elementTop < windowHeight - elementVisible) {
-                el.classList.add("active");
+        document.querySelectorAll('.reveal').forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+                el.classList.add('active');
             }
         });
     };
-    window.addEventListener("scroll", reveal);
-    reveal(); // Initial check
+    window.addEventListener('scroll', reveal, { passive: true });
+    reveal();
 }
-
