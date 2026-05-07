@@ -107,6 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initTypingAnimation();
     initMobileMenu();
     initTipsSlider();
+    makeInfiniteSlider('testimonial-slider', 4000);
+    makeInfiniteSlider('quotes-slider', 5000);
     animateCounters();
     initTrendingTestButtons();
 
@@ -1219,11 +1221,66 @@ function initTipsSlider() {
         <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    let pos = 0;
-    setInterval(() => {
-        pos = pos + 294 > track.scrollWidth - track.clientWidth ? 0 : pos + 294;
-        track.scrollTo({ left: pos, behavior: 'smooth' });
-    }, 3800);
+    makeInfiniteSlider('tips-slider', 3500);
+}
+
+/**
+ * Universal Infinite Slider Logic
+ * @param {string} id - The ID of the slider track
+ * @param {number} intervalTime - Time between slides
+ */
+function makeInfiniteSlider(id, intervalTime = 3000) {
+    const track = document.getElementById(id);
+    if (!track) return;
+
+    // Wait for content to load
+    setTimeout(() => {
+        const slides = Array.from(track.children);
+        if (slides.length === 0) return;
+
+        // Clone slides for seamless looping
+        slides.forEach(slide => {
+            const clone = slide.cloneNode(true);
+            track.appendChild(clone);
+        });
+
+        let index = 0;
+        let isPaused = false;
+
+        function getSlideWidth() {
+            const firstSlide = track.children[0];
+            const gap = parseInt(window.getComputedStyle(track).gap) || 0;
+            return firstSlide.offsetWidth + gap;
+        }
+
+        function move() {
+            if (isPaused) return;
+            index++;
+            const slideWidth = getSlideWidth();
+            
+            track.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            track.style.transform = `translateX(-${index * slideWidth}px)`;
+
+            if (index >= slides.length) {
+                setTimeout(() => {
+                    track.style.transition = 'none';
+                    index = 0;
+                    track.style.transform = `translateX(0)`;
+                }, 600);
+            }
+        }
+
+        let slideInterval = setInterval(move, intervalTime);
+
+        track.parentElement.addEventListener('mouseenter', () => isPaused = true);
+        track.parentElement.addEventListener('mouseleave', () => isPaused = false);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${index * getSlideWidth()}px)`;
+        });
+    }, 500);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
