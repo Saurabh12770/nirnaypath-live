@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NirnayPath ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Global Design System
    Font: Poppins / Inter | Colors: Indigo #4F46E5, Orange #F97316
    ============================================================ */
@@ -8673,79 +8673,77 @@ body[data-theme="dark"] {
     }
     #mobileMenuBtn i { font-size: 1.1rem !important; pointer-events: none; }
 
-    /* Overlay: hidden by default, slides in when .active */
+    /* Problem 2: Overlay: Compact Dropdown instead of full-screen */
     #mobileMenuOverlay {
-        position: fixed !important;
-        inset: 0 !important;
-        right: -100% !important;
-        left: auto !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: rgba(15,23,42,0.98) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        height: auto !important;
+        max-height: 85vh !important;
+        background: #1e293b !important; /* Dark solid background for menu */
+        border-radius: 0 0 15px 15px !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4) !important;
         z-index: 10001 !important;
-        display: flex !important;
+        display: none !important;
         flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: right 0.35s ease !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding: 1.5rem !important;
+        overflow-y: auto !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-top: none !important;
     }
+    
+    [data-theme="dark"] #mobileMenuOverlay {
+        background: #0f172a !important;
+        border-color: rgba(255,255,255,0.05) !important;
+    }
+
     #mobileMenuOverlay.active {
-        right: 0 !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+        display: flex !important;
+        animation: fadeInDown 0.3s ease forwards;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .mobile-menu-header {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        padding: 1.25rem 1.5rem !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
+        display: none !important; /* Compact dropdown doesn't need a internal header */
     }
 
     .mobile-nav {
         display: flex !important;
         flex-direction: column !important;
-        align-items: center !important;
-        gap: 1.5rem !important;
-        margin-top: 0 !important;
+        align-items: flex-start !important;
+        gap: 1.25rem !important;
+        width: 100% !important;
     }
 
     .mobile-nav-link {
-        font-size: 1.4rem !important;
-        font-weight: 700 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
         color: #ffffff !important;
         text-decoration: none !important;
-        background: transparent !important;
-        border: none !important;
-        cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
         gap: 0.75rem !important;
-        padding: 0.5rem 1rem !important;
+        padding: 0.5rem 0 !important;
+        width: 100% !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
     }
-    .mobile-nav-link:hover { color: #a5b4fc !important; }
+    .mobile-nav-link:last-child { border-bottom: none !important; }
+    .mobile-nav-link:hover { color: var(--primary, #4F46E5) !important; }
 
-    #closeMobileMenu {
-        background: transparent !important;
-        border: none !important;
-        color: #ffffff !important;
-        font-size: 2.2rem !important;
-        cursor: pointer !important;
-        line-height: 1 !important;
-    }
+    #closeMobileMenu { display: none !important; } /* Toggle button handles closing */
 
     .mobile-menu-footer { display: none !important; }
 
-    /* Body lock when menu open */
-    body.menu-open { overflow: hidden !important; }
+    /* Body lock disabled as it's now a dropdown */
+    body.menu-open { overflow: auto !important; }
 }
 
 /* Ã¢â€â‚¬Ã¢â€â‚¬ HERO SECTION Ã¢â‚¬â€œ BUTTONS ALWAYS VISIBLE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
@@ -8784,4 +8782,61 @@ body[data-theme="dark"] {
     align-items: center !important;
     gap: 0.5rem !important;
     text-decoration: none !important;
+}
+
+/* --- PROBLEM 1: Sectional Mock Tests Dark Mode --- */
+[data-theme="dark"] .sectional-entry-banner {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+}
+[data-theme="dark"] .sectional-entry-banner h3,
+[data-theme="dark"] .sectional-entry-banner p {
+    color: #f1f5f9 !important;
+}
+
+/* --- PROBLEM 3: Mobile Card Height 3:4 Ratio --- */
+@media (max-width: 768px) {
+    .feature-card, .category-card, .why-card, .trend-card, .tip-card, 
+    .quote-card, .testimonial-card, .update-card, .mission-box, 
+    .about-platform-card, .contact-card, .mentor-card, .subject-card, 
+    .step-card, .stats-card, .np-card, .card, .stat-item, .mission-card, .info-card {
+        padding: 1.25rem !important;
+        height: auto !important;
+        min-height: auto !important;
+        aspect-ratio: auto !important; /* Reset any forced aspect ratio */
+    }
+
+    .feature-card i, .category-card .cat-icon, .why-icon, .trend-icon, 
+    .tip-icon, .quote-icon, .testimonial-card .quote-icon, 
+    .update-date, .stat-item i {
+        font-size: 1.6rem !important;
+        margin-bottom: 0.75rem !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    .feature-card h4, .category-card h3, .why-card h4, .trend-card h3, 
+    .tip-card h3, .quote-author, .testimonial-card h4, .update-card h4, 
+    .mission-card h3, .mentor-card h4, .subject-card span, 
+    .step-card h4, .stat-item span, h3, h4 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.4rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .feature-card p, .category-card p, .why-card p, .trend-card p, 
+    .tip-card p, .quote-text, .testi-content, .update-text p, 
+    .mission-card p, .mentor-card p, .step-card p, p {
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 0 !important;
+        word-break: break-word;
+    }
+    
+    .stat-counter {
+        font-size: 1.6rem !important;
+        margin-bottom: 0.2rem !important;
+    }
 }

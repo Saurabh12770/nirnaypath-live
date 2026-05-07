@@ -1336,43 +1336,43 @@ function injectDynamicCSS() {
    34. MOBILE MENU TOGGLE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initMobileMenu() {
-    const btn = document.getElementById('mobileMenuBtn');
-    const overlay = document.getElementById('mobileMenuOverlay');
-    const closeBtn = document.getElementById('closeMobileMenu');
-    const links = document.querySelectorAll('.mobile-nav-link');
-
-    if (!btn || !overlay) return;
-
-    const toggle = (e) => {
-        if (e) e.stopPropagation();
-        overlay.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) {
-            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-    };
-
-    const close = () => {
-        overlay.classList.remove('active');
-        document.body.classList.remove('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) icon.className = 'fas fa-bars';
-    };
-
-    btn.addEventListener('click', toggle);
-    if (closeBtn) closeBtn.addEventListener('click', close);
-
+    // Use event delegation for robustness across page transitions/dynamic headers
     document.addEventListener('click', (e) => {
-        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
-            close();
-        }
-    });
+        const btn = e.target.closest('#mobileMenuBtn') || e.target.closest('.mobile-menu-btn');
+        const closeBtn = e.target.closest('#closeMobileMenu') || e.target.closest('.close-btn');
+        const overlay = document.getElementById('mobileMenuOverlay');
+        const navLink = e.target.closest('.mobile-nav-link');
 
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            close();
-            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
-        });
+        if (btn && overlay) {
+            e.preventDefault();
+            e.stopPropagation();
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+            }
+        } else if ((closeBtn || navLink) && overlay) {
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const openBtn = document.getElementById('mobileMenuBtn');
+            if (openBtn) {
+                const icon = openBtn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+            // If it was the login link, trigger login
+            if (navLink && navLink.id === 'mobileLoginBtn') {
+                document.getElementById('loginBtn')?.click();
+            }
+        } else if (overlay && overlay.classList.contains('active') && !e.target.closest('#mobileMenuOverlay')) {
+            // Close menu when clicking outside
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const openBtn = document.getElementById('mobileMenuBtn');
+            if (openBtn) {
+                const icon = openBtn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+        }
     });
 }
