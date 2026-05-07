@@ -174,7 +174,7 @@ function switchPracticeMode(mode) {
     const topicArea = document.getElementById('topic-selection-area');
     const toggles = document.querySelectorAll('.mode-toggle-btn');
     const testSel = document.getElementById('testSelection');
-
+    
     toggles.forEach(btn => {
         btn.classList.toggle('active', (mode === 'full' && btn.innerText.includes('Full')) || (mode === 'drill' && btn.innerText.includes('Topic')));
     });
@@ -196,20 +196,20 @@ const TopicDrills = {
         const container = document.getElementById('topic-chips-container');
         const nameEl = document.getElementById('drill-subject-name');
         if (!container) return;
-
+        
         nameEl.textContent = subjectNames[subject] || subject.toUpperCase();
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading topics...</div>';
-
+        
         try {
             const res = await fetch(`/api/subject/${subject}/topics`);
             const topics = await res.json();
-
+            
             container.innerHTML = '';
             if (topics.length === 0) {
                 container.innerHTML = '<p>No topics found for this subject yet.</p>';
                 return;
             }
-
+            
             topics.forEach(topic => {
                 const chip = document.createElement('div');
                 chip.className = 'topic-chip hover-lift';
@@ -236,7 +236,7 @@ const TopicDrills = {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
             const questions = await res.json();
-
+            
             if (!res.ok) throw new Error(questions.error || 'Failed to load drill');
 
             const normalized = questions.map(q => ({
@@ -253,7 +253,7 @@ const TopicDrills = {
                 isActive: true, selectedQuestions: normalized,
                 mode: 'drill', modeValue: topic
             };
-
+            
             saveProgress();
             launchExam();
         } catch (error) {
@@ -280,7 +280,7 @@ const SectionalTests = {
         const modal = document.getElementById('sectionalModal');
         const grid = document.getElementById('sections-grid');
         modal.style.display = 'flex';
-
+        
         grid.innerHTML = '';
         this.sections.forEach(sec => {
             const card = document.createElement('div');
@@ -302,13 +302,13 @@ const SectionalTests = {
     async startSection(sectionName) {
         this.closeModal();
         showView('loading');
-
+        
         try {
             const res = await fetch(`/api/section/${encodeURIComponent(sectionName)}?count=75`, {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
             const data = await res.json();
-
+            
             if (!res.ok) throw new Error(data.error || 'Failed to load section');
 
             const normalized = data.questions.map(q => ({
@@ -325,7 +325,7 @@ const SectionalTests = {
                 isActive: true, selectedQuestions: normalized,
                 mode: 'section', modeValue: sectionName
             };
-
+            
             saveProgress();
             launchExam();
         } catch (error) {
@@ -938,9 +938,9 @@ function submitTest() {
         },
         body: JSON.stringify(resultsData)
     })
-        .then(res => res.json())
-        .then(data => console.log('Test submitted to server:', data))
-        .catch(err => console.error('Error submitting test to server:', err));
+    .then(res => res.json())
+    .then(data => console.log('Test submitted to server:', data))
+    .catch(err => console.error('Error submitting test to server:', err));
 }
 
 function buildReview() {
@@ -1228,11 +1228,7 @@ function initTipsSlider() {
         <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    let pos = 0;
-    setInterval(() => {
-        pos = pos + 294 > track.scrollWidth - track.clientWidth ? 0 : pos + 294;
-        track.scrollTo({ left: pos, behavior: 'smooth' });
-    }, 3800);
+    makeInfiniteSlider(track);
 }
 
 
@@ -1292,7 +1288,7 @@ function on(id, ev, fn) {
     document.getElementById(id)?.addEventListener(ev, fn);
 }
 
-window.showToast = function (msg, bg = '#1F2937', color = '#FCD34D') {
+window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
     const t = document.createElement('div');
     t.style.cssText = `position:fixed;bottom:90px;right:20px;z-index:9999;background:${bg};color:${color};padding:14px 22px;border-radius:10px;font-weight:700;font-size:.87rem;box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:340px;font-family:Poppins,sans-serif;border:2px solid ${color};animation:toastIn .35s ease;`;
     t.textContent = msg;
@@ -1380,44 +1376,32 @@ function injectDynamicCSS() {
 
 /* -- 32. MOBILE MENU TOGGLE (UNIFIED) ------------------------------------------- */
 function initMobileMenu() {
-    const btn = document.getElementById('mobileMenuBtn');
-    const overlay = document.getElementById('mobileMenuOverlay');
-    const closeBtn = document.getElementById('closeMobileMenu');
-    const links = document.querySelectorAll('.mobile-nav-link');
+    // Event delegation on body for robustness across navigation
+    document.body.addEventListener('click', (e) => {
+        const btn = e.target.closest('#mobileMenuBtn');
+        const closeBtn = e.target.closest('#closeMobileMenu');
+        const overlay = document.getElementById('mobileMenuOverlay');
+        const link = e.target.closest('.mobile-nav-link');
 
-    if (!btn || !overlay) return;
-
-    const toggle = (e) => {
-        if (e) e.stopPropagation();
-        overlay.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) {
-            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+        if (btn && overlay) {
+            e.preventDefault();
+            overlay.classList.add('active');
+            document.body.classList.add('menu-open');
         }
-    };
 
-    const close = () => {
-        overlay.classList.remove('active');
-        document.body.classList.remove('menu-open');
-        const icon = btn.querySelector('i');
-        if (icon) icon.className = 'fas fa-bars';
-    };
-
-    btn.addEventListener('click', toggle);
-    if (closeBtn) closeBtn.addEventListener('click', close);
-
-    document.addEventListener('click', (e) => {
-        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
-            close();
+        if ((closeBtn || (overlay && overlay.classList.contains('active') && !overlay.contains(e.target))) && overlay) {
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
         }
-    });
 
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            close();
-            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
-        });
+        if (link && overlay) {
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            if (link.id === 'mobileLoginBtn') {
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) loginBtn.click();
+            }
+        }
     });
 }
 
@@ -1427,59 +1411,49 @@ function initMobileMenu() {
  * Works on any flex-row container. Clones children, pixel-scrolls via rAF.
  * Pauses on hover/touch. Resets seamlessly at midpoint.
  */
-function makeInfiniteSlider(containerEl) {
-    if (!containerEl) return;
-    const origChildren = Array.from(containerEl.children);
-    if (origChildren.length < 1) return;
+function makeInfiniteSlider(selector) {
+    const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
+    if (!container) return;
 
-    // Ensure container is a scrollable flex row
-    containerEl.style.cssText += [
-        'display:flex',
-        'flex-wrap:nowrap',
-        'overflow-x:hidden',
-        'gap:1.25rem',
-        'scroll-behavior:auto'
-    ].join(';') + ';';
+    // Clear any existing clones to prevent double-cloning on re-init
+    const originalItems = Array.from(container.children).filter(child => !child.classList.contains('cloned-item'));
+    if (originalItems.length === 0) return;
 
-    // Fix each child width
-    origChildren.forEach(child => {
-        child.style.cssText += 'flex:0 0 auto;min-width:280px;max-width:320px;';
+    // Clone items for infinite effect
+    originalItems.forEach(item => {
+        const clone = item.cloneNode(true);
+        clone.classList.add('cloned-item');
+        container.appendChild(clone);
     });
 
-    // Clone all children and append
-    origChildren.forEach(child => {
-        const clone = child.cloneNode(true);
-        clone.style.cssText += 'flex:0 0 auto;min-width:280px;max-width:320px;';
-        containerEl.appendChild(clone);
-    });
+    let scrollPos = 0;
+    let isPaused = false;
+    const speed = 0.8; // px per frame
 
-    let paused = false;
-    const SPEED = 0.8; // px per frame
-
-    function tick() {
-        if (!paused) {
-            containerEl.scrollLeft += SPEED;
-            // When we've scrolled past original half, jump back silently
-            if (containerEl.scrollLeft >= containerEl.scrollWidth / 2) {
-                containerEl.scrollLeft = 0;
+    function animate() {
+        if (!isPaused) {
+            scrollPos += speed;
+            if (scrollPos >= container.scrollWidth / 2) {
+                scrollPos = 0;
             }
+            container.scrollLeft = scrollPos;
         }
-        requestAnimationFrame(tick);
+        requestAnimationFrame(animate);
     }
 
-    containerEl.addEventListener('mouseenter', () => paused = true);
-    containerEl.addEventListener('mouseleave', () => paused = false);
-    containerEl.addEventListener('touchstart', () => paused = true, { passive: true });
-    containerEl.addEventListener('touchend', () => { setTimeout(() => paused = false, 1500); });
+    container.addEventListener('mouseenter', () => isPaused = true);
+    container.addEventListener('mouseleave', () => isPaused = false);
+    container.addEventListener('touchstart', () => isPaused = true, { passive: true });
+    container.addEventListener('touchend', () => isPaused = false, { passive: true });
 
-    requestAnimationFrame(tick);
+    requestAnimationFrame(animate);
 }
 
 // ─── STUDENT SUCCESS VOICES (Testimonials) ──────────────────────────────────
 function initTestimonials() {
     const track = document.getElementById('testimonials-slider');
     if (!track) return;
-
+    
     const testimonials = [
         { name: 'Rahul Sharma', rank: 'UPSC CSE 2023 Rank 124', text: 'NirnayPath bilingual mock tests were a game changer for my GS preparation. The level of questions is exactly like the actual exam.' },
         { name: 'Priya Verma', rank: 'BPSC 68th Topper', text: 'The free test series here is better than many paid ones. Detailed explanations helped me clear my basics in Modern History.' },
@@ -1488,7 +1462,7 @@ function initTestimonials() {
         { name: 'Vikram Aditya', rank: 'Bihar Police SI', text: 'Authentic Bihar GK questions which are hard to find elsewhere. Highly recommended for all state-level aspirants.' },
         { name: 'Meera Das', rank: 'Bank PO Selected', text: 'The interface is so clean and professional. It feels like you are sitting in the actual exam hall.' }
     ];
-
+    
     track.innerHTML = testimonials.map(t => `
       <div class="testimonial-card">
         <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
@@ -1501,6 +1475,8 @@ function initTestimonials() {
           </div>
         </div>
       </div>`).join('');
+
+    makeInfiniteSlider(track);
 }
 
 // ─── HERO ACTIVITY TICKER ─────────────────────────────────────────────────────
@@ -1546,28 +1522,20 @@ function initHeroDashboardStrip() {
     ];
 
     // Build cards
-    strip.innerHTML = dashCards.concat(dashCards).map(c => `
+    strip.innerHTML = dashCards.map(c => `
         <div class="dash-card">
             <strong>${c.icon} ${c.title}</strong>
             <span>${c.text}</span>
         </div>`).join('');
 
-    let scrolling = true;
-    function autoSlide() {
-        if (!scrolling) return;
-        strip.scrollLeft += 1;
-        if (strip.scrollLeft >= strip.scrollWidth / 2) strip.scrollLeft = 0;
-    }
-    setInterval(autoSlide, 30);
-    strip.addEventListener('mouseenter', () => scrolling = false);
-    strip.addEventListener('mouseleave', () => scrolling = true);
+    makeInfiniteSlider(strip);
 }
 
 // ─── ABOUT STATS COUNTER ──────────────────────────────────────────────────
 function initAboutStats() {
     const stats = document.querySelectorAll('.stat-box h3');
     if (!stats.length) return;
-
+    
     stats.forEach(stat => {
         const target = parseInt(stat.innerText.replace(/\D/g, ''));
         const suffix = stat.innerText.replace(/[0-9]/g, '');
