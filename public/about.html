@@ -136,7 +136,7 @@
                     </div>
                     
                     <!-- Stats Counter Row -->
-                    <div class="about-hero-stats" style="display: flex; gap: 30px; justify-content: center; margin-top: 40px;">
+                    <div class="about-hero-stats grid-standard" style="margin-top: 40px;">
                         <div class="stat-box"><h3 class="gradient-text">50K+</h3><p>Aspirants</p></div>
                         <div class="stat-box"><h3 class="gradient-text">10K+</h3><p>Questions</p></div>
                         <div class="stat-box"><h3 class="gradient-text">17+</h3><p>Subjects</p></div>
@@ -184,15 +184,25 @@
             <div class="container">
                 <h2 class="section-title text-center">Our Core <span class="gradient-text">Beliefs</span></h2>
                 <div class="mission-grid grid-standard" style="margin-bottom: 60px;">
-                    <div class="mission-card mission np-card">
+                    <div class="mission-card np-card">
                         <i class="fas fa-bullseye"></i>
                         <h3>Our Mission</h3>
-                        <p>To demolish the financial barriers in education by providing high-quality, authentic exam-level mock tests to every Indian aspirant for free, ensuring equal opportunity for success regardless of background.</p>
+                        <p>To demolish the financial barriers in education by providing high-quality, authentic exam-level mock tests to every Indian aspirant for free.</p>
                     </div>
-                    <div class="mission-card vision np-card">
+                    <div class="mission-card np-card">
                         <i class="fas fa-eye"></i>
                         <h3>Our Vision</h3>
-                        <p>To become India's most trusted platform for self-assessment, where merit is the only currency and every student has the tools to achieve their bureaucratic dreams with confidence.</p>
+                        <p>To become India's most trusted platform for self-assessment, where merit is the only currency and every student has the tools to achieve their dreams.</p>
+                    </div>
+                    <div class="mission-card np-card">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <h3>Our Promise</h3>
+                        <p>We promise to keep our core mock tests 100% free forever, ensuring that high-quality preparation is accessible to everyone.</p>
+                    </div>
+                    <div class="mission-card np-card">
+                        <i class="fas fa-users-cog"></i>
+                        <h3>Our Strategy</h3>
+                        <p>Using data-driven insights and expert curation to bridge the gap between effort and selection for every government job aspirant.</p>
                     </div>
                 </div>
                 
@@ -231,17 +241,22 @@
                     <div class="mentor-card np-card">
                         <img src="https://ui-avatars.com/api/?name=Dr.+Mehra&background=4f46e5&color=fff" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px;" alt="Mentor">
                         <h4>Dr. R.K. Mehra</h4>
-                        <p>Ex-IAS, Senior Content Mentor</p>
+                        <p>Ex-IAS, Senior Mentor</p>
                     </div>
                     <div class="mentor-card np-card">
                         <img src="https://ui-avatars.com/api/?name=Anshul+T&background=ec4899&color=fff" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px;" alt="Mentor">
                         <h4>Anshul Tiwari</h4>
-                        <p>Quant & Reasoning Specialist</p>
+                        <p>Quant Specialist</p>
                     </div>
                     <div class="mentor-card np-card">
                         <img src="https://ui-avatars.com/api/?name=Sonal+S&background=10b981&color=fff" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px;" alt="Mentor">
                         <h4>Sonal Singh</h4>
-                        <p>GS & Current Affairs Head</p>
+                        <p>GS Expert</p>
+                    </div>
+                    <div class="mentor-card np-card">
+                        <img src="https://ui-avatars.com/api/?name=Vikas+K&background=f59e0b&color=fff" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px;" alt="Mentor">
+                        <h4>Vikas Khanna</h4>
+                        <p>Reasoning Head</p>
                     </div>
                 </div>
             </div>
@@ -486,21 +501,6 @@
     </div>
 
     <script src="/script.js?v=1.0.0"></script>
-    <script>
-        const reveal = () => {
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 150;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add("active");
-                }
-            }
-        };
-        window.addEventListener("scroll", reveal);
-        reveal();
-    </script>
     <script src="/js/auth.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/chatbot.js"></script>

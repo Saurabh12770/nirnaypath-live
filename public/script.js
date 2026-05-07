@@ -1427,47 +1427,35 @@ function initMobileMenu() {
 // ─── INFINITE CAROUSEL ENGINE ──────────────────────────────────────────────
 function initInfiniteCarousel(sliderId) {
     const slider = document.getElementById(sliderId);
-    if (!slider || slider.children.length === 0) return;
+    if (!slider || slider.children.length < 2) return;
 
-    // Clone all cards to enable seamless infinite loop
-    const origCards = Array.from(slider.children);
-    origCards.forEach(card => slider.appendChild(card.cloneNode(true)));
+    // Clone first few items for seamless loop
+    const children = Array.from(slider.children);
+    children.forEach(child => {
+        const clone = child.cloneNode(true);
+        slider.appendChild(clone);
+    });
 
     let isPaused = false;
-    let currentIndex = 0;
-    const totalOrig = origCards.length;
+    let scrollAmount = 0;
+    const speed = 1; // Pixels per frame
 
-    function getCardWidth() {
-        const card = slider.children[0];
-        if (!card) return 350;
-        const style = window.getComputedStyle(card);
-        return card.offsetWidth + parseInt(style.marginRight || '0') + 30; // 30 = gap
-    }
-
-    function slide() {
-        if (isPaused) return;
-        currentIndex++;
-        const cardW = getCardWidth();
-        slider.style.scrollBehavior = 'smooth';
-        slider.scrollLeft = currentIndex * cardW;
-
-        // Seamless reset after reaching cloned cards
-        if (currentIndex >= totalOrig) {
-            setTimeout(() => {
-                slider.style.scrollBehavior = 'auto';
+    function step() {
+        if (!isPaused) {
+            slider.scrollLeft += speed;
+            if (slider.scrollLeft >= slider.scrollWidth / 2) {
                 slider.scrollLeft = 0;
-                currentIndex = 0;
-            }, 600);
+            }
         }
+        requestAnimationFrame(step);
     }
 
-    const interval = setInterval(slide, 3000);
     slider.addEventListener('mouseenter', () => isPaused = true);
     slider.addEventListener('mouseleave', () => isPaused = false);
     slider.addEventListener('touchstart', () => isPaused = true, { passive: true });
-    slider.addEventListener('touchend', () => setTimeout(() => isPaused = false, 2000));
-    
-    return interval;
+    slider.addEventListener('touchend', () => isPaused = false);
+
+    requestAnimationFrame(step);
 }
 
 // ─── STUDENT SUCCESS VOICES (Testimonials) ──────────────────────────────────
@@ -1608,5 +1596,22 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroDashboardStrip();
     initAboutStats();
     initFAQAccordion();
+    initGlobalReveal();
 });
+
+function initGlobalReveal() {
+    const reveal = () => {
+        const reveals = document.querySelectorAll(".reveal");
+        reveals.forEach(el => {
+            const windowHeight = window.innerHeight;
+            const elementTop = el.getBoundingClientRect().top;
+            const elementVisible = 100;
+            if (elementTop < windowHeight - elementVisible) {
+                el.classList.add("active");
+            }
+        });
+    };
+    window.addEventListener("scroll", reveal);
+    reveal(); // Initial check
+}
 

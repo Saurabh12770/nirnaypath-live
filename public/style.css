@@ -9241,8 +9241,9 @@ section {
     margin: 0 !important;
 }
 
+
 /* ================================================================
-   NIRNAYPATH – DEFINITIVE FORENSIC GRID & UI FIX (FINAL)
+   NIRNAYPATH – DEFINITIVE FORENSIC GRID & UI FIX (FINAL STABLE)
    ================================================================ */
 
 /* ── 1. GLOBAL GRID STANDARDIZATION ──────────────────────────── */
@@ -9251,7 +9252,7 @@ section {
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 1.5rem !important;
     width: 100% !important;
-    margin-bottom: 3rem !important;
+    margin-bottom: 2.5rem !important;
     align-items: stretch !important;
 }
 
@@ -9268,7 +9269,7 @@ section {
 }
 
 /* ── 2. PREMIUM MULTI-COLOR CARD SYSTEM ──────────────────────── */
-.np-card, .category-card, .feature-card, .trend-card, .why-card, .tip-card, .quote-card, .update-card, .step-card, .info-card, .mentor-card, .testimonial-card, .stat-item, .mission-card, .value-card, .about-hero-stats .stat-box {
+.np-card, .category-card, .feature-card, .trend-card, .why-card, .tip-card, .quote-card, .update-card, .step-card, .info-card, .mentor-card, .testimonial-card, .stat-item, .mission-card, .value-card, .stat-box {
     background: var(--bg-secondary) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 20px !important;
@@ -9280,30 +9281,36 @@ section {
     position: relative !important;
     overflow: hidden !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;
+    word-break: break-word !important;
 }
 
-/* Multi-color top borders (6-color rotation) */
-.grid-standard > *:nth-child(6n+1), .about-hero-stats .stat-box:nth-child(6n+1) { border-top: 4px solid #4F46E5 !important; --card-accent: #4F46E5; }
-.grid-standard > *:nth-child(6n+2), .about-hero-stats .stat-box:nth-child(6n+2) { border-top: 4px solid #EC4899 !important; --card-accent: #EC4899; }
-.grid-standard > *:nth-child(6n+3), .about-hero-stats .stat-box:nth-child(6n+3) { border-top: 4px solid #10B981 !important; --card-accent: #10B981; }
-.grid-standard > *:nth-child(6n+4), .about-hero-stats .stat-box:nth-child(6n+4) { border-top: 4px solid #F97316 !important; --card-accent: #F97316; }
-.grid-standard > *:nth-child(6n+5), .about-hero-stats .stat-box:nth-child(6n+5) { border-top: 4px solid #8B5CF6 !important; --card-accent: #8B5CF6; }
-.grid-standard > *:nth-child(6n+6), .about-hero-stats .stat-box:nth-child(6n+6) { border-top: 4px solid #06B6D4 !important; --card-accent: #06B6D4; }
+/* Multi-color top borders (10-color cycle) */
+.grid-standard > *:nth-child(10n+1), .about-hero-stats .stat-box:nth-child(10n+1) { border-top: 4px solid #EF4444 !important; --card-accent: #EF4444; } /* Red */
+.grid-standard > *:nth-child(10n+2), .about-hero-stats .stat-box:nth-child(10n+2) { border-top: 4px solid #EC4899 !important; --card-accent: #EC4899; } /* Pink */
+.grid-standard > *:nth-child(10n+3), .about-hero-stats .stat-box:nth-child(10n+3) { border-top: 4px solid #F43F5E !important; --card-accent: #F43F5E; } /* Rose */
+.grid-standard > *:nth-child(10n+4), .about-hero-stats .stat-box:nth-child(10n+4) { border-top: 4px solid #8B5CF6 !important; --card-accent: #8B5CF6; } /* Violet */
+.grid-standard > *:nth-child(10n+5), .about-hero-stats .stat-box:nth-child(10n+5) { border-top: 4px solid #F97316 !important; --card-accent: #F97316; } /* Orange */
+.grid-standard > *:nth-child(10n+6), .about-hero-stats .stat-box:nth-child(10n+6) { border-top: 4px solid #10B981 !important; --card-accent: #10B981; } /* Green */
+.grid-standard > *:nth-child(10n+7), .about-hero-stats .stat-box:nth-child(10n+7) { border-top: 4px solid #EAB308 !important; --card-accent: #EAB308; } /* Yellow */
+.grid-standard > *:nth-child(10n+8), .about-hero-stats .stat-box:nth-child(10n+8) { border-top: 4px solid #3B82F6 !important; --card-accent: #3B82F6; } /* Blue */
+.grid-standard > *:nth-child(10n+9), .about-hero-stats .stat-box:nth-child(10n+9) { border-top: 4px solid #14B8A6 !important; --card-accent: #14B8A6; } /* Teal */
+.grid-standard > *:nth-child(10n+10), .about-hero-stats .stat-box:nth-child(10n+10) { border-top: 4px solid #A855F7 !important; --card-accent: #A855F7; } /* Purple */
 
-/* Premium Hover Lift */
+/* Premium Hover State */
 .grid-standard > *:hover, .about-hero-stats .stat-box:hover {
     transform: translateY(-8px) !important;
-    box-shadow: 0 20px 45px rgba(0,0,0,0.12) !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12), 0 0 15px rgba(var(--card-accent-rgb, 79, 70, 229), 0.2) !important;
     border-color: var(--card-accent) !important;
 }
 
 /* Iconography with matching gradient */
-.grid-standard i, .stat-item i, .stat-box i {
+.np-card i, .category-card i, .feature-card i, .why-card i, .tip-card i, .step-card i, .info-card i, .stat-item i, .stat-box i {
     background: linear-gradient(135deg, var(--card-accent, #4F46E5), #94a3b8) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     font-size: 2.2rem !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 1.25rem !important;
+    display: inline-block !important;
 }
 
 /* ── 3. HERO TICKER CONTRAST (LIGHT MODE) ────────────────────── */
@@ -9319,25 +9326,25 @@ body:not([data-theme="dark"]) .dash-card span { color: #64748b !important; }
 /* ── 4. MOBILE MENU & HEADER STABILIZATION ───────────────────── */
 @media (max-width: 991px) {
     .sticky-header {
-        height: 70px !important;
-        padding: 0 1.25rem !important;
+        height: 75px !important;
+        padding: 0 1.5rem !important;
         background: var(--bg-main) !important;
-        z-index: 9999 !important;
+        z-index: 10000 !important;
     }
 
     #desktopNav { display: none !important; }
 
     .mobile-menu-btn {
         display: flex !important;
-        width: 44px !important;
-        height: 44px !important;
-        border-radius: 10px !important;
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 12px !important;
         background: var(--gradient-primary) !important;
         color: white !important;
         align-items: center !important;
         justify-content: center !important;
         border: none !important;
-        z-index: 10001 !important;
+        z-index: 10002 !important;
         box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
     }
 
@@ -9349,7 +9356,7 @@ body:not([data-theme="dark"]) .dash-card span { color: #64748b !important; }
         height: 100vh !important;
         background: rgba(255, 255, 255, 0.98) !important;
         backdrop-filter: blur(20px) !important;
-        z-index: 10000 !important;
+        z-index: 10001 !important;
         transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1) !important;
         display: flex !important;
         flex-direction: column !important;
@@ -9366,41 +9373,49 @@ body:not([data-theme="dark"]) .dash-card span { color: #64748b !important; }
         margin-top: 4rem !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 1.25rem !important;
+        gap: 1.5rem !important;
     }
 
     .mobile-nav-link {
-        font-size: 1.25rem !important;
+        font-size: 1.4rem !important;
         font-weight: 700 !important;
         color: var(--text-main) !important;
         text-decoration: none !important;
         padding: 1.25rem !important;
-        border-radius: 15px !important;
+        border-radius: 16px !important;
         background: rgba(0,0,0,0.03) !important;
         display: flex !important;
         align-items: center !important;
         gap: 1rem !important;
-        transition: var(--trans-all) !important;
     }
 
     [data-theme="dark"] .mobile-nav-link { background: rgba(255,255,255,0.03) !important; }
 }
 
-/* ── 5. ABOUT PAGE OVERLAP & LAYOUT FIX ──────────────────────── */
-.contact-section {
-    padding: 5rem 0 !important;
-    clear: both !important;
+/* ── 5. SPACING REDUCTION & LAYOUT FIX ───────────────────────── */
+section {
+    padding: 3rem 0 !important;
+}
+
+.section-title {
+    margin-bottom: 2rem !important;
+    font-size: clamp(2rem, 5vw, 2.75rem) !important;
 }
 
 .cta-banner {
-    margin-top: 3rem !important;
+    padding: 4rem 2rem !important;
+    margin: 3rem 0 !important;
 }
 
-/* Fix: Ensure section titles are always visible */
-.section-title {
-    color: var(--text-main) !important;
+/* ── 6. HERO REPAIR ──────────────────────────────────────────── */
+.hero-new {
+    min-height: 85vh !important;
+    padding-top: 100px !important;
+}
+
+.hero-new-actions {
     position: relative !important;
-    z-index: 2 !important;
+    z-index: 20 !important;
 }
 
 
