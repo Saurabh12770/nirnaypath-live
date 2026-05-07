@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQ();
     initTypingAnimation();
     initMobileMenu();
-    initTipsSlider();
     animateCounters();
     initTrendingTestButtons();
 
@@ -1228,11 +1227,7 @@ function initTipsSlider() {
         <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    let pos = 0;
-    setInterval(() => {
-        pos = pos + 294 > track.scrollWidth - track.clientWidth ? 0 : pos + 294;
-        track.scrollTo({ left: pos, behavior: 'smooth' });
-    }, 3800);
+    // Auto-scroll handled by makeInfiniteSlider() — no setInterval needed here
 }
 
 
@@ -1603,10 +1598,10 @@ function initFAQAccordion() {
 
 // ─── BOOTSTRAP ALL UI ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initMobileMenu();
-    initTipsSlider();
-    initTestimonials();
-    // Apply infinite pixel-scroll to actual slider containers only
+    // Note: initMobileMenu() already called in first DOMContentLoaded above
+    initTipsSlider();        // Build HTML for tips slider
+    initTestimonials();      // Build HTML for testimonials slider
+    // Apply infinite pixel-scroll AFTER HTML is built
     makeInfiniteSlider(document.getElementById('tips-slider'));
     makeInfiniteSlider(document.getElementById('testimonials-slider'));
     initHeroActivity();
@@ -1615,6 +1610,16 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQAccordion();
     initGlobalReveal();
 });
+
+/* scrollToDashboard – used by CTA button */
+function scrollToDashboard() {
+    const subArea = document.getElementById('popular-exams');
+    if (subArea) {
+        subArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
 
 function initGlobalReveal() {
     const reveal = () => {

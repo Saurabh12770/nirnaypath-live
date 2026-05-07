@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NirnayPath â€“ Global Design System
    Font: Poppins / Inter | Colors: Indigo #4F46E5, Orange #F97316
    ============================================================ */
@@ -8878,4 +8878,446 @@ body[data-theme="dark"] {
 @media (max-width: 320px) {
     .exam-grid-4, .feature-grid-8, .grid-standard { grid-template-columns: 1fr !important; }
 }
+
+/* ================================================================
+   NIRNAYPATH – MASTER LAYOUT FIX v5.0
+   Adds ALL missing classes and enforces correct layout.
+   This block is intentionally placed last so it wins the cascade.
+   ================================================================ */
+
+/* ── HERO-NEW SECTION ─────────────────────────────────────────── */
+.hero-new {
+    padding: 90px 2rem 60px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 50%, #fff7f0 100%);
+    position: relative;
+    overflow: visible;
+    margin-bottom: 0 !important;
+}
+[data-theme="dark"] .hero-new {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1a0a2e 100%);
+}
+.hero-new-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+.hero-new-content {
+    text-align: center;
+}
+.hero-new-title {
+    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    margin-bottom: 1.5rem !important;
+    color: var(--text-main) !important;
+}
+.hero-new-subtitle {
+    font-size: clamp(1rem, 2vw, 1.2rem) !important;
+    color: var(--text-secondary) !important;
+    max-width: 680px !important;
+    margin: 0 auto 2rem !important;
+    line-height: 1.7 !important;
+}
+
+/* ── HERO DASHBOARD TICKER ────────────────────────────────────── */
+.hero-dashboard-ticker {
+    overflow: hidden !important;
+    width: 100% !important;
+    margin-top: 2.5rem !important;
+    border-radius: 16px !important;
+    background: rgba(255,255,255,0.95) !important;
+    border: 1.5px solid rgba(99,102,241,0.2) !important;
+    box-shadow: 0 8px 24px rgba(99,102,241,0.1) !important;
+    padding: 0.5rem 0 !important;
+}
+[data-theme="dark"] .hero-dashboard-ticker {
+    background: rgba(30,41,59,0.95) !important;
+    border-color: rgba(99,102,241,0.3) !important;
+}
+.ticker-strip {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1rem !important;
+    overflow-x: hidden !important;
+    scroll-behavior: auto !important;
+}
+.dash-card {
+    flex: 0 0 auto !important;
+    min-width: 190px !important;
+    max-width: 230px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+    padding: 0.7rem 1.1rem !important;
+    background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(236,72,153,0.04)) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(99,102,241,0.13) !important;
+    text-align: center !important;
+}
+.dash-card strong {
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+}
+.dash-card span {
+    font-size: 0.78rem !important;
+    color: var(--text-secondary) !important;
+}
+
+/* ── DESKTOP GRID: 4 COLUMNS ─────────────────────────────────── */
+.grid-standard,
+.exam-grid-4,
+.trending-cards-grid,
+.why-us-grid,
+.quotes-grid,
+.updates-grid,
+.steps-grid,
+.testimonials-grid,
+.mission-grid,
+.values-grid,
+.mentor-grid,
+.contact-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.5rem !important;
+    align-items: stretch !important;
+}
+
+/* Tips & features: 4-col on desktop with wrap to handle 8 cards (2 rows) */
+.feature-grid-8,
+.tips-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.5rem !important;
+    align-items: stretch !important;
+}
+
+/* Tablet: 3 columns */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .grid-standard,
+    .exam-grid-4,
+    .feature-grid-8,
+    .trending-cards-grid,
+    .tips-grid,
+    .quotes-grid,
+    .updates-grid,
+    .steps-grid,
+    .why-us-grid,
+    .mission-grid,
+    .values-grid,
+    .mentor-grid,
+    .contact-grid,
+    .testimonials-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+/* Mobile: 2 columns (already defined above, re-enforcing) */
+@media (max-width: 768px) {
+    .grid-standard,
+    .exam-grid-4,
+    .feature-grid-8,
+    .trending-cards-grid,
+    .tips-grid,
+    .quotes-grid,
+    .updates-grid,
+    .steps-grid,
+    .why-us-grid,
+    .mission-grid,
+    .values-grid,
+    .mentor-grid,
+    .contact-grid,
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+    .hero-new { padding: 80px 1rem 40px !important; }
+}
+
+/* All grid children: uniform height */
+.grid-standard > *,
+.exam-grid-4 > *,
+.feature-grid-8 > *,
+.trending-cards-grid > *,
+.tips-grid > *,
+.quotes-grid > *,
+.updates-grid > *,
+.steps-grid > *,
+.why-us-grid > *,
+.mission-grid > *,
+.values-grid > *,
+.mentor-grid > *,
+.contact-grid > *,
+.testimonials-grid > * {
+    height: auto !important;
+    word-break: break-word !important;
+    overflow: hidden !important;
+}
+
+/* ── REDUCED SECTION SPACING ─────────────────────────────────── */
+section {
+    margin-bottom: 2.5rem !important;
+}
+.expert-tips-section {
+    margin: 2rem 0 !important;
+    padding: 2.5rem 0 !important;
+}
+.hero-new {
+    margin-bottom: 0 !important;
+}
+/* Disable section hover lift (causes visual overlap on about page) */
+section:hover {
+    transform: none !important;
+}
+
+/* ── np-card: uniform base ───────────────────────────────────── */
+.np-card {
+    background: var(--card-bg) !important;
+    border-radius: 16px !important;
+    padding: 1.4rem !important;
+    border: 1.5px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.07) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.np-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.13), 0 0 0 2px var(--card-accent, #4F46E5) !important;
+}
+
+/* ── COLOURFUL TOP BORDERS PER GRID ─────────────────────────── */
+/* Exam category cards */
+.exam-grid-4 > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.exam-grid-4 > *:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+.exam-grid-4 > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.exam-grid-4 > *:nth-child(4n+4) { border-top: 3px solid #EC4899 !important; }
+
+/* Trending */
+.trending-cards-grid > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.trending-cards-grid > *:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+.trending-cards-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.trending-cards-grid > *:nth-child(4n+4) { border-top: 3px solid #8B5CF6 !important; }
+
+/* Why Us */
+.why-us-grid > *:nth-child(4n+1) { border-top: 3px solid #8B5CF6 !important; }
+.why-us-grid > *:nth-child(4n+2) { border-top: 3px solid #3B82F6 !important; }
+.why-us-grid > *:nth-child(4n+3) { border-top: 3px solid #14B8A6 !important; }
+.why-us-grid > *:nth-child(4n+4) { border-top: 3px solid #EAB308 !important; }
+
+/* Features */
+.feature-grid-8 > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.feature-grid-8 > *:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+.feature-grid-8 > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.feature-grid-8 > *:nth-child(4n+4) { border-top: 3px solid #EC4899 !important; }
+
+/* Testimonials */
+.testimonials-grid > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.testimonials-grid > *:nth-child(4n+2) { border-top: 3px solid #EC4899 !important; }
+.testimonials-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.testimonials-grid > *:nth-child(4n+4) { border-top: 3px solid #F97316 !important; }
+
+/* Quotes */
+.quotes-grid > *:nth-child(4n+1) { border-top: 3px solid #EF4444 !important; }
+.quotes-grid > *:nth-child(4n+2) { border-top: 3px solid #8B5CF6 !important; }
+.quotes-grid > *:nth-child(4n+3) { border-top: 3px solid #F97316 !important; }
+.quotes-grid > *:nth-child(4n+4) { border-top: 3px solid #10B981 !important; }
+
+/* Updates */
+.updates-grid > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.updates-grid > *:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+.updates-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.updates-grid > *:nth-child(4n+4) { border-top: 3px solid #EC4899 !important; }
+
+/* Steps */
+.steps-grid > *:nth-child(1) { border-top: 3px solid #4F46E5 !important; }
+.steps-grid > *:nth-child(2) { border-top: 3px solid #10B981 !important; }
+.steps-grid > *:nth-child(3) { border-top: 3px solid #EC4899 !important; }
+.steps-grid > *:nth-child(4) { border-top: 3px solid #F97316 !important; }
+
+/* About page grids */
+.mission-grid > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.mission-grid > *:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+.mission-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.mission-grid > *:nth-child(4n+4) { border-top: 3px solid #EC4899 !important; }
+.values-grid > *:nth-child(4n+1) { border-top: 3px solid #EF4444 !important; }
+.values-grid > *:nth-child(4n+2) { border-top: 3px solid #8B5CF6 !important; }
+.values-grid > *:nth-child(4n+3) { border-top: 3px solid #14B8A6 !important; }
+.values-grid > *:nth-child(4n+4) { border-top: 3px solid #EAB308 !important; }
+.mentor-grid > *:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+.mentor-grid > *:nth-child(4n+2) { border-top: 3px solid #EC4899 !important; }
+.mentor-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.mentor-grid > *:nth-child(4n+4) { border-top: 3px solid #F97316 !important; }
+.contact-grid > *:nth-child(4n+1) { border-top: 3px solid #3B82F6 !important; }
+.contact-grid > *:nth-child(4n+2) { border-top: 3px solid #8B5CF6 !important; }
+.contact-grid > *:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+.contact-grid > *:nth-child(4n+4) { border-top: 3px solid #F97316 !important; }
+
+/* ── WHY CARD ICON STYLING ───────────────────────────────────── */
+.why-card .why-icon {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 1rem !important;
+    background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+}
+.why-card .why-icon i {
+    font-size: 1.4rem !important;
+    color: #fff !important;
+}
+
+/* ── ABOUT PAGE: PREVENT OVERLAP ───────────────────────────────── */
+.cta-banner {
+    position: relative !important;
+    z-index: 1 !important;
+    margin-top: 0 !important;
+    clear: both !important;
+}
+.contact-section {
+    position: relative !important;
+    z-index: 1 !important;
+    margin-top: 0 !important;
+    clear: both !important;
+}
+
+/* ── ABOUT HERO STATS ─────────────────────────────────────────── */
+.about-hero-stats {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+    margin-top: 2rem !important;
+}
+.about-hero-stats .stat-box {
+    background: rgba(255,255,255,0.9) !important;
+    border-radius: 14px !important;
+    padding: 1.2rem !important;
+    text-align: center !important;
+    border: 1.5px solid rgba(99,102,241,0.15) !important;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.08) !important;
+}
+[data-theme="dark"] .about-hero-stats .stat-box {
+    background: rgba(30,41,59,0.9) !important;
+}
+.about-hero-stats .stat-box h3 {
+    font-size: 1.8rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 0.25rem !important;
+}
+.about-hero-stats .stat-box p {
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin: 0 !important;
+}
+@media (max-width: 768px) {
+    .about-hero-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ── STAT-ITEM IN STATS COUNTER SECTION ─────────────────────── */
+.stats-counter-section .stat-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 1.5rem !important;
+    gap: 0.4rem !important;
+}
+.stats-counter-section .stat-item i {
+    font-size: 2rem !important;
+    background: var(--gradient) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* ── DARK MODE TICKER FIX ────────────────────────────────────── */
+[data-theme="dark"] .dash-card strong { color: #f1f5f9 !important; }
+[data-theme="dark"] .dash-card span { color: #cbd5e1 !important; }
+
+/* ── TIPS SLIDER CARDS COLOURED ─────────────────────────────── */
+#tips-slider .testimonial-card:nth-child(4n+1) { border-top: 3px solid #4F46E5 !important; }
+#tips-slider .testimonial-card:nth-child(4n+2) { border-top: 3px solid #F97316 !important; }
+#tips-slider .testimonial-card:nth-child(4n+3) { border-top: 3px solid #10B981 !important; }
+#tips-slider .testimonial-card:nth-child(4n+4) { border-top: 3px solid #EC4899 !important; }
+#testimonials-slider .testimonial-card:nth-child(4n+1) { border-top: 3px solid #8B5CF6 !important; }
+#testimonials-slider .testimonial-card:nth-child(4n+2) { border-top: 3px solid #3B82F6 !important; }
+#testimonials-slider .testimonial-card:nth-child(4n+3) { border-top: 3px solid #14B8A6 !important; }
+#testimonials-slider .testimonial-card:nth-child(4n+4) { border-top: 3px solid #EAB308 !important; }
+
+/* ── TESTIMONIAL-CARD BASE ────────────────────────────────────── */
+.testimonial-card {
+    background: var(--card-bg) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    border: 1.5px solid var(--border-color) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.testimonial-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12) !important;
+}
+[data-theme="dark"] .testimonial-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* ── STEP CARD ────────────────────────────────────────────────── */
+.step-card {
+    background: var(--card-bg) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    border: 1.5px solid var(--border-color) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07) !important;
+    text-align: center !important;
+}
+.step-num {
+    font-size: 2.5rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    margin-bottom: 0.75rem !important;
+    display: block !important;
+}
+
+/* ── SCROLLTODASHBOARD VISIBLE CTA ──────────────────────────── */
+.cta-btn.primary-btn.pulse {
+    background: linear-gradient(135deg, #4F46E5, #8B5CF6) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+/* ── MOBILE MENU BUTTON MORE VISIBLE ─────────────────────────── */
+.mobile-menu-btn {
+    background: linear-gradient(135deg, #4F46E5, #8B5CF6) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 1.1rem !important;
+    transition: transform 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+.mobile-menu-btn:hover {
+    transform: scale(1.08) !important;
+}
+@media (max-width: 768px) {
+    .mobile-menu-btn { display: flex !important; }
+    #desktopNav { display: none !important; }
+}
+@media (min-width: 769px) {
+    .mobile-menu-btn { display: none !important; }
+    #desktopNav { display: flex !important; }
+    #mobileMenuOverlay { display: none !important; }
+}
+
 
