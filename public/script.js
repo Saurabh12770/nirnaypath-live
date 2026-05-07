@@ -7,13 +7,13 @@
    ✅ Question slide animation
    ✅ Progress bar, option highlighting
    ✅ Timer with warning color
-============================================================ */
+   ============================================================ */
 
 'use strict';
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 let currentExam = 'upsc';
 let currentSubject = 'history';
 let currentLanguage = 'en';
@@ -32,7 +32,7 @@ let testState = {
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    2. CONSTANTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const examSubjects = {
     upsc: ['history', 'geography', 'polity', 'economics', 'environment', 'science', 'physics', 'chemistry', 'current'],
     bpsc: ['history', 'geography', 'polity', 'economics', 'bihar', 'science', 'physics', 'chemistry', 'current'],
@@ -81,7 +81,7 @@ const VIEW = {};
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    3. BOOT — SINGLE DOMContentLoaded
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 document.addEventListener('DOMContentLoaded', () => {
 
     /* Cache views */
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ============================================================ 
    4. VIEW MANAGER – guaranteed visibility control
-============================================================ */
+   ============================================================ */
 function showView(id) {
     /* Hard-hide EVERY view unconditionally */
     Object.values(VIEW).forEach(v => {
@@ -168,7 +168,7 @@ function showView(id) {
 
 /* ============================================================ 
    4b. NEW PRACTICE MODES (Topic Drills & Sectional Tests)
-============================================================ */
+   ============================================================ */
 function switchPracticeMode(mode) {
     const grid = document.getElementById('subject-grid');
     const topicArea = document.getElementById('topic-selection-area');
@@ -337,7 +337,7 @@ const SectionalTests = {
 
 /* ============================================================ 
    5. THEME
-============================================================ */
+   ============================================================ */
 function initTheme() {
     const toggle = document.getElementById('themeToggle');
     if (!toggle) return;
@@ -361,13 +361,8 @@ function initTheme() {
 }
 
 /* ============================================================ 
-   6. LOGIN
-============================================================ */
-
-
-/* ============================================================ 
    7. EXAM RIBBON
-============================================================ */
+   ============================================================ */
 function initExamRibbon() {
     document.querySelectorAll('.exam-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -396,7 +391,7 @@ function setActiveExam(exam) {
 
 /* ============================================================ 
    8. LANGUAGE
-============================================================ */
+   ============================================================ */
 function initLanguageToggle() {
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -412,7 +407,7 @@ function setLanguage(lang) {
 
 /* ============================================================ 
    9. BILINGUAL HELPERS
-============================================================ */
+   ============================================================ */
 const L = {
     q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
@@ -421,7 +416,7 @@ const L = {
 
 /* ============================================================ 
    10. SUBJECT CARDS
-============================================================ */
+   ============================================================ */
 function renderSubjectCards(exam) {
     const grid = document.getElementById('subject-grid');
     if (!grid) return;
@@ -468,7 +463,7 @@ function onSubjectClick(card, key, name) {
 
 /* ============================================================ 
    11. TEST GRID
-============================================================ */
+   ============================================================ */
 function renderTestGrid() {
     const grid = document.getElementById('testGrid');
     if (!grid) return;
@@ -522,7 +517,7 @@ function renderTestGrid() {
 
 /* ============================================================ 
    12. FILTERS
-============================================================ */
+   ============================================================ */
 function initFilterButtons() {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => setFilter(btn.textContent.trim()));
@@ -536,7 +531,7 @@ function setFilter(f) {
 
 /* ============================================================ 
    13. START TEST
-============================================================ */
+   ============================================================ */
 async function startTest(testName, subject, questionCount = 100, timeLimit = 90) {
     if (!Auth.isLoggedIn()) {
         alert('Please login to start the mock test.');
@@ -584,7 +579,7 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
 
 /* ============================================================ 
    14. LAUNCH EXAM ENGINE
-============================================================ */
+   ============================================================ */
 function launchExam() {
     const total = testState.selectedQuestions.length;
     const subName = subjectNames[testState.subject] || testState.subject;
@@ -613,7 +608,7 @@ function launchExam() {
 
 /* ============================================================ 
    15. RENDER QUESTION
-============================================================ */
+   ============================================================ */
 function renderQuestion(dir = 'next') {
     const qData = testState.selectedQuestions[testState.currentIdx];
     if (!qData) return;
@@ -673,7 +668,7 @@ function renderQuestion(dir = 'next') {
 
 /* ============================================================ 
    16. PROGRESS BAR
-============================================================ */
+   ============================================================ */
 function updateProgressBar() {
     const total = testState.selectedQuestions.length;
     const answered = Object.keys(testState.answers).length;
@@ -685,7 +680,7 @@ function updateProgressBar() {
 
 /* ============================================================ 
    17. PALETTE
-============================================================ */
+   ============================================================ */
 function renderPalette() {
     const grid = document.getElementById('palette-grid');
     if (!grid) return;
@@ -751,7 +746,7 @@ function saveCurrentAnswer() {
 
 /* ============================================================ 
    18. EXAM CONTROLS (bound once after DOMContentLoaded)
-============================================================ */
+   ============================================================ */
 function bindExamControls() {
     /* Save & Next */
     on('btn-next', 'click', () => {
@@ -828,7 +823,7 @@ function initTrendingTestButtons() {
 
 /* ============================================================ 
    19. TIMER
-============================================================ */
+   ============================================================ */
 function startTimer() {
     clearInterval(timerInterval);
     updateTimerDisplay();
@@ -850,7 +845,7 @@ function updateTimerDisplay() {
 
 /* ============================================================ 
    20. SUBMIT & RESULT
-============================================================ */
+   ============================================================ */
 function submitTest() {
     clearInterval(timerInterval);
     saveCurrentAnswer();
@@ -1012,9 +1007,9 @@ function buildReview() {
     });
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    21. SESSION PERSISTENCE
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function saveProgress() {
     try { localStorage.setItem('mockTestState', JSON.stringify(testState)); } catch { }
 }
@@ -1034,9 +1029,9 @@ function checkExistingTestSession() {
     } catch { localStorage.removeItem('mockTestState'); }
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    22. FULLSCREEN API
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function enterFullscreen() {
     const el = document.documentElement;
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
@@ -1059,7 +1054,7 @@ function showFsWarning() {
     const b = document.createElement('div');
     b.id = 'fs-warning-banner';
     b.style.cssText = 'position:fixed;top:0;left:0;width:100%;z-index:9999;background:#EF4444;color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 20px;font-weight:700;font-size:.93rem;box-shadow:0 4px 20px rgba(239,68,68,.5);font-family:Poppins,sans-serif;';
-    b.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You exited fullscreen Ã¢â‚¬â€ Return to continue exam safely.
+    b.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You exited fullscreen — Return to continue exam safely.
       <button onclick="enterFullscreen()" style="background:#fff;color:#EF4444;border:none;padding:7px 18px;border-radius:20px;font-weight:700;cursor:pointer;font-family:inherit;">Re-enter Fullscreen</button>`;
     document.body.appendChild(b);
 }
@@ -1067,9 +1062,9 @@ function removeFsWarningBanner() {
     document.getElementById('fs-warning-banner')?.remove();
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    23. ANTI-CHEAT
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function installAntiCheat() {
     if (acInstalled) return;
     acInstalled = true;
@@ -1098,15 +1093,15 @@ function blockKeys(e) {
 function onVisChange() {
     if (!testState.isActive || !document.hidden) return;
     tabSwitchCount++;
-    showToast(`Ã¢Å¡Â Ã¯Â¸Â Tab Switch Detected Ã¢â‚¬â€ Warning ${tabSwitchCount}/3`, '#F59E0B', '#1F2937');
+    showToast(`⚠️ Tab Switch Detected — Warning ${tabSwitchCount}/3`, '#F59E0B', '#1F2937');
     if (tabSwitchCount >= 3) {
         setTimeout(() => { alert('3 tab-switches detected. Test is being auto-submitted.'); submitTest(); }, 600);
     }
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    24. QUESTION SLIDE ANIMATION
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function slideIn(dir = 'next') {
     const area = document.querySelector('.question-area');
     if (!area) return;
@@ -1120,18 +1115,18 @@ function slideIn(dir = 'next') {
     }));
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    25. STICKY HEADER
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initStickyHeader() {
     const h = document.querySelector('header.sticky-header');
     if (!h) return;
     window.addEventListener('scroll', () => h.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    26. BACK TO TOP
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initBackToTop() {
     const btn = document.getElementById('backToTop');
     if (!btn) return;
@@ -1139,9 +1134,9 @@ function initBackToTop() {
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    27. SCROLL REVEAL
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initScrollAnimations() {
     const io = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
@@ -1149,9 +1144,9 @@ function initScrollAnimations() {
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    28. COUNTER ANIMATION
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function animateCounters() {
     const io = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -1160,13 +1155,9 @@ function animateCounters() {
             const target = parseInt(el.dataset.count) || 0;
             let cur = 0, steps = 55;
             const inc = target / steps;
-            const fmt = v => {
-                if (target >= 10000) return Math.ceil(v / 1000) + 'K+';
-                return Math.ceil(v) + (target === 95 ? '%' : '+');
-            };
             const tick = () => {
                 cur += inc;
-                el.textContent = cur < target ? fmt(cur) : fmt(target);
+                el.textContent = cur < target ? Math.ceil(cur) + '+' : target + '+';
                 if (cur < target) setTimeout(tick, 28);
             };
             tick();
@@ -1176,9 +1167,9 @@ function animateCounters() {
     document.querySelectorAll('.stat-counter').forEach(el => io.observe(el));
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    29. FAQ
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initFAQ() {
     document.querySelectorAll('.faq-item').forEach(item => {
         item.querySelector('.faq-header')?.addEventListener('click', () => {
@@ -1189,9 +1180,9 @@ function initFAQ() {
     });
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    30. TYPING ANIMATION
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initTypingAnimation() {
     const el = document.getElementById('typed-text');
     if (!el) return;
@@ -1208,9 +1199,9 @@ function initTypingAnimation() {
     setTimeout(type, 600);
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    31. TIPS SLIDER
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initTipsSlider() {
     const track = document.getElementById('tips-slider');
     if (!track) return;
@@ -1228,49 +1219,16 @@ function initTipsSlider() {
         <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    makeInfiniteSlider(track);
+    let pos = 0;
+    setInterval(() => {
+        pos = pos + 294 > track.scrollWidth - track.clientWidth ? 0 : pos + 294;
+        track.scrollTo({ left: pos, behavior: 'smooth' });
+    }, 3800);
 }
 
-
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-   32. TRENDING TESTS
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
-function populateTrendingTests() {
-    const grid = document.getElementById('trending-tests-grid');
-    if (!grid) return;
-    const tests = [
-        { name: 'BPSC 70th Prelims', subject: 'history', diff: 'Hard' },
-        { name: 'SSC CGL Tier-1 Math', subject: 'math', diff: 'Medium' },
-        { name: 'UPSC Env & Ecology', subject: 'environment', diff: 'Hard' },
-        { name: 'Hindi Sahitya', subject: 'hindi', diff: 'Easy' },
-        { name: 'Modern India Mock', subject: 'history', diff: 'Medium' },
-        { name: 'Bihar GK Full Test', subject: 'bihar', diff: 'Hard' }
-    ];
-    grid.innerHTML = tests.map(t => `
-      <div class="update-card reveal" data-subject="${t.subject}" style="cursor:pointer">
-        <div class="update-date ${t.diff.toLowerCase()}">${t.diff[0]}<span>${t.diff.slice(1)}</span></div>
-        <div class="update-text">
-          <h4>${t.name}</h4>
-          <p>${t.subject.replace('_', ' ').toUpperCase()} · 2026 Pattern</p>
-        </div>
-      </div>`).join('');
-
-    grid.querySelectorAll('.update-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const sub = card.dataset.subject;
-            const sCard = document.querySelector(`.subject-card[data-subject="${sub}"]`);
-            if (sCard) { sCard.click(); return; }
-            for (const [exam, subs] of Object.entries(examSubjects)) {
-                if (subs.includes(sub)) { setActiveExam(exam); break; }
-            }
-            setTimeout(() => document.querySelector(`.subject-card[data-subject="${sub}"]`)?.click(), 350);
-        });
-    });
-}
-
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-   33. UTILITIES
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   32. UTILITIES
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1296,31 +1254,31 @@ window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
     setTimeout(() => t.remove(), 4500);
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-   34. DYNAMIC CSS INJECTION
-Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   33. DYNAMIC CSS INJECTION
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function injectDynamicCSS() {
     const s = document.createElement('style');
     s.textContent = `
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ No text selection during exam Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— No text selection during exam ——— */
       body.exam-active { user-select:none; -webkit-user-select:none; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Modern scrollbar Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Modern scrollbar ——— */
       ::-webkit-scrollbar            { width:7px; height:7px; }
       ::-webkit-scrollbar-track      { background:transparent; }
       ::-webkit-scrollbar-thumb      { background:rgba(79,70,229,.22); border-radius:10px; }
       ::-webkit-scrollbar-thumb:hover{ background:rgba(79,70,229,.5); }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Palette glow on hover Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Palette glow on hover ——— */
       .p-btn:hover              { box-shadow:0 0 0 3px rgba(79,70,229,.2); }
       .p-btn.answered:hover     { box-shadow:0 0 0 3px rgba(22,163,74,.3); }
       .p-btn.not-answered:hover { box-shadow:0 0 0 3px rgba(239,68,68,.3); }
       .p-btn.marked:hover       { box-shadow:0 0 0 3px rgba(217,119,6,.3); }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Question area transition Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Question area transition ——— */
       .question-area { will-change:opacity,transform; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Option ripple Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Option ripple ——— */
       .option-row::after {
         content:''; position:absolute; inset:0;
         background:rgba(79,70,229,.06); border-radius:inherit;
@@ -1328,13 +1286,13 @@ function injectDynamicCSS() {
       }
       .option-row:active::after { opacity:1; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Toast animation Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Toast animation ——— */
       @keyframes toastIn {
         from { opacity:0; transform:translateY(12px) scale(.95); }
         to   { opacity:1; transform:translateY(0) scale(1); }
       }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ About-page stat items (prevent exam palette style bleed) Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— About-page stat items (prevent exam palette style bleed) ——— */
       .stats-counter-section .stat-item {
         background:var(--card-bg) !important;
         padding:30px !important;
@@ -1350,20 +1308,20 @@ function injectDynamicCSS() {
       }
       .stats-counter-section .stat-item:hover { transform:translateY(-5px) !important; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Result page review visibility Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Result page review visibility ——— */
       #review-container { margin-top:24px; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Exam body ensures no horizontal overflow Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Exam body ensures no horizontal overflow ——— */
       #exam-engine { overflow-x:hidden; }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Landscape mobile: palette on right Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Landscape mobile: palette on right ——— */
       @media (orientation:landscape) and (max-height:500px) {
         .exam-body         { flex-direction:row; }
         .palette-panel     { width:200px; min-height:100vh; }
         .palette-grid      { grid-template-columns:repeat(4,1fr); }
       }
 
-      /* Ã¢â€â‚¬Ã¢â€â‚¬ Logo Ã¢â€â‚¬Ã¢â€â‚¬ */
+      /* ——— Logo ——— */
       .logo-text { display:flex; flex-direction:column; line-height:1.1; }
       .logo-main { font-size:1.5rem; font-weight:900;
                    background:var(--gradient);-webkit-background-clip:text;
@@ -1374,224 +1332,47 @@ function injectDynamicCSS() {
     document.head.appendChild(s);
 }
 
-/* -- 32. MOBILE MENU TOGGLE (UNIFIED) ------------------------------------------- */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   34. MOBILE MENU TOGGLE
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initMobileMenu() {
-    // Event delegation on body for robustness across navigation
-    document.body.addEventListener('click', (e) => {
-        const btn = e.target.closest('#mobileMenuBtn');
-        const closeBtn = e.target.closest('#closeMobileMenu');
-        const overlay = document.getElementById('mobileMenuOverlay');
-        const link = e.target.closest('.mobile-nav-link');
+    const btn = document.getElementById('mobileMenuBtn');
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const closeBtn = document.getElementById('closeMobileMenu');
+    const links = document.querySelectorAll('.mobile-nav-link');
 
-        if (btn && overlay) {
-            e.preventDefault();
-            overlay.classList.add('active');
-            document.body.classList.add('menu-open');
+    if (!btn || !overlay) return;
+
+    const toggle = (e) => {
+        if (e) e.stopPropagation();
+        overlay.classList.toggle('active');
+        document.body.classList.toggle('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = overlay.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
         }
-
-        if ((closeBtn || (overlay && overlay.classList.contains('active') && !overlay.contains(e.target))) && overlay) {
-            overlay.classList.remove('active');
-            document.body.classList.remove('menu-open');
-        }
-
-        if (link && overlay) {
-            overlay.classList.remove('active');
-            document.body.classList.remove('menu-open');
-            if (link.id === 'mobileLoginBtn') {
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) loginBtn.click();
-            }
-        }
-    });
-}
-
-// ─── INFINITE SLIDER ENGINE (PIXEL SCROLL, RAF-BASED) ─────────────────────
-/**
- * makeInfiniteSlider(containerEl)
- * Works on any flex-row container. Clones children, pixel-scrolls via rAF.
- * Pauses on hover/touch. Resets seamlessly at midpoint.
- */
-function makeInfiniteSlider(selector) {
-    const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
-    if (!container) return;
-
-    // Clear any existing clones to prevent double-cloning on re-init
-    const originalItems = Array.from(container.children).filter(child => !child.classList.contains('cloned-item'));
-    if (originalItems.length === 0) return;
-
-    // Clone items for infinite effect
-    originalItems.forEach(item => {
-        const clone = item.cloneNode(true);
-        clone.classList.add('cloned-item');
-        container.appendChild(clone);
-    });
-
-    let scrollPos = 0;
-    let isPaused = false;
-    const speed = 0.8; // px per frame
-
-    function animate() {
-        if (!isPaused) {
-            scrollPos += speed;
-            if (scrollPos >= container.scrollWidth / 2) {
-                scrollPos = 0;
-            }
-            container.scrollLeft = scrollPos;
-        }
-        requestAnimationFrame(animate);
-    }
-
-    container.addEventListener('mouseenter', () => isPaused = true);
-    container.addEventListener('mouseleave', () => isPaused = false);
-    container.addEventListener('touchstart', () => isPaused = true, { passive: true });
-    container.addEventListener('touchend', () => isPaused = false, { passive: true });
-
-    requestAnimationFrame(animate);
-}
-
-// ─── STUDENT SUCCESS VOICES (Testimonials) ──────────────────────────────────
-function initTestimonials() {
-    const track = document.getElementById('testimonials-slider');
-    if (!track) return;
-    
-    const testimonials = [
-        { name: 'Rahul Sharma', rank: 'UPSC CSE 2023 Rank 124', text: 'NirnayPath bilingual mock tests were a game changer for my GS preparation. The level of questions is exactly like the actual exam.' },
-        { name: 'Priya Verma', rank: 'BPSC 68th Topper', text: 'The free test series here is better than many paid ones. Detailed explanations helped me clear my basics in Modern History.' },
-        { name: 'Ankit Singh', rank: 'SSC CGL Selected', text: 'Time management was my biggest challenge. The NirnayPath timer and analytics helped me improve my speed by 30%.' },
-        { name: 'Sneha Kumari', rank: 'Railway NTPC Selected', text: 'I love how easy it is to use on mobile. I used to practice during my commute. Truly democratizing education!' },
-        { name: 'Vikram Aditya', rank: 'Bihar Police SI', text: 'Authentic Bihar GK questions which are hard to find elsewhere. Highly recommended for all state-level aspirants.' },
-        { name: 'Meera Das', rank: 'Bank PO Selected', text: 'The interface is so clean and professional. It feels like you are sitting in the actual exam hall.' }
-    ];
-    
-    track.innerHTML = testimonials.map(t => `
-      <div class="testimonial-card">
-        <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-        <p class="testimonial-text">${t.text}</p>
-        <div class="testimonial-footer">
-          <div class="user-avatar"><i class="fas fa-user-graduate"></i></div>
-          <div class="user-info">
-            <strong>${t.name}</strong>
-            <span>${t.rank}</span>
-          </div>
-        </div>
-      </div>`).join('');
-
-    makeInfiniteSlider(track);
-}
-
-// ─── HERO ACTIVITY TICKER ─────────────────────────────────────────────────────
-function initHeroActivity() {
-    const track = document.getElementById('heroActivityTrack');
-    if (!track) return;
-
-    const messages = [
-        '🔥 Rahul scored 92% in UPSC GS Mock Test!',
-        '⚡ Priya topped BPSC Teacher Mock – Rank #1!',
-        '🏆 500+ new questions added this week!',
-        '📅 Free live test this Sunday – Register now!',
-        '💡 Amit cleared SSC CGL Prelims in first attempt!',
-        '✅ 50,000+ aspirants trust NirnayPath – Join free!',
-        '🌟 Neha improved her score by 35% in 7 days!',
-        '🎯 Bihar Police Mock Test series now live!'
-    ];
-
-    // Build items
-    track.innerHTML = messages.map(m => `<div class="activity-item"><i class="fas fa-circle-dot" style="color:#fbbf24"></i> ${m}</div>`).join('');
-
-    let idx = 0;
-    const ITEM_HEIGHT = 40;
-
-    setInterval(() => {
-        idx = (idx + 1) % messages.length;
-        track.style.transform = `translateY(-${idx * ITEM_HEIGHT}px)`;
-    }, 4000);
-}
-
-// ─── HERO DASHBOARD CARDS (auto-slide strip) ──────────────────────────────────
-function initHeroDashboardStrip() {
-    const strip = document.getElementById('heroDashboardStrip');
-    if (!strip) return;
-
-    const dashCards = [
-        { icon: '<i class="fas fa-users"></i>', title: '50K+ Aspirants', text: 'Active learning community' },
-        { icon: '<i class="fas fa-check-double"></i>', title: '100% Free', text: 'Democratizing education' },
-        { icon: '<i class="fas fa-language"></i>', title: 'Bilingual', text: 'Tests in Hindi & English' },
-        { icon: '<i class="fas fa-desktop"></i>', title: 'Real Interface', text: 'Mirroring exam software' },
-        { icon: '<i class="fas fa-file-invoice"></i>', title: 'Latest Pattern', text: 'Based on 2026 syllabus' },
-        { icon: '<i class="fas fa-chart-pie"></i>', title: 'Deep Analytics', text: 'Identify your weak areas' }
-    ];
-
-    // Build cards
-    strip.innerHTML = dashCards.map(c => `
-        <div class="dash-card">
-            <strong>${c.icon} ${c.title}</strong>
-            <span>${c.text}</span>
-        </div>`).join('');
-
-    makeInfiniteSlider(strip);
-}
-
-// ─── ABOUT STATS COUNTER ──────────────────────────────────────────────────
-function initAboutStats() {
-    const stats = document.querySelectorAll('.stat-box h3');
-    if (!stats.length) return;
-    
-    stats.forEach(stat => {
-        const target = parseInt(stat.innerText.replace(/\D/g, ''));
-        const suffix = stat.innerText.replace(/[0-9]/g, '');
-        let current = 0;
-        const increment = target / 50;
-        const interval = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                stat.innerText = target + suffix;
-                clearInterval(interval);
-            } else {
-                stat.innerText = Math.ceil(current) + suffix;
-            }
-        }, 30);
-    });
-}
-
-// ─── FAQ ACCORDION ────────────────────────────────────────────────────────────
-function initFAQAccordion() {
-    const faqItems = document.querySelectorAll('.faq-item');
-    if (!faqItems.length) return;
-    faqItems.forEach(item => {
-        const header = item.querySelector('.faq-question') || item.querySelector('.faq-header');
-        if (!header) return;
-        header.style.cursor = 'pointer';
-        header.addEventListener('click', () => {
-            const isActive = item.classList.contains('active');
-            faqItems.forEach(i => i.classList.remove('active'));
-            if (!isActive) item.classList.add('active');
-        });
-    });
-}
-
-// ─── BOOTSTRAP ALL UI ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    initMobileMenu();
-    initTipsSlider();
-    initTestimonials();
-    // Apply infinite pixel-scroll to actual slider containers only
-    makeInfiniteSlider(document.getElementById('tips-slider'));
-    makeInfiniteSlider(document.getElementById('testimonials-slider'));
-    initHeroActivity();
-    initHeroDashboardStrip();
-    initAboutStats();
-    initFAQAccordion();
-    initGlobalReveal();
-});
-
-function initGlobalReveal() {
-    const reveal = () => {
-        document.querySelectorAll('.reveal').forEach(el => {
-            if (el.getBoundingClientRect().top < window.innerHeight - 80) {
-                el.classList.add('active');
-            }
-        });
     };
-    window.addEventListener('scroll', reveal, { passive: true });
-    reveal();
+
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fas fa-bars';
+    };
+
+    btn.addEventListener('click', toggle);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    document.addEventListener('click', (e) => {
+        if (overlay.classList.contains('active') && !overlay.contains(e.target) && !btn.contains(e.target)) {
+            close();
+        }
+    });
+
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            close();
+            if (link.id === 'mobileLoginBtn') document.getElementById('loginBtn')?.click();
+        });
+    });
 }
