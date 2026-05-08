@@ -1428,12 +1428,8 @@ function injectDynamicCSS() {
       }
 
       /* ——— Logo ——— */
-      .logo-text { display:flex; flex-direction:column; line-height:1.1; }
-      .logo-main { font-size:1.5rem; font-weight:900;
-                   background:var(--gradient);-webkit-background-clip:text;
-                   background-clip:text;color:transparent;letter-spacing:-.5px; }
-      .logo-sub  { font-size:.65rem;font-weight:600;color:var(--primary);
-                   letter-spacing:2px;text-transform:uppercase;opacity:.8; }
+      .logo-img { height:48px; width:auto; object-fit:contain; }
+      @media (max-width:768px) { .logo-img { height:36px; } }
     `;
     document.head.appendChild(s);
 }
