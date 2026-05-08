@@ -1214,10 +1214,10 @@ function initTipsSlider() {
         { icon: 'fas fa-trophy', title: 'Mock Frequency', text: 'Take at least 2 full-length mocks every week. Analyzing your performance in these tests is essential for steady improvement.' }
     ];
     track.innerHTML = tips.map(t => `
-      <div class="testimonial-card">
-        <i class="${t.icon}" style="font-size:2rem;margin-bottom:14px;display:block;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent"></i>
-        <h4 style="margin-bottom:8px">${t.title}</h4>
-        <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
+      <div class="tip-card">
+        <i class="${t.icon}"></i>
+        <h4>${t.title}</h4>
+        <p>${t.text}</p>
       </div>`).join('');
 
     makeInfiniteSlider('tips-slider', 3500);
