@@ -135,4 +135,4 @@ const PaymentManager = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => PWA.init());
+// document.addEventListener('DOMContentLoaded', () => PWA.init());

@@ -31,10 +31,6 @@
             </button>
         </nav>
         <div class="header-right">
-            <button id="installAppBtn" class="cta-btn" onclick="PWA.install()">
-                <i class="fas fa-download"></i> <span class="cta-text">Install</span>
-            </button>
-            <!-- Header CTA Removed as per request -->
             <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
@@ -106,24 +102,8 @@
         <section id="dashboard" class="view-section active">
 
             <!-- New Hero Section -->
-            <section class="hero-new reveal">
-                <div class="hero-new-container">
-                    <div class="hero-new-content">
-                        <h1 class="hero-new-title">Your Dream. Our Mission. <br><span class="gradient-text">One Platform – NirnayPath</span></h1>
-                        <p class="hero-new-subtitle">Completely free mock tests for UPSC, BPSC, SSC, Banking & more. Built for every Indian aspirant, regardless of their financial background.</p>
-                        <div class="hero-new-actions">
-                            <button class="hero-btn-primary" onclick="showView('dashboard')">Start Free Test <i class="fas fa-rocket"></i></button>
-                            <a href="about.html" class="hero-btn-secondary">Learn More <i class="fas fa-info-circle"></i></a>
-                        </div>
-                        
-                        <!-- Dashboard Ticker -->
-                        <div class="hero-dashboard-ticker">
-                            <div class="ticker-strip" id="heroDashboardStrip">
-                                <!-- JS Populated: 50,000+ Aspirants, 100% Free, Bilingual, etc. -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <section class="hero-new-image reveal">
+                <img src="home_hero1.png" class="img-fluid hero-img" alt="NirnayPath Home Hero">
             </section>
 
             <!-- Popular Exams Section -->
@@ -595,38 +575,38 @@
                 <h2 class="section-title text-center">Frequently Asked <span class="gradient-text">Questions</span></h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-header">
                             <span>How do I start a mock test?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="faq-answer">
+                        <div class="faq-content">
                             <p>Simply select your exam category from the home page, choose a subject, and click on any available test card to begin instantly.</p>
                         </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-header">
                             <span>Is it really completely free?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="faq-answer">
+                        <div class="faq-content">
                             <p>Yes, NirnayPath is committed to providing high-quality mock tests at zero cost to ensure equal opportunity for every aspirant.</p>
                         </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-header">
                             <span>Can I resume a test later?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="faq-answer">
+                        <div class="faq-content">
                             <p>Absolutely! Our platform auto-saves your progress every 30 seconds. You can close the browser and resume exactly where you left off.</p>
                         </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-header">
                             <span>Are the questions based on the latest pattern?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="faq-answer">
+                        <div class="faq-content">
                             <p>Our question bank is updated weekly by experts who monitor the latest trends and patterns of UPSC, BPSC, SSC, and other major exams.</p>
                         </div>
                     </div>
