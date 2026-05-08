@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTypingAnimation();
     initMobileMenu();
     initTipsSlider();
+    initHeroSliders();
     makeInfiniteSlider('testimonial-slider', 4000);
     animateCounters();
     initTrendingTestButtons();
@@ -1220,6 +1221,56 @@ function initTipsSlider() {
       </div>`).join('');
 
     makeInfiniteSlider('tips-slider', 3500);
+}
+
+function initHeroSliders() {
+    makeHeroSlider('#homeHeroSlider');
+    makeHeroSlider('#aboutHeroSlider');
+}
+
+function makeHeroSlider(selector) {
+    const container = document.querySelector(selector);
+    if (!container) return;
+
+    const slides = Array.from(container.children);
+    if (slides.length === 0) return;
+
+    // Clone first few slides for infinite loop
+    slides.forEach(slide => {
+        const clone = slide.cloneNode(true);
+        container.appendChild(clone);
+    });
+
+    let scrollAmount = 0;
+    let isPaused = false;
+    const slideWidth = container.offsetWidth;
+    const totalSlides = slides.length;
+
+    function autoSlide() {
+        if (isPaused) return;
+        scrollAmount += container.offsetWidth;
+        
+        container.scrollTo({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+
+        if (scrollAmount >= totalSlides * container.offsetWidth) {
+            setTimeout(() => {
+                container.scrollTo({ left: 0, behavior: 'auto' });
+                scrollAmount = 0;
+            }, 600);
+        }
+    }
+
+    let sliderInterval = setInterval(autoSlide, 3000);
+
+    container.addEventListener('mouseenter', () => isPaused = true);
+    container.addEventListener('mouseleave', () => isPaused = false);
+
+    window.addEventListener('resize', () => {
+        scrollAmount = Math.round(container.scrollLeft / container.offsetWidth) * container.offsetWidth;
+    });
 }
 
 /**

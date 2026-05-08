@@ -8187,22 +8187,49 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     transform: rotate(180deg);
 }
 
-/* Hero Image Styles */
-.hero-new-image, .hero-about-image {
+/* Hero Slider Styles */
+.hero-slider-section {
     width: 100%;
-    max-width: 100vw;
+    overflow: hidden;
     margin: 0;
     padding: 0;
-    line-height: 0;
-    display: block;
-    overflow: hidden;
+    background: var(--bg-main);
 }
-.hero-img {
+.hero-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.hero-slider::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+.hero-slider img {
+    flex: 0 0 100%;
     width: 100%;
-    max-width: 100%;
     height: auto;
     display: block;
     object-fit: cover;
+    border: 4px solid #F97316;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+/* Cycle border colors */
+.hero-slider img:nth-child(4n+1) { border-color: #F97316; }
+.hero-slider img:nth-child(4n+2) { border-color: #EC4899; }
+.hero-slider img:nth-child(4n+3) { border-color: #10B981; }
+.hero-slider img:nth-child(4n+4) { border-color: #4F46E5; }
+
+/* Mobile Menu Toggle within Header */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+        order: 3;
+    }
 }
 
 /* CTA Banner */
@@ -8629,7 +8656,10 @@ body[data-theme="dark"] {
    to ensure they win the cascade against legacy 19k line CSS.
    ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
 @media (max-width: 768px) {
-  .exam-ribbon { top: 56px !important; }
+  .exam-ribbon { 
+    top: 70px !important; /* Increased to avoid overlap with sticky header */
+    margin-top: 0;
+  }
 }
 
 
@@ -8769,7 +8799,16 @@ body[data-theme="dark"] {
 /* Visibility Control */
 @media (max-width: 768px) {
     #desktopNav { display: none !important; }
-    .mobile-menu-toggle { display: flex !important; }
+    .mobile-menu-toggle { 
+        display: flex !important; 
+        align-items: center;
+        justify-content: center;
+        background: var(--gradient) !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        width: 40px !important;
+        height: 40px !important;
+    }
 }
 
 @media (min-width: 769px) {
@@ -8839,19 +8878,36 @@ body[data-theme="dark"] {
     .quote-card, .testimonial-card, .update-card, .mission-box, 
     .about-platform-card, .contact-card, .mentor-card, .subject-card, 
     .step-card, .stats-card, .np-card, .card, .stat-item, .mission-card, .info-card {
-        padding: 1.25rem !important;
+        padding: 1rem !important;
         height: auto !important;
         min-height: auto !important;
-        aspect-ratio: auto !important; /* Reset any forced aspect ratio */
+        aspect-ratio: auto !important;
+        word-break: break-word;
     }
 
+    /* Icon Consistency */
     .feature-card i, .category-card .cat-icon, .why-icon, .trend-icon, 
     .tip-icon, .quote-icon, .testimonial-card .quote-icon, 
     .update-date, .stat-item i {
-        font-size: 1.6rem !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 50% !important;
+        background: var(--gradient) !important;
+        color: #fff !important;
+        font-size: 1.4rem !important;
         margin-bottom: 0.75rem !important;
-        width: auto !important;
-        height: auto !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Remove clipping for icons that should use the circle background */
+    .feature-card i, .stat-item i {
+        -webkit-background-clip: initial !important;
+        background-clip: initial !important;
+        background: var(--gradient) !important;
+        color: #fff !important;
     }
 
     .feature-card h4, .category-card h3, .why-card h4, .trend-card h3, 
