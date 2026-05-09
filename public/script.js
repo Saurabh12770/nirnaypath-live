@@ -1208,28 +1208,25 @@ function initTipsSlider() {
     const track = document.getElementById('tips-slider');
     if (!track) return;
     const tips = [
-        { icon: 'fas fa-calendar-check', title: 'Consistent Routine', text: 'Create a daily study schedule and stick to it. Consistency builds discipline and ensures steady progress.' },
-        { icon: 'fas fa-bullseye', title: 'Focus Weak Areas', text: 'Identify your weak subjects through mock tests and allocate extra time to improve them systematically.' },
-        { icon: 'fas fa-clock', title: 'Time Management', text: 'Practice solving questions within time limits to improve speed and accuracy for the actual exam.' },
-        { icon: 'fas fa-chart-bar', title: 'Mock Test Analysis', text: 'After each mock test, analyze mistakes thoroughly to avoid repeating them in future attempts.' },
-        { icon: 'fas fa-book-open', title: 'Concept Clarity', text: 'Focus on understanding concepts deeply rather than rote memorization for long-term retention.' },
-        { icon: 'fas fa-sync-alt', title: 'Regular Revision', text: 'Schedule weekly revision sessions to reinforce learning and prevent forgetting important topics.' },
-        { icon: 'fas fa-brain', title: 'Active Recall', text: 'Test yourself frequently without looking at notes to strengthen memory and recall ability.' },
-        { icon: 'fas fa-heartbeat', title: 'Health & Wellness', text: 'Maintain proper sleep, nutrition, and exercise to keep your mind sharp and focused during preparation.' }
+        { icon: 'fas fa-clock', title: 'Time Management', text: 'Spend no more than 40s per question in competitive exams. Set a daily target and track your progress to stay on schedule.' },
+        { icon: 'fas fa-filter', title: 'Elimination Tech', text: "Avoid options with absolutes like 'Always' or 'Never'. Practice this daily to improve your accuracy in multiple-choice questions." },
+        { icon: 'fas fa-sync', title: 'Revision Cycle', text: 'Revisit weak topics every 48 hours for best retention. Consistent revision is the key to mastering complex subjects over time.' },
+        { icon: 'fas fa-trophy', title: 'Mock Frequency', text: 'Take at least 2 full-length mocks every week. Analyzing your performance in these tests is essential for steady improvement.' }
     ];
     track.innerHTML = tips.map(t => `
-      <div class="ratio-3-4-card">
+      <div class="tip-card ratio-3-4-card">
         <div class="card-logo"><i class="${t.icon}"></i></div>
         <div class="card-body">
           <h4>${t.title}</h4>
           <p>${t.text}</p>
         </div>
         <div class="card-footer">
-          <button class="card-btn">Learn More <i class="fas fa-chevron-right"></i></button>
+          <a href="#" class="btn-pill">Learn More <i class="fas fa-chevron-right"></i></a>
         </div>
       </div>`).join('');
 
-    makeInfiniteSlider('tips-slider', 3000);
+    // Re-initialize slider for tips specifically
+    makeInfiniteSlider('tips-slider', 4000);
 }
 
 function initHeroSliders() {

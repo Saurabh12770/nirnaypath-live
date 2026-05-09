@@ -9430,184 +9430,96 @@ body[data-theme="dark"] {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SYSTEMATIC CARD ARCHITECTURE (PHASES 1, 3, 4, 5)
+   PREMIUM CARD DESIGN SYSTEM (PHASE 2 & 3)
    ══════════════════════════════════════════════════════════════ */
 
-/* Unified Card Container */
-.np-card, .card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .success-tip-card, .update-card, .mentor-card, .subject-card, .step-card, .about-stat-card {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    padding: 1.25rem !important; /* Reduced padding per Phase 3 */
-    height: 100% !important;
-    min-height: auto !important;
-    background: var(--card-bg) !important;
-    border-radius: 16px !important;
+/* 2.1 & 2.2: Base Card Styles, Shadows, and Hover */
+.card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .info-card, .mission-card, .about-stat-card, .success-tip-card {
     border-top: 3px solid var(--primary) !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    transition: all 0.3s ease !important;
+    background: var(--card-bg) !important;
+    border-radius: 16px !important;
     position: relative;
     overflow: hidden;
 }
 
-.np-card:hover, .card:hover, .feature-card:hover, .category-card:hover, .why-card:hover, .trend-card:hover, .tip-card:hover, .success-tip-card:hover, .update-card:hover {
+/* Multi-color top borders cycling (Phase 2.1) */
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+1) { --card-glow: rgba(239, 68, 68, 0.3); border-top-color: #EF4444 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+2) { --card-glow: rgba(236, 72, 153, 0.3); border-top-color: #EC4899 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+3) { --card-glow: rgba(139, 92, 246, 0.3); border-top-color: #8B5CF6 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+4) { --card-glow: rgba(16, 185, 129, 0.3); border-top-color: #10B981 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+5) { --card-glow: rgba(249, 115, 22, 0.3); border-top-color: #F97316 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+6) { --card-glow: rgba(59, 130, 246, 0.3); border-top-color: #3B82F6 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+7) { --card-glow: rgba(244, 63, 94, 0.3); border-top-color: #F43F5E !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+8) { --card-glow: rgba(20, 184, 166, 0.3); border-top-color: #14B8A6 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+9) { --card-glow: rgba(168, 85, 247, 0.3); border-top-color: #A855F7 !important; }
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):nth-child(10n+10) { --card-glow: rgba(234, 179, 8, 0.3); border-top-color: #EAB308 !important; }
+
+/* Premium Hover Lift & Glow (Phase 2.2) */
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):hover {
     transform: translateY(-6px) !important;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.12), 0 0 15px var(--primary-light) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 0 15px var(--card-glow) !important;
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.05) 100%) !important;
 }
 
-/* Row 1: Logo/Icon (Phase 4) */
-.card-logo, .card-icon, .icon-wrapper {
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-    min-height: 54px !important;
-    border-radius: 12px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 1.25rem !important;
-    background: var(--primary) !important; /* Contrasting background per Phase 4 */
-    color: #fff !important;
-    font-size: 1.4rem !important;
-    overflow: hidden !important;
-    align-self: flex-start !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-/* Specific icon visibility fixes (Phase 4) */
-.category-card i, .trend-card i, .why-card i, .feature-card i, .success-tip-card i {
-    width: 50px !important;
-    height: 50px !important;
-    background: var(--primary) !important;
-    color: white !important;
-    border-radius: 10px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* Icon Enhancement (Phase 2.4) */
+:is(.card, .feature-card, .category-card, .why-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card) i {
+    font-size: 2.5rem !important;
     margin-bottom: 1rem !important;
-    font-size: 1.2rem !important;
-    -webkit-text-fill-color: white !important; /* Override gradient clips if any */
+    display: inline-block !important;
+    background: var(--gradient) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    transition: transform 0.3s ease !important;
 }
 
-/* Row 2: Content (Phase 1) */
-.card-body, .card-content {
-    flex-grow: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    text-align: left !important;
+:is(.card, .feature-card, .category-card, .trend-card, .testimonial-card, .update-card, .mission-card, .step-card, .success-tip-card, .tip-card):hover i {
+    transform: scale(1.15) rotate(5deg) !important;
 }
 
-.card-body h3, .card-body h4, .card-content h3, .card-content h4 {
-    margin: 0 !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    color: var(--text-main) !important;
-    line-height: 1.3 !important;
+/* 3.0 COMPACT TIPS DESIGN (PHASE 3) */
+.success-tip-card, .tip-card {
+    padding: 1rem !important;
+    height: auto !important;
+    min-height: 200px !important;
 }
 
-.card-body p, .card-content p {
-    margin: 0 !important;
-    font-size: 0.88rem !important;
-    color: var(--text-secondary) !important;
-    line-height: 1.5 !important;
+.success-tip-card i, .tip-card i {
+    font-size: 1.8rem !important;
+    margin-bottom: 0.75rem !important;
 }
 
-/* Row 3: Footer/Button (Phases 1, 5) */
-.card-footer, .card-action {
-    margin-top: 1.25rem !important;
+.success-tip-card h3, .tip-card h4 {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
 }
 
-/* Premium Pill Buttons (Phase 5) */
-.card-btn, .trend-start-btn, .btn-pill, .learn-more-link, .take-challenge-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    padding: 0.65rem 1.5rem !important;
-    border-radius: 50px !important; /* Pill shape */
-    background: var(--gradient) !important; /* Gradient background */
-    color: #fff !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    text-decoration: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    white-space: nowrap !important;
-    width: 100% !important;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;
+.success-tip-card p, .tip-card p {
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0 !important;
 }
 
-.card-btn:hover, .trend-start-btn:hover, .btn-pill:hover, .learn-more-link:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4) !important;
-    color: #fff !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SPACING & GAPS (PHASE 2 & 3)
-   ══════════════════════════════════════════════════════════════ */
-
+/* Global Section Adjustments (Phase 4) */
 section {
-    padding: 2rem 0 !important; /* Reduced per Phase 2 */
-    margin: 0 !important;
-}
-
-.hero {
-    padding: 3rem 0 1.5rem !important; /* Tight hero per Phase 2 */
-}
-
-.grid-standard, .exam-tips-grid, .updates-grid, .features-grid, .categories-grid, .why-us-grid, .trending-cards-grid, .mentor-grid, .mission-grid, .community-grid, .community-row {
-    gap: 1.25rem !important; /* Tight grid gap per Phase 3 */
+    padding: 2rem 0 !important;
+    margin-bottom: 0 !important;
 }
 
 @media (max-width: 768px) {
     section { padding: 1.5rem 0 !important; }
-    .hero { padding: 2rem 0 1rem !important; }
-    .grid-standard, .exam-tips-grid, .updates-grid, .features-grid, .categories-grid, .why-us-grid, .trending-cards-grid, .mentor-grid, .mission-grid, .community-grid, .community-row {
-        gap: 1rem !important;
-    }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   EXPERT PREPARATION TIPS (PHASE 6)
-   ══════════════════════════════════════════════════════════════ */
-
-.ratio-3-4-container {
-    width: 100% !important;
-    overflow: hidden !important;
-    position: relative !important;
-}
-
-.ratio-3-4-card {
-    width: 280px !important;
-    min-width: 280px !important;
-    height: 373px !important; /* 3:4 Ratio */
-    flex: 0 0 280px !important;
-    margin: 10px !important;
-    padding: 1.25rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    background: var(--card-bg) !important;
-    border-radius: 16px !important;
-    border-top: 3px solid var(--primary) !important;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+.grid-standard, .exam-tips-grid, .updates-grid, .features-grid, .categories-grid, .why-us-grid, .trending-cards-grid, .mentor-grid, .mission-grid, .community-grid, .community-row {
+    gap: 1.25rem !important;
 }
 
 @media (max-width: 768px) {
-    .ratio-3-4-card {
-        width: 160px !important;
-        min-width: 160px !important;
-        height: 213px !important; /* 3:4 on Mobile */
-        flex: 0 0 160px !important;
-        padding: 0.85rem !important;
-        margin: 5px !important;
+    .grid-standard, .exam-tips-grid, .updates-grid, .features-grid, .categories-grid, .why-us-grid, .trending-cards-grid, .mentor-grid, .mission-grid, .community-grid, .community-row {
+        gap: 1rem !important;
     }
-    .ratio-3-4-card i { width: 40px !important; height: 40px !important; font-size: 1rem !important; margin-bottom: 0.5rem !important; }
-    .ratio-3-4-card h4 { font-size: 0.85rem !important; }
-    .ratio-3-4-card p { font-size: 0.75rem !important; line-height: 1.4 !important; }
 }
 
 .container {
