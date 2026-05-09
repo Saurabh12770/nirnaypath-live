@@ -9,13 +9,18 @@
     <link rel="stylesheet" href="/style.css?v=3.0.0">
     <link rel="manifest" href="/manifest.json?v=3.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=3.0.0">
-    <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <header class="sticky-header">
         <div class="logo">
-            <img src="/logo.png" alt="NirnayPath" class="logo-img">
+            <div class="logo-icon">
+                <i class="fas fa-compass"></i>
+            </div>
+            <div class="logo-text">
+                <span class="logo-main">NirnayPath</span>
+                <span class="logo-sub">Mock Test Platform</span>
+            </div>
         </div>
         <nav id="desktopNav">
             <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
@@ -42,7 +47,8 @@
     <div id="mobileNavPanel" class="mobile-nav-panel">
         <div class="panel-header">
             <div class="logo">
-                <img src="/logo.png" alt="NirnayPath" class="logo-img">
+                <div class="logo-icon"><i class="fas fa-compass"></i></div>
+                <div class="logo-text"><span class="logo-main">NirnayPath</span></div>
             </div>
             <button id="closePanelBtn" class="close-panel-btn">&times;</button>
         </div>
@@ -184,52 +190,6 @@
                     <i class="fas fa-clock"></i>
                     <h2 class="stat-counter gradient-text" data-count="24">24/7</h2>
                     <p>Learning Access</p>
-                </div>
-            </div>
-        <section class="categories-section reveal">
-            <div class="container">
-                <h2 class="section-title text-center">Popular Exam <span class="gradient-text">Categories</span></h2>
-                <div class="categories-grid grid-standard">
-                    <div class="category-card reveal">
-                        <div class="card-logo"><i class="fas fa-university"></i></div>
-                        <div class="card-body">
-                            <h3>UPSC CSE</h3>
-                            <p>Premium mocks for Civil Services Examination.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Explore Exams <i class="fas fa-chevron-right"></i></a>
-                        </div>
-                    </div>
-                    <div class="category-card reveal">
-                        <div class="card-logo"><i class="fas fa-gavel"></i></div>
-                        <div class="card-body">
-                            <h3>State PSC</h3>
-                            <p>Specialized tests for BPSC, UPPCS, JPSC.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Explore Exams <i class="fas fa-chevron-right"></i></a>
-                        </div>
-                    </div>
-                    <div class="category-card reveal">
-                        <div class="card-logo"><i class="fas fa-train"></i></div>
-                        <div class="card-body">
-                            <h3>Railways</h3>
-                            <p>Full coverage for RRB NTPC, Group D, ALP.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Explore Exams <i class="fas fa-chevron-right"></i></a>
-                        </div>
-                    </div>
-                    <div class="category-card reveal">
-                        <div class="card-logo"><i class="fas fa-user-shield"></i></div>
-                        <div class="card-body">
-                            <h3>SSC</h3>
-                            <p>Targeted mocks for CGL, CHSL, MTS.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Explore Exams <i class="fas fa-chevron-right"></i></a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -481,45 +441,63 @@
                 <div class="trending-cards-grid grid-standard">
                     <!-- BPSC Prelims 2026 -->
                     <div class="trend-card np-card hover-lift">
-                    <div class="trend-card reveal">
-                        <div class="card-logo"><i class="fas fa-file-invoice"></i></div>
-                        <div class="card-body">
-                            <h3>UPSC Prelims 2024</h3>
-                            <p>Comprehensive GS + CSAT Mock Test Series.</p>
+                        <div class="trend-card-top">
+                            <div class="trend-icon"><i class="fas fa-landmark"></i></div>
+                            <span class="trend-badge hard">Expert Tier</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="trend-start-btn" data-exam="upsc" data-subject="gs">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                        <h3>BPSC 71st Combined Prelims</h3>
+                        <p>All Subjects • Comprehensive GS</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 150 Qs</span>
+                            <span><i class="fas fa-clock"></i> 120 Mins</span>
+                            <span><i class="fas fa-fire"></i> 12.5k Attempts</span>
                         </div>
+                        <button class="trend-start-btn" data-exam="bpsc" data-subject="bihar">Take Challenge <i class="fas fa-arrow-right"></i></button>
                     </div>
-                    <div class="trend-card reveal">
-                        <div class="card-logo"><i class="fas fa-balance-scale"></i></div>
-                        <div class="card-body">
-                            <h3>BPSC 70th CCE</h3>
-                            <p>Full length mock with latest pattern.</p>
+                    <!-- SSC CGL -->
+                    <div class="trend-card np-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon"><i class="fas fa-calculator"></i></div>
+                            <span class="trend-badge medium">Mid Tier</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="trend-start-btn" data-exam="bpsc" data-subject="gs">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                        <h3>SSC CGL Tier 1 Full Mock</h3>
+                        <p>Reasoning, Quant & English</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 100 Qs</span>
+                            <span><i class="fas fa-clock"></i> 60 Mins</span>
+                            <span><i class="fas fa-fire"></i> 8.2k Attempts</span>
                         </div>
+                        <button class="trend-start-btn" data-exam="ssc" data-subject="math">Take Challenge <i class="fas fa-arrow-right"></i></button>
                     </div>
-                    <div class="trend-card reveal">
-                        <div class="card-logo"><i class="fas fa-shield-alt"></i></div>
-                        <div class="card-body">
-                            <h3>SSC CGL Tier 1</h3>
-                            <p>High quality mocks based on 2023-24 trend.</p>
+                    <!-- UPSC CSAT -->
+                    <div class="trend-card np-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon"><i class="fas fa-crown"></i></div>
+                            <span class="trend-badge easy">Base Tier</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="trend-start-btn" data-exam="ssc" data-subject="gs">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                        <h3>UPSC Ethics & Aptitude</h3>
+                        <p>GS Paper IV • Case Studies</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 80 Qs</span>
+                            <span><i class="fas fa-clock"></i> 120 Mins</span>
+                            <span><i class="fas fa-fire"></i> 5.6k Attempts</span>
                         </div>
+                        <button class="trend-start-btn" data-exam="upsc" data-subject="polity">Take Challenge <i class="fas fa-arrow-right"></i></button>
                     </div>
-                    <div class="trend-card reveal">
-                        <div class="card-logo"><i class="fas fa-subway"></i></div>
-                        <div class="card-body">
-                            <h3>RRB NTPC CBT 1</h3>
-                            <p>Most attempted Railway mock series.</p>
+                    <!-- Railway NTPC -->
+                    <div class="trend-card np-card hover-lift">
+                        <div class="trend-card-top">
+                            <div class="trend-icon"><i class="fas fa-train"></i></div>
+                            <span class="trend-badge medium">Mid Tier</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="trend-start-btn" data-exam="railway" data-subject="gs">Take Challenge <i class="fas fa-arrow-right"></i></button>
+                        <h3>Railway RRB NTPC Mock</h3>
+                        <p>General Awareness & Reasoning</p>
+                        <div class="trend-meta">
+                            <span><i class="fas fa-question-circle"></i> 120 Qs</span>
+                            <span><i class="fas fa-clock"></i> 90 Mins</span>
+                            <span><i class="fas fa-fire"></i> 15.2k Attempts</span>
                         </div>
+                        <button class="trend-start-btn" data-exam="railway" data-subject="gs">Take Challenge <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
             </section>
@@ -531,45 +509,25 @@
                     <p>We provide everything you need to ace your exams in one single place.</p>
                 </div>
                 <div class="why-us-grid grid-standard" id="why-us-grid">
-                    <div class="why-card reveal">
-                        <div class="card-logo"><i class="fas fa-check-double"></i></div>
-                        <div class="card-body">
-                            <h3>Quality Mocks</h3>
-                            <p>Questions curated by experts matching the latest exam patterns perfectly.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Learn More <i class="fas fa-info-circle"></i></a>
-                        </div>
+                    <div class="why-card np-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-desktop"></i></div>
+                        <h4>Real Exam Interface</h4>
+                        <p>Practice with the exact interface used by UPSC, SSC, and Banking exams to build confidence.</p>
                     </div>
-                    <div class="why-card reveal">
-                        <div class="card-logo"><i class="fas fa-bolt"></i></div>
-                        <div class="card-body">
-                            <h3>Real-time Results</h3>
-                            <p>Get detailed analysis and ranking immediately after submitting your test.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Learn More <i class="fas fa-info-circle"></i></a>
-                        </div>
+                    <div class="why-card np-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h4>Instant Analysis</h4>
+                        <p>Get detailed subject-wise performance analysis immediately after submission.</p>
                     </div>
-                    <div class="why-card reveal">
-                        <div class="card-logo"><i class="fas fa-mobile-alt"></i></div>
-                        <div class="card-body">
-                            <h3>Practice Anywhere</h3>
-                            <p>Fully responsive platform designed for seamless practice on mobile and web.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Learn More <i class="fas fa-info-circle"></i></a>
-                        </div>
+                    <div class="why-card np-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-gift"></i></div>
+                        <h4>100% Free Practice</h4>
+                        <p>Access premium mock tests for all major government exams without paying anything.</p>
                     </div>
-                    <div class="why-card reveal">
-                        <div class="card-logo"><i class="fas fa-user-graduate"></i></div>
-                        <div class="card-body">
-                            <h3>100% Free</h3>
-                            <p>High-quality education should be accessible to all, without any hidden costs.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Learn More <i class="fas fa-info-circle"></i></a>
-                        </div>
+                    <div class="why-card np-card hover-lift">
+                        <div class="why-icon"><i class="fas fa-language"></i></div>
+                        <h4>Bilingual Tests</h4>
+                        <p>Questions available in both Hindi & English, reflecting the actual paper pattern.</p>
                     </div>
                 </div>
             </section>
@@ -582,44 +540,28 @@
                     <h2 class="section-title text-center">🎯 Exam <span class="gradient-text">Success Tips</span></h2>
                     <div class="exam-tips-grid">
                         <div class="success-tip-card hover-lift">
-                            <div class="card-logo"><i class="fas fa-clock"></i></div>
-                            <div class="card-body">
-                                <h3>Time Management</h3>
-                                <p>Learn to allocate fixed time to each section. Never get stuck on a single difficult question.</p>
-                            </div>
-                            <div class="card-footer">
-                                <a href="#" class="btn-pill">Read Tip <i class="fas fa-chevron-right"></i></a>
-                            </div>
+                            <i class="fas fa-clock"></i>
+                            <h3>Time Management</h3>
+                            <p>Spend no more than 40s per question and prioritize easy marks first to boost score.</p>
+                            <a href="#" class="learn-more-link">Learn More <i class="fas fa-chevron-right"></i></a>
                         </div>
                         <div class="success-tip-card hover-lift">
-                            <div class="card-logo"><i class="fas fa-sync-alt"></i></div>
-                            <div class="card-body">
-                                <h3>Revision Strategy</h3>
-                                <p>Follow the 24-7-30 rule: revise within 24 hours, then at 7 days, and finally at 30 days.</p>
-                            </div>
-                            <div class="card-footer">
-                                <a href="#" class="btn-pill">Read Tip <i class="fas fa-chevron-right"></i></a>
-                            </div>
+                            <i class="fas fa-sync-alt"></i>
+                            <h3>Revision Strategy</h3>
+                            <p>Follow the 24-7-30 rule: revise within 24 hours, then at 7 days, and finally at 30 days.</p>
+                            <a href="#" class="learn-more-link">Learn More <i class="fas fa-chevron-right"></i></a>
                         </div>
                         <div class="success-tip-card hover-lift">
-                            <div class="card-logo"><i class="fas fa-chart-line"></i></div>
-                            <div class="card-body">
-                                <h3>Mock Analysis</h3>
-                                <p>Analyze every wrong answer and identify conceptual gaps after each mock test session.</p>
-                            </div>
-                            <div class="card-footer">
-                                <a href="#" class="btn-pill">Read Tip <i class="fas fa-chevron-right"></i></a>
-                            </div>
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Mock Test Analysis</h3>
+                            <p>Analyze every wrong answer and identify conceptual gaps after each mock test session.</p>
+                            <a href="#" class="learn-more-link">Learn More <i class="fas fa-chevron-right"></i></a>
                         </div>
                         <div class="success-tip-card hover-lift">
-                            <div class="card-logo"><i class="fas fa-bullseye"></i></div>
-                            <div class="card-body">
-                                <h3>Accuracy First</h3>
-                                <p>Focus on accuracy before speed. Speed will naturally improve as your accuracy gets better.</p>
-                            </div>
-                            <div class="card-footer">
-                                <a href="#" class="btn-pill">Read Tip <i class="fas fa-chevron-right"></i></a>
-                            </div>
+                            <i class="fas fa-heartbeat"></i>
+                            <h3>Healthy Routine</h3>
+                            <p>Ensure 7 hours of sleep and regular breaks to maintain high focus levels during prep.</p>
+                            <a href="#" class="learn-more-link">Learn More <i class="fas fa-chevron-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -635,43 +577,7 @@
                 </div>
             </section>
 
-            <!-- Community Section -->
-            <section class="community-section container reveal">
-                <h2 class="section-title text-center">Join Our <span class="gradient-text">Community</span></h2>
-                <div class="community-grid">
-                    <div class="community-card ratio-3-4-card reveal">
-                        <div class="card-logo"><i class="fab fa-telegram-plane"></i></div>
-                        <div class="card-body">
-                            <h3>Join Telegram</h3>
-                            <p>Get latest updates, PDF notes, and discuss with 50k+ aspirants on our channel.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Join Group <i class="fas fa-external-link-alt"></i></a>
-                        </div>
-                    </div>
-                    <div class="community-card ratio-3-4-card reveal">
-                        <div class="card-logo"><i class="fab fa-whatsapp"></i></div>
-                        <div class="card-body">
-                            <h3>WhatsApp Channel</h3>
-                            <p>Receive daily current affairs and exam alerts directly on your phone instantly.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Follow Us <i class="fas fa-external-link-alt"></i></a>
-                        </div>
-                    </div>
-                    <div class="community-card ratio-3-4-card reveal">
-                        <div class="card-logo"><i class="fab fa-youtube"></i></div>
-                        <div class="card-body">
-                            <h3>YouTube Classes</h3>
-                            <p>Watch free video lessons and strategy sessions from our expert educators daily.</p>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn-pill">Subscribe <i class="fas fa-external-link-alt"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+            <!-- FAQ Section -->
             <!-- FAQ Section -->
             <section class="faq-section container reveal">
                 <h2 class="section-title text-center">Frequently Asked <span class="gradient-text">Questions</span></h2>
@@ -715,6 +621,8 @@
                 </div>
             </section>
 
+            <!-- Success Voices Removal (Duplicate) -->
+
             <!-- Latest Updates Section -->
             <section class="updates-section container reveal">
                 <h2 class="section-title text-center">Latest <span class="gradient-text">Updates</span></h2>
@@ -749,6 +657,7 @@
                 </div>
             </section>
 
+            <!-- Test Selection Removal (Duplicate) -->
         </section><!-- /dashboard -->
 
         <!-- Loading Screen -->
@@ -1006,7 +915,11 @@
                 <div class="login-header">
                     <span class="close-modal" id="closeLogin">&times;</span>
                     <div class="login-logo">
-                        <img src="/logo.png" alt="NirnayPath" class="logo-img">
+                        <div class="logo-icon"><i class="fas fa-compass"></i></div>
+                        <div class="logo-text">
+                            <span class="logo-main">NirnayPath</span>
+                            <span class="logo-sub">Mock Test Platform</span>
+                        </div>
                     </div>
                     <h2 class="login-title">Welcome Back, Aspirant! <i class="fas fa-user-graduate"></i></h2>
                     <p class="login-subtitle">Continue your journey to success with personalized mock tests</p>
@@ -1207,7 +1120,13 @@
         <div class="footer-content">
             <div class="footer-col footer-brand">
                 <div class="footer-logo">
-                    <img src="/logo.png" alt="NirnayPath" class="logo-img">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">NirnayPath</span>
+                        <span class="logo-sub">Mock Test Platform</span>
+                    </div>
                 </div>
                 <p class="footer-tagline">Free. Unlimited. Realistic Mock Tests for Every Aspirant.</p>
                 <p class="footer-mission">Our mission is to democratize access to high-quality exam preparation for every competitive exam aspirant in India.</p>
@@ -1252,12 +1171,8 @@
                     <li><a href="#"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
                     <li><a href="#"><i class="fas fa-arrow-right"></i> Railway Tests</a></li>
                     <li><a href="#"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
+                    <li><a href="#"><i class="fas fa-arrow-right"></i> Teaching Exams</a></li>
                     <li><a href="#"><i class="fas fa-arrow-right"></i> State PSC Tests</a></li>
-                    <li><a href="#"><i class="fas fa-file-pdf"></i> Study Materials</a></li>
-                    <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
-                    <li><a href="#"><i class="fas fa-trophy"></i> Success Stories</a></li>
-                    <li><a href="#"><i class="fas fa-chart-line"></i> Performance Analytics</a></li>
-                    <li><a href="#"><i class="fas fa-question-circle"></i> FAQ & Help</a></li>
                 </ul>
             </div>
             
