@@ -1214,19 +1214,13 @@ function initTipsSlider() {
         { icon: 'fas fa-trophy', title: 'Mock Frequency', text: 'Take at least 2 full-length mocks every week. Analyzing your performance in these tests is essential for steady improvement.' }
     ];
     track.innerHTML = tips.map(t => `
-      <div class="tip-card ratio-3-4-card">
-        <div class="card-logo"><i class="${t.icon}"></i></div>
-        <div class="card-body">
-          <h4>${t.title}</h4>
-          <p>${t.text}</p>
-        </div>
-        <div class="card-footer">
-          <a href="#" class="btn-pill">Learn More <i class="fas fa-chevron-right"></i></a>
-        </div>
+      <div class="testimonial-card">
+        <i class="${t.icon}" style="font-size:2rem;margin-bottom:14px;display:block;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent"></i>
+        <h4 style="margin-bottom:8px">${t.title}</h4>
+        <p style="color:var(--text-secondary);font-size:0.9rem">${t.text}</p>
       </div>`).join('');
 
-    // Re-initialize slider for tips specifically
-    makeInfiniteSlider('tips-slider', 4000);
+    makeInfiniteSlider('tips-slider', 3500);
 }
 
 function initHeroSliders() {
