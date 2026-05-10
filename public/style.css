@@ -9169,7 +9169,7 @@ body[data-theme="dark"] {
     overflow: hidden;
     position: relative;
     padding: 20px 0;
-    max-width: 400px;
+    max-width: 450px;
     margin: 0 auto;
 }
 
@@ -9179,13 +9179,7 @@ body[data-theme="dark"] {
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.slider-track > * {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 1rem;
-}
+/* Slider track child styles moved below testimonial-card to resolve overrides */
 
 @media (max-width: 768px) {
     .about-hero-stats {
@@ -9206,6 +9200,15 @@ body[data-theme="dark"] {
     margin: 10px;
     background: var(--card-bg);
     border-radius: var(--r-lg);
+}
+
+/* Force slider cards to fill the track correctly */
+.slider-track > * {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1.5rem !important;
 }
 .testi-content {
     font-size: 0.88rem !important;
