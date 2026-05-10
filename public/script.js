@@ -1286,60 +1286,66 @@ function initTrendingSlider() {
         const origCards = Array.from(track.children);
         if (origCards.length === 0) return;
 
-        // Clone all cards and append for seamless loop
-        origCards.forEach(card => {
-            const clone = card.cloneNode(true);
-            // Re-bind click events on clones for trending test buttons
-            clone.querySelectorAll('.trend-start-btn').forEach(btn => {
-                btn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const exam = btn.dataset.exam;
-                    const subject = btn.dataset.subject;
-                    const qCount = parseInt(btn.dataset.questions || '100');
-                    const tLimit = parseInt(btn.dataset.time || '90');
-                    if (exam) window.currentExam = exam;
-                    if (subject) window.currentSubject = subject;
-                    if (typeof startTest === 'function') {
-                        startTest(btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test', subject, qCount, tLimit);
-                    }
-                });
+        // Clone the first card and append it to the end for infinite effect
+        const firstClone = origCards[0].cloneNode(true);
+        
+        // Re-bind click events on the clone
+        firstClone.querySelectorAll('.trend-start-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                const exam = btn.dataset.exam;
+                const subject = btn.dataset.subject;
+                const qCount = parseInt(btn.dataset.questions || '100');
+                const tLimit = parseInt(btn.dataset.time || '90');
+                if (exam) window.currentExam = exam;
+                if (subject) window.currentSubject = subject;
+                if (typeof startTest === 'function') {
+                    startTest(btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test', subject, qCount, tLimit);
+                }
             });
-            track.appendChild(clone);
         });
+        track.appendChild(firstClone);
 
+        const cardWidth = origCards[0].offsetWidth;
+        const gap = 20; // Matches CSS gap
+        const scrollStep = cardWidth + gap;
         const totalReal = origCards.length;
-        let idx = 0;
+        let currentIdx = 0;
         let isPaused = false;
         let interval;
 
-        const getCardWidth = () => track.children[0]?.offsetWidth || track.offsetWidth;
-
-        const goTo = (i, animate = true) => {
-            track.style.transition = animate
-                ? 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)'
-                : 'none';
-            track.style.transform = `translateX(-${i * getCardWidth()}px)`;
-        };
-
-        const next = () => {
+        const slide = () => {
             if (isPaused) return;
-            idx++;
-            goTo(idx);
-            // When we hit the cloned set, silently jump back
-            if (idx >= totalReal) {
-                setTimeout(() => { idx = 0; goTo(0, false); }, 600);
+            currentIdx++;
+            
+            // Smoothly advance
+            track.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            track.style.transform = `translateX(-${currentIdx * scrollStep}px)`;
+
+            // When reaching the cloned card
+            if (currentIdx === totalReal) {
+                setTimeout(() => {
+                    // Instantly reset without animation
+                    track.style.transition = 'none';
+                    track.style.transform = 'translateX(0)';
+                    currentIdx = 0;
+                }, 600); // Wait for transition to finish
             }
         };
 
-        interval = setInterval(next, 3000);
+        interval = setInterval(slide, 3000);
 
         // Pause on hover
         track.addEventListener('mouseenter', () => isPaused = true);
         track.addEventListener('mouseleave', () => isPaused = false);
 
-        // Handle resize
-        window.addEventListener('resize', () => goTo(idx, false));
-    }, 300);
+        // Handle window resize to recalculate width
+        window.addEventListener('resize', () => {
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0)';
+            currentIdx = 0;
+        });
+    }, 500);
 }
 
 /**

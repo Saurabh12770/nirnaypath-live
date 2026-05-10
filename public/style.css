@@ -2576,12 +2576,25 @@ body.test-mode main {
 }
 
 .trending-cards-grid {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-    gap: 0 !important;
-    width: 100% !important;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
     position: relative;
+    padding: 20px 0;
+    gap: 20px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Use padding to help center the card initially */
+    padding-left: calc((100% - 340px) / 2);
+    padding-right: calc((100% - 340px) / 2);
+}
+
+@media (max-width: 400px) {
+    .trending-cards-grid {
+        padding-left: 7.5vw;
+        padding-right: 7.5vw;
+    }
 }
 
 .trending-cards-grid::-webkit-scrollbar {
@@ -2595,8 +2608,8 @@ body.test-mode main {
 }
 
 .trend-card {
-    flex: 0 0 100% !important;
-    width: 100% !important;
+    flex: 0 0 85vw;
+    max-width: 340px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.92));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2607,11 +2620,13 @@ body.test-mode main {
     position: relative;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
-    min-height: 300px;
-    display: flex !important;
-    flex-direction: column !important;
+    /* Enforce 3:4 aspect ratio */
+    aspect-ratio: 3 / 4;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
+    margin: 0 auto;
 }
 
 .trend-card::before {
@@ -5512,27 +5527,16 @@ footer {
     margin: 0 auto;
 }
 
-/* Trending slider — overrides legacy grid definition */
-.trending-cards-grid {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-    gap: 0 !important;
-    margin-top: 40px;
-    width: 100% !important;
-    position: relative;
-}
+/* Consolidated into main trending styles */
 
 .trend-card {
-    flex: 0 0 100% !important;
-    width: 100% !important;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.92));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(99, 102, 241, 0.15);
     border-radius: 20px;
     padding: 26px;
-    display: flex !important;
+    display: flex;
     flex-direction: column;
     gap: 14px;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -5540,9 +5544,6 @@ footer {
     position: relative;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
-    min-height: 300px;
-    justify-content: space-between;
-    box-sizing: border-box;
 }
 
 .trend-card::before {
@@ -6211,11 +6212,7 @@ footer {
    MOBILE ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Trending grid single column
 ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
 @media (max-width: 640px) {
-    .trending-cards-grid {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        grid-template-columns: unset !important;
-    }
+    /* Consolidated */
 
     .about-platform-grid {
         grid-template-columns: 1fr;
@@ -7992,20 +7989,8 @@ html, body {
     }
 
     /* Phase 1: Trending slider — 1 card full-width */
-    .trending-cards-grid {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow: hidden !important;
-        gap: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-    .trend-card {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-        min-height: 280px !important;
-        padding: 1rem !important;
-    }
+    /* Trending slider handled by flex slider globally */
+    /* .trend-card flex handled globally */
 
     .grid-standard > *, .exam-grid-4 > *, .stats-grid-4 > * {
         min-width: 0;
@@ -9046,7 +9031,7 @@ body[data-theme="dark"] {
     .feature-card p, .category-card p, .why-card p, .trend-card p, 
     .tip-card p, .quote-text, .testi-content, .update-text p, 
     .mission-card p, .mentor-card p, .step-card p, p {
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
         line-height: 1.35 !important;
         margin-bottom: 0 !important;
         word-break: break-word;
@@ -9544,29 +9529,4 @@ body[data-theme="dark"] {
 
 .learn-more-link:hover i, .cat-link:hover i {
     transform: translateX(4px);
-}
-
-/* ─── PROBLEM 2: Expert Tips card compact height on mobile ─── */
-@media (max-width: 768px) {
-    .tip-card {
-        padding: 0.75rem !important;
-        height: auto !important;
-        min-height: auto !important;
-        max-height: none !important;
-        word-break: break-word;
-    }
-    .tip-icon {
-        font-size: 1.5rem !important;
-        margin-bottom: 8px !important;
-    }
-    .tip-card h3 {
-        font-size: 1rem !important;
-        margin-bottom: 6px !important;
-        line-height: 1.2 !important;
-    }
-    .tip-card p {
-        font-size: 0.82rem !important;
-        line-height: 1.35 !important;
-        margin-bottom: 0 !important;
-    }
 }
