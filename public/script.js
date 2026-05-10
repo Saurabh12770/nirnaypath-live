@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTipsSlider();
     initHeroSliders();
     makeInfiniteSlider('testimonial-slider', 4000);
-    initTrendingSlider();
+    makeInfiniteSlider('trending-slider', 3000);
     animateCounters();
     initTrendingTestButtons();
 
@@ -810,17 +810,18 @@ function confirmSubmit() {
 
 /* Wire static trending test buttons in HTML */
 function initTrendingTestButtons() {
-    document.querySelectorAll('.trend-start-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-            e.stopPropagation();
-            const exam = btn.dataset.exam;
-            const subject = btn.dataset.subject;
-            const qCount = parseInt(btn.dataset.questions || '100');
-            const tLimit = parseInt(btn.dataset.time || '90');
-            if (exam) currentExam = exam;
-            if (subject) currentSubject = subject;
-            startTest(`${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, subject, qCount, tLimit);
-        });
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.trend-start-btn');
+        if (!btn) return;
+        
+        e.stopPropagation();
+        const exam = btn.dataset.exam;
+        const subject = btn.dataset.subject;
+        const qCount = parseInt(btn.dataset.questions || '100');
+        const tLimit = parseInt(btn.dataset.time || '90');
+        if (exam) currentExam = exam;
+        if (subject) currentSubject = subject;
+        startTest(`${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, subject, qCount, tLimit);
     });
 }
 
@@ -1278,75 +1279,7 @@ function makeHeroSlider(selector) {
  * Trending Mock Tests: 1-card-at-a-time infinite slider
  * Each card is 100% wide; uses CSS transform for animation.
  */
-function initTrendingSlider() {
-    const track = document.getElementById('trending-slider');
-    if (!track) return;
-
-    setTimeout(() => {
-        const origCards = Array.from(track.children);
-        if (origCards.length === 0) return;
-
-        // Clone the first card and append it to the end for infinite effect
-        const firstClone = origCards[0].cloneNode(true);
-        
-        // Re-bind click events on the clone
-        firstClone.querySelectorAll('.trend-start-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.stopPropagation();
-                const exam = btn.dataset.exam;
-                const subject = btn.dataset.subject;
-                const qCount = parseInt(btn.dataset.questions || '100');
-                const tLimit = parseInt(btn.dataset.time || '90');
-                if (exam) window.currentExam = exam;
-                if (subject) window.currentSubject = subject;
-                if (typeof startTest === 'function') {
-                    startTest(btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test', subject, qCount, tLimit);
-                }
-            });
-        });
-        track.appendChild(firstClone);
-
-        const cardWidth = origCards[0].offsetWidth;
-        const gap = 20; // Matches CSS gap
-        const scrollStep = cardWidth + gap;
-        const totalReal = origCards.length;
-        let currentIdx = 0;
-        let isPaused = false;
-        let interval;
-
-        const slide = () => {
-            if (isPaused) return;
-            currentIdx++;
-            
-            // Smoothly advance
-            track.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-            track.style.transform = `translateX(-${currentIdx * scrollStep}px)`;
-
-            // When reaching the cloned card
-            if (currentIdx === totalReal) {
-                setTimeout(() => {
-                    // Instantly reset without animation
-                    track.style.transition = 'none';
-                    track.style.transform = 'translateX(0)';
-                    currentIdx = 0;
-                }, 600); // Wait for transition to finish
-            }
-        };
-
-        interval = setInterval(slide, 3000);
-
-        // Pause on hover
-        track.addEventListener('mouseenter', () => isPaused = true);
-        track.addEventListener('mouseleave', () => isPaused = false);
-
-        // Handle window resize to recalculate width
-        window.addEventListener('resize', () => {
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0)';
-            currentIdx = 0;
-        });
-    }, 500);
-}
+// initTrendingSlider removed in favor of makeInfiniteSlider
 
 /**
  * Universal Infinite Slider Logic

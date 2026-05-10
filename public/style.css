@@ -2575,41 +2575,8 @@ body.test-mode main {
     margin-bottom: var(--sp-5);
 }
 
-.trending-cards-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    padding: 20px 0;
-    gap: 20px;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    /* Use padding to help center the card initially */
-    padding-left: calc((100% - 340px) / 2);
-    padding-right: calc((100% - 340px) / 2);
-}
-
-@media (max-width: 400px) {
-    .trending-cards-grid {
-        padding-left: 7.5vw;
-        padding-right: 7.5vw;
-    }
-}
-
-.trending-cards-grid::-webkit-scrollbar {
-    display: none;
-}
-
-/* Wrapper used by slider JS - keeps track position */
-.trending-section .section-header {
-    text-align: center;
-    margin-bottom: var(--sp-4);
-}
-
+/* Trending section now uses universal .slider-container */
 .trend-card {
-    flex: 0 0 85vw;
-    max-width: 340px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.92));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2626,7 +2593,17 @@ body.test-mode main {
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
-    margin: 0 auto;
+}
+
+.mentor-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 15px;
+    border: 3px solid var(--primary-light);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: block;
 }
 
 .trend-card::before {
@@ -8307,15 +8284,7 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
 .hero-slider img:nth-child(4n+4) { border-color: #4F46E5; }
 
 /* Mobile Menu Toggle within Header */
-@media (max-width: 768px) {
-    .mobile-menu-toggle {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        margin-left: 10px;
-        order: 3;
-    }
-}
+/* Consolidated into main mobile menu definition */
 
 /* CTA Banner */
 .cta-banner {
@@ -8761,25 +8730,36 @@ body[data-theme="dark"] {
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;
-    justify-content: space-between;
-    width: 48px;
-    height: 48px;
-    padding: 12px;
-    background: var(--gradient);
-    border: none;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     cursor: pointer;
     z-index: 10005;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--gradient);
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
 .mobile-menu-toggle span {
-    width: 100%;
-    height: 3px;
+    width: 24px;
+    height: 2.5px;
     background: #fff;
-    border-radius: 10px;
+    border-radius: 4px;
     transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
 }
 
 /* Side Panel */
@@ -8903,15 +8883,6 @@ body[data-theme="dark"] {
     }
     .mobile-menu-toggle { 
         display: flex !important; 
-        align-items: center;
-        justify-content: center;
-        background: var(--gradient) !important;
-        border-radius: 8px !important;
-        padding: 8px !important;
-        width: 36px !important;
-        height: 36px !important;
-        margin: 0 !important;
-        flex-shrink: 0 !important;
     }
     .theme-toggle {
         width: 36px !important;
@@ -9198,12 +9169,22 @@ body[data-theme="dark"] {
     overflow: hidden;
     position: relative;
     padding: 20px 0;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .slider-track {
     display: flex;
-    gap: 30px;
-    transition: transform 0.5s ease-out;
+    gap: 0;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider-track > * {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem;
 }
 
 @media (max-width: 768px) {
