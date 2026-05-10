@@ -1894,16 +1894,13 @@ body.test-mode main {
 }
 
 .tip-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-bottom: 20px;
-    color: white;
-    font-size: 1.5rem;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
 }
 
 .tip-card h3 {
@@ -2618,15 +2615,12 @@ body.test-mode main {
 }
 
 .trend-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--primary-light);
-    color: var(--primary);
-    border-radius: var(--r-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
+    font-size: 2.2rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
 }
 
 .trend-badge {
@@ -2746,14 +2740,13 @@ body.test-mode main {
 }
 
 .cat-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 20px;
-    border-radius: var(--r-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
+    margin: 0 auto 15px;
+    font-size: 2.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
 }
 
 .cat-link {
@@ -2828,17 +2821,14 @@ body.test-mode main {
 }
 
 .why-icon {
-    width: 60px;
-    height: 60px;
+    margin: 0 auto 20px;
+    font-size: 2.8rem;
     background: var(--gradient);
-    color: white;
-    margin: 0 auto 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    box-shadow: var(--shadow-premium);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
 /* ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â
@@ -8029,8 +8019,8 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
 
 @media (max-width: 768px) {
     .cta-btn, .hero-btn, .btn-primary-lg, .trend-start-btn {
-        padding: 16px 24px !important;
-        font-size: 1.1rem !important;
+        padding: 14px 20px !important;
+        font-size: 1rem !important;
         width: 100% !important;
         justify-content: center !important;
         margin-bottom: 12px !important;
@@ -8918,25 +8908,25 @@ body[data-theme="dark"] {
     .feature-card i, .category-card .cat-icon, .why-icon, .trend-icon, 
     .tip-icon, .quote-icon, .testimonial-card .quote-icon, 
     .update-date, .stat-item i {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 50px !important;
-        height: 50px !important;
-        border-radius: 50% !important;
+        display: inline-block !important;
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0 !important;
         background: var(--gradient) !important;
-        color: #fff !important;
-        font-size: 1.4rem !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        color: transparent !important;
+        font-size: 2.2rem !important;
         margin-bottom: 0.75rem !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: none !important;
     }
 
     /* Remove clipping for icons that should use the circle background */
     .feature-card i, .stat-item i {
-        -webkit-background-clip: initial !important;
-        background-clip: initial !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
         background: var(--gradient) !important;
-        color: #fff !important;
+        color: transparent !important;
     }
 
     .feature-card h4, .category-card h3, .why-card h4, .trend-card h3, 
@@ -9242,17 +9232,17 @@ body[data-theme="dark"] {
 
 /* --- PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW --- */
 .trend-start-btn {
-    white-space: nowrap !important;
-    padding: 14px 24px !important;
-    font-size: 1rem !important;
+    white-space: normal !important;
+    padding: 12px 20px !important;
+    font-size: 0.95rem !important;
     font-weight: 600 !important;
     letter-spacing: 0.5px;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 12px !important;
+    gap: 8px !important;
     width: 100% !important;
-    border-radius: 12px !important;
+    border-radius: var(--r-pill) !important;
     background: var(--gradient) !important;
     color: #fff !important;
     transition: all 0.3s ease !important;
@@ -9384,7 +9374,6 @@ body[data-theme="dark"] {
     display: flex;
     flex-direction: column;
     height: 100%;
-    min-height: 380px;
 }
 
 .success-tip-card i {
@@ -9409,17 +9398,33 @@ body[data-theme="dark"] {
     margin-bottom: 20px;
 }
 
-.learn-more-link {
+.learn-more-link, .cat-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--r-pill);
+    background: var(--primary-light);
     color: var(--primary);
     font-weight: 600;
     font-size: 0.9rem;
     text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
     margin-top: auto;
+    transition: all 0.3s ease;
 }
 
-.learn-more-link:hover {
-    text-decoration: underline;
+.learn-more-link:hover, .cat-link:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.learn-more-link i, .cat-link i {
+    transition: transform 0.3s ease;
+}
+
+.learn-more-link:hover i, .cat-link:hover i {
+    transform: translateX(4px);
 }
