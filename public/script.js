@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTipsSlider();
     initHeroSliders();
     makeInfiniteSlider('testimonial-slider', 4000);
-    makeInfiniteSlider('trending-slider', 3000);
+    initTrendingSlider();
     animateCounters();
     initTrendingTestButtons();
 
@@ -1272,6 +1272,74 @@ function makeHeroSlider(selector) {
     window.addEventListener('resize', () => {
         scrollAmount = Math.round(container.scrollLeft / container.offsetWidth) * container.offsetWidth;
     });
+}
+
+/**
+ * Trending Mock Tests: 1-card-at-a-time infinite slider
+ * Each card is 100% wide; uses CSS transform for animation.
+ */
+function initTrendingSlider() {
+    const track = document.getElementById('trending-slider');
+    if (!track) return;
+
+    setTimeout(() => {
+        const origCards = Array.from(track.children);
+        if (origCards.length === 0) return;
+
+        // Clone all cards and append for seamless loop
+        origCards.forEach(card => {
+            const clone = card.cloneNode(true);
+            // Re-bind click events on clones for trending test buttons
+            clone.querySelectorAll('.trend-start-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const exam = btn.dataset.exam;
+                    const subject = btn.dataset.subject;
+                    const qCount = parseInt(btn.dataset.questions || '100');
+                    const tLimit = parseInt(btn.dataset.time || '90');
+                    if (exam) window.currentExam = exam;
+                    if (subject) window.currentSubject = subject;
+                    if (typeof startTest === 'function') {
+                        startTest(btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test', subject, qCount, tLimit);
+                    }
+                });
+            });
+            track.appendChild(clone);
+        });
+
+        const totalReal = origCards.length;
+        let idx = 0;
+        let isPaused = false;
+        let interval;
+
+        const getCardWidth = () => track.children[0]?.offsetWidth || track.offsetWidth;
+
+        const goTo = (i, animate = true) => {
+            track.style.transition = animate
+                ? 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)'
+                : 'none';
+            track.style.transform = `translateX(-${i * getCardWidth()}px)`;
+        };
+
+        const next = () => {
+            if (isPaused) return;
+            idx++;
+            goTo(idx);
+            // When we hit the cloned set, silently jump back
+            if (idx >= totalReal) {
+                setTimeout(() => { idx = 0; goTo(0, false); }, 600);
+            }
+        };
+
+        interval = setInterval(next, 3000);
+
+        // Pause on hover
+        track.addEventListener('mouseenter', () => isPaused = true);
+        track.addEventListener('mouseleave', () => isPaused = false);
+
+        // Handle resize
+        window.addEventListener('resize', () => goTo(idx, false));
+    }, 300);
 }
 
 /**

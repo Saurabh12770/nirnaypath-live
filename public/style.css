@@ -2579,18 +2579,24 @@ body.test-mode main {
     display: flex;
     flex-wrap: nowrap;
     overflow: hidden;
-    gap: var(--sp-4);
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    gap: 0;
     width: 100%;
+    position: relative;
 }
 
 .trending-cards-grid::-webkit-scrollbar {
     display: none;
 }
 
+/* Wrapper used by slider JS - keeps track position */
+.trending-section .section-header {
+    text-align: center;
+    margin-bottom: var(--sp-4);
+}
+
 .trend-card {
-    flex: 0 0 280px;
+    flex: 0 0 100%;
+    width: 100%;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.92));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2601,6 +2607,12 @@ body.test-mode main {
     position: relative;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
+    /* 3:4 aspect ratio enforced via min-height */
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .trend-card::before {
@@ -5019,7 +5031,7 @@ body.test-mode main {
 ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â */
 footer {
     background: #0F172A;
-    color: #94A3B8;
+    color: #ffffff;
     position: relative;
     z-index: 1;
 }
@@ -5036,7 +5048,7 @@ footer {
 .footer-col h4 {
     font-size: 0.9rem;
     font-weight: 700;
-    color: #E2E8F0;
+    color: #ffffff;
     margin-bottom: var(--sp-2);
     display: flex;
     align-items: center;
@@ -5064,7 +5076,7 @@ footer {
 
 .footer-tagline {
     font-size: 0.92rem;
-    color: #CBD5E1;
+    color: #ffffff;
     font-weight: 600;
     margin-bottom: 8px;
 }
@@ -5094,13 +5106,14 @@ footer {
 
 .footer-stats .stat h4 {
     font-size: 1rem;
-    color: #E2E8F0;
+    color: #ffffff;
     margin-bottom: 0;
 }
 
 .footer-stats .stat p {
     font-size: 0.78rem;
     margin: 0;
+    color: #ffffff;
 }
 
 .social-links {
@@ -5118,7 +5131,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94A3B8;
+    color: #ffffff;
     font-size: 0.9rem;
     transition: all 0.25s ease;
 }
@@ -5140,7 +5153,7 @@ footer {
 
 .footer-links-list a {
     font-size: 0.88rem;
-    color: #94A3B8;
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -5148,7 +5161,7 @@ footer {
 }
 
 .footer-links-list a:hover {
-    color: var(--primary);
+    color: #a5b4fc;
     transform: translateX(3px);
 }
 
@@ -5159,6 +5172,7 @@ footer {
 .newsletter-desc {
     font-size: 0.85rem;
     margin-bottom: var(--sp-2);
+    color: #ffffff;
 }
 
 .newsletter-input-group {
@@ -5230,7 +5244,7 @@ footer {
 
 .app-badge span {
     font-size: 0.7rem;
-    color: #94A3B8;
+    color: #ffffff;
     display: block;
 }
 
@@ -5238,7 +5252,7 @@ footer {
     font-weight: 700;
     font-size: 0.9rem;
     display: block;
-    color: #E2E8F0;
+    color: #ffffff;
 }
 
 .footer-bottom {
@@ -5258,11 +5272,12 @@ footer {
 
 .copyright p {
     font-size: 0.83rem;
+    color: #ffffff;
 }
 
 .copyright-note {
     font-size: 0.76rem;
-    color: #475569;
+    color: #ffffff;
     margin-top: 3px;
 }
 
@@ -5281,7 +5296,7 @@ footer {
 
 .footer-links a {
     font-size: 0.8rem;
-    color: #64748B;
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -5289,7 +5304,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--primary);
+    color: #a5b4fc;
 }
 
 .payment-methods {
@@ -5301,7 +5316,7 @@ footer {
 
 .payment-label {
     font-size: 0.78rem;
-    color: #64748B;
+    color: #ffffff;
 }
 
 .payment-icons {
@@ -5311,12 +5326,12 @@ footer {
 
 .payment-icons i {
     font-size: 1.4rem;
-    color: #4B5563;
+    color: #ffffff;
     transition: color 0.2s;
 }
 
 .payment-icons i:hover {
-    color: #94A3B8;
+    color: #a5b4fc;
 }
 
 /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABOUT PAGE HERO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
@@ -7945,12 +7960,43 @@ html, body {
     max-width: 100%;
 }
 @media (max-width: 768px) {
-    .exam-grid-4, .stats-grid-4, .feature-grid-8, .tips-grid, .steps-grid, .trending-cards-grid, .grid-standard {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        padding: 0 10px;
+    /* Phase 3: Tighten global spacing */
+    body, main {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
     }
-    
+    .container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    section {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .exam-grid-4, .stats-grid-4, .feature-grid-8, .tips-grid, .steps-grid, .grid-standard {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 0;
+    }
+
+    /* Phase 1: Trending slider — 1 card full-width */
+    .trending-cards-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        gap: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    .trend-card {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        min-height: 280px !important;
+        padding: 1rem !important;
+    }
+
     .grid-standard > *, .exam-grid-4 > *, .stats-grid-4 > * {
         min-width: 0;
         overflow: hidden;
@@ -8941,20 +8987,20 @@ body[data-theme="dark"] {
     color: #f1f5f9 !important;
 }
 
-/* --- PROBLEM 3: Mobile Card Height 3:4 Ratio --- */
+/* --- Phase 4: Compact card heights on mobile --- */
 @media (max-width: 768px) {
-    .feature-card, .category-card, .why-card, .trend-card, .tip-card, 
+    .feature-card, .category-card, .why-card, .tip-card, 
     .quote-card, .testimonial-card, .update-card, .mission-box, 
     .about-platform-card, .contact-card, .mentor-card, .subject-card, 
     .step-card, .stats-card, .np-card, .card, .stat-item, .mission-card, .info-card {
-        padding: 1rem !important;
+        padding: 0.75rem !important;
         height: auto !important;
         min-height: auto !important;
         aspect-ratio: auto !important;
         word-break: break-word;
     }
 
-    /* Icon Consistency */
+    /* Icon Consistency — keep icons compact */
     .feature-card i, .category-card .cat-icon, .why-icon, .trend-icon, 
     .tip-icon, .quote-icon, .testimonial-card .quote-icon, 
     .update-date, .stat-item i {
@@ -8966,12 +9012,11 @@ body[data-theme="dark"] {
         -webkit-background-clip: text !important;
         background-clip: text !important;
         color: transparent !important;
-        font-size: 2.2rem !important;
-        margin-bottom: 0.75rem !important;
+        font-size: 1.6rem !important;
+        margin-bottom: 0.4rem !important;
         box-shadow: none !important;
     }
 
-    /* Remove clipping for icons that should use the circle background */
     .feature-card i, .stat-item i {
         -webkit-background-clip: text !important;
         background-clip: text !important;
@@ -8983,23 +9028,33 @@ body[data-theme="dark"] {
     .tip-card h3, .quote-author, .testimonial-card h4, .update-card h4, 
     .mission-card h3, .mentor-card h4, .subject-card span, 
     .step-card h4, .stat-item span, h3, h4 {
-        font-size: 1.1rem !important;
-        margin-bottom: 0.4rem !important;
+        font-size: 1rem !important;
+        margin-bottom: 0.3rem !important;
         line-height: 1.2 !important;
     }
 
     .feature-card p, .category-card p, .why-card p, .trend-card p, 
     .tip-card p, .quote-text, .testi-content, .update-text p, 
     .mission-card p, .mentor-card p, .step-card p, p {
-        font-size: 0.85rem !important;
-        line-height: 1.4 !important;
+        font-size: 0.8rem !important;
+        line-height: 1.35 !important;
         margin-bottom: 0 !important;
         word-break: break-word;
     }
     
     .stat-counter {
-        font-size: 1.6rem !important;
+        font-size: 1.5rem !important;
         margin-bottom: 0.2rem !important;
+    }
+
+    /* Phase 2: Center slider containers */
+    #tips-slider, .tips-slider, #testimonial-slider {
+        justify-content: flex-start;
+        scroll-snap-type: x mandatory;
+    }
+    #tips-slider > *, .tips-slider > *, #testimonial-slider > * {
+        scroll-snap-align: center;
+        flex-shrink: 0;
     }
 }
 
