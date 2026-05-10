@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTipsSlider();
     initHeroSliders();
     makeInfiniteSlider('testimonial-slider', 4000);
+    makeInfiniteSlider('trending-slider', 3000);
     animateCounters();
     initTrendingTestButtons();
 

@@ -532,7 +532,7 @@ section:hover {
 .container {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 var(--sp-3);
+    padding: 0 1.5rem;
 }
 
 main {
@@ -540,7 +540,7 @@ main {
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    padding: var(--sp-4) var(--sp-4);
+    padding: var(--sp-4) 1.5rem;
     position: relative;
     z-index: 1;
 }
@@ -572,7 +572,7 @@ section {
 .grid-standard {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--sp-4);
+    gap: 1.25rem;
 }
 
 /* Spacing helpers */
@@ -1830,6 +1830,27 @@ body.test-mode main {
     text-align: center;
 }
 
+.stats-card-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: var(--sp-3);
+    background: transparent;
+}
+
+.stats-card-item i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
 .stat-counter {
     font-size: 2.6rem;
     font-weight: 900;
@@ -1874,17 +1895,19 @@ body.test-mode main {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
     margin-top: 30px;
+    align-items: start;
 }
 
 .tip-card {
     background: var(--card-bg);
     border-radius: 16px;
-    padding: 25px;
+    padding: 1rem;
     border: 1.5px solid var(--border-color);
     box-shadow: var(--shadow-md);
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
+    height: max-content;
 }
 
 .tip-card:hover {
@@ -1904,7 +1927,7 @@ body.test-mode main {
 }
 
 .tip-card h3 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     margin-bottom: 12px;
     color: var(--text-main);
     font-weight: 600;
@@ -2553,12 +2576,21 @@ body.test-mode main {
 }
 
 .trending-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
     gap: var(--sp-4);
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.trending-cards-grid::-webkit-scrollbar {
+    display: none;
 }
 
 .trend-card {
+    flex: 0 0 280px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.92));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -7915,7 +7947,7 @@ html, body {
 @media (max-width: 768px) {
     .exam-grid-4, .stats-grid-4, .feature-grid-8, .tips-grid, .steps-grid, .trending-cards-grid, .grid-standard {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 1rem;
         padding: 0 10px;
     }
     
@@ -8018,12 +8050,19 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
 }
 
 @media (max-width: 768px) {
-    .cta-btn, .hero-btn, .btn-primary-lg, .trend-start-btn {
+    .cta-btn, .hero-btn, .btn-primary-lg {
         padding: 14px 20px !important;
         font-size: 1rem !important;
         width: 100% !important;
         justify-content: center !important;
         margin-bottom: 12px !important;
+    }
+    .trend-start-btn, .cat-link, .learn-more-link, .test-start-btn, .action-btn {
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+        width: auto !important;
+        justify-content: center !important;
+        display: inline-flex !important;
     }
     .hero-actions {
         width: 100%;
@@ -8206,8 +8245,19 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     display: block;
     object-fit: cover;
     border: 4px solid #F97316;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: transform 0.3s ease;
+    border-radius: var(--r-xl);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+    animation: heroGlowPulse 4s ease-in-out infinite;
+}
+.hero-slider img:hover {
+    transform: scale(1.025);
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.3);
+    animation-play-state: paused;
+}
+@keyframes heroGlowPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 0 rgba(99, 102, 241, 0); }
+    50%       { box-shadow: 0 16px 40px rgba(0,0,0,0.25), 0 0 24px 4px rgba(99,102,241,0.18); }
 }
 /* Cycle border colors */
 .hero-slider img:nth-child(4n+1) { border-color: #F97316; }
@@ -8978,9 +9028,11 @@ body[data-theme="dark"] {
 /* Specific fix for Latest Updates grid overflow/underflow */
 .updates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
     margin-top: 30px;
+    padding: 0 1rem;
+    justify-content: center;
 }
 
 .update-card {
