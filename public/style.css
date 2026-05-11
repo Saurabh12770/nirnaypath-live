@@ -7335,7 +7335,8 @@ img.loaded {
     z-index: 1101 !important;
 }
 
-    none;
+.view-btn {
+    border: none;
     padding: 6px 16px;
     border-radius: var(--r-sm);
     cursor: pointer;
@@ -7708,6 +7709,7 @@ img.loaded {
 .cta-banner h2 .gradient-text {
     background: linear-gradient(135deg, #FCD34D, #F59E0B);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .cta-banner p {
@@ -8322,6 +8324,7 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
 .cta-banner h2 .gradient-text {
     background: linear-gradient(135deg, #FCD34D, #F59E0B);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .cta-banner p {
@@ -9169,7 +9172,7 @@ body[data-theme="dark"] {
     overflow: hidden;
     position: relative;
     padding: 20px 0;
-    max-width: 450px;
+    max-width: 400px;
     margin: 0 auto;
 }
 
@@ -9179,7 +9182,13 @@ body[data-theme="dark"] {
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Slider track child styles moved below testimonial-card to resolve overrides */
+.slider-track > * {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem;
+}
 
 @media (max-width: 768px) {
     .about-hero-stats {
@@ -9200,15 +9209,6 @@ body[data-theme="dark"] {
     margin: 10px;
     background: var(--card-bg);
     border-radius: var(--r-lg);
-}
-
-/* Force slider cards to fill the track correctly */
-.slider-track > * {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 1.5rem !important;
 }
 .testi-content {
     font-size: 0.88rem !important;
@@ -9267,6 +9267,7 @@ body[data-theme="dark"] {
 .np-card i, .feature-card i, .trend-card i, .category-card i, .testimonial-card i, .subject-card i, .update-card i, .why-card i {
     background: var(--gradient) !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     display: inline-block !important;
     transition: transform 0.3s ease !important;
@@ -9467,6 +9468,7 @@ body[data-theme="dark"] {
     margin-bottom: 20px;
     background: var(--gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 

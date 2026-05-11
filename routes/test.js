@@ -6,15 +6,86 @@ const { sendResultEmail } = require('../services/emailService');
 const { evaluateBadges } = require('../services/badgeService');
 const router = express.Router();
 
+const crypto = require('crypto');
+const TestSession = require('../models/TestSession');
+const Question = require('../models/Question');
+
+/**
+ * POST /api/test/start
+ * Initializes a server-side test session and returns randomized questions.
+ */
+router.post('/start', auth, async (req, res) => {
+    try {
+        const { subject, count, timeLimit, exam } = req.body;
+        const qCount = Math.min(parseInt(count) || 50, 200);
+
+        // 1. Fetch Randomized Questions
+        const questions = await Question.aggregate([
+            { $match: { subject: subject.toLowerCase() } },
+            { $sample: { size: qCount } }
+        ]);
+
+        if (!questions || questions.length === 0) {
+            return res.status(404).json({ error: 'No questions found for this subject' });
+        }
+
+        // 2. Create Session
+        const sessionId = crypto.randomUUID();
+        const session = new TestSession({
+            userId: req.user._id,
+            sessionId,
+            subject: subject.toLowerCase(),
+            exam: exam || 'General',
+            questionCount: questions.length,
+            timeLimit: parseInt(timeLimit) || 3600, // default 1 hour
+            startTime: new Date(),
+            status: 'active'
+        });
+
+        await session.save();
+
+        res.status(201).json({
+            sessionId,
+            questions,
+            startTime: session.startTime
+        });
+    } catch (error) {
+        console.error('Test Start Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Submit test result
 router.post('/submit', auth, async (req, res) => {
     try {
-        const { exam, subject, testName, score, totalQuestions, correct, incorrect, unattempted, accuracy, answers, mode, modeValue } = req.body;
+        const { sessionId, exam, subject, testName, score, totalQuestions, correct, incorrect, unattempted, accuracy, answers, mode, modeValue } = req.body;
         
+        // 1. Session Validation
+        if (!sessionId) {
+            return res.status(400).json({ error: 'Session ID is required for submission.' });
+        }
+
+        const session = await TestSession.findOne({ sessionId, userId: req.user._id, status: 'active' });
+        if (!session) {
+            return res.status(403).json({ error: 'Invalid or already submitted test session.' });
+        }
+
+        // 2. Time Validation (Server-side source of truth)
+        const now = new Date();
+        const elapsedSeconds = (now - session.startTime) / 1000;
+        const GRACE_PERIOD = 30; // 30 seconds grace for network latency
+
+        if (elapsedSeconds > (session.timeLimit + GRACE_PERIOD)) {
+            session.status = 'expired';
+            await session.save();
+            return res.status(403).json({ error: 'Test time expired. Submission rejected.' });
+        }
+
+        // 3. Save Result
         const testResult = new TestResult({
             userId: req.user._id,
-            exam,
-            subject,
+            exam: exam || session.exam,
+            subject: subject || session.subject,
             testName,
             score,
             totalQuestions,
@@ -28,10 +99,13 @@ router.post('/submit', auth, async (req, res) => {
         });
 
         await testResult.save();
+        
+        // Mark session as submitted
+        session.status = 'submitted';
+        await session.save();
 
         // --- Streak & Badge Logic ---
         const user = await User.findById(req.user._id);
-        const now = new Date();
         const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         
         let newStreak = user.streakCount || 0;
@@ -45,17 +119,15 @@ router.post('/submit', auth, async (req, res) => {
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
             if (diffDays === 1) {
-                newStreak += 1; // Yesterday, so increment
+                newStreak += 1;
             } else if (diffDays > 1) {
-                newStreak = 1;  // Gap found, reset to 1
+                newStreak = 1;
             }
-            // If diffDays is 0 (today), streak stays the same
         }
 
         user.streakCount = newStreak;
         user.lastActiveDate = today;
 
-        // Evaluate Badges
         const totalTests = await TestResult.countDocuments({ userId: user._id });
         const earnedBadges = evaluateBadges(user, testResult, totalTests);
         
@@ -64,9 +136,8 @@ router.post('/submit', auth, async (req, res) => {
         }
 
         await user.save();
-        // ----------------------------
         
-        // Send email in background
+        // Send email (now queued via BullMQ in emailService)
         sendResultEmail(user, testResult);
         
         res.status(201).json({ 

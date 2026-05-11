@@ -1,29 +1,22 @@
-const fs = require('fs').promises;
-const path = require('path');
+const Question = require('../models/Question');
 
 /**
- * Load and normalize questions from JSON file
+ * Load questions from MongoDB (Legacy wrapper for backward compatibility)
  * @param {string} subject Subject name
  * @returns {Promise<Array>} Array of questions
  */
 async function loadQuestions(subject) {
     try {
-        // Prevent directory traversal
-        const safeSubject = path.basename(subject);
-        const dataPath = path.join(__dirname, '../data', `${safeSubject}.json`);
+        console.log(`[loader] Fetching questions from MongoDB for subject: ${subject}`);
         
-        console.log(`[loader] Attempting to load: ${dataPath}`);
+        // Fetch all questions for the subject
+        const questions = await Question.find({ subject: subject.toLowerCase() }).lean();
         
-        const data = await fs.readFile(dataPath, 'utf-8');
-        console.log(`[loader] File read successfully: ${safeSubject}.json (${data.length} bytes)`);
-        const parsedData = JSON.parse(data);
+        console.log(`[loader] Found ${questions.length} questions in MongoDB.`);
         
-        let raw = Array.isArray(parsedData) ? parsedData : (parsedData.questions || []);
-        
-        // Return raw questions, frontend handles normalization (L.q, L.opt)
-        return raw;
+        return questions;
     } catch (error) {
-        console.error(`[questionLoader] Error loading questions for ${subject}:`, error.message);
+        console.error(`[questionLoader] Error fetching from MongoDB for ${subject}:`, error.message);
         return [];
     }
 }

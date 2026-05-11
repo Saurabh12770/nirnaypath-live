@@ -12,6 +12,14 @@ const mongoose = require('mongoose');
 
 
 dotenv.config();
+if (!process.env.JWT_SECRET) {
+    console.error('FATAL ERROR: JWT_SECRET is not defined.');
+    process.exit(1);
+}
+if (!process.env.MONGO_URI) {
+    console.error('FATAL ERROR: MONGO_URI is not defined.');
+    process.exit(1);
+}
 
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
@@ -23,6 +31,10 @@ const sectionRoutes = require('./routes/section');
 const pushRoutes = require('./routes/push');
 const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
+const liveRoutes = require('./routes/live');
+const liveAdminRoutes = require('./routes/liveAdmin');
+const chatbotRoutes = require('./routes/chatbot');
+const discussionRoutes = require('./routes/discussion');
 const chatRoutes = require('./routes/chat');
 const pagesRoutes = require('./routes/pages');
 const auth = require('./middleware/auth');
@@ -61,7 +73,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath')
+mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
         console.log('Connected to MongoDB');
         await autoPromoteAdmin();
@@ -78,7 +90,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             imgSrc: ["'self'", "data:", "https://ui-avatars.com", "https://i.pravatar.cc", "https://*.placeholder.com", "https://razorpay.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
@@ -91,7 +103,20 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',') 
+    : ['http://localhost:3000', 'https://nirnaypath.example.com', 'https://nirnaypath-live-production.up.railway.app'];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 app.use(compression());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
@@ -139,6 +164,10 @@ app.use('/api/section', sectionRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/live', liveRoutes);
+app.use('/api/admin/live-sessions', liveAdminRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/discussion', discussionRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api', apiRoutes);
 app.get('/admin', (req, res) => {
@@ -177,7 +206,45 @@ process.on('SIGINT', () => {
     });
 });
 
+// Initialize Background Workers
+const { createEmailWorker } = require('./workers/emailWorker');
+const { createDigestWorker } = require('./workers/digestWorker');
+
+if (process.env.NODE_ENV !== 'test') {
+    createEmailWorker();
+    createDigestWorker();
+    console.log('[Background] Workers initialized successfully.');
+}
+
 // Initialize Cron Jobs
 initCronJobs();
+
+// ══════════════════════════════════════════════════════════
+// LIVE SESSION AUTOMATION
+// ══════════════════════════════════════════════════════════
+const LiveSession = require('./models/LiveSession');
+setInterval(async () => {
+    try {
+        const now = new Date();
+        
+        // Upcoming -> Live
+        await LiveSession.updateMany(
+            { status: 'upcoming', startTime: { $lte: now } },
+            { $set: { status: 'live' } }
+        );
+
+        // Live -> Ended
+        const sessions = await LiveSession.find({ status: 'live' });
+        for (const session of sessions) {
+            const endTime = new Date(session.startTime.getTime() + session.duration * 60000);
+            if (endTime <= now) {
+                session.status = 'ended';
+                await session.save();
+            }
+        }
+    } catch (err) {
+        console.error('LiveSession Automation Error:', err);
+    }
+}, 60000);
 
 module.exports = app;

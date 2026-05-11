@@ -66,6 +66,7 @@ const testResultSchema = new mongoose.Schema({
 
 testResultSchema.index({ userId: 1 });
 testResultSchema.index({ createdAt: -1 });
+testResultSchema.index({ userId: 1, createdAt: -1 });
 testResultSchema.index({ exam: 1, createdAt: -1 });
 
 const TestResult = mongoose.model('TestResult', testResultSchema);

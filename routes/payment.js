@@ -61,26 +61,57 @@ router.post('/verify', auth, async (req, res) => {
             expiry.setDate(expiry.getDate() + 30); // 30 days validity
 
             const plan = plans[planId];
+            const mongoose = require('mongoose');
+            const session = await mongoose.startSession();
+            
+            try {
+                await session.withTransaction(async () => {
+                    // Save Payment Record
+                    const payment = new Payment({
+                        userId: req.user._id,
+                        planId: planId,
+                        amount: plan.price,
+                        currency: plan.currency || 'INR',
+                        razorpay_payment_id: razorpay_payment_id,
+                        razorpay_order_id: razorpay_order_id,
+                        status: 'success'
+                    });
+                    await payment.save({ session });
 
-            // Save Payment Record
-            const payment = new Payment({
-                userId: req.user._id,
-                planId: planId,
-                amount: plan.price,
-                currency: plan.currency || 'INR',
-                razorpay_payment_id: razorpay_payment_id,
-                razorpay_order_id: razorpay_order_id,
-                status: 'success'
-            });
-            await payment.save();
+                    await User.findByIdAndUpdate(req.user._id, {
+                        plan: planId,
+                        subscriptionEnd: expiry,
+                        razorpaySubscriptionId: razorpay_payment_id
+                    }, { session });
+                });
+                
+                await session.endSession();
+                console.log('[Payment] Transaction successful');
+                res.json({ success: true, message: 'Plan upgraded successfully!' });
+            } catch (err) {
+                await session.endSession();
+                console.warn('[Payment] Transaction failed or not supported, falling back to sequential updates:', err.message);
+                
+                // Fallback to sequential operations
+                const payment = new Payment({
+                    userId: req.user._id,
+                    planId: planId,
+                    amount: plan.price,
+                    currency: plan.currency || 'INR',
+                    razorpay_payment_id: razorpay_payment_id,
+                    razorpay_order_id: razorpay_order_id,
+                    status: 'success'
+                });
+                await payment.save();
 
-            await User.findByIdAndUpdate(req.user._id, {
-                plan: planId,
-                subscriptionEnd: expiry,
-                razorpaySubscriptionId: razorpay_payment_id
-            });
+                await User.findByIdAndUpdate(req.user._id, {
+                    plan: planId,
+                    subscriptionEnd: expiry,
+                    razorpaySubscriptionId: razorpay_payment_id
+                });
 
-            res.json({ success: true, message: 'Plan upgraded successfully!' });
+                res.json({ success: true, message: 'Plan upgraded successfully (Sequential Fallback)!' });
+            }
         } else {
             res.status(400).json({ error: 'Invalid payment signature' });
         }

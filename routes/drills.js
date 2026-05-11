@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { loadQuestions } = require('../utils/questionLoader');
 const { getCachedData, setCachedData } = require('../middleware/cache');
 const { requirePlan } = require('../middleware/planGuard');
+const Question = require('../models/Question');
 
 /**
  * GET /api/drill/:subject/:topic?count=20
@@ -12,36 +12,24 @@ const { requirePlan } = require('../middleware/planGuard');
 router.get('/:subject/:topic', auth, requirePlan('free'), async (req, res) => {
     try {
         const { subject, topic } = req.params;
-        const count = parseInt(req.query.count) || 20;
-        const cacheKey = `questions_${subject}`;
+        const count = Math.min(parseInt(req.query.count) || 20, 100);
+        
+        // Use MongoDB aggregation for efficient random sampling with filters
+        const questions = await Question.aggregate([
+            { 
+                $match: { 
+                    subject: subject.toLowerCase(),
+                    topic: { $regex: new RegExp(`^${topic}$`, 'i') }
+                } 
+            },
+            { $sample: { size: count } }
+        ]);
 
-        let questions = getCachedData(cacheKey);
-        if (!questions) {
-            questions = await loadQuestions(subject);
-            if (questions) {
-                setCachedData(cacheKey, questions, 600);
-            }
-        }
-
-        if (!questions) {
-            return res.status(404).json({ error: 'Subject not found' });
-        }
-
-        // Filter by topic (case-insensitive)
-        const topicLower = topic.toLowerCase();
-        const filtered = questions.filter(q => 
-            q.topic && q.topic.toLowerCase() === topicLower
-        );
-
-        if (filtered.length === 0) {
+        if (!questions || questions.length === 0) {
             return res.status(404).json({ error: `No questions found for topic: ${topic}` });
         }
 
-        // Randomly select 'count' questions
-        const shuffled = filtered.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, Math.min(count, shuffled.length));
-
-        res.json(selected);
+        res.json(questions);
     } catch (error) {
         console.error('Drill error:', error);
         res.status(500).json({ error: error.message });

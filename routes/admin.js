@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
@@ -7,13 +8,9 @@ const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const TestResult = require('../models/TestResult');
-const { loadQuestions } = require('../utils/questionLoader');
+const Question = require('../models/Question');
 
-// Helper to save questions to JSON file
-const saveQuestionsToFile = async (subject, questions) => {
-    const filePath = path.join(__dirname, '../data', `${subject}.json`);
-    await fs.writeFile(filePath, JSON.stringify(questions, null, 2), 'utf8');
-};
+// Questions are now stored in MongoDB. File-based save removed.
 
 // ══════════════════════════════════════════════════════════
 // 1. QUESTION MANAGEMENT
@@ -22,11 +19,7 @@ const saveQuestionsToFile = async (subject, questions) => {
 // List all subjects
 router.get('/subjects', auth, adminAuth, async (req, res) => {
     try {
-        const dataDir = path.join(__dirname, '../data');
-        const files = await fs.readdir(dataDir);
-        const subjects = files
-            .filter(f => f.endsWith('.json'))
-            .map(f => f.replace('.json', ''));
+        const subjects = await Question.distinct('subject');
         res.json(subjects);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -39,7 +32,7 @@ router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
         const { subject } = req.params;
         const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
         
-        let questions = await loadQuestions(subject);
+        let questions = await Question.find({ subject: subject.toLowerCase() }).lean();
         if (!questions) return res.status(404).json({ error: 'Subject not found' });
 
         // Apply Filters
@@ -67,18 +60,19 @@ router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
 router.post('/questions/:subject', auth, adminAuth, async (req, res) => {
     try {
         const { subject } = req.params;
-        const newQuestion = req.body;
+        const questionData = req.body;
         
-        let questions = await loadQuestions(subject);
-        if (!questions) questions = [];
-
-        // Assign a unique ID if not provided
-        if (!newQuestion.id) newQuestion.id = Date.now().toString();
+        questionData.subject = subject.toLowerCase();
+        if (!questionData.id) questionData.id = `Q-${Date.now()}`;
         
-        questions.push(newQuestion);
-        await saveQuestionsToFile(subject, questions);
+        const question = new Question(questionData);
+        await question.save();
         
-        res.status(201).json({ message: 'Question added', question: newQuestion });
+        // Invalidate Cache
+        await clearCache(`qs_subject_${subject.toLowerCase()}`);
+        await clearCache('admin_stats');
+        
+        res.status(201).json({ message: 'Question added', question });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -87,18 +81,22 @@ router.post('/questions/:subject', auth, adminAuth, async (req, res) => {
 // Update question
 router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
-        const { subject, id } = req.params;
+        const { id } = req.params;
         const updatedData = req.body;
         
-        let questions = await loadQuestions(subject);
-        const idx = questions.findIndex(q => q.id === id || q._id === id);
+        const question = await Question.findOneAndUpdate(
+            { $or: [{ id: id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }] },
+            updatedData,
+            { new: true }
+        );
         
-        if (idx === -1) return res.status(404).json({ error: 'Question not found' });
-
-        questions[idx] = { ...questions[idx], ...updatedData };
-        await saveQuestionsToFile(subject, questions);
+        if (!question) return res.status(404).json({ error: 'Question not found' });
         
-        res.json({ message: 'Question updated', question: questions[idx] });
+        // Invalidate Cache
+        await clearCache(`qs_subject_${subject.toLowerCase()}`);
+        await clearCache('admin_stats');
+        
+        res.json({ message: 'Question updated', question });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -107,13 +105,17 @@ router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
 // Delete question
 router.delete('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
-        const { subject, id } = req.params;
-        let questions = await loadQuestions(subject);
+        const { id } = req.params;
+        const result = await Question.findOneAndDelete({ 
+            $or: [{ id: id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }] 
+        });
         
-        const filtered = questions.filter(q => q.id !== id && q._id !== id);
-        if (filtered.length === questions.length) return res.status(404).json({ error: 'Question not found' });
+        if (!result) return res.status(404).json({ error: 'Question not found' });
 
-        await saveQuestionsToFile(subject, filtered);
+        // Invalidate Cache
+        await clearCache(`qs_subject_${subject.toLowerCase()}`);
+        await clearCache('admin_stats');
+
         res.json({ message: 'Question deleted' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -128,13 +130,21 @@ router.post('/questions/:subject/bulk', auth, adminAuth, async (req, res) => {
         
         if (!Array.isArray(newBatch)) return res.status(400).json({ error: 'Questions must be an array' });
 
-        let existing = await loadQuestions(subject);
-        if (!existing) existing = [];
+        const ops = newBatch.map(q => ({
+            updateOne: {
+                filter: { id: q.id || `Q-${Date.now()}-${Math.random()}` },
+                update: { $set: { ...q, subject: subject.toLowerCase() } },
+                upsert: true
+            }
+        }));
 
-        const merged = [...existing, ...newBatch];
-        await saveQuestionsToFile(subject, merged);
+        await Question.bulkWrite(ops);
         
-        res.json({ message: `Successfully uploaded ${newBatch.length} questions` });
+        // Invalidate Cache
+        await clearCache(`qs_subject_${subject.toLowerCase()}`);
+        await clearCache('admin_stats');
+        
+        res.json({ message: `Successfully uploaded/updated ${newBatch.length} questions` });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -144,32 +154,50 @@ router.post('/questions/:subject/bulk', auth, adminAuth, async (req, res) => {
 // 2. USER MANAGEMENT
 // ══════════════════════════════════════════════════════════
 
-// List users with stats
+// List users with stats (optimized with aggregation)
 router.get('/users', auth, adminAuth, async (req, res) => {
     try {
         const { page = 1, limit = 50, search = '' } = req.query;
-        const query = search ? { 
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const lmt = parseInt(limit);
+
+        const matchQuery = search ? { 
             $or: [
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } }
             ]
         } : {};
 
-        const users = await User.find(query)
-            .sort({ createdAt: -1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
-            .select('-password');
+        const [userList, totalCount] = await Promise.all([
+            User.aggregate([
+                { $match: matchQuery },
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: lmt },
+                {
+                    $lookup: {
+                        from: 'testresults',
+                        localField: '_id',
+                        foreignField: 'userId',
+                        as: 'tests'
+                    }
+                },
+                {
+                    $addFields: {
+                        testsCount: { $size: '$tests' }
+                    }
+                },
+                {
+                    $project: {
+                        password: 0,
+                        tests: 0
+                    }
+                }
+            ]),
+            User.countDocuments(matchQuery)
+        ]);
 
-        const count = await User.countDocuments(query);
-
-        // Map users to include test counts (simplified)
-        const userList = await Promise.all(users.map(async (u) => {
-            const testCount = await TestResult.countDocuments({ userId: u._id });
-            return { ...u.toObject(), testsCount: testCount };
-        }));
-
-        res.json({ users: userList, total: count, page: parseInt(page) });
+        res.json({ users: userList, total: totalCount, page: parseInt(page) });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -192,8 +220,14 @@ router.put('/users/:userId', auth, adminAuth, async (req, res) => {
 // 3. ANALYTICS & STATS
 // ══════════════════════════════════════════════════════════
 
+const { getCachedData, setCachedData, clearCache } = require('../middleware/cache');
+
 router.get('/stats', auth, adminAuth, async (req, res) => {
     try {
+        const cacheKey = 'admin_stats';
+        const cached = await getCachedData(cacheKey);
+        if (cached) return res.json(cached);
+
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -215,12 +249,17 @@ router.get('/stats', auth, adminAuth, async (req, res) => {
 
         const activeUserIds = await TestResult.distinct('userId', { createdAt: { $gte: startOfWeek } });
 
-        res.json({
+        const stats = {
             users: { total: totalUsers, pro: proUsers, banned: bannedUsers },
             tests: { today: testsToday, week: testsThisWeek, total: totalTests },
             revenue: totalRevenue,
             activeUsers: activeUserIds.length
-        });
+        };
+
+        // Cache for 1 minute
+        await setCachedData(cacheKey, stats, 60);
+
+        res.json(stats);
     } catch (error) {
         console.error('Admin stats error:', error);
         res.status(500).json({ error: error.message });

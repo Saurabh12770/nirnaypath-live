@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Test Leaderboard - NirnayPath</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .leaderboard-container { max-width: 800px; margin: 50px auto; padding: 20px; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .leaderboard-table th, .leaderboard-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .leaderboard-table th { background: var(--primary); color: white; font-weight: 600; }
+        .rank-1 { color: #FFD700; font-weight: bold; }
+        .rank-2 { color: #C0C0C0; font-weight: bold; }
+        .rank-3 { color: #CD7F32; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="leaderboard-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 class="section-title">🏆 Live Test <span class="text-primary">Leaderboard</span></h1>
+            <a href="index.html" class="secondary-btn" style="text-decoration: none;"><i class="fas fa-home"></i> Home</a>
+        </div>
+
+        <div id="loading" class="text-center">Loading rankings...</div>
+        
+        <table class="leaderboard-table" id="leaderboardTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Aspirant</th>
+                    <th>Score</th>
+                    <th>Total</th>
+                    <th>Submitted At</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchLeaderboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('sessionId');
+            
+            if (!sessionId) {
+                document.getElementById('loading').textContent = 'Error: No session ID provided.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/live/leaderboard/${sessionId}`);
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                const table = document.getElementById('leaderboardTable');
+                const tbody = document.getElementById('leaderboardBody');
+
+                if (!data.length) {
+                    document.getElementById('loading').textContent = 'No results found for this session yet.';
+                    document.getElementById('loading').style.display = 'block';
+                    return;
+                }
+
+                table.style.display = 'table';
+                tbody.innerHTML = data.map((res, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                    const submitted = new Date(res.submittedAt).toLocaleTimeString();
+                    
+                    return `
+                        <tr>
+                            <td class="${rankClass}">#${rank} ${rank <= 3 ? '<i class="fas fa-medal"></i>' : ''}</td>
+                            <td><strong>${res.userId.name}</strong></td>
+                            <td>${res.score}</td>
+                            <td>${res.totalQuestions}</td>
+                            <td style="color: #666; font-size: 0.9rem;">${submitted}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Leaderboard error:', error);
+                document.getElementById('loading').textContent = 'Failed to load leaderboard.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchLeaderboard);
+    </script>
+</body>
+</html>

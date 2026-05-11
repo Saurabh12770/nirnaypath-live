@@ -5,20 +5,34 @@
 
 const Auth = {
     tokenKey: 'np_auth_token',
+    refreshKey: 'np_refresh_token',
     userKey: 'np_user_data',
 
     init() {
         this.checkAuthStatus();
         this.setupEventListeners();
+        
+        // Check for reset success
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') === 'success') {
+            this.showToast('Password reset successful! Please login.');
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     },
 
     setupEventListeners() {
+        // ... (existing listeners remain same)
         const loginForm = document.getElementById('loginForm');
         const signupForm = document.getElementById('signupForm');
         const showSignup = document.getElementById('showSignup');
         const showLogin = document.getElementById('showLogin');
         const loginFormContainer = document.getElementById('loginFormContainer');
         const signupFormContainer = document.getElementById('signupFormContainer');
+        const forgotPasswordFormContainer = document.getElementById('forgotPasswordFormContainer');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLogin = document.getElementById('backToLogin');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
 
         if (showSignup) {
             showSignup.addEventListener('click', (e) => {
@@ -62,6 +76,30 @@ const Auth = {
                 await this.signup(name, email, password);
             });
         }
+
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginFormContainer.style.display = 'none';
+                forgotPasswordFormContainer.style.display = 'block';
+            });
+        }
+
+        if (backToLogin) {
+            backToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                forgotPasswordFormContainer.style.display = 'none';
+                loginFormContainer.style.display = 'block';
+            });
+        }
+
+        if (forgotPasswordForm) {
+            forgotPasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('forgotEmail').value;
+                await this.forgotPassword(email);
+            });
+        }
     },
 
     async login(email, password) {
@@ -74,7 +112,7 @@ const Auth = {
 
             const data = await response.json();
             if (response.ok) {
-                this.saveSession(data.token, data.user);
+                this.saveSession(data.token, data.refreshToken, data.user);
                 this.updateUI(true, data.user);
                 document.getElementById('loginModal').style.display = 'none';
                 this.showToast('Welcome back, ' + data.user.name);
@@ -97,7 +135,7 @@ const Auth = {
 
             const data = await response.json();
             if (response.ok) {
-                this.saveSession(data.token, data.user);
+                this.saveSession(data.token, data.refreshToken, data.user);
                 this.updateUI(true, data.user);
                 document.getElementById('loginModal').style.display = 'none';
                 this.showToast('Account created successfully!');
@@ -110,17 +148,102 @@ const Auth = {
         }
     },
 
-    saveSession(token, user) {
+    async forgotPassword(email) {
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                this.showToast(data.message || 'Reset link sent!');
+                // Switch back to login
+                document.getElementById('forgotPasswordFormContainer').style.display = 'none';
+                document.getElementById('loginFormContainer').style.display = 'block';
+            } else {
+                alert(data.error || 'Request failed');
+            }
+        } catch (error) {
+            console.error('Forgot password error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    },
+
+    saveSession(token, refreshToken, user) {
         localStorage.setItem(this.tokenKey, token);
+        localStorage.setItem(this.refreshKey, refreshToken);
         localStorage.setItem(this.userKey, JSON.stringify(user));
     },
 
-    logout() {
+    async logout() {
+        const refreshToken = localStorage.getItem(this.refreshKey);
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken })
+            });
+        } catch (e) { }
+
         localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(this.refreshKey);
         localStorage.removeItem(this.userKey);
         localStorage.removeItem('mockTestState');
         this.updateUI(false);
         window.location.reload();
+    },
+
+    async refreshAccessToken() {
+        const refreshToken = localStorage.getItem(this.refreshKey);
+        if (!refreshToken) return null;
+
+        try {
+            const response = await fetch('/api/auth/refresh-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem(this.tokenKey, data.token);
+                localStorage.setItem(this.refreshKey, data.refreshToken);
+                return data.token;
+            } else {
+                this.logout();
+                return null;
+            }
+        } catch (error) {
+            this.logout();
+            return null;
+        }
+    },
+
+    /**
+     * Enhanced fetch with automatic retry on token expiration
+     */
+    async fetchWithAuth(url, options = {}) {
+        let token = this.getToken();
+        if (!options.headers) options.headers = {};
+        options.headers['Authorization'] = `Bearer ${token}`;
+
+        let response = await fetch(url, options);
+
+        if (response.status === 401) {
+            const data = await response.clone().json();
+            if (data.code === 'TOKEN_EXPIRED') {
+                // Try to refresh
+                const newToken = await this.refreshAccessToken();
+                if (newToken) {
+                    options.headers['Authorization'] = `Bearer ${newToken}`;
+                    response = await fetch(url, options);
+                }
+            }
+        }
+
+        return response;
     },
 
     checkAuthStatus() {
@@ -128,9 +251,13 @@ const Auth = {
         const userStr = localStorage.getItem(this.userKey);
         
         if (token && userStr) {
-            const user = JSON.parse(userStr);
-            this.updateUI(true, user);
-            return true;
+            try {
+                const user = JSON.parse(userStr);
+                this.updateUI(true, user);
+                return true;
+            } catch (e) {
+                this.logout();
+            }
         }
         this.updateUI(false);
         return false;

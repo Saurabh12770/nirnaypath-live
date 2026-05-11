@@ -235,14 +235,24 @@ const TopicDrills = {
 
         showView('loading');
         try {
-            const res = await fetch(`/api/drill/${subject}/${topic}?count=20`, {
-                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+            const res = await fetch('/api/test/start', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}` 
+                },
+                body: JSON.stringify({
+                    subject,
+                    count: 20,
+                    timeLimit: 20 * 60,
+                    exam: currentExam
+                })
             });
-            const questions = await res.json();
+            const data = await res.json();
             
-            if (!res.ok) throw new Error(questions.error || 'Failed to load drill');
+            if (!res.ok) throw new Error(data.error || 'Failed to load drill');
 
-            const normalized = questions.map(q => ({
+            const normalized = data.questions.map(q => ({
                 ...q,
                 question: L.q(q),
                 options: L.opt(q),
@@ -250,6 +260,7 @@ const TopicDrills = {
             }));
 
             testState = {
+                sessionId: data.sessionId,
                 exam: currentExam, subject, testName: `Topic Drill: ${topic}`,
                 answers: {}, marked: [], visited: [0],
                 timeLeft: 20 * 60, currentIdx: 0,
@@ -307,8 +318,18 @@ const SectionalTests = {
         showView('loading');
         
         try {
-            const res = await fetch(`/api/section/${encodeURIComponent(sectionName)}?count=75`, {
-                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+            const res = await fetch('/api/test/start', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}` 
+                },
+                body: JSON.stringify({
+                    subject: 'all', // Sectional tests often cover multiple, handled server-side
+                    count: 75,
+                    timeLimit: 60 * 60, // Default 1 hour
+                    exam: sectionName
+                })
             });
             const data = await res.json();
             
@@ -322,9 +343,10 @@ const SectionalTests = {
             }));
 
             testState = {
+                sessionId: data.sessionId,
                 exam: 'sectional', subject: 'all', testName: `Sectional: ${sectionName}`,
                 answers: {}, marked: [], visited: [0],
-                timeLeft: Math.round(data.timeLimit * 60), currentIdx: 0,
+                timeLeft: Math.round(data.timeLimit || 3600), currentIdx: 0,
                 isActive: true, selectedQuestions: normalized,
                 mode: 'section', modeValue: sectionName
             };
@@ -535,49 +557,83 @@ function setFilter(f) {
 /* ============================================================ 
    13. START TEST
    ============================================================ */
-async function startTest(testName, subject, questionCount = 100, timeLimit = 90) {
-    if (!Auth.isLoggedIn()) {
-        alert('Please login to start the mock test.');
-        document.getElementById('loginModal').style.display = 'flex';
-        return;
-    }
+function startTest(subject, testName, questionCount, timeLimit) {
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
-    try {
-        const url = `/api/questions/${subject}`;
-        console.log(`[NirnayPath] Fetching: ${url}`);
-        const res = await fetch(url);
-        if (!res.ok) {
-            console.error(`[NirnayPath] Fetch failed: ${res.status} ${res.statusText}`);
-            throw new Error(`HTTP ${res.status} – Subject not found`);
-        }
-        const data = await res.json();
-        let raw = Array.isArray(data) ? data : (data.questions || []);
-        if (!raw.length) throw new Error('Question bank is empty.');
 
-        const normalized = raw.map(q => ({
+    // Check if we already have questions (Live Test flow)
+    if (window.liveQuestions && window.liveQuestions.length) {
+        const normalized = window.liveQuestions.map(q => ({
             ...q,
             question: L.q(q),
             options: L.opt(q),
             explanation: L.exp(q) || 'No explanation provided.'
         }));
 
-        const selected = shuffleArray([...normalized]).slice(0, Math.min(questionCount, normalized.length));
-
         testState = {
-            exam: currentExam, subject, testName,
+            sessionId: window.liveSessionId,
+            isLive: true,
+            exam: 'Live Test', subject, testName,
             answers: {}, marked: [], visited: [0],
             timeLeft: timeLimit * 60, currentIdx: 0,
-            isActive: true, selectedQuestions: selected,
-            mode: 'full', modeValue: null
+            isActive: true, selectedQuestions: normalized,
+            mode: 'live', modeValue: window.liveSessionId
         };
+        window.liveQuestions = null; // Clear
         saveProgress();
         launchExam();
-    } catch (err) {
-        console.error('[NirnayPath] Test load error:', err);
-        alert(`Could not load test.\n\n${err.message}`);
-        showView('dashboard');
+        return;
     }
+
+    async function doStart() {
+        try {
+            const res = await fetch('/api/test/start', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({
+                    subject,
+                    count: questionCount,
+                    timeLimit: timeLimit * 60,
+                    exam: currentExam
+                })
+            });
+            
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || `HTTP ${res.status} – Could not start test`);
+            }
+            
+            const data = await res.json();
+            const raw = data.questions || [];
+            if (!raw.length) throw new Error('Question bank is empty.');
+
+            const normalized = raw.map(q => ({
+                ...q,
+                question: L.q(q),
+                options: L.opt(q),
+                explanation: L.exp(q) || 'No explanation provided.'
+            }));
+
+            testState = {
+                sessionId: data.sessionId,
+                exam: currentExam, subject, testName,
+                answers: {}, marked: [], visited: [0],
+                timeLeft: timeLimit * 60, currentIdx: 0,
+                isActive: true, selectedQuestions: normalized,
+                mode: 'full', modeValue: null
+            };
+            saveProgress();
+            launchExam();
+        } catch (err) {
+            console.error('[NirnayPath] Test load error:', err);
+            showView('home');
+            window.showToast(err.message, 'var(--danger)');
+        }
+    }
+    doStart();
 }
 
 /* ============================================================ 
@@ -909,6 +965,7 @@ function submitTest() {
 
     /* Send results to backend for persistent storage */
     const resultsData = {
+        sessionId: testState.sessionId,
         exam: testState.exam,
         subject: testState.subject,
         testName: testState.testName,
@@ -919,7 +976,7 @@ function submitTest() {
         unattempted,
         accuracy: parseFloat(accuracy),
         answers: testState.selectedQuestions.map((q, i) => ({
-            questionId: q._id || `q-${i}`,
+            questionId: q._id || q.id || `q-${i}`,
             userAnswer: testState.answers[i] !== undefined ? String(testState.answers[i]) : null,
             correctAnswer: String(q.correctAnswer),
             isCorrect: isCorrect(testState.answers[i], q.correctAnswer, L.opt(q) || q.options || []),
@@ -928,6 +985,21 @@ function submitTest() {
         mode: testState.mode || 'full',
         modeValue: testState.modeValue || null
     };
+
+    if (testState.isLive) {
+        fetch(`/api/live/submit/${testState.sessionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Auth.getToken()}`
+            },
+            body: JSON.stringify({ answers: testState.answers })
+        })
+        .then(res => res.json())
+        .then(data => console.log('Live Test submitted:', data))
+        .catch(err => console.error('Error submitting live test:', err));
+        return;
+    }
 
     fetch('/api/test/submit', {
         method: 'POST',
@@ -1006,6 +1078,11 @@ function buildReview() {
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
                 <p>${q.explanation}</p>
             </div>` : ''}
+            <div class="review-discussion-link" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);">
+                <button class="discussion-toggle-btn" data-qid="${q.id || q._id || i}" style="background:none;border:none;cursor:pointer;color:var(--primary,#4F46E5);font-size:0.88rem;font-weight:600;padding:0;display:inline-flex;align-items:center;gap:6px;">
+                    💬 Discussion
+                </button>
+            </div>
         `;
         rc.appendChild(card);
     });

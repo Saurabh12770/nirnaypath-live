@@ -63,7 +63,10 @@ const userSchema = new mongoose.Schema({
     lastChatDate: {
         type: Date,
         default: Date.now
-    }
+    },
+    refreshTokens: [String],
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 });
 
 const User = mongoose.model('User', userSchema);

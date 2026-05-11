@@ -223,6 +223,9 @@
             <div class="nav-item" onclick="AdminPanel.showSection('payments')">
                 <i class="fas fa-credit-card"></i> Payments
             </div>
+            <div class="nav-item" onclick="AdminPanel.showSection('live-sessions')">
+                <i class="fas fa-broadcast-tower"></i> Live Sessions
+            </div>
         </div>
         <div class="sidebar-footer">
             <div class="nav-item" onclick="location.href='/'">
@@ -328,6 +331,85 @@
                     </thead>
                     <tbody id="paymentsTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- ════════ LIVE SESSIONS SECTION ════════ -->
+        <div id="section-live-sessions" class="admin-section hidden">
+            <!-- Create Session Form -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Schedule New Live Session</h3>
+                <form id="createLiveSessionForm" onsubmit="AdminLive.createSession(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:6px;">Exam</label>
+                            <select id="liveExam" class="leaderboard-select" style="width:100%;" required>
+                                <option value="upsc">UPSC</option>
+                                <option value="bpsc">BPSC</option>
+                                <option value="ssc">SSC</option>
+                                <option value="railway">Railway</option>
+                                <option value="banking">Banking</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:6px;">Subject</label>
+                            <select id="liveSubject" class="leaderboard-select" style="width:100%;" required>
+                                <option value="history">History</option>
+                                <option value="geography">Geography</option>
+                                <option value="polity">Polity</option>
+                                <option value="economics">Economics</option>
+                                <option value="science">Science</option>
+                                <option value="gs">General Studies</option>
+                                <option value="reasoning">Reasoning</option>
+                                <option value="math">Mathematics</option>
+                                <option value="english">English</option>
+                                <option value="hindi">Hindi</option>
+                                <option value="currentaffairs">Current Affairs</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:6px;">Question Count</label>
+                            <input type="number" id="liveQuestionCount" value="50" min="10" max="150" class="search-input" style="width:100%;" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:6px;">Start Date & Time</label>
+                            <input type="datetime-local" id="liveStartTime" class="search-input" style="width:100%;" required>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:6px;">Duration (minutes)</label>
+                            <input type="number" id="liveDuration" value="90" min="10" max="360" class="search-input" style="width:100%;" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="admin-btn btn-primary"><i class="fas fa-calendar-plus"></i> Create Live Session</button>
+                </form>
+            </div>
+
+            <!-- Existing Sessions List -->
+            <div class="admin-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3><i class="fas fa-list"></i> All Live Sessions</h3>
+                    <button class="admin-btn" onclick="AdminLive.loadSessions()"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Exam / Subject</th>
+                                <th>Start Time</th>
+                                <th>Duration</th>
+                                <th>Questions</th>
+                                <th>Registered</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liveSessionsTableBody">
+                            <tr><td colspan="7" style="text-align:center;color:#888;">Click Refresh to load sessions.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -722,6 +804,80 @@
         // Ensure spinner is hidden on any unhandled rejections or errors
         window.addEventListener('unhandledrejection', hideSpinner);
         window.addEventListener('error', hideSpinner);
+
+        // ════════ ADMIN LIVE SESSIONS ════════
+        const AdminLive = {
+            async createSession(e) {
+                e.preventDefault();
+                const payload = {
+                    exam: document.getElementById('liveExam').value,
+                    subject: document.getElementById('liveSubject').value,
+                    startTime: document.getElementById('liveStartTime').value,
+                    duration: document.getElementById('liveDuration').value,
+                    questionCount: document.getElementById('liveQuestionCount').value
+                };
+
+                showSpinner();
+                try {
+                    const res = await fetchWithOverlay('/api/admin/live-sessions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    alert(`✅ Session created with ${res.questions.length} questions!`);
+                    document.getElementById('createLiveSessionForm').reset();
+                    this.loadSessions();
+                } catch (err) {
+                    alert('❌ Error: ' + (err.message || 'Failed to create session'));
+                } finally {
+                    hideSpinner();
+                }
+            },
+
+            async loadSessions() {
+                const tbody = document.getElementById('liveSessionsTableBody');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Loading...</td></tr>';
+                try {
+                    const sessions = await fetchWithOverlay('/api/admin/live-sessions');
+                    if (!sessions.length) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">No sessions found.</td></tr>';
+                        return;
+                    }
+
+                    const statusColors = { upcoming: '#f59e0b', live: '#10b981', ended: '#6b7280' };
+                    tbody.innerHTML = sessions.map(s => `
+                        <tr>
+                            <td><strong>${s.exam.toUpperCase()}</strong> / ${s.subject}</td>
+                            <td>${new Date(s.startTime).toLocaleString('en-IN')}</td>
+                            <td>${s.duration} min</td>
+                            <td>${s.questions.length}</td>
+                            <td>${s.registeredUsers.length}</td>
+                            <td><span style="background:${statusColors[s.status]}20;color:${statusColors[s.status]};padding:3px 10px;border-radius:20px;font-size:0.8rem;font-weight:600;">${s.status.toUpperCase()}</span></td>
+                            <td>
+                                ${s.status === 'upcoming' ? `<button class="admin-btn" style="background:#ef4444;color:white;padding:6px 12px;" onclick="AdminLive.deleteSession('${s._id}')"><i class="fas fa-trash"></i> Cancel</button>` : ''}
+                                <a href="/live-leaderboard.html?sessionId=${s._id}" target="_blank" class="admin-btn" style="padding:6px 12px;text-decoration:none;"><i class="fas fa-trophy"></i></a>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (err) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="color:red;text-align:center;">Failed to load sessions.</td></tr>';
+                }
+            },
+
+            async deleteSession(id) {
+                if (!confirm('Cancel this upcoming session? This cannot be undone.')) return;
+                showSpinner();
+                try {
+                    await fetchWithOverlay(`/api/admin/live-sessions/${id}`, { method: 'DELETE' });
+                    alert('Session cancelled.');
+                    this.loadSessions();
+                } catch (err) {
+                    alert('Error: ' + (err.message || 'Could not delete session'));
+                } finally {
+                    hideSpinner();
+                }
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             AdminPanel.init().catch(err => {

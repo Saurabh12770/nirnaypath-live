@@ -4,6 +4,8 @@ const TestResult = require('../models/TestResult');
 const User = require('../models/User');
 const router = express.Router();
 
+const { getCachedData, setCachedData } = require('../middleware/cache');
+
 /**
  * GET /api/leaderboard/:exam
  * Returns top 10 users for a specific exam in the last 7 days.
@@ -11,6 +13,12 @@ const router = express.Router();
 router.get('/:exam', auth, async (req, res) => {
     try {
         const { exam } = req.params;
+        const cacheKey = `leaderboard_${exam.toLowerCase()}`;
+        
+        // Cache Check
+        const cached = await getCachedData(cacheKey);
+        if (cached) return res.json(cached);
+
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -56,10 +64,15 @@ router.get('/:exam', auth, async (req, res) => {
             }
         ]);
 
-        res.json(leaderboard.map((entry, index) => ({
+        const result = leaderboard.map((entry, index) => ({
             rank: index + 1,
             ...entry
-        })));
+        }));
+
+        // Cache for 5 minutes
+        await setCachedData(cacheKey, result, 300);
+
+        res.json(result);
     } catch (error) {
         console.error('Leaderboard error:', error);
         res.status(500).json({ error: error.message });
