@@ -204,7 +204,7 @@ const TopicDrills = {
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading topics...</div>';
         
         try {
-            const res = await fetch(`/api/subject/${subject}/topics`);
+            const res = await Auth.fetchWithAuth(`/api/subject/${subject}/topics`);
             const topics = await res.json();
             
             container.innerHTML = '';
@@ -587,12 +587,9 @@ function startTest(subject, testName, questionCount, timeLimit) {
 
     async function doStart() {
         try {
-            const res = await fetch('/api/test/start', {
+            const res = await Auth.fetchWithAuth('/api/test/start', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}`
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     subject,
                     count: questionCount,

@@ -1,5 +1,5 @@
 /* NirnayPath Service Worker v2.0 */
-const CACHE_NAME = 'nirnaypath-cache-v1';
+const CACHE_NAME = 'nirnaypath-cache-v2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
