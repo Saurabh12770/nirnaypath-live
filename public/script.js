@@ -11,11 +11,8 @@
 
 'use strict';
 
-/* Prevent duplicate initialization */
-if (window.__nirnay_initialized) {
-    console.warn('[NirnayPath] Script already initialized. Skipping.');
-} else {
-    window.__nirnay_initialized = true;
+/* Script initialization */
+window.__nirnay_initialized = true;
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
@@ -97,36 +94,31 @@ document.addEventListener('DOMContentLoaded', () => {
     VIEW.result = document.getElementById('result-screen');
     VIEW.userDashboard = document.getElementById('user-dashboard');
 
-    /* Inject CSS enhancements (scrollbar, animations, etc.) */
-    injectDynamicCSS();
+    const safeInit = (fn, name) => {
+        try { fn(); } catch (e) { console.error(`[Init Error] ${name}:`, e); }
+    };
 
-    /* Init modules */
-    initTheme();
+    safeInit(injectDynamicCSS, 'injectDynamicCSS');
+    safeInit(initTheme, 'initTheme');
+    safeInit(initExamRibbon, 'initExamRibbon');
+    safeInit(initLanguageToggle, 'initLanguageToggle');
+    safeInit(initFilterButtons, 'initFilterButtons');
+    safeInit(initStickyHeader, 'initStickyHeader');
+    safeInit(initBackToTop, 'initBackToTop');
+    safeInit(initScrollAnimations, 'initScrollAnimations');
+    safeInit(initFAQ, 'initFAQ');
+    safeInit(initTypingAnimation, 'initTypingAnimation');
+    safeInit(initMobileMenu, 'initMobileMenu');
+    safeInit(initTipsSlider, 'initTipsSlider');
+    safeInit(initHeroSliders, 'initHeroSliders');
+    safeInit(() => makeInfiniteSlider('testimonial-slider', 4000), 'testimonial-slider');
+    safeInit(() => makeInfiniteSlider('trending-slider', 3000), 'trending-slider');
+    safeInit(animateCounters, 'animateCounters');
+    safeInit(initTrendingTestButtons, 'initTrendingTestButtons');
 
-    initExamRibbon();
-    initLanguageToggle();
-    initFilterButtons();
-    initStickyHeader();
-    initBackToTop();
-    initScrollAnimations();
-    initFAQ();
-    initTypingAnimation();
-    initMobileMenu();
-    initTipsSlider();
-    initHeroSliders();
-    makeInfiniteSlider('testimonial-slider', 4000);
-    makeInfiniteSlider('trending-slider', 3000);
-    animateCounters();
-    initTrendingTestButtons();
-
-    /* ✅ Always start on dashboard — subject panel hidden by default */
-    showView('dashboard');
-
-    /* Bind result screen buttons here since engine sections exist */
-    bindExamControls();
-
-    /* Try to resume an active test session */
-    checkExistingTestSession();
+    safeInit(() => showView('dashboard'), 'showView(dashboard)');
+    safeInit(bindExamControls, 'bindExamControls');
+    safeInit(checkExistingTestSession, 'checkExistingTestSession');
 });
 
 /* ============================================================ 
@@ -1579,5 +1571,4 @@ function initMobileMenu() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closePanel();
     });
-}
 }

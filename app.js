@@ -94,7 +94,7 @@ app.use(helmet({
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
             "img-src": ["'self'", "data:", "blob:", "https://ui-avatars.com"],
-            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://api.razorpay.com", "https://lumberjack.razorpay.com", "https://ui-avatars.com"],
+            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://ui-avatars.com"],
             "frame-src": ["'self'", "https://checkout.razorpay.com", "https://api.razorpay.com"],
         },
     },

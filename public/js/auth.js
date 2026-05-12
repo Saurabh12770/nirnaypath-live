@@ -231,38 +231,18 @@ const Auth = {
 
         let response = await fetch(url, options);
 
-        if (response.status === 401) {
-            let isExpired = false;
-            try {
-                // Clone to avoid "body used" error if we need to read it
-                const clone = response.clone();
-                const data = await clone.json();
-                if (data.code === 'TOKEN_EXPIRED') isExpired = true;
-            } catch (e) {
-                // If not JSON or other error, assume not expired but just unauthorized
-            }
-
-            if (isExpired) {
-                console.log('[Auth] Token expired, attempting refresh...');
-                const newToken = await this.refreshAccessToken();
-                if (newToken) {
-                    options.headers['Authorization'] = `Bearer ${newToken}`;
-                    return fetch(url, options);
-                }
-            }
-            
-            // If we reached here, it was either a real 401 or refresh failed
-            // Do NOT logout if it's an auth-related route already to avoid loops
-            if (!url.includes('/api/auth/')) {
-                console.warn('[Auth] Unauthorized or Session Expired, logging out');
+        if (response.status === 401 && !url.includes('/api/auth/')) {
+            console.log('[Auth] 401 Unauthorized, attempting to refresh token...');
+            const newToken = await this.refreshAccessToken();
+            if (newToken) {
+                options.headers['Authorization'] = `Bearer ${newToken}`;
+                return fetch(url, options);
+            } else {
                 this.logout();
             }
-        } else if (response.status === 403) {
-            // Forbidden usually means refresh token is invalid/tampered
-            if (!url.includes('/api/auth/')) {
-                console.warn('[Auth] Access Forbidden (403), logging out');
-                this.logout();
-            }
+        } else if (response.status === 403 && !url.includes('/api/auth/')) {
+            console.warn('[Auth] Access Forbidden (403), logging out');
+            this.logout();
         }
 
         return response;
