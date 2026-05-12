@@ -1,4 +1,5 @@
 const express = require('express');
+console.log('[BOOT] routes/test.js loaded');
 const auth = require('../middleware/auth');
 const TestResult = require('../models/TestResult');
 const User = require('../models/User');
@@ -25,6 +26,7 @@ router.get('/health', (req, res) => {
 router.post('/start', auth, async (req, res) => {
     try {
         const { subject, count, timeLimit, exam } = req.body;
+        console.log('[TEST START]', req.body);
         console.log(`[TestStart] Request: subject=${subject}, count=${count}, exam=${exam}, user=${req.user?._id}`);
         
         if (!subject) {

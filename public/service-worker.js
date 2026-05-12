@@ -43,7 +43,18 @@ self.addEventListener('fetch', event => {
         const url = new URL(event.request.url);
 
         // 1. NEVER intercept cross-origin requests
-        if (url.origin !== self.location.origin) {
+        const excludedDomains = [
+            'fonts.googleapis.com',
+            'fonts.gstatic.com',
+            'cdnjs.cloudflare.com',
+            'checkout.razorpay.com',
+            'cdn.razorpay.com',
+            'api.razorpay.com',
+            'lumberjack.razorpay.com',
+            'ui-avatars.com'
+        ];
+
+        if (url.origin !== self.location.origin || excludedDomains.some(domain => url.hostname.includes(domain))) {
             return; // Browser handles it natively
         }
 

@@ -94,7 +94,7 @@ app.use(helmet({
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
             "img-src": ["'self'", "data:", "blob:", "https://ui-avatars.com"],
-            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://api.razorpay.com", "https://ui-avatars.com"],
+            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://api.razorpay.com", "https://lumberjack.razorpay.com", "https://ui-avatars.com"],
             "frame-src": ["'self'", "https://checkout.razorpay.com", "https://api.razorpay.com"],
         },
     },
@@ -167,7 +167,7 @@ app.use(express.static(publicPath, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-console.log('[DEBUG] Mounting Test Routes at /api/test');
+console.log('[BOOT] testRoutes mounted');
 app.use('/api/test', testRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/drill', drillRoutes);

@@ -251,10 +251,16 @@ const Auth = {
                 }
             }
             
-            // If we reached here, either refresh failed or it was a real 401
-            // Don't logout on login/refresh calls to avoid loops
+            // If we reached here, it was either a real 401 or refresh failed
+            // Do NOT logout if it's an auth-related route already to avoid loops
             if (!url.includes('/api/auth/')) {
-                console.warn('[Auth] Unauthorized access, logging out');
+                console.warn('[Auth] Unauthorized or Session Expired, logging out');
+                this.logout();
+            }
+        } else if (response.status === 403) {
+            // Forbidden usually means refresh token is invalid/tampered
+            if (!url.includes('/api/auth/')) {
+                console.warn('[Auth] Access Forbidden (403), logging out');
                 this.logout();
             }
         }
