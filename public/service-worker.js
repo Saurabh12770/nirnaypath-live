@@ -1,5 +1,5 @@
-/* NirnayPath Service Worker v2.0 */
-const CACHE_NAME = 'nirnaypath-cache-v1';
+/* NirnayPath Service Worker v3.0 */
+const CACHE_NAME = 'nirnaypath-cache-v2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
 
 // Install Event - Pre-cache static assets
 self.addEventListener('install', event => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             console.log('Pre-caching offline assets');
@@ -26,11 +27,14 @@ self.addEventListener('install', event => {
 // Activate Event - Clean up old caches
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(keys.map(key => {
-                if (key !== CACHE_NAME) return caches.delete(key);
-            }));
-        })
+        Promise.all([
+            clients.claim(),
+            caches.keys().then(keys => {
+                return Promise.all(keys.map(key => {
+                    if (key !== CACHE_NAME) return caches.delete(key);
+                }));
+            })
+        ])
     );
 });
 

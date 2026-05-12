@@ -11,6 +11,12 @@
 
 'use strict';
 
+/* Prevent duplicate initialization */
+if (window.__nirnay_initialized) {
+    console.warn('[NirnayPath] Script already initialized. Skipping.');
+} else {
+    window.__nirnay_initialized = true;
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -1573,4 +1579,5 @@ function initMobileMenu() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closePanel();
     });
+}
 }
