@@ -21,7 +21,7 @@ router.post('/start', auth, async (req, res) => {
 
         // 1. Fetch Randomized Questions
         const questions = await Question.aggregate([
-            { $match: { subject: subject.toLowerCase() } },
+            { $match: { $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] } },
             { $sample: { size: qCount } }
         ]);
 

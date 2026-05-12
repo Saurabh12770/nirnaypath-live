@@ -24,7 +24,7 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
         if (cached) return res.json(cached);
 
         const questions = await Question.aggregate([
-            { $match: { subject: subject.toLowerCase() } },
+            { $match: { $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] } },
             { $sample: { size: count } }
         ]);
 
@@ -49,7 +49,9 @@ router.get('/subject/:subject/topics', async (req, res) => {
         let topics = await getCachedData(cacheKey);
         if (topics) return res.json(topics);
 
-        const questions = await Question.find({ subject: subject.toLowerCase() }).lean();
+        const questions = await Question.find({ 
+            $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] 
+        }).lean();
         if (!questions || questions.length === 0) {
             return res.status(404).json({ error: 'Subject not found' });
         }

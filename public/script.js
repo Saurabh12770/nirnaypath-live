@@ -434,9 +434,10 @@ function setLanguage(lang) {
    9. BILINGUAL HELPERS
    ============================================================ */
 const L = {
-    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
+    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question || q.text) : (q.question_en || q.text || q.question),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
-    exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
+    exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation),
+    ans: q => q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : q.correct_answer)
 };
 
 /* ============================================================ 
@@ -1045,7 +1046,7 @@ function buildReview() {
     testState.selectedQuestions.forEach((q, i) => {
         const opts = L.opt(q) || q.options || [];
         const userAnsId = testState.answers[i];
-        const corrAnsRaw = q.correctAnswer;
+        const corrAnsRaw = L.ans(q);
 
         const userText = resolveDisplayLabel(userAnsId, opts);
         const correctText = resolveDisplayLabel(corrAnsRaw, opts);
