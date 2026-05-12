@@ -26,24 +26,13 @@ const Dashboard = {
 
     async loadData() {
         try {
-            const token = Auth.getToken();
-            
             // Load Profile and Recent Tests
-            const profileRes = await fetch('/api/user/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const profileRes = await Auth.fetchWithAuth('/api/user/me');
             const profileData = await profileRes.json();
-
+    
             // Load Stats
-            const statsRes = await fetch('/api/user/stats', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const statsRes = await Auth.fetchWithAuth('/api/user/stats');
             const statsData = await statsRes.json();
-
-            if (profileRes.status === 401 || statsRes.status === 401) {
-                Auth.logout();
-                return;
-            }
 
             if (profileRes.ok && statsRes.ok) {
                 this.renderDashboard(profileData, statsData);
@@ -179,10 +168,7 @@ const Dashboard = {
 
     async loadLeaderboard(exam) {
         try {
-            const token = Auth.getToken();
-            const res = await fetch(`/api/leaderboard/${exam}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await Auth.fetchWithAuth(`/api/leaderboard/${exam}`);
             const data = await res.json();
             if (res.ok) {
                 this.renderLeaderboard(data);

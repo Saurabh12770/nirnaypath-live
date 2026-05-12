@@ -98,12 +98,10 @@ const Chatbot = {
         indicator.classList.remove('hidden');
 
         try {
-            const token = Auth.getToken();
-            const res = await fetch('/api/chat', {
+            const res = await Auth.fetchWithAuth('/api/chat', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ message })
             });
@@ -131,10 +129,7 @@ const Chatbot = {
     async loadHistory() {
         if (this.historyLoaded) return;
         try {
-            const token = Auth.getToken();
-            const res = await fetch('/api/chat/history', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await Auth.fetchWithAuth('/api/chat/history');
             const history = await res.json();
             
             if (res.ok && history.length > 0) {

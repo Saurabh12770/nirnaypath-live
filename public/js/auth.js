@@ -232,14 +232,30 @@ const Auth = {
         let response = await fetch(url, options);
 
         if (response.status === 401) {
-            const data = await response.clone().json();
-            if (data.code === 'TOKEN_EXPIRED') {
-                // Try to refresh
+            let isExpired = false;
+            try {
+                // Clone to avoid "body used" error if we need to read it
+                const clone = response.clone();
+                const data = await clone.json();
+                if (data.code === 'TOKEN_EXPIRED') isExpired = true;
+            } catch (e) {
+                // If not JSON or other error, assume not expired but just unauthorized
+            }
+
+            if (isExpired) {
+                console.log('[Auth] Token expired, attempting refresh...');
                 const newToken = await this.refreshAccessToken();
                 if (newToken) {
                     options.headers['Authorization'] = `Bearer ${newToken}`;
-                    response = await fetch(url, options);
+                    return fetch(url, options);
                 }
+            }
+            
+            // If we reached here, either refresh failed or it was a real 401
+            // Don't logout on login/refresh calls to avoid loops
+            if (!url.includes('/api/auth/')) {
+                console.warn('[Auth] Unauthorized access, logging out');
+                this.logout();
             }
         }
 

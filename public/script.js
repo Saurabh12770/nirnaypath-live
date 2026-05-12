@@ -588,11 +588,10 @@ function startTest(testName, subject, questionCount, timeLimit) {
 
     async function doStart() {
         try {
-            const res = await fetch('/api/test/start', {
+            const res = await Auth.fetchWithAuth('/api/test/start', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     subject,
@@ -1002,11 +1001,10 @@ function submitTest() {
         return;
     }
 
-    fetch('/api/test/submit', {
+    Auth.fetchWithAuth('/api/test/submit', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Auth.getToken()}`
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(resultsData)
     })
