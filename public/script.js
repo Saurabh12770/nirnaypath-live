@@ -28,7 +28,13 @@ let timerInterval = null;
 let tabSwitchCount = 0;
 let acInstalled = false;
 
-// let testState = { ... }; // Removed for rebuild
+let testState = {
+    exam: 'upsc', subject: 'history', testName: '',
+    answers: {}, marked: [], visited: [],
+    timeLeft: 90 * 60, currentIdx: 0,
+    isActive: false, selectedQuestions: [],
+    mode: 'full', modeValue: null // 'full', 'drill', 'section'
+};
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    2. CONSTANTS
@@ -117,8 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showView('dashboard');
 
     /* Bind result screen buttons here since engine sections exist */
-    /* bindExamControls(); // Removed */
-    /* checkExistingTestSession(); // Removed */
+    bindExamControls();
+
+    /* Try to resume an active test session */
+    checkExistingTestSession();
 });
 
 /* ============================================================ 
@@ -525,7 +533,7 @@ function renderTestGrid() {
             <span class="test-difficulty ${diffClass}"><i class="fas fa-signal"></i> ${diff}</span>
             <button class="test-start-btn"><i class="fas fa-play-circle"></i> Start Test</button>
           </div>`;
-        const go = () => startTest(currentSubject, q, t, `Mock Test ${i}`);
+        const go = () => startTest(`Mock Test ${i}`, currentSubject, q, t);
         card.querySelector('.test-start-btn').addEventListener('click', e => { e.stopPropagation(); go(); });
         card.addEventListener('click', go);
         grid.appendChild(card);
@@ -553,306 +561,537 @@ function setFilter(f) {
     renderTestGrid();
 }
 
-/* --- New Exam Logic --- */
-window.examState = {
-    questions: [],
-    userAnswers: [], // Stores index of selected option
-    visited: [],     // Boolean array
-    marked: [],      // Boolean array
-    currentIdx: 0,
-    timeLeft: 0,
-    timerInterval: null,
-    subject: '',
-    examId: '',
-    testName: ''
-};
+/* ============================================================ 
+   13. START TEST
+   ============================================================ */
+function startTest(testName, subject, questionCount, timeLimit) {
+    console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
+    showView('loading');
 
-async function startTest(subject, count = 50, timeLimit = null, testName = null) {
-    try {
-        console.log(`[Exam] Starting ${subject} test, count: ${count}`);
-        showView('loading');
+    // Check if we already have questions (Live Test flow)
+    if (window.liveQuestions && window.liveQuestions.length) {
+        const normalized = window.liveQuestions.map(q => ({
+            ...q,
+            question: L.q(q),
+            options: L.opt(q),
+            explanation: L.exp(q) || 'No explanation provided.'
+        }));
 
-        const res = await Auth.fetchWithAuth('/api/exam/start', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject, count })
-        });
-
-        if (!res.ok) throw new Error('Failed to fetch questions');
-        const data = await res.json();
-
-        window.examState = {
-            questions: data.questions,
-            userAnswers: new Array(data.questions.length).fill(null),
-            visited: new Array(data.questions.length).fill(false),
-            marked: new Array(data.questions.length).fill(false),
-            currentIdx: 0,
-            timeLeft: (timeLimit || data.questions.length) * 60, 
-            subject: subject,
-            examId: data.examId,
-            testName: testName || `${subjectNames[subject] || subject} Mock Test`
+        testState = {
+            sessionId: window.liveSessionId,
+            isLive: true,
+            exam: 'Live Test', subject, testName,
+            answers: {}, marked: [], visited: [0],
+            timeLeft: timeLimit * 60, currentIdx: 0,
+            isActive: true, selectedQuestions: normalized,
+            mode: 'live', modeValue: window.liveSessionId
         };
-
-        window.examState.visited[0] = true;
-        renderExamUI();
-        showView('engine');
-        startTimer();
-    } catch (err) {
-        console.error('Start Test Error:', err);
-        window.showToast(err.message, 'var(--danger)');
-        showView('dashboard');
+        window.liveQuestions = null; // Clear
+        saveProgress();
+        launchExam();
+        return;
     }
+
+    async function doStart() {
+        try {
+            const res = await Auth.fetchWithAuth('/api/test/start', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject,
+                    count: questionCount,
+                    timeLimit: timeLimit * 60,
+                    exam: currentExam
+                })
+            });
+            
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || `HTTP ${res.status} – Could not start test`);
+            }
+            
+            const data = await res.json();
+            const raw = data.questions || [];
+            if (!raw.length) throw new Error('Question bank is empty.');
+
+            const normalized = raw.map(q => ({
+                ...q,
+                question: L.q(q),
+                options: L.opt(q),
+                explanation: L.exp(q) || 'No explanation provided.'
+            }));
+
+            testState = {
+                sessionId: data.sessionId,
+                exam: currentExam, subject, testName,
+                answers: {}, marked: [], visited: [0],
+                timeLeft: timeLimit * 60, currentIdx: 0,
+                isActive: true, selectedQuestions: normalized,
+                mode: 'full', modeValue: null
+            };
+            saveProgress();
+            launchExam();
+        } catch (err) {
+            console.error('[NirnayPath] Test load error:', err);
+            showView('home');
+            window.showToast(err.message, 'var(--danger)');
+        }
+    }
+    doStart();
 }
 
+/* ============================================================ 
+   14. LAUNCH EXAM ENGINE
+   ============================================================ */
+function launchExam() {
+    const total = testState.selectedQuestions.length;
+    const subName = subjectNames[testState.subject] || testState.subject;
+
+    /* Header title */
+    const titleEl = document.getElementById('exam-title');
+    if (titleEl) titleEl.textContent = `${examNames[testState.exam] || testState.exam} · ${subName}`;
+
+    /* Update totals */
+    setEl('q-total', total);
+    setEl('progress-total', total);
+
+    /* Candidate name / avatar */
+    const user = localStorage.getItem('nirnaypath_user');
+    if (user) {
+        setEl('cand-name', user.split('@')[0]);
+        const av = document.getElementById('user-avatar');
+        if (av) av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(user.split('@')[0])}`;
+    }
+
+    renderPalette();
+    renderQuestion();
+    startTimer();
+    showView('engine');
+}
+
+/* ============================================================ 
+   15. RENDER QUESTION
+   ============================================================ */
+function renderQuestion(dir = 'next') {
+    const qData = testState.selectedQuestions[testState.currentIdx];
+    if (!qData) return;
+
+    /* Slide animation */
+    slideIn(dir);
+
+    /* Mark visited */
+    if (!testState.visited.includes(testState.currentIdx)) testState.visited.push(testState.currentIdx);
+
+    /* Q number */
+    setEl('q-no', testState.currentIdx + 1);
+
+    /* Question text */
+    const qText = L.q(qData) || qData.question || '(Question text unavailable)';
+    setEl('q-text', qText);
+
+    /* Options */
+    const opts = L.opt(qData) || qData.options || [];
+    const optContainer = document.getElementById('options-container');
+    if (!optContainer) return;
+    optContainer.innerHTML = '';
+
+    if (Array.isArray(opts) && opts.length) {
+        opts.forEach((text, idx) => {
+            const row = document.createElement('div');
+            row.className = 'option-row';
+            const saved = testState.answers[testState.currentIdx];
+            if (saved === idx) row.classList.add('selected');
+
+            const radio = document.createElement('input');
+            radio.type = 'radio'; radio.name = 'q_opt'; radio.value = idx;
+            radio.id = `opt_${idx}`;
+            if (saved === idx) radio.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = `opt_${idx}`;
+            label.textContent = text;
+
+            row.appendChild(radio);
+            row.appendChild(label);
+            row.addEventListener('click', () => {
+                document.querySelectorAll('.option-row').forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
+                radio.checked = true;
+            });
+            optContainer.appendChild(row);
+        });
+    } else {
+        optContainer.innerHTML = '<p style="color:var(--danger);padding:12px">Options could not be loaded for this question.</p>';
+    }
+
+    updateProgressBar();
+    updatePaletteClasses();
+    updateStats();
+}
+
+/* ============================================================ 
+   16. PROGRESS BAR
+   ============================================================ */
+function updateProgressBar() {
+    const total = testState.selectedQuestions.length;
+    const answered = Object.keys(testState.answers).length;
+    const pct = total ? ((answered / total) * 100) : 0;
+    const fill = document.getElementById('progress-fill');
+    if (fill) fill.style.width = `${pct}%`;
+    setEl('progress-text', answered);
+}
+
+/* ============================================================ 
+   17. PALETTE
+   ============================================================ */
+function renderPalette() {
+    const grid = document.getElementById('palette-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    testState.selectedQuestions.forEach((_, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `pal-${idx}`;
+        btn.className = 'p-btn';
+        btn.textContent = idx + 1;
+        btn.title = `Go to Q${idx + 1}`;
+        btn.addEventListener('click', () => {
+            saveCurrentAnswer();
+            const dir = idx > testState.currentIdx ? 'next' : 'prev';
+            testState.currentIdx = idx;
+            renderQuestion(dir);
+            saveProgress();
+        });
+        grid.appendChild(btn);
+    });
+    updatePaletteClasses();
+}
+
+function updatePaletteClasses() {
+    testState.selectedQuestions.forEach((_, idx) => {
+        const btn = document.getElementById(`pal-${idx}`);
+        if (!btn) return;
+        const visited = testState.visited.includes(idx);
+        const answered = testState.answers[idx] !== undefined;
+        const marked = testState.marked.includes(idx);
+        btn.className = 'p-btn';
+        btn.innerHTML = idx + 1;
+
+        if (!visited) btn.classList.add('not-visited');
+        else if (answered && marked) { btn.classList.add('answered-marked'); btn.innerHTML = `${idx + 1}<div class="green-dot"></div>`; }
+        else if (answered) btn.classList.add('answered');
+        else if (marked) btn.classList.add('marked');
+        else btn.classList.add('not-answered');
+        if (idx === testState.currentIdx) btn.classList.add('current');
+    });
+}
+
+function updateStats() {
+    let answered = 0, notAnswered = 0, marked = 0, ansMarked = 0, notVisited = 0;
+    testState.selectedQuestions.forEach((_, i) => {
+        if (!testState.visited.includes(i)) notVisited++;
+        else if (testState.answers[i] !== undefined) {
+            if (testState.marked.includes(i)) ansMarked++; else answered++;
+        } else {
+            if (testState.marked.includes(i)) marked++; else notAnswered++;
+        }
+    });
+    setEl('c-answered', answered);
+    setEl('c-not-answered', notAnswered);
+    setEl('c-marked', marked);
+    setEl('c-answered-marked', ansMarked);
+    setEl('c-not-visited', notVisited);
+}
+
+function saveCurrentAnswer() {
+    const sel = document.querySelector('input[name="q_opt"]:checked');
+    if (sel) testState.answers[testState.currentIdx] = parseInt(sel.value);
+}
+
+/* ============================================================ 
+   18. EXAM CONTROLS (bound once after DOMContentLoaded)
+   ============================================================ */
+function bindExamControls() {
+    /* Save & Next */
+    on('btn-next', 'click', () => {
+        saveCurrentAnswer();
+        testState.marked = testState.marked.filter(x => x !== testState.currentIdx);
+        if (testState.currentIdx < testState.selectedQuestions.length - 1) testState.currentIdx++;
+        saveProgress(); renderQuestion('next');
+    });
+
+    /* Previous */
+    on('btn-prev', 'click', () => {
+        saveCurrentAnswer();
+        if (testState.currentIdx > 0) testState.currentIdx--;
+        saveProgress(); renderQuestion('prev');
+    });
+
+    /* Mark for Review & Next */
+    on('btn-mark', 'click', () => {
+        saveCurrentAnswer();
+        if (!testState.marked.includes(testState.currentIdx)) testState.marked.push(testState.currentIdx);
+        if (testState.currentIdx < testState.selectedQuestions.length - 1) testState.currentIdx++;
+        saveProgress(); renderQuestion('next');
+    });
+
+    /* Clear Response */
+    on('btn-clear', 'click', () => {
+        delete testState.answers[testState.currentIdx];
+        document.querySelectorAll('input[name="q_opt"]').forEach(r => r.checked = false);
+        document.querySelectorAll('.option-row').forEach(r => r.classList.remove('selected'));
+        saveProgress(); updateProgressBar(); updatePaletteClasses(); updateStats();
+    });
+
+    /* Submit (sidebar) */
+    on('btn-submit', 'click', () => confirmSubmit());
+
+    /* Submit (header) */
+    on('btn-header-submit', 'click', () => confirmSubmit());
+
+    /* Review & Home */
+    on('btn-review', 'click', () => {
+        const rc = document.getElementById('review-container');
+        if (rc) rc.style.display = rc.style.display === 'none' ? 'block' : 'none';
+    });
+    on('btn-home', 'click', () => {
+        testState = { answers: {}, marked: [], visited: [], isActive: false, selectedQuestions: [] };
+        localStorage.removeItem('mockTestState');
+        showView('dashboard');
+    });
+}
+
+function confirmSubmit() {
+    const un = testState.selectedQuestions.length - Object.keys(testState.answers).length;
+    const msg = un > 0
+        ? `You have ${un} unanswered question(s).\n\nAre you sure you want to submit?`
+        : 'Submit this test now?';
+    if (confirm(msg)) submitTest();
+}
+
+/* Wire static trending test buttons in HTML */
 function initTrendingTestButtons() {
     document.addEventListener('click', e => {
         const btn = e.target.closest('.trend-start-btn');
         if (!btn) return;
         
         e.stopPropagation();
+        const exam = btn.dataset.exam;
         const subject = btn.dataset.subject;
-        const count = parseInt(btn.dataset.questions || '100');
-        const time = parseInt(btn.dataset.time || '90');
-        const name = btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test';
-        
-        startTest(subject, count, time, name);
+        const qCount = parseInt(btn.dataset.questions || '100');
+        const tLimit = parseInt(btn.dataset.time || '90');
+        if (exam) currentExam = exam;
+        if (subject) currentSubject = subject;
+        startTest(`${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, subject, qCount, tLimit);
     });
 }
 
-function renderExamUI() {
-    const engine = document.getElementById('exam-engine');
-    engine.className = 'view-section exam-engine-active';
-    engine.innerHTML = `
-        <div class="exam-header">
-            <h3 id="exam-title">${window.examState.testName}</h3>
-            <div class="timer-box">
-                <i class="fas fa-hourglass-half"></i>
-                <span class="timer-label">Time Left:</span>
-                <span class="timer-val" id="timer-display">00:00</span>
-            </div>
-            <button class="exam-header-submit-btn" onclick="confirmSubmit()">
-                <i class="fas fa-paper-plane"></i> Submit Test
-            </button>
-        </div>
-        
-        <div class="exam-body" style="flex:1; overflow:hidden;">
-            <div class="question-panel" style="flex:1; padding:20px; overflow-y:auto;">
-                <div class="question-area" id="question-area">
-                    <!-- Question rendered here -->
-                </div>
-                <div class="action-buttons" style="margin-top:30px; display:flex; gap:15px; flex-wrap:wrap;">
-                    <button class="btn-prev" onclick="moveQuestion(-1)" id="btn-prev"><i class="fa-solid fa-chevron-left"></i> Previous</button>
-                    <button class="btn-save" onclick="moveQuestion(1)" id="btn-next">Save & Next <i class="fa-solid fa-chevron-right"></i></button>
-                    <button class="btn-mark" onclick="markForReview()"><i class="fa-regular fa-flag"></i> Mark for Review</button>
-                    <button class="btn-clear" onclick="clearResponse()"><i class="fa-solid fa-eraser"></i> Clear</button>
-                </div>
-            </div>
-            
-            <div class="palette-panel" style="width:300px; border-left:1px solid var(--border); padding:20px; background:var(--bg-tertiary); overflow-y:auto; height:100%;">
-                <div class="palette-header" style="font-weight:700; margin-bottom:15px; color:var(--primary);">Question Palette</div>
-                <div class="palette-grid" id="palette-grid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
-                    <!-- Palette buttons here -->
-                </div>
-                <div class="palette-legend" style="margin-top:25px; font-size:0.85rem; display:grid; gap:8px;">
-                    <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Answered</div>
-                    <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Marked</div>
-                    <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px; height:12px; background:#3b82f6; border-radius:2px;"></span> Not Answered</div>
-                    <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px; height:12px; background:var(--gray-300); border-radius:2px;"></span> Not Visited</div>
-                </div>
-            </div>
-        </div>
-    `;
-    renderQuestion();
-    renderPalette();
-}
-
-function renderQuestion() {
-    const qArea = document.getElementById('question-area');
-    const q = window.examState.questions[window.examState.currentIdx];
-    const userAns = window.examState.userAnswers[window.examState.currentIdx];
-
-    const qText = L.q(q) || q.question;
-    const options = L.opt(q) || q.options || [];
-
-    qArea.innerHTML = `
-        <div class="q-meta" style="margin-bottom:15px; font-weight:600; color:var(--text-secondary);">
-            Question <span id="q-no">${window.examState.currentIdx + 1}</span> of ${window.examState.questions.length}
-        </div>
-        <div class="question-text" style="font-size:1.2rem; font-weight:500; margin-bottom:25px; line-height:1.5;">${qText}</div>
-        <div class="options-container" id="options-container" style="display:grid; gap:12px;">
-            ${options.map((opt, i) => `
-                <div class="option-row ${userAns === i ? 'selected' : ''}" onclick="selectOption(${i})" style="padding:15px; border:1px solid var(--border); border-radius:var(--r-md); cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:12px; background:var(--card-bg);">
-                    <input type="radio" name="q-option" value="${i}" ${userAns === i ? 'checked' : ''} style="width:18px; height:18px; cursor:pointer;">
-                    <span style="font-size:1rem;">${opt}</span>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-function renderPalette() {
-    const grid = document.getElementById('palette-grid');
-    if (!grid) return;
-    grid.innerHTML = window.examState.questions.map((_, i) => {
-        let bgColor = 'var(--gray-300)';
-        let color = 'var(--text-main)';
-        
-        if (window.examState.userAnswers[i] !== null) {
-            bgColor = '#10b981';
-            color = '#fff';
-        } else if (window.examState.marked[i]) {
-            bgColor = '#f59e0b';
-            color = '#fff';
-        } else if (window.examState.visited[i]) {
-            bgColor = '#3b82f6';
-            color = '#fff';
-        }
-
-        const border = window.examState.currentIdx === i ? '2px solid var(--primary)' : '1px solid transparent';
-        const shadow = window.examState.currentIdx === i ? '0 0 10px rgba(79, 70, 229, 0.3)' : 'none';
-
-        return `<button onclick="jumpToQuestion(${i})" style="width:100%; aspect-ratio:1; border-radius:4px; border:${border}; background:${bgColor}; color:${color}; font-weight:700; cursor:pointer; font-size:0.85rem; box-shadow:${shadow}; display:flex; align-items:center; justify-content:center; transition:transform 0.1s;">${i + 1}</button>`;
-    }).join('');
-}
-
-function selectOption(idx) {
-    window.examState.userAnswers[window.examState.currentIdx] = idx;
-    renderQuestion();
-    renderPalette();
-}
-
-function clearResponse() {
-    window.examState.userAnswers[window.examState.currentIdx] = null;
-    renderQuestion();
-    renderPalette();
-}
-
-function markForReview() {
-    window.examState.marked[window.examState.currentIdx] = !window.examState.marked[window.examState.currentIdx];
-    renderPalette();
-}
-
-function moveQuestion(step) {
-    const newIdx = window.examState.currentIdx + step;
-    if (newIdx >= 0 && newIdx < window.examState.questions.length) {
-        window.examState.currentIdx = newIdx;
-        window.examState.visited[newIdx] = true;
-        renderQuestion();
-        renderPalette();
-    }
-}
-
-function jumpToQuestion(idx) {
-    window.examState.currentIdx = idx;
-    window.examState.visited[idx] = true;
-    renderQuestion();
-    renderPalette();
-}
-
+/* ============================================================ 
+   19. TIMER
+   ============================================================ */
 function startTimer() {
-    if (window.examState.timerInterval) clearInterval(window.examState.timerInterval);
-    
-    window.examState.timerInterval = setInterval(() => {
-        if (window.examState.timeLeft <= 0) {
-            clearInterval(window.examState.timerInterval);
-            submitTest();
-            return;
-        }
-        window.examState.timeLeft--;
-        const mins = Math.floor(window.examState.timeLeft / 60).toString().padStart(2, '0');
-        const secs = (window.examState.timeLeft % 60).toString().padStart(2, '0');
-        const display = document.getElementById('timer-display');
-        if (display) {
-            display.textContent = `${mins}:${secs}`;
-            if (window.examState.timeLeft < 300) display.classList.add('warning');
-        }
+    clearInterval(timerInterval);
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        if (testState.timeLeft <= 0) { clearInterval(timerInterval); submitTest(); return; }
+        testState.timeLeft--;
+        updateTimerDisplay();
+        const el = document.getElementById('countdown');
+        if (el) el.classList.toggle('warning', testState.timeLeft <= 300);
+        if (testState.timeLeft % 30 === 0) saveProgress();
     }, 1000);
 }
 
-function confirmSubmit() {
-    const un = window.examState.questions.length - window.examState.userAnswers.filter(a => a !== null).length;
-    const msg = un > 0 
-        ? `You have ${un} unanswered questions. Are you sure you want to submit?`
-        : 'Are you sure you want to submit the test?';
-    if (confirm(msg)) {
-        submitTest();
-    }
+function updateTimerDisplay() {
+    const m = Math.floor(testState.timeLeft / 60).toString().padStart(2, '0');
+    const s = (testState.timeLeft % 60).toString().padStart(2, '0');
+    setEl('countdown', `${m}:${s}`);
 }
 
-async function submitTest() {
-    try {
-        clearInterval(window.examState.timerInterval);
-        showView('loading');
+/* ============================================================ 
+   20. SUBMIT & RESULT
+   ============================================================ */
+function submitTest() {
+    clearInterval(timerInterval);
+    saveCurrentAnswer();
+    testState.isActive = false;
+    saveProgress();
 
-        const submissionData = {
-            examId: window.examState.examId,
-            subject: window.examState.subject,
-            exam: currentExam,
-            testName: window.examState.testName,
-            answers: window.examState.questions.map((q, i) => ({
-                questionId: q._id,
-                selected: window.examState.userAnswers[i]
-            }))
-        };
+    /* Robust Answer Comparison Helper */
+    const normalize = s => String(s).trim().toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '');
 
-        const res = await Auth.fetchWithAuth('/api/exam/submit', {
+    const resolveFullText = (val, opts) => {
+        if (val === undefined || val === null) return '';
+        let idx = parseInt(val);
+        if (isNaN(idx)) {
+            const s = String(val).trim().toUpperCase();
+            if (s === 'A') idx = 0;
+            else if (s === 'B') idx = 1;
+            else if (s === 'C') idx = 2;
+            else if (s === 'D') idx = 3;
+        }
+        return opts[idx] ? normalize(opts[idx]) : normalize(val);
+    };
+
+    const isCorrect = (user, correct, opts) => {
+        if (user === undefined || user === null) return false;
+        const uText = resolveFullText(user, opts);
+        const cText = resolveFullText(correct, opts);
+        return uText !== '' && uText === cText;
+    };
+
+    let correct = 0, attempted = 0;
+    testState.selectedQuestions.forEach((q, i) => {
+        if (testState.answers[i] !== undefined) {
+            attempted++;
+            const opts = L.opt(q) || q.options || [];
+            if (isCorrect(testState.answers[i], q.correctAnswer, opts)) correct++;
+        }
+    });
+    const total = testState.selectedQuestions.length;
+    const incorrect = attempted - correct;
+    const unattempted = total - attempted;
+    const pct = total ? ((correct / total) * 100).toFixed(2) : '0.00';
+    const accuracy = attempted ? ((correct / attempted) * 100).toFixed(1) : '0.0';
+
+    setEl('r-score', correct);
+    setEl('r-percent', pct);
+    setEl('r-correct', correct);
+    setEl('r-incorrect', incorrect);
+    setEl('r-unattempted', unattempted);
+    setEl('r-attempted', attempted);
+    setEl('r-accuracy', accuracy + '%');
+    setEl('r-total', total);
+
+    buildReview();
+    localStorage.removeItem('mockTestState');
+    /* ✅ Fully switch to result — hides exam engine completely */
+    showView('result');
+
+    /* Send results to backend for persistent storage */
+    const resultsData = {
+        sessionId: testState.sessionId,
+        exam: testState.exam,
+        subject: testState.subject,
+        testName: testState.testName,
+        score: correct,
+        totalQuestions: total,
+        correct,
+        incorrect,
+        unattempted,
+        accuracy: parseFloat(accuracy),
+        answers: testState.selectedQuestions.map((q, i) => ({
+            questionId: q._id || q.id || `q-${i}`,
+            userAnswer: testState.answers[i] !== undefined ? String(testState.answers[i]) : null,
+            correctAnswer: String(q.correctAnswer),
+            isCorrect: isCorrect(testState.answers[i], q.correctAnswer, L.opt(q) || q.options || []),
+            topic: q.topic || 'General'
+        })),
+        mode: testState.mode || 'full',
+        modeValue: testState.modeValue || null
+    };
+
+    if (testState.isLive) {
+        fetch(`/api/live/submit/${testState.sessionId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(submissionData)
-        });
-
-        if (!res.ok) throw new Error('Submission failed');
-        const result = await res.json();
-        showResult(result);
-    } catch (err) {
-        console.error('Submit Error:', err);
-        window.showToast('Submission error. Please check your connection.', 'var(--danger)');
-        showView('engine');
-        startTimer();
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Auth.getToken()}`
+            },
+            body: JSON.stringify({ answers: testState.answers })
+        })
+        .then(res => res.json())
+        .then(data => console.log('Live Test submitted:', data))
+        .catch(err => console.error('Error submitting live test:', err));
+        return;
     }
+
+    Auth.fetchWithAuth('/api/test/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resultsData)
+    })
+    .then(res => res.json())
+    .then(data => console.log('Test submitted to server:', data))
+    .catch(err => console.error('Error submitting test to server:', err));
 }
 
-function showResult(data) {
-    const resultScreen = document.getElementById('result-screen');
-    resultScreen.innerHTML = `
-        <div class="result-wrapper" style="max-width:800px; width:100%; padding:40px; background:var(--card-bg); border-radius:var(--r-xl); box-shadow:var(--shadow-premium); text-align:center;">
-            <div class="result-hero" style="margin-bottom:30px;">
-                <div style="font-size:4rem; color:var(--success); margin-bottom:15px;"><i class="fas fa-check-circle"></i></div>
-                <h2 style="font-size:2rem; font-weight:800; color:var(--text-main);">Test Completed!</h2>
-                <p style="color:var(--text-secondary);">${window.examState.testName}</p>
-            </div>
-            
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:20px; margin-bottom:40px;">
-                <div style="padding:20px; background:var(--bg-tertiary); border-radius:var(--r-lg);">
-                    <div style="font-size:1.8rem; font-weight:800; color:var(--primary);">${data.score}/${data.total}</div>
-                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Score</div>
-                </div>
-                <div style="padding:20px; background:var(--bg-tertiary); border-radius:var(--r-lg);">
-                    <div style="font-size:1.8rem; font-weight:800; color:var(--secondary);">${data.accuracy}%</div>
-                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Accuracy</div>
-                </div>
-                <div style="padding:20px; background:var(--bg-tertiary); border-radius:var(--r-lg);">
-                    <div style="font-size:1.8rem; font-weight:800; color:var(--success);">${data.correct}</div>
-                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Correct</div>
-                </div>
-                <div style="padding:20px; background:var(--bg-tertiary); border-radius:var(--r-lg);">
-                    <div style="font-size:1.8rem; font-weight:800; color:var(--danger);">${data.incorrect}</div>
-                    <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Incorrect</div>
-                </div>
-            </div>
-            
-            <div style="display:flex; justify-content:center; gap:20px;">
-                <button class="btn-primary-lg" onclick="location.reload()" style="min-width:200px;">Back to Dashboard</button>
-            </div>
+function buildReview() {
+    const rc = document.getElementById('review-container');
+    if (!rc) return;
+
+    rc.innerHTML = `
+        <div class="review-header-box">
+            <h3><i class="fas fa-clipboard-check"></i> Performance Review</h3>
+            <p>Review each question to understand your mistakes and learn from the explanations.</p>
         </div>
     `;
-    showView('result');
+    rc.style.display = 'block';
+
+    /* Robust Answer Comparison & Text Resolution for Review */
+    const normalize = s => String(s).trim().toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+    const resolveDisplayLabel = (val, opts) => {
+        if (val === undefined || val === null) return '<span class="status-empty">Not Attempted</span>';
+        let idx = parseInt(val);
+        if (isNaN(idx)) {
+            const s = String(val).trim().toUpperCase();
+            if (s === 'A') idx = 0;
+            else if (s === 'B') idx = 1;
+            else if (s === 'C') idx = 2;
+            else if (s === 'D') idx = 3;
+        }
+        return opts[idx] || String(val);
+    };
+
+    testState.selectedQuestions.forEach((q, i) => {
+        const opts = L.opt(q) || q.options || [];
+        const userAnsId = testState.answers[i];
+        const corrAnsRaw = L.ans(q);
+
+        const userText = resolveDisplayLabel(userAnsId, opts);
+        const correctText = resolveDisplayLabel(corrAnsRaw, opts);
+
+        // Final Comparison for status badge
+        const uNorm = userAnsId !== undefined ? normalize(userText) : '';
+        const cNorm = normalize(correctText);
+        const isMatch = uNorm !== '' && uNorm === cNorm;
+
+        const card = document.createElement('div');
+        card.className = `review-card ${isMatch ? 'correct' : (userAnsId === undefined ? 'skipped' : 'incorrect')}`;
+
+        card.innerHTML = `
+            <div class="review-q-meta">
+                <span class="q-badge">Question ${i + 1}</span>
+                <span class="status-badge">${isMatch ? '✅ Correct' : (userAnsId === undefined ? '⚪ Skipped' : '❌ Incorrect')}</span>
+            </div>
+            <div class="review-q-text">${L.q(q) || q.question}</div>
+            <div class="review-choices">
+                <div class="choice-row ${isMatch ? 'user-correct' : (userAnsId === undefined ? '' : 'user-wrong')}">
+                    <strong>Your Answer:</strong> <span>${userText}</span>
+                </div>
+                ${!isMatch ? `
+                <div class="choice-row system-correct">
+                    <strong>Correct Answer:</strong> <span>${correctText}</span>
+                </div>` : ''}
+            </div>
+            ${q.explanation ? `
+            <div class="review-explanation">
+                <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
+                <p>${q.explanation}</p>
+            </div>` : ''}
+            <div class="review-discussion-link" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);">
+                <button class="discussion-toggle-btn" data-qid="${q.id || q._id || i}" style="background:none;border:none;cursor:pointer;color:var(--primary,#4F46E5);font-size:0.88rem;font-weight:600;padding:0;display:inline-flex;align-items:center;gap:6px;">
+                    💬 Discussion
+                </button>
+            </div>
+        `;
+        rc.appendChild(card);
+    });
 }
-
-function bindExamControls() {}
-function checkExistingTestSession() {}
-
-
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    21. SESSION PERSISTENCE

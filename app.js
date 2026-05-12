@@ -21,9 +21,10 @@ if (!process.env.MONGO_URI) {
     process.exit(1);
 }
 
+const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-const examRoutes = require('./routes/exam');
+const testRoutes = require('./routes/test');
 const leaderboardRoutes = require('./routes/leaderboard');
 const drillRoutes = require('./routes/drills');
 const sectionRoutes = require('./routes/section');
@@ -166,9 +167,8 @@ app.use(express.static(publicPath, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/exam', examRoutes);
-// console.log('[BOOT] testRoutes mounted');
-// app.use('/api/test', testRoutes); // Removed
+console.log('[BOOT] testRoutes mounted');
+app.use('/api/test', testRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/drill', drillRoutes);
 app.use('/api/section', sectionRoutes);
@@ -179,7 +179,7 @@ app.use('/api/live', liveRoutes);
 app.use('/api/admin/live-sessions', liveAdminRoutes);
 app.use('/api/discussion', discussionRoutes);
 app.use('/api/chat', chatRoutes);
-// app.use('/api', apiRoutes); // Removed
+app.use('/api', apiRoutes);
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/admin.html'));
 });
