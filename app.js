@@ -167,7 +167,7 @@ app.use(express.static(publicPath, {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/test', testRoutes);
+console.log('[DEBUG] Mounting Test Routes at /api/test');\napp.use('/api/test', testRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/drill', drillRoutes);
 app.use('/api/section', sectionRoutes);

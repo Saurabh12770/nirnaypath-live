@@ -11,12 +11,21 @@ const TestSession = require('../models/TestSession');
 const Question = require('../models/Question');
 
 /**
+ * GET /api/test/health
+ * Diagnostic endpoint to verify test router is active.
+ */
+router.get('/health', (req, res) => {
+    res.json({ status: 'active', timestamp: new Date() });
+});
+
+/**
  * POST /api/test/start
  * Initializes a server-side test session and returns randomized questions.
  */
 router.post('/start', auth, async (req, res) => {
     try {
         const { subject, count, timeLimit, exam } = req.body;
+        console.log(`[TestStart] Request: subject=${subject}, count=${count}, exam=${exam}, user=${req.user?._id}`);
         
         if (!subject) {
             return res.status(400).json({ error: 'Subject is required' });
@@ -25,18 +34,22 @@ router.post('/start', auth, async (req, res) => {
         const qCount = Math.min(parseInt(count) || 50, 200);
 
         // 1. Fetch Randomized Questions
-        // Robust matching for subject or subjectId
-        const matchQuery = subject.toLowerCase() === 'all' 
+        const subLower = subject.toLowerCase().trim();
+        const matchQuery = subLower === 'all' 
             ? {} 
-            : { $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] };
+            : { $or: [{ subject: subLower }, { subjectId: subLower }] };
+
+        console.log(`[TestStart] Query: ${JSON.stringify(matchQuery)}`);
 
         const questions = await Question.aggregate([
             { $match: matchQuery },
             { $sample: { size: qCount } }
         ]);
 
+        console.log(`[TestStart] Found: ${questions.length} questions`);
+
         if (!questions || questions.length === 0) {
-            return res.status(404).json({ error: 'No questions found for this subject' });
+            return res.status(404).json({ error: `No questions found for subject: ${subject}` });
         }
 
         // 2. Create Session
