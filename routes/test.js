@@ -17,11 +17,21 @@ const Question = require('../models/Question');
 router.post('/start', auth, async (req, res) => {
     try {
         const { subject, count, timeLimit, exam } = req.body;
+        
+        if (!subject) {
+            return res.status(400).json({ error: 'Subject is required' });
+        }
+
         const qCount = Math.min(parseInt(count) || 50, 200);
 
         // 1. Fetch Randomized Questions
+        // Robust matching for subject or subjectId
+        const matchQuery = subject.toLowerCase() === 'all' 
+            ? {} 
+            : { $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] };
+
         const questions = await Question.aggregate([
-            { $match: { $or: [{ subject: subject.toLowerCase() }, { subjectId: subject.toLowerCase() }] } },
+            { $match: matchQuery },
             { $sample: { size: qCount } }
         ]);
 
@@ -47,11 +57,12 @@ router.post('/start', auth, async (req, res) => {
         res.status(201).json({
             sessionId,
             questions,
-            startTime: session.startTime
+            startTime: session.startTime,
+            timeLimit: session.timeLimit
         });
     } catch (error) {
         console.error('Test Start Error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to start test session' });
     }
 });
 

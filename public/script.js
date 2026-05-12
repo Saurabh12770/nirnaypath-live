@@ -558,7 +558,7 @@ function setFilter(f) {
 /* ============================================================ 
    13. START TEST
    ============================================================ */
-function startTest(subject, testName, questionCount, timeLimit) {
+function startTest(testName, subject, questionCount, timeLimit) {
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
 
