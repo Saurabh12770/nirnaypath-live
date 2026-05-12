@@ -93,12 +93,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://ui-avatars.com", "https://*.ui-avatars.com", "https://i.pravatar.cc", "https://*.placeholder.com", "https://razorpay.com", "https://*.razorpay.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://*.ui-avatars.com"],
+            scriptSrc: ["'self'", "https://checkout.razorpay.com", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
+            connectSrc: ["'self'", "https://api.razorpay.com", "https://ui-avatars.com"],
             frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
             upgradeInsecureRequests: [],
         },
     },

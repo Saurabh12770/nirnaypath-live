@@ -17,10 +17,47 @@
     </style>
 </head>
 <body>
+    <!-- Standard Header -->
+    <header class="sticky-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-compass"></i>
+            </div>
+            <div class="logo-text">
+                <span class="logo-main">NirnayPath</span>
+                <span class="logo-sub">Mock Test Platform</span>
+            </div>
+        </div>
+        <nav id="desktopNav">
+            <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About Us</a>
+        </nav>
+        <div class="header-right">
+            <button id="themeToggle" aria-label="Dark mode" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- New Side Navigation Panel -->
+    <div id="mobileNavPanel" class="mobile-nav-panel">
+        <div class="panel-header">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-compass"></i></div>
+                <div class="logo-text"><span class="logo-main">NirnayPath</span></div>
+            </div>
+            <button id="closePanelBtn" class="close-panel-btn">&times;</button>
+        </div>
+        <nav class="panel-nav">
+            <a href="index.html" class="panel-link"><i class="fas fa-home"></i> Home</a>
+            <a href="about.html" class="panel-link"><i class="fas fa-info-circle"></i> About Us</a>
+        </nav>
+    </div>
+    <div id="panelOverlay" class="panel-overlay"></div>
+
     <div class="leaderboard-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 30px;">
             <h1 class="section-title">🏆 Live Test <span class="text-primary">Leaderboard</span></h1>
-            <a href="index.html" class="secondary-btn" style="text-decoration: none;"><i class="fas fa-home"></i> Home</a>
         </div>
 
         <div id="loading" class="text-center">Loading rankings...</div>

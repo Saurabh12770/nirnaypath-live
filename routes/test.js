@@ -147,8 +147,12 @@ router.post('/start', auth, async (req, res) => {
             const doc = q._doc || q;
             return {
                 id: doc._id || doc.id,
-                text: doc.text || doc.question_en,
-                options: doc.options || doc.options_en,
+                question_en: doc.question_en || doc.text,
+                question_hi: doc.question_hi,
+                options_en: doc.options_en || doc.options,
+                options_hi: doc.options_hi,
+                explanation_en: doc.explanation_en || doc.explanation,
+                explanation_hi: doc.explanation_hi,
                 subject: doc.subject || doc.subjectId,
                 correctAnswer: doc.correctAnswer !== undefined ? doc.correctAnswer : doc.answer
             };
@@ -247,8 +251,12 @@ router.post('/submit', auth, async (req, res) => {
 
             return {
                 questionId: qId,
+                question_en: question?.question_en || question?.text || question?.question,
+                question_hi: question?.question_hi,
                 selected: userChoice,
                 correct: correctOption,
+                explanation_en: question?.explanation_en || question?.explanation,
+                explanation_hi: question?.explanation_hi,
                 isCorrect,
                 topic,
                 topicId

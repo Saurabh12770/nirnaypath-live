@@ -34,39 +34,54 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch Event - Cache-first for static, Network-first for API
+// Fetch Event - Hardened to prevent undefined returns
 self.addEventListener('fetch', event => {
-    // Skip non-GET requests
-    if (event.request.method !== 'GET') return;
-
-    const url = new URL(event.request.url);
-
-    // API Caching Strategy (Network First)
-    if (url.pathname.startsWith('/api/')) {
-        // Skip caching for auth and test start/submit to avoid session issues
-        if (url.pathname.includes('/auth/') || url.pathname.includes('/test/')) {
-            return; // Fallback to network naturally
-        }
-
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    const clonedResponse = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, clonedResponse);
-                    });
-                    return response;
-                })
-                .catch(() => caches.match(event.request))
-        );
-        return;
-    }
-
-    // Static Assets Strategy (Cache First)
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            return cachedResponse || fetch(event.request);
-        })
+        (async () => {
+            try {
+                // Cache-First for static, Network-First for API
+                const url = new URL(event.request.url);
+                const isApi = url.pathname.startsWith('/api/');
+
+                if (isApi) {
+                    try {
+                        const response = await fetch(event.request);
+                        if (response && response.status === 200) {
+                            const clone = response.clone();
+                            const cache = await caches.open(CACHE_NAME);
+                            cache.put(event.request, clone);
+                            return response.clone(); // Requirement: On success return clone
+                        }
+                        return response;
+                    } catch (err) {
+                        const cached = await caches.match(event.request);
+                        return cached ? cached.clone() : new Response("offline", { status: 503 }); // Requirement: On failure return 503
+                    }
+                } else {
+                    const cachedResponse = await caches.match(event.request);
+                    if (cachedResponse) return cachedResponse.clone();
+
+                    try {
+                        const response = await fetch(event.request);
+                        if (response && response.status === 200) {
+                            const clone = response.clone();
+                            const cache = await caches.open(CACHE_NAME);
+                            cache.put(event.request, clone);
+                            return response.clone();
+                        }
+                        return response;
+                    } catch (err) {
+                        if (event.request.mode === 'navigate') {
+                            const root = await caches.match('/index.html');
+                            if (root) return root.clone();
+                        }
+                        return new Response("offline", { status: 503 });
+                    }
+                }
+            } catch (fatalErr) {
+                return new Response("offline", { status: 503 });
+            }
+        })()
     );
 });
 

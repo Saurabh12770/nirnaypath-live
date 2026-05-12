@@ -121,6 +121,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Try to resume an active test session */
     checkExistingTestSession();
+
+    /* Phase 3: Global Logo Click Fix */
+    document.addEventListener("click", function(e){
+        if(e.target.closest(".logo")){
+            window.location.href = "index.html";
+        }
+    });
+
+    /* Phase 6: Global Image Error Fallback (e.g., UI-Avatars) */
+    document.addEventListener("error", function(e) {
+        if (e.target.tagName === "IMG") {
+            const initials = e.target.alt || "NP";
+            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random`;
+            e.target.onerror = null; // Prevent infinite loops
+        }
+    }, true);
+
+    /* Phase 6: CDN Fallback Handling (FontAwesome) */
+    setTimeout(() => {
+        const faTest = document.createElement('span');
+        faTest.className = 'fa';
+        faTest.style.display = 'none';
+        document.body.appendChild(faTest);
+        if (window.getComputedStyle(faTest).fontFamily !== 'FontAwesome' && 
+            window.getComputedStyle(faTest).fontFamily.indexOf('Font Awesome') === -1) {
+            console.warn('FontAwesome CDN failed. Using local icon fallbacks.');
+            document.body.classList.add('cdn-failed');
+        }
+        document.body.removeChild(faTest);
+    }, 2000);
 });
 
 /* ============================================================ 
@@ -254,10 +284,10 @@ const TopicDrills = {
 
             const normalized = data.questions.map(q => ({
                 ...q,
-                question: L.q(q),
-                options: L.opt(q),
-                explanation: L.exp(q) || 'No explanation provided.'
+                id: q._id || q.id
             }));
+            
+            window.currentQuestionSet = normalized;
 
             testState = {
                 sessionId: data.sessionId,
@@ -337,10 +367,10 @@ const SectionalTests = {
 
             const normalized = data.questions.map(q => ({
                 ...q,
-                question: L.q(q),
-                options: L.opt(q),
-                explanation: L.exp(q) || 'No explanation provided.'
+                id: q._id || q.id
             }));
+            
+            window.currentQuestionSet = normalized;
 
             testState = {
                 sessionId: data.sessionId,
@@ -609,10 +639,11 @@ function startTest(subject, testName, questionCount, timeLimit) {
 
             const normalized = raw.map(q => ({
                 ...q,
-                question: L.q(q),
-                options: L.opt(q),
-                explanation: L.exp(q) || 'No explanation provided.'
+                id: q._id || q.id // Ensure consistent ID
             }));
+            
+            // Phase 4: Store globally for bilingual toggle
+            window.currentQuestionSet = normalized;
 
             testState = {
                 sessionId: data.sessionId,
@@ -1063,7 +1094,7 @@ function buildReview() {
                 <span class="q-badge">Question ${i + 1}</span>
                 <span class="status-badge">${isMatch ? '✅ Correct' : (userAnsId === undefined ? '⚪ Skipped' : '❌ Incorrect')}</span>
             </div>
-            <div class="review-q-text">${L.q(q) || q.question}</div>
+            <div class="review-q-text">${L.q(q) || q.question_en || q.text}</div>
             <div class="review-choices">
                 <div class="choice-row ${isMatch ? 'user-correct' : (userAnsId === undefined ? '' : 'user-wrong')}">
                     <strong>Your Answer:</strong> <span>${userText}</span>
@@ -1073,10 +1104,10 @@ function buildReview() {
                     <strong>Correct Answer:</strong> <span>${correctText}</span>
                 </div>` : ''}
             </div>
-            ${q.explanation ? `
+            ${(L.exp(q)) ? `
             <div class="review-explanation">
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
-                <p>${q.explanation}</p>
+                <p>${L.exp(q)}</p>
             </div>` : ''}
         `;
         rc.appendChild(card);

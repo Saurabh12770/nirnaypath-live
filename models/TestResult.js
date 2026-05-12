@@ -67,8 +67,12 @@ const testResultSchema = new mongoose.Schema({
     },
     answers: [{
         questionId: String,
-        selected: String,
-        correct: String,
+        question: String,
+        question_hi: String,
+        selected: Number,
+        correct: Number,
+        explanation_en: String,
+        explanation_hi: String,
         isCorrect: Boolean,
         topic: String,
         topicId: String
