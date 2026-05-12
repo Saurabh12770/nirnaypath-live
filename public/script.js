@@ -526,7 +526,7 @@ function renderTestGrid() {
             <span class="test-difficulty ${diffClass}"><i class="fas fa-signal"></i> ${diff}</span>
             <button class="test-start-btn"><i class="fas fa-play-circle"></i> Start Test</button>
           </div>`;
-        const go = () => startTest(`Mock Test ${i}`, currentSubject, q, t);
+        const go = () => startTest(currentSubject, `Mock Test ${i}`, q, t);
         card.querySelector('.test-start-btn').addEventListener('click', e => { e.stopPropagation(); go(); });
         card.addEventListener('click', go);
         grid.appendChild(card);
@@ -877,7 +877,7 @@ function initTrendingTestButtons() {
         const tLimit = parseInt(btn.dataset.time || '90');
         if (exam) currentExam = exam;
         if (subject) currentSubject = subject;
-        startTest(`${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, subject, qCount, tLimit);
+        startTest(subject, `${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, qCount, tLimit);
     });
 }
 
@@ -1113,7 +1113,9 @@ function enterFullscreen() {
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
 }
 function exitFullscreen() {
-    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
+    }
 }
 
 /* Fullscreen exit warning */
