@@ -29,12 +29,18 @@ router.post('/start', auth, async (req, res) => {
         const subLower = subject.toLowerCase().trim();
 
         // 1. Fetch Randomized Questions
-        const matchQuery = subLower === 'all' ? {} : { subject: subLower };
+        const matchQuery = subLower === 'all' 
+            ? {} 
+            : { $or: [{ subjectId: subLower }, { subject: subLower }] };
+        
+        console.log('[TEST DEBUG] matchQuery:', JSON.stringify(matchQuery));
         
         const questions = await Question.aggregate([
             { $match: matchQuery },
             { $sample: { size: qCount } }
         ]);
+
+        console.log('[TEST DEBUG] Matched questions count:', questions.length);
 
         let finalQuestions = questions;
 
@@ -69,11 +75,19 @@ router.post('/start', auth, async (req, res) => {
             status: 'active'
         });
 
-        await session.save();
+        // 3. Prepare response questions
+        const mappedQuestions = finalQuestions.map(q => {
+            const doc = q._doc || q; // Handle both lean and full docs
+            return {
+                ...doc,
+                subject: doc.subject || doc.subjectId,
+                correctAnswer: doc.correctAnswer !== undefined ? doc.correctAnswer : doc.answer
+            };
+        });
 
         res.status(201).json({
             sessionId,
-            questions,
+            questions: mappedQuestions,
             startTime: session.startTime
         });
     } catch (error) {

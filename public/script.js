@@ -434,7 +434,7 @@ function setLanguage(lang) {
    9. BILINGUAL HELPERS
    ============================================================ */
 const L = {
-    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
+    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question || q.text) : (q.question_en || q.question || q.text),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
     exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
 };

@@ -1,25 +1,31 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    subject: { type: String, required: true, lowercase: true, index: true },
-    topic: { type: String, index: true },
-    difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
-    question_en: { type: String, required: true },
-    question_hi: { type: String, required: true },
+    // Support both old and new formats for maximum compatibility during stabilization
+    subjectId: { type: String, lowercase: true, index: true },
+    subject: { type: String, lowercase: true, index: true }, // Legacy/Fallback
+    
+    examId: { type: String, index: true },
+    topicId: { type: String, index: true },
+    
+    text: { type: String }, // Primary question text
+    question_en: { type: String }, // Bilingual support
+    question_hi: { type: String },
+    
+    options: [String], // Array of options
     options_en: [String],
     options_hi: [String],
-    correctAnswer: { type: Number, required: true }, // Index 0-3
+    
+    answer: { type: String }, // String answer (e.g. "Newton")
+    correctAnswer: { type: Number }, // Index (0-3)
+    
+    difficulty: { type: String, uppercase: true, default: 'MEDIUM' },
+    explanation: String,
     explanation_en: String,
     explanation_hi: String,
-    exam_tags: [String],
-    reference: String,
-    year_asked: String,
+    
     createdAt: { type: Date, default: Date.now }
-});
-
-// Compound index for random subject sampling
-questionSchema.index({ subject: 1, difficulty: 1 });
+}, { strict: false }); // Set strict: false to allow existing data to be read even if fields vary slightly
 
 const Question = mongoose.model('Question', questionSchema);
 
