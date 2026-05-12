@@ -61,12 +61,16 @@ const PushManager = {
     },
 
     async sendSubscriptionToBackend(subscription) {
+        const token = Auth.getToken();
+        if (!token) return;
+
         try {
-            const res = await Auth.fetchWithAuth('/api/push/subscribe', {
+            const res = await fetch('/api/push/subscribe', {
                 method: 'POST',
                 body: JSON.stringify(subscription),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 }
             });
             if (res.ok) {

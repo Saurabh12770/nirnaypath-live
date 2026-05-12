@@ -9,7 +9,7 @@ const auth = async (req, res, next) => {
         }
 
         const token = authHeader.replace('Bearer ', '');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_fallback_secret');
         const user = await User.findById(decoded.id);
 
         if (!user) {
@@ -20,10 +20,7 @@ const auth = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).send({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
-        }
-        res.status(401).send({ error: 'Please authenticate.', code: 'UNAUTHORIZED' });
+        res.status(401).send({ error: 'Please authenticate.' });
     }
 };
 

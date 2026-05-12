@@ -231,18 +231,16 @@ const Auth = {
 
         let response = await fetch(url, options);
 
-        if (response.status === 401 && !url.includes('/api/auth/')) {
-            console.log('[Auth] 401 Unauthorized, attempting to refresh token...');
-            const newToken = await this.refreshAccessToken();
-            if (newToken) {
-                options.headers['Authorization'] = `Bearer ${newToken}`;
-                return fetch(url, options);
-            } else {
-                this.logout();
+        if (response.status === 401) {
+            const data = await response.clone().json();
+            if (data.code === 'TOKEN_EXPIRED') {
+                // Try to refresh
+                const newToken = await this.refreshAccessToken();
+                if (newToken) {
+                    options.headers['Authorization'] = `Bearer ${newToken}`;
+                    response = await fetch(url, options);
+                }
             }
-        } else if (response.status === 403 && !url.includes('/api/auth/')) {
-            console.warn('[Auth] Access Forbidden (403), logging out');
-            this.logout();
         }
 
         return response;

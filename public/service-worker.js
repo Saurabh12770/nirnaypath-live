@@ -1,56 +1,65 @@
-/* NirnayPath Service Worker v5.0 (Stable & Safe) */
-const CACHE_NAME = 'nirnaypath-v5';
-
-const LOCAL_ASSETS = [
+/* NirnayPath Service Worker v2.0 */
+const CACHE_NAME = 'nirnaypath-cache-v1';
+const STATIC_ASSETS = [
     '/',
     '/index.html',
+    '/about.html',
     '/style.css',
     '/script.js',
     '/js/auth.js',
+    '/js/dashboard.js',
+    '/js/push.js',
+    '/js/app.js',
     '/logo.png'
 ];
 
+// Install Event - Pre-cache static assets
 self.addEventListener('install', event => {
-    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(LOCAL_ASSETS).catch(err => console.warn('Precaching partial:', err));
+            console.log('Pre-caching offline assets');
+            return cache.addAll(STATIC_ASSETS);
         })
     );
 });
 
+// Activate Event - Clean up old caches
 self.addEventListener('activate', event => {
     event.waitUntil(
-        Promise.all([
-            clients.claim(),
-            caches.keys().then(keys => {
-                return Promise.all(keys.map(key => {
-                    if (key !== CACHE_NAME) return caches.delete(key);
-                }));
-            })
-        ])
+        caches.keys().then(keys => {
+            return Promise.all(keys.map(key => {
+                if (key !== CACHE_NAME) return caches.delete(key);
+            }));
+        })
     );
 });
 
+// Fetch Event - Cache-first for static, Network-first for API
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // 1. DO NOT intercept cross-origin requests
-    if (url.origin !== self.location.origin) return;
+    // API Caching Strategy (Network First)
+    if (url.pathname.startsWith('/api/questions/') || 
+        url.pathname.startsWith('/api/drill/') || 
+        url.pathname.startsWith('/api/section/')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    const clonedResponse = response.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, clonedResponse);
+                    });
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
+        );
+        return;
+    }
 
-    // 2. DO NOT cache POST requests
-    if (event.request.method !== 'GET') return;
-
-    // 3. Network-first for everything else
+    // Static Assets Strategy (Cache First)
     event.respondWith(
-        fetch(event.request).then(response => {
-            if (response && response.status === 200) {
-                const clone = response.clone();
-                caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-            }
-            return response;
-        }).catch(() => {
-            return caches.match(event.request);
+        caches.match(event.request).then(cachedResponse => {
+            return cachedResponse || fetch(event.request);
         })
     );
 });

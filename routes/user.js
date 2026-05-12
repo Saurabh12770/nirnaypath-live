@@ -25,7 +25,7 @@ router.get('/me', auth, async (req, res) => {
                 badges: req.user.badges || []
             },
             recentTests: tests,
-            streak: streak
+            streak: req.user.streakCount || 0
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

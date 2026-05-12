@@ -11,9 +11,6 @@
 
 'use strict';
 
-/* Script initialization */
-window.__nirnay_initialized = true;
-
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -94,31 +91,36 @@ document.addEventListener('DOMContentLoaded', () => {
     VIEW.result = document.getElementById('result-screen');
     VIEW.userDashboard = document.getElementById('user-dashboard');
 
-    const safeInit = (fn, name) => {
-        try { fn(); } catch (e) { console.error(`[Init Error] ${name}:`, e); }
-    };
+    /* Inject CSS enhancements (scrollbar, animations, etc.) */
+    injectDynamicCSS();
 
-    safeInit(injectDynamicCSS, 'injectDynamicCSS');
-    safeInit(initTheme, 'initTheme');
-    safeInit(initExamRibbon, 'initExamRibbon');
-    safeInit(initLanguageToggle, 'initLanguageToggle');
-    safeInit(initFilterButtons, 'initFilterButtons');
-    safeInit(initStickyHeader, 'initStickyHeader');
-    safeInit(initBackToTop, 'initBackToTop');
-    safeInit(initScrollAnimations, 'initScrollAnimations');
-    safeInit(initFAQ, 'initFAQ');
-    safeInit(initTypingAnimation, 'initTypingAnimation');
-    safeInit(initMobileMenu, 'initMobileMenu');
-    safeInit(initTipsSlider, 'initTipsSlider');
-    safeInit(initHeroSliders, 'initHeroSliders');
-    safeInit(() => makeInfiniteSlider('testimonial-slider', 4000), 'testimonial-slider');
-    safeInit(() => makeInfiniteSlider('trending-slider', 3000), 'trending-slider');
-    safeInit(animateCounters, 'animateCounters');
-    safeInit(initTrendingTestButtons, 'initTrendingTestButtons');
+    /* Init modules */
+    initTheme();
 
-    safeInit(() => showView('dashboard'), 'showView(dashboard)');
-    safeInit(bindExamControls, 'bindExamControls');
-    safeInit(checkExistingTestSession, 'checkExistingTestSession');
+    initExamRibbon();
+    initLanguageToggle();
+    initFilterButtons();
+    initStickyHeader();
+    initBackToTop();
+    initScrollAnimations();
+    initFAQ();
+    initTypingAnimation();
+    initMobileMenu();
+    initTipsSlider();
+    initHeroSliders();
+    makeInfiniteSlider('testimonial-slider', 4000);
+    makeInfiniteSlider('trending-slider', 3000);
+    animateCounters();
+    initTrendingTestButtons();
+
+    /* ✅ Always start on dashboard — subject panel hidden by default */
+    showView('dashboard');
+
+    /* Bind result screen buttons here since engine sections exist */
+    bindExamControls();
+
+    /* Try to resume an active test session */
+    checkExistingTestSession();
 });
 
 /* ============================================================ 
@@ -432,10 +434,9 @@ function setLanguage(lang) {
    9. BILINGUAL HELPERS
    ============================================================ */
 const L = {
-    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question || q.text) : (q.question_en || q.text || q.question),
+    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
-    exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation),
-    ans: q => q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : q.correct_answer)
+    exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
 };
 
 /* ============================================================ 
@@ -556,7 +557,7 @@ function setFilter(f) {
 /* ============================================================ 
    13. START TEST
    ============================================================ */
-function startTest(testName, subject, questionCount, timeLimit) {
+function startTest(subject, testName, questionCount, timeLimit) {
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
 
@@ -586,10 +587,11 @@ function startTest(testName, subject, questionCount, timeLimit) {
 
     async function doStart() {
         try {
-            const res = await Auth.fetchWithAuth('/api/test/start', {
+            const res = await fetch('/api/test/start', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
                 },
                 body: JSON.stringify({
                     subject,
@@ -999,10 +1001,11 @@ function submitTest() {
         return;
     }
 
-    Auth.fetchWithAuth('/api/test/submit', {
+    fetch('/api/test/submit', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Auth.getToken()}`
         },
         body: JSON.stringify(resultsData)
     })
@@ -1042,7 +1045,7 @@ function buildReview() {
     testState.selectedQuestions.forEach((q, i) => {
         const opts = L.opt(q) || q.options || [];
         const userAnsId = testState.answers[i];
-        const corrAnsRaw = L.ans(q);
+        const corrAnsRaw = q.correctAnswer;
 
         const userText = resolveDisplayLabel(userAnsId, opts);
         const correctText = resolveDisplayLabel(corrAnsRaw, opts);
@@ -1075,11 +1078,6 @@ function buildReview() {
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
                 <p>${q.explanation}</p>
             </div>` : ''}
-            <div class="review-discussion-link" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);">
-                <button class="discussion-toggle-btn" data-qid="${q.id || q._id || i}" style="background:none;border:none;cursor:pointer;color:var(--primary,#4F46E5);font-size:0.88rem;font-weight:600;padding:0;display:inline-flex;align-items:center;gap:6px;">
-                    💬 Discussion
-                </button>
-            </div>
         `;
         rc.appendChild(card);
     });
@@ -1115,10 +1113,7 @@ function enterFullscreen() {
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
 }
 function exitFullscreen() {
-    const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    if (isFS) {
-        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
-    }
+    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
 }
 
 /* Fullscreen exit warning */
