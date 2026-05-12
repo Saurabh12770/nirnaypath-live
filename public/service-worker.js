@@ -34,34 +34,54 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch Event - Cache-first for static, Network-first for API
+// Fetch Event - Only handle same-origin requests
 self.addEventListener('fetch', event => {
-    const url = new URL(event.request.url);
+    try {
+        const url = new URL(event.request.url);
 
-    // API Caching Strategy (Network First)
-    if (url.pathname.startsWith('/api/questions/') || 
-        url.pathname.startsWith('/api/drill/') || 
-        url.pathname.startsWith('/api/section/')) {
+        // 1. Skip cross-origin requests (Let browser handle them natively)
+        // This is the CRITICAL fix to prevent SW from fighting with CSP on external resources
+        if (url.origin !== self.location.origin) {
+            return; // Do NOT call event.respondWith()
+        }
+
+        // 2. API Caching Strategy (Same-origin Network First)
+        if (url.pathname.startsWith('/api/questions/') || 
+            url.pathname.startsWith('/api/drill/') || 
+            url.pathname.startsWith('/api/section/')) {
+            event.respondWith(
+                fetch(event.request)
+                    .then(response => {
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
+                        const clonedResponse = response.clone();
+                        caches.open(CACHE_NAME).then(cache => {
+                            cache.put(event.request, clonedResponse);
+                        }).catch(err => console.error('[SW] Cache put failed:', err));
+                        return response;
+                    })
+                    .catch(() => caches.match(event.request))
+            );
+            return;
+        }
+
+        // 3. Static Assets Strategy (Same-origin Cache First)
         event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    const clonedResponse = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, clonedResponse);
-                    });
-                    return response;
-                })
-                .catch(() => caches.match(event.request))
+            caches.match(event.request).then(cachedResponse => {
+                return cachedResponse || fetch(event.request).catch(err => {
+                    console.warn('[SW] Same-origin fetch failed:', err);
+                    return new Response('Network error occurred', { status: 408, statusText: 'Network error occurred' });
+                });
+            }).catch(err => {
+                console.error('[SW] Cache match failed:', err);
+                return fetch(event.request);
+            })
         );
-        return;
+    } catch (err) {
+        console.error('[SW] Fetch handler error:', err);
+        // Fallback: let the browser handle it if SW crashes
     }
-
-    // Static Assets Strategy (Cache First)
-    event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            return cachedResponse || fetch(event.request);
-        })
-    );
 });
 
 /* --- Push Notification Listeners --- */
