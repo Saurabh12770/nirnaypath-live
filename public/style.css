@@ -9343,12 +9343,12 @@ body[data-theme="dark"] {
 /* --- PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM --- */
 /* Base styles for all card types */
 .card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .about-stat-card {
-    border-top: 3px solid var(--primary) !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-    background: var(--card-bg) !important;
-    border-radius: 16px !important;
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    background: var(--card-bg);
+    border-radius: 16px;
     padding: 1.5rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     overflow: hidden;
 }
@@ -9363,21 +9363,21 @@ body[data-theme="dark"] {
 
 /* Hover interactions */
 .feature-card:hover, .category-card:hover, .trend-card:hover, .testimonial-card:hover, .np-card:hover, .subject-card:hover, .update-card:hover {
-    transform: translateY(-10px) !important;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 /* Icon Enhancement */
 .card i, .feature-card i, .category-card i, .why-card i, .trend-card i, .testimonial-card i, .np-card i, .subject-card i, .update-date {
-    background: var(--gradient) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    color: transparent !important;
-    transition: transform 0.3s ease !important;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: transform 0.3s ease;
 }
 
 .card:hover i, .feature-card:hover i, .trend-card:hover i, .category-card:hover i {
-    transform: scale(1.15) rotate(5deg) !important;
+    transform: scale(1.15) rotate(5deg);
 }
 
 /* Specific fix for About Platform Card Icon wrap (if needed) */
@@ -9393,25 +9393,24 @@ body[data-theme="dark"] {
 [data-theme="dark"] .trend-card,
 [data-theme="dark"] .testimonial-card,
 [data-theme="dark"] .about-stat-card {
-    background: #1E293B !important;
-    color: #F1F5F9 !important;
-    border-color: rgba(255,255,255,0.1) !important;
+    background: #1E293B;
+    color: #F1F5F9;
+    border-color: rgba(255,255,255,0.1);
 }
 
 [data-theme="dark"] .testi-content {
-    color: #CBD5E1 !important;
+    color: #CBD5E1;
 }
 
 /* --- ENHANCED RATIO & COMMUNITY LAYOUT --- */
 .ratio-3-4 {
-    width: 280px !important;
-    min-width: 280px !important;
-    flex: 0 0 280px !important;
-    height: 380px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    padding: 2rem !important;
+    width: 280px;
+    max-width: 90vw;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem;
     text-align: center;
 }
 

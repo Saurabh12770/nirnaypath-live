@@ -36,12 +36,18 @@ self.addEventListener('activate', event => {
 
 // Fetch Event - Cache-first for static, Network-first for API
 self.addEventListener('fetch', event => {
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') return;
+
     const url = new URL(event.request.url);
 
     // API Caching Strategy (Network First)
-    if (url.pathname.startsWith('/api/questions/') || 
-        url.pathname.startsWith('/api/drill/') || 
-        url.pathname.startsWith('/api/section/')) {
+    if (url.pathname.startsWith('/api/')) {
+        // Skip caching for auth and test start/submit to avoid session issues
+        if (url.pathname.includes('/auth/') || url.pathname.includes('/test/')) {
+            return; // Fallback to network naturally
+        }
+
         event.respondWith(
             fetch(event.request)
                 .then(response => {

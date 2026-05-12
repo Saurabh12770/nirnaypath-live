@@ -11,22 +11,49 @@ const TestSession = require('../models/TestSession');
 const Question = require('../models/Question');
 
 /**
+ * GET /api/test/health
+ */
+router.get('/health', (req, res) => {
+    res.json({ status: 'active', timestamp: new Date() });
+});
+
+/**
  * POST /api/test/start
- * Initializes a server-side test session and returns randomized questions.
  */
 router.post('/start', auth, async (req, res) => {
     try {
         const { subject, count, timeLimit, exam } = req.body;
+        if (!subject) return res.status(400).json({ error: 'Subject is required' });
+
         const qCount = Math.min(parseInt(count) || 50, 200);
+        const subLower = subject.toLowerCase().trim();
 
         // 1. Fetch Randomized Questions
+        const matchQuery = subLower === 'all' ? {} : { subject: subLower };
+        
         const questions = await Question.aggregate([
-            { $match: { subject: subject.toLowerCase() } },
+            { $match: matchQuery },
             { $sample: { size: qCount } }
         ]);
 
-        if (!questions || questions.length === 0) {
-            return res.status(404).json({ error: 'No questions found for this subject' });
+        let finalQuestions = questions;
+
+        if (!finalQuestions || finalQuestions.length === 0) {
+            console.log(`[TestStart] DB miss for ${subLower}. Falling back to JSON files...`);
+            const { loadQuestions } = require('../utils/questionLoader');
+            const fileQuestions = await loadQuestions(subLower);
+            
+            if (fileQuestions && fileQuestions.length > 0) {
+                // Shuffle and pick
+                finalQuestions = fileQuestions
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, qCount);
+            }
+        }
+
+        if (!finalQuestions || finalQuestions.length === 0) {
+            console.log(`[TestStart] No questions found for subject: ${subLower} (DB & File fail)`);
+            return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
         }
 
         // 2. Create Session
@@ -34,10 +61,10 @@ router.post('/start', auth, async (req, res) => {
         const session = new TestSession({
             userId: req.user._id,
             sessionId,
-            subject: subject.toLowerCase(),
+            subject: subLower,
             exam: exam || 'General',
             questionCount: questions.length,
-            timeLimit: parseInt(timeLimit) || 3600, // default 1 hour
+            timeLimit: parseInt(timeLimit) || 3600,
             startTime: new Date(),
             status: 'active'
         });
@@ -51,7 +78,7 @@ router.post('/start', auth, async (req, res) => {
         });
     } catch (error) {
         console.error('Test Start Error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'System error during test initialization' });
     }
 });
 
