@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/js/dashboard.js',
     '/js/push.js',
     '/js/app.js',
-    '/images/logo-icon.png'
+    '/logo.png'
 ];
 
 // Install Event - Pre-cache static assets
@@ -70,8 +70,8 @@ self.addEventListener('push', function(event) {
         const payload = event.data.json();
         const options = {
             body: payload.body,
-            icon: payload.icon || '/images/logo-icon.png',
-            badge: '/images/logo-icon.png',
+            icon: payload.icon || '/logo.png',
+            badge: '/logo.png',
             vibrate: [100, 50, 100],
             data: { url: payload.data ? payload.data.url : '/' }
         };

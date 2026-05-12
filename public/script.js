@@ -1119,7 +1119,10 @@ function enterFullscreen() {
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
 }
 function exitFullscreen() {
-    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
+    const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (isFS) {
+        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
+    }
 }
 
 /* Fullscreen exit warning */

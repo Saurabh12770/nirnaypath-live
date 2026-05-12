@@ -40,6 +40,10 @@ const PushManager = {
 
     async subscribeUser(register) {
         try {
+            if (!register.active) {
+                console.warn('Service Worker not active yet. Subscription deferred.');
+                return;
+            }
             const subscription = await register.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: this.urlBase64ToUint8Array(this.publicVapidKey)

@@ -8,7 +8,12 @@ const createEmailWorker = () => {
         console.log(`[Worker] Processing email to ${to} (${job.name})`);
 
         if (!process.env.EMAIL_HOST) {
-            console.log('[Worker] No email host configured. Simulating success.');
+            console.log('--------------------------------------------------');
+            console.log(`[Worker] NO EMAIL HOST CONFIGURED`);
+            console.log(`[Worker] To: ${to}`);
+            console.log(`[Worker] Subject: ${subject}`);
+            console.log(`[Worker] Content: ${html}`);
+            console.log('--------------------------------------------------');
             return;
         }
 
