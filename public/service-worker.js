@@ -1,90 +1,87 @@
-/* NirnayPath Service Worker v3.0 */
-const CACHE_NAME = 'nirnaypath-cache-v2';
+/* NirnayPath Service Worker v4.0 */
+const CACHE_NAME = 'nirnaypath-cache-v4';
+
+// ONLY cache static binary/image assets — NEVER JS, CSS, or HTML
+// JS and CSS must always be fetched fresh so deploys take effect immediately
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/about.html',
-    '/style.css',
-    '/script.js',
-    '/js/auth.js',
-    '/js/dashboard.js',
-    '/js/push.js',
-    '/js/app.js',
-    '/logo.png'
+    '/logo.png',
+    '/manifest.json'
 ];
 
-// Install Event - Pre-cache static assets
+// Install Event - Pre-cache only binary assets
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('Pre-caching offline assets');
-            return cache.addAll(STATIC_ASSETS);
+            console.log('[SW] Pre-caching static binary assets');
+            // Use individual adds with error swallowing so missing files don't break install
+            return Promise.allSettled(STATIC_ASSETS.map(url => cache.add(url)));
         })
     );
 });
 
-// Activate Event - Clean up old caches
+// Activate Event - Nuke all old caches, take control immediately
 self.addEventListener('activate', event => {
     event.waitUntil(
         Promise.all([
             clients.claim(),
             caches.keys().then(keys => {
                 return Promise.all(keys.map(key => {
-                    if (key !== CACHE_NAME) return caches.delete(key);
+                    if (key !== CACHE_NAME) {
+                        console.log('[SW] Deleting old cache:', key);
+                        return caches.delete(key);
+                    }
                 }));
             })
         ])
     );
 });
 
-// Fetch Event - Only handle same-origin requests
+// Fetch Event - Very conservative: only intercept same-origin image/font requests
 self.addEventListener('fetch', event => {
     try {
         const url = new URL(event.request.url);
 
-        // 1. Skip cross-origin requests (Let browser handle them natively)
-        // This is the CRITICAL fix to prevent SW from fighting with CSP on external resources
+        // 1. NEVER intercept cross-origin requests
         if (url.origin !== self.location.origin) {
-            return; // Do NOT call event.respondWith()
+            return; // Browser handles it natively
         }
 
-        // 2. API Caching Strategy (Same-origin Network First)
-        if (url.pathname.startsWith('/api/questions/') || 
-            url.pathname.startsWith('/api/drill/') || 
-            url.pathname.startsWith('/api/section/')) {
+        // 2. NEVER intercept API calls — always go to network
+        if (url.pathname.startsWith('/api/')) {
+            return;
+        }
+
+        // 3. NEVER intercept HTML pages — always get fresh HTML
+        const acceptHeader = event.request.headers.get('Accept') || '';
+        if (acceptHeader.includes('text/html')) {
+            return;
+        }
+
+        // 4. NEVER intercept JS or CSS — must always be fresh after deploys
+        if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
+            return;
+        }
+
+        // 5. Cache-first for images and fonts only
+        if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf)$/)) {
             event.respondWith(
-                fetch(event.request)
-                    .then(response => {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
+                caches.match(event.request).then(cached => {
+                    return cached || fetch(event.request).then(response => {
+                        if (response && response.status === 200) {
+                            const clone = response.clone();
+                            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
                         }
-                        const clonedResponse = response.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, clonedResponse);
-                        }).catch(err => console.error('[SW] Cache put failed:', err));
                         return response;
-                    })
-                    .catch(() => caches.match(event.request))
+                    });
+                }).catch(() => fetch(event.request))
             );
             return;
         }
 
-        // 3. Static Assets Strategy (Same-origin Cache First)
-        event.respondWith(
-            caches.match(event.request).then(cachedResponse => {
-                return cachedResponse || fetch(event.request).catch(err => {
-                    console.warn('[SW] Same-origin fetch failed:', err);
-                    return new Response('Network error occurred', { status: 408, statusText: 'Network error occurred' });
-                });
-            }).catch(err => {
-                console.error('[SW] Cache match failed:', err);
-                return fetch(event.request);
-            })
-        );
+        // 6. Everything else: no interference, let browser handle it
     } catch (err) {
         console.error('[SW] Fetch handler error:', err);
-        // Fallback: let the browser handle it if SW crashes
     }
 });
 

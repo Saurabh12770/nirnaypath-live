@@ -94,7 +94,7 @@ app.use(helmet({
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
             "img-src": ["'self'", "data:", "blob:", "https://ui-avatars.com"],
-            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://ui-avatars.com"],
+            "connect-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://api.razorpay.com", "https://ui-avatars.com"],
             "frame-src": ["'self'", "https://checkout.razorpay.com", "https://api.razorpay.com"],
         },
     },
@@ -102,17 +102,23 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['http://localhost:3000', 'https://nirnaypath.example.com', 'https://nirnaypath-live-production.up.railway.app'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : [];
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+        // Always allow requests with no origin (server-to-server, curl, mobile apps)
+        if (!origin) return callback(null, true);
+        // Allow explicitly listed origins
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any Railway.app subdomain and localhost in development
+        if (
+            origin.endsWith('.railway.app') ||
+            origin.startsWith('http://localhost') ||
+            origin.startsWith('http://127.0.0.1')
+        ) return callback(null, true);
+        callback(new Error('Not allowed by CORS'));
     },
     credentials: true
 }));
@@ -144,11 +150,16 @@ app.use((req, res, next) => {
 // HTML files get short cache, assets get long cache
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath, {
-    setHeaders: (res, path, stat) => {
-        if (path.endsWith('.html')) {
-            res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes for HTML
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            // Never cache HTML — always revalidate
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        } else if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+            // JS and CSS: revalidate on every request so deploys take effect immediately
+            res.setHeader('Cache-Control', 'no-cache');
         } else {
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for CSS/JS/Images
+            // Images, fonts, manifests: 7 days
+            res.setHeader('Cache-Control', 'public, max-age=604800');
         }
     }
 }));
