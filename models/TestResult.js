@@ -6,6 +6,12 @@ const testResultSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    sessionId: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
     exam: {
         type: String,
         required: true
@@ -13,6 +19,10 @@ const testResultSchema = new mongoose.Schema({
     subject: {
         type: String,
         required: true
+    },
+    topic: {
+        type: String,
+        default: null
     },
     testName: {
         type: String,
@@ -26,6 +36,10 @@ const testResultSchema = new mongoose.Schema({
     modeValue: {
         type: String,
         default: null
+    },
+    timeTaken: {
+        type: Number,
+        default: 0
     },
     score: {
         type: Number,
@@ -53,10 +67,11 @@ const testResultSchema = new mongoose.Schema({
     },
     answers: [{
         questionId: String,
-        userAnswer: String,
-        correctAnswer: String,
+        selected: String,
+        correct: String,
         isCorrect: Boolean,
-        topic: String
+        topic: String,
+        topicId: String
     }],
     createdAt: {
         type: Date,

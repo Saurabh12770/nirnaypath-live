@@ -3,13 +3,15 @@ const Redis = require('ioredis');
 // Initialize Redis client with fallback
 let redis;
 let isRedisAvailable = false;
+const CACHE_VERSION = 'v1'; // Phase 4: Version-based cache keying
 
 try {
     redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
         maxRetriesPerRequest: 1,
+        commandTimeout: 2000, // Phase 3: Circuit Breaker - prevent slow Redis from hanging requests
         retryStrategy: (times) => {
-            if (times > 3) return null; // stop retrying after 3 attempts
-            return Math.min(times * 50, 2000);
+            if (times > 2) return null; // stop retrying quickly
+            return 500;
         }
     });
 
@@ -33,12 +35,16 @@ const localCache = new Map();
  * Get data from cache
  */
 async function getCachedData(key) {
+    const versionedKey = `${CACHE_VERSION}_${key}`;
     if (isRedisAvailable) {
         try {
-            const data = await redis.get(key);
-            return data ? JSON.parse(data) : null;
+            // maxTimeMS for redis.get simulation via commandTimeout
+            const data = await redis.get(versionedKey);
+            if (!data) return null;
+            return JSON.parse(data);
         } catch (err) {
-            console.error('Redis Get Error:', err);
+            console.warn('[Cache] Redis Get Error (Falling back):', err.message);
+            // Don't disable redis on single error, but use fallback
         }
     }
 
@@ -56,17 +62,18 @@ async function getCachedData(key) {
  * Set data to cache
  */
 async function setCachedData(key, data, ttlSeconds) {
+    const versionedKey = `${CACHE_VERSION}_${key}`;
     if (isRedisAvailable) {
         try {
-            await redis.set(key, JSON.stringify(data), 'EX', ttlSeconds);
+            await redis.set(versionedKey, JSON.stringify(data), 'EX', ttlSeconds);
             return;
         } catch (err) {
-            console.error('Redis Set Error:', err);
+            console.warn('[Cache] Redis Set Error:', err.message);
         }
     }
 
     // Fallback to local
-    localCache.set(key, {
+    localCache.set(versionedKey, {
         data,
         expiry: Date.now() + (ttlSeconds * 1000)
     });

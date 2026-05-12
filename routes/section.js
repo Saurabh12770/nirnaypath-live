@@ -10,7 +10,7 @@ const { requirePlan } = require('../middleware/planGuard');
  * GET /api/section/:sectionName?count=75
  * Returns combined randomized questions from multiple subjects in a section.
  */
-router.get('/:sectionName', auth, requirePlan('pro_monthly'), async (req, res) => {
+router.get('/:sectionName', auth, requirePlan('sectional_tests'), async (req, res) => {
     try {
         const { sectionName } = req.params;
         const count = parseInt(req.query.count) || 75;

@@ -656,6 +656,8 @@ function launchExam() {
         if (av) av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(user.split('@')[0])}`;
     }
 
+    if (window.RealTime) window.RealTime.setExamActive(true, testState.sessionId);
+
     renderPalette();
     renderQuestion();
     startTimer();
@@ -907,6 +909,7 @@ function submitTest() {
     clearInterval(timerInterval);
     saveCurrentAnswer();
     testState.isActive = false;
+    if (window.RealTime) window.RealTime.setExamActive(false);
     saveProgress();
 
     /* Robust Answer Comparison Helper */
@@ -1477,6 +1480,14 @@ function injectDynamicCSS() {
         to   { opacity:1; transform:translateY(0) scale(1); }
       }
 
+      /* ——— Shake animation for anti-cheat ——— */
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+      }
+      .shake-anim { animation: shake 0.2s ease 2; border: 2px solid var(--danger) !important; }
+
       /* ——— About-page stat items (prevent exam palette style bleed) ——— */
       .stats-counter-section .stat-item {
         background:var(--card-bg) !important;
@@ -1563,6 +1574,49 @@ function initMobileMenu() {
 
     // Close on ESC key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closePanel();
+        if (e.key === 'Escape' && navPanel.classList.contains('open')) closePanel();
+    });
+
+    // --- QUICK LINK ACTIVATOR (Delegated for Production Safety) ---
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href="#"]');
+        if (!link) return;
+
+        // PROTECT AUTH FLOWS: Skip links handled by auth.js
+        const authIds = ['showSignup', 'showLogin', 'forgotPasswordLink', 'backToLogin', 'loginBtn', 'mobileLoginBtn'];
+        if (authIds.includes(link.id)) return;
+
+        const text = link.textContent.trim().toLowerCase();
+        
+        // Check for Exam Links (usually in Footer or Sidebar)
+        if (text.includes('tests')) {
+            const examMap = { 'bpsc': 'bpsc', 'upsc': 'upsc', 'ssc': 'ssc', 'railway': 'railway', 'banking': 'banking', 'teaching': 'teaching', 'state psc': 'bpsc' };
+            for (let key in examMap) {
+                if (text.includes(key)) {
+                    e.preventDefault();
+                    setActiveExam(examMap[key]);
+                    renderSubjectCards(examMap[key]);
+                    showView('home');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    if (navPanel.classList.contains('open')) closePanel();
+                    return;
+                }
+            }
+        }
+
+        // General informative toasts for other placeholder links
+        if (link.closest('.social-links') || link.closest('.footer-social') || link.classList.contains('social-link')) {
+            e.preventDefault();
+            window.showToast('Connecting to social media...', 'var(--primary)');
+        } else if (link.closest('.app-badge')) {
+            e.preventDefault();
+            window.showToast('NirnayPath Mobile App coming soon!', 'var(--primary)');
+        } else if (text !== '' && !link.classList.contains('panel-link')) {
+             const handledInIndex = ['about', 'privacy', 'terms', 'faq', 'contact', 'team', 'careers', 'partnerships', 'press', 'testimonials'];
+             if (handledInIndex.some(h => text.includes(h))) {
+                e.preventDefault();
+                window.showToast(`${link.textContent.trim()} section update in progress.`, 'var(--primary)');
+             }
+        }
     });
 }

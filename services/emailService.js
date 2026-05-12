@@ -1,103 +1,208 @@
 const { addEmailJob } = require('./queueService');
+const PerformanceAnalyticsService = require('./performanceAnalyticsService');
+const Question = require('../models/Question');
+const fs = require('fs');
+const path = require('path');
 
-const sendResultEmail = async (user, result) => {
+/**
+ * Fallback: Log to Dead-Letter storage if the primary queue fails
+ */
+const logToDeadLetter = (type, payload, error) => {
+    const dlqDir = path.join(__dirname, '../logs');
+    const dlqPath = path.join(dlqDir, 'email_dead_letter.jsonl');
+    
+    const entry = JSON.stringify({
+        timestamp: new Date().toISOString(),
+        type,
+        recipient: payload.user?.email || payload.to,
+        error: error.message || error,
+        payload
+    }) + '\n';
+
     try {
-        // Find weakest topic
-        const topicErrors = {};
-        result.answers.forEach(ans => {
-            if (!ans.isCorrect && ans.topic) {
-                topicErrors[ans.topic] = (topicErrors[ans.topic] || 0) + 1;
-            }
-        });
+        if (!fs.existsSync(dlqDir)) fs.mkdirSync(dlqDir, { recursive: true });
+        fs.appendFileSync(dlqPath, entry);
+        console.warn(`[EmailService] CRITICAL: Job moved to DLQ storage: ${type}`);
+    } catch (fsErr) {
+        console.error('[EmailService] DLQ Storage Failure:', fsErr.message);
+    }
+};
 
-        let weakestTopic = 'General Concepts';
-        let maxErrors = 0;
-        for (const topic in topicErrors) {
-            if (topicErrors[topic] > maxErrors) {
-                maxErrors = topicErrors[topic];
-                weakestTopic = topic;
-            }
+/**
+ * Unified Dispatcher
+ */
+const sendEmail = async (type, payload) => {
+    const { user } = payload;
+    if (!user || !user.email) {
+        console.error(`[EmailService] Dispatch failed: No recipient for ${type}`);
+        return;
+    }
+
+    try {
+        let subject = '';
+        let html = '';
+
+        switch (type.toUpperCase()) {
+            case 'WELCOME':
+                subject = 'Welcome to NirnayPath - Your Journey Starts Here!';
+                html = `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #334155; line-height: 1.6;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #2563eb; margin: 0; font-size: 28px;">NirnayPath</h1>
+                            <p style="color: #64748b; margin: 5px 0 0;">Empowering Your Success</p>
+                        </div>
+                        <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <h2 style="color: #1e293b; margin-top: 0;">Welcome, ${user.name}!</h2>
+                            <p>We're thrilled to have you join NirnayPath. Your account is ready, and a world of high-quality mock tests and deep performance analytics awaits you.</p>
+                            
+                            <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                                <h3 style="color: #2563eb; font-size: 16px; margin-top: 0;">Quick Start Guide:</h3>
+                                <ul style="padding-left: 20px; margin-bottom: 0;">
+                                    <li style="margin-bottom: 10px;"><b>Take a Drill:</b> Test your knowledge on specific subjects.</li>
+                                    <li style="margin-bottom: 10px;"><b>Full Mocks:</b> Experience real exam environments.</li>
+                                    <li><b>Track Progress:</b> Watch your accuracy grow on your dashboard.</li>
+                                </ul>
+                            </div>
+
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #2563eb; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Start Your First Test</a>
+                            </div>
+                        </div>
+                        <p style="text-align: center; font-size: 14px; color: #94a3b8; margin-top: 30px;">
+                            Questions? Just reply to this email. We're here to help!
+                        </p>
+                    </div>
+                `;
+                break;
+
+            case 'PASSWORD_RESET':
+                const resetUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/reset-password.html?token=${payload.token}`;
+                subject = 'Password Reset Request - NirnayPath';
+                html = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                        <h2 style="color: #0f172a; margin-top: 0;">Reset Your Password</h2>
+                        <p>Hi ${user.name}, we received a request to reset your NirnayPath password. Click the button below to choose a new one:</p>
+                        <div style="text-align: center; margin: 35px 0;">
+                            <a href="${resetUrl}" style="background-color: #ef4444; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="font-size: 14px; color: #64748b;">This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 25px 0;">
+                        <p style="font-size: 12px; color: #94a3b8; word-break: break-all;">Direct Link: ${resetUrl}</p>
+                    </div>
+                `;
+                break;
+
+            case 'TEST_REPORT':
+                const { result } = payload;
+                const topicErrors = {};
+                
+                // 1. Identify incorrect answers from server-validated results
+                const incorrectAnswers = (result.answers || []).filter(a => !a.isCorrect);
+                
+                if (incorrectAnswers.length > 0) {
+                    try {
+                        // 2. Fetch Topic Mapping from Source of Truth (Database)
+                        const qIds = incorrectAnswers.map(a => a.questionId).filter(id => id);
+                        const questions = await Question.find({ 
+                            $or: [
+                                { _id: { $in: qIds.filter(id => id.length === 24) } },
+                                { id: { $in: qIds } }
+                            ]
+                        }).select('topic topicId').lean();
+
+                        // 3. Aggregate error counts per topic
+                        incorrectAnswers.forEach(ans => {
+                            const qData = questions.find(q => 
+                                q._id?.toString() === ans.questionId || q.id === ans.questionId
+                            );
+                            const topicName = qData?.topic || qData?.topicId || 'General Concepts';
+                            topicErrors[topicName] = (topicErrors[topicName] || 0) + 1;
+                        });
+                    } catch (dbErr) {
+                        console.error('[EmailService][Analytics] Topic lookup failed:', dbErr.message);
+                    }
+                }
+
+                // 4. Compute Weakest Topic
+                let weakestTopic = 'General Concepts';
+                let maxErrors = 0;
+                for (const t in topicErrors) {
+                    if (topicErrors[t] > maxErrors) {
+                        maxErrors = topicErrors[t];
+                        weakestTopic = t;
+                    }
+                }
+
+                // 5. Fetch Global Intelligence
+                let intelligence = { score: 0, confidence: 'Low' };
+                try {
+                    intelligence = await PerformanceAnalyticsService.getReadiness(user._id);
+                } catch (intelErr) {
+                    console.error('[EmailService][Intelligence] Readiness fetch failed:', intelErr.message);
+                }
+
+                subject = `Performance Report: ${result.testName || result.subject}`;
+                html = `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 12px; color: #334155;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <span style="background-color: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">Test Completed</span>
+                        </div>
+                        
+                        <h2 style="color: #1e293b; margin-top: 0; text-align: center;">Performance Snapshot</h2>
+                        
+                        <div style="background-color: #f8fafc; border-radius: 12px; padding: 25px; margin: 25px 0; border: 1px solid #f1f5f9;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="padding: 10px 0; color: #64748b;">Subject</td><td style="padding: 10px 0; font-weight: 600; text-align: right;">${result.subject}</td></tr>
+                                <tr><td style="padding: 10px 0; color: #64748b;">Score</td><td style="padding: 10px 0; font-weight: 600; text-align: right; color: #2563eb; font-size: 20px;">${result.score} / ${result.totalQuestions}</td></tr>
+                                <tr><td style="padding: 10px 0; color: #64748b;">Accuracy</td><td style="padding: 10px 0; font-weight: 600; text-align: right;">${result.accuracy}%</td></tr>
+                                <tr><td style="padding: 10px 0; color: #64748b;">Time Spent</td><td style="padding: 10px 0; font-weight: 600; text-align: right;">${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s</td></tr>
+                            </table>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                            <div style="flex: 1; border-left: 4px solid #f59e0b; padding: 10px 15px; background: #fffbeb; border-radius: 0 8px 8px 0;">
+                                <h4 style="margin: 0; color: #92400e; font-size: 14px;">Focus Area</h4>
+                                <p style="margin: 5px 0 0; font-size: 13px; color: #b45309;"><b>${weakestTopic}</b></p>
+                            </div>
+                            <div style="flex: 1; border-left: 4px solid #10b981; padding: 10px 15px; background: #ecfdf5; border-radius: 0 8px 8px 0;">
+                                <h4 style="margin: 0; color: #065f46; font-size: 14px;">Exam Readiness</h4>
+                                <p style="margin: 5px 0 0; font-size: 13px; color: #047857;"><b>${intelligence.score || 'N/A'}%</b> (${intelligence.confidence})</p>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">View Full Intelligence Dashboard</a>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            default:
+                throw new Error(`Invalid email type: ${type}`);
         }
 
-        const improvementSuggestion = `You struggled most with ${weakestTopic}. We recommend revising ${weakestTopic} related concepts from NCERT or standard textbooks for better performance.`;
+        // Add to BullMQ Queue
+        await addEmailJob(type.toLowerCase(), { to: user.email, subject, html });
+        console.log(`[EmailService] ${type} email job added to queue for: ${user.email}`);
 
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-                <h2 style="color: #2c3e50;">Hello ${user.name},</h2>
-                <p>Congratulations on completing your mock test on <strong>NirnayPath</strong>.</p>
-                
-                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <h3 style="margin-top: 0;">Test Summary</h3>
-                    <table style="width: 100%;">
-                         <tr><td><strong>Exam:</strong></td><td>${result.exam}</td></tr>
-                         <tr><td><strong>Type:</strong></td><td>${result.mode === 'full' ? 'Full Mock Test' : (result.mode === 'drill' ? 'Topic Drill' : 'Sectional Test')}</td></tr>
-                         ${result.modeValue ? `<tr><td><strong>Detail:</strong></td><td>${result.modeValue}</td></tr>` : ''}
-                         <tr><td><strong>Subject:</strong></td><td>${result.subject}</td></tr>
-                         <tr><td><strong>Score:</strong></td><td>${result.score} / ${result.totalQuestions}</td></tr>
-                        <tr><td><strong>Accuracy:</strong></td><td>${result.accuracy}%</td></tr>
-                    </table>
-                </div>
-
-                <div style="border-left: 4px solid #3498db; padding-left: 15px; margin: 20px 0;">
-                    <h3 style="color: #2980b9;">Personalized Analysis</h3>
-                    <p>${improvementSuggestion}</p>
-                </div>
-
-                <p>Keep practicing and track your progress on your personal dashboard.</p>
-                
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="http://nirnaypath.com/dashboard" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">View Dashboard</a>
-                </div>
-            </div>
-        `;
-
-        // Queue the email instead of sending directly
-        await addEmailJob('test-result', {
-            to: user.email,
-            subject: `Performance Report: ${result.mode !== 'full' ? '[' + result.mode.toUpperCase() + '] ' : ''}${result.testName}`,
-            html
-        });
-
-        console.log(`Email job queued for ${user.email}`);
-    } catch (error) {
-        console.error('Error queuing result email:', error);
+    } catch (err) {
+        console.error(`[EmailService] Unified Pipeline Error for ${type}:`, err.message);
+        // Fallback to DLQ storage
+        logToDeadLetter(type, payload, err);
     }
 };
 
-const sendPasswordResetEmail = async (user, token) => {
-    try {
-        const resetUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/reset-password.html?token=${token}`;
-        
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-                <h2 style="color: #2c3e50;">Password Reset Request</h2>
-                <p>Hello ${user.name},</p>
-                <p>You are receiving this because you (or someone else) have requested the reset of the password for your account on <strong>NirnayPath</strong>.</p>
-                <p>Please click on the following button to complete the process:</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="${resetUrl}" style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset My Password</a>
-                </div>
-                
-                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-                <p>This link will expire in 1 hour.</p>
-                
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 12px; color: #7f8c8d;">If the button above doesn't work, copy and paste this link into your browser:</p>
-                <p style="font-size: 12px; color: #3498db; word-break: break-all;">${resetUrl}</p>
-            </div>
-        `;
+/**
+ * Backward Compatibility Layers
+ * These ensure auth.js and test.js continue to work without modification.
+ */
+const sendResultEmail = async (user, result) => await sendEmail('TEST_REPORT', { user, result });
+const sendPasswordResetEmail = async (user, token) => await sendEmail('PASSWORD_RESET', { user, token });
+const sendWelcomeEmail = async (user) => await sendEmail('WELCOME', { user });
 
-        await addEmailJob('password-reset', {
-            to: user.email,
-            subject: 'NirnayPath Password Reset Request',
-            html
-        });
-
-        console.log(`Password reset email queued for ${user.email}`);
-    } catch (error) {
-        console.error('Error queuing reset email:', error);
-    }
+module.exports = {
+    sendEmail,
+    sendResultEmail,
+    sendPasswordResetEmail,
+    sendWelcomeEmail
 };
-
-module.exports = { sendResultEmail, sendPasswordResetEmail };

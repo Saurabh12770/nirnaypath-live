@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
+const crypto = require('crypto');
 const router = express.Router();
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase();
@@ -31,6 +33,9 @@ router.post('/signup', async (req, res) => {
         }
 
         await user.save();
+
+        // Fire-and-forget: Trigger welcome email without blocking the response
+        sendWelcomeEmail(user).catch(err => console.error('[Signup] Welcome email queue failure:', err.message));
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your_fallback_secret');
         
         res.status(201).json({ user: { name: user.name, email: user.email, role: user.role }, token });
@@ -118,17 +123,68 @@ router.post('/logout', async (req, res) => {
     }
 });
 
-// Forgot Password (Dummy implementation for now, should integrate with email service)
+// Forgot Password - Initiate Recovery
 router.post('/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        const user = await User.findOne({ email: email.toLowerCase() });
         
-        // In a real app, generate token and send email
+        // Security Best Practice: Always return generic success to prevent user enumeration
+        if (!user) {
+            return res.json({ message: 'If that email exists in our system, a reset link has been sent.' });
+        }
+
+        // Generate high-entropy secure token
+        const token = crypto.randomBytes(32).toString('hex');
+        
+        // Store token and 15-minute expiry
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 Minutes
+        
+        await user.save();
+
+        // Queue email via BullMQ dispatcher
+        sendPasswordResetEmail(user, token).catch(err => console.error('[Auth] Password reset queue error:', err));
+
         res.json({ message: 'Reset link sent to your email.' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Recovery system failure' });
+    }
+});
+
+// Reset Password - Commit Recovery
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token and new password are required' });
+        }
+
+        // Atomic check for valid token and non-expired window
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
+        }
+
+        // Update and Securely Hash the new password
+        user.password = await bcrypt.hash(newPassword, 8);
+        
+        // Invalidate token immediately to prevent reuse (Security Hardening)
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        
+        await user.save();
+
+        res.json({ message: 'Password has been reset successfully. You can now log in.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Reset operation failed' });
     }
 });
 

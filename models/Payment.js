@@ -20,16 +20,25 @@ const paymentSchema = new mongoose.Schema({
     },
     razorpay_payment_id: {
         type: String,
-        required: true
+        required: true,
+        unique: true // Idempotency protection
     },
     razorpay_order_id: {
         type: String,
         required: true
     },
+    razorpay_signature: {
+        type: String,
+        required: true
+    },
     status: {
         type: String,
-        enum: ['success', 'failed', 'refunded'],
-        default: 'success'
+        enum: ['pending', 'success', 'failed', 'refunded'],
+        default: 'pending'
+    },
+    metadata: {
+        type: Object,
+        default: {}
     },
     createdAt: {
         type: Date,

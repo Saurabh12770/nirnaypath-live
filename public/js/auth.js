@@ -270,6 +270,7 @@ const Auth = {
         const candName = document.getElementById('cand-name');
         const adminNavLink = document.getElementById('adminNavLink');
         const mobileAdminNavLink = document.getElementById('mobileAdminNavLink');
+        const dashNavLink = document.getElementById('dashNavLink');
 
         if (isLoggedIn && user) {
             const logoutHtml = `<i class="fas fa-sign-out-alt"></i> Logout`;
@@ -295,6 +296,7 @@ const Auth = {
                 if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'none';
             }
             if (candName) candName.textContent = user.name;
+            if (dashNavLink) dashNavLink.style.display = 'inline-block';
         } else {
             const loginHtml = `<i class="fas fa-sign-in-alt"></i> Login`;
             if (loginBtn) {
@@ -314,6 +316,7 @@ const Auth = {
             if (userNameDisplay) userNameDisplay.style.display = 'none';
             if (adminNavLink) adminNavLink.style.display = 'none';
             if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'none';
+            if (dashNavLink) dashNavLink.style.display = 'none';
         }
     },
 

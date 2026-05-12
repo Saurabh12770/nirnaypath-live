@@ -21,7 +21,7 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
         console.log(`[API] Request for subject: ${subject}`);
 
         // Check in-memory cache first
-        const cachedData = getCachedData(cacheKey);
+        const cachedData = await getCachedData(cacheKey);
         if (cachedData) {
             console.log(`[API] Cache hit for: ${subject}`);
             return res.json(cachedData);
@@ -37,7 +37,7 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
         }
 
         // Store in cache with 10 minutes TTL
-        setCachedData(cacheKey, questions, 600);
+        await setCachedData(cacheKey, questions, 600);
 
         res.json(questions);
     } catch (error) {
@@ -45,16 +45,16 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
     }
 });
 
-router.get('/subject/:subject/topics', async (req, res) => {
+router.get('/subject/:subject/topics', questionLimiter, async (req, res) => {
     try {
         const { subject } = req.params;
         const cacheKey = `questions_${subject}`;
 
-        let questions = getCachedData(cacheKey);
+        let questions = await getCachedData(cacheKey);
         if (!questions) {
             questions = await loadQuestions(subject);
             if (questions) {
-                setCachedData(cacheKey, questions, 600);
+                await setCachedData(cacheKey, questions, 600);
             }
         }
 

@@ -9,6 +9,10 @@ const path = require('path');
 const cluster = require('cluster');
 const os = require('os');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+const http = require('http');
+const context = require('./utils/context');
+const socketService = require('./services/socketService');
 
 
 dotenv.config();
@@ -25,9 +29,13 @@ const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
 const chatRoutes = require('./routes/chat');
 const pagesRoutes = require('./routes/pages');
+const analyticsRoutes = require('./routes/analytics');
+const learningRoutes = require('./routes/learning');
+const healthRoutes = require('./routes/health');
 const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { initCronJobs } = require('./services/cronService');
+const { initWorkers, shutdownWorkers } = require('./services/workerService');
 const User = require('./models/User');
 
 async function autoPromoteAdmin() {
@@ -69,6 +77,13 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath'
     .catch(err => console.error('MongoDB connection error:', err));
 
 app.use(express.json());
+
+// 1. Context Tracking Middleware (Senior Engineer Implementation)
+app.use((req, res, next) => {
+    const requestId = req.get('X-Request-ID') || crypto.randomUUID();
+    res.setHeader('X-Request-ID', requestId);
+    context.run({ requestId, startTime: Date.now() }, next);
+});
 
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -129,6 +144,22 @@ app.use(express.static(publicPath, {
     }
 }));
 
+// Chaos Engineering Middleware (Failure Injection)
+app.use((req, res, next) => {
+    // 1. Latency Injection
+    const delay = req.get('X-Chaos-Delay');
+    if (delay) {
+        return setTimeout(next, parseInt(delay));
+    }
+
+    // 2. DB Failure Simulation
+    if (req.get('X-Chaos-DB-Down')) {
+        return res.status(503).json({ error: 'Chaos Simulation: Database Unavailable' });
+    }
+
+    next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -140,6 +171,9 @@ app.use('/api/push', pushRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/health', healthRoutes);
 app.use('/api', apiRoutes);
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/admin.html'));
@@ -154,30 +188,39 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal Server Error' });
 });
 
+// Create HTTP Server
+const server = http.createServer(app);
+
+// Initialize WebSocket Engine
+socketService.init(server);
+
 // Bind to 0.0.0.0 to allow access via IP addresses
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Worker ${process.pid}] Server running on http://0.0.0.0:${PORT}`);
-    console.log(`[Worker ${process.pid}] Locally accessible at http://localhost:${PORT}`);
+    console.log(`[Worker ${process.pid}] Real-Time Engine Active`);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('SIGTERM signal received: closing HTTP server');
+    await shutdownWorkers();
     server.close(() => {
         console.log('HTTP server closed');
         process.exit(0);
     });
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('SIGINT signal received: closing HTTP server');
+    await shutdownWorkers();
     server.close(() => {
         console.log('HTTP server closed');
         process.exit(0);
     });
 });
 
-// Initialize Cron Jobs
+// Initialize Cron Jobs & Background Workers
 initCronJobs();
+initWorkers();
 
 module.exports = app;

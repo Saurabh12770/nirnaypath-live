@@ -21,6 +21,10 @@ const testSessionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    topic: {
+        type: String,
+        default: null
+    },
     questionCount: {
         type: Number,
         required: true
@@ -39,6 +43,10 @@ const testSessionSchema = new mongoose.Schema({
         enum: ['active', 'submitted', 'expired'],
         default: 'active'
     },
+    questionIds: [{
+        type: String, // Can be MongoDB _id or JSON id string
+        required: true
+    }],
     createdAt: {
         type: Date,
         default: Date.now,

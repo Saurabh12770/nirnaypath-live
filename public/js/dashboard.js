@@ -22,6 +22,9 @@ const Dashboard = {
         window.scrollTo(0, 0);
 
         await this.loadData();
+        if (window.Intelligence) {
+            await window.Intelligence.init();
+        }
     },
 
     async loadData() {
@@ -167,8 +170,40 @@ const Dashboard = {
         return '#ef4444'; // red
     },
 
-    viewResult(id) {
-        this.showToast('Detailed review for test ' + id + ' coming soon!');
+    async viewResult(id) {
+        try {
+            const res = await Auth.fetchWithAuth(`/api/user/stats`);
+            const stats = await res.json();
+            const profileRes = await Auth.fetchWithAuth(`/api/user/me`);
+            const profile = await profileRes.json();
+            
+            const test = profile.recentTests.find(t => t._id === id);
+            if (!test) return this.showToast('Test record not found');
+
+            document.getElementById('review-test-meta').textContent = `Subject: ${test.subject} | Date: ${new Date(test.createdAt).toLocaleDateString()}`;
+            document.getElementById('rev-score').textContent = `${test.score}/${test.totalQuestions}`;
+            document.getElementById('rev-acc').textContent = `${test.accuracy}%`;
+            document.getElementById('rev-correct').textContent = test.correct || 0;
+            document.getElementById('rev-wrong').textContent = test.incorrect || 0;
+            
+            const insights = document.getElementById('review-insights-list');
+            insights.innerHTML = '';
+            if (test.accuracy >= 80) {
+                insights.innerHTML += '<li>Exceptional accuracy! You have a strong grasp of this subject.</li>';
+                insights.innerHTML += '<li>Tip: Try increasing your speed to gain a competitive edge.</li>';
+            } else if (test.accuracy >= 50) {
+                insights.innerHTML += '<li>Stable performance. Consistency is key to improvement.</li>';
+                insights.innerHTML += '<li>Tip: Review your incorrect answers to identify specific weak topics.</li>';
+            } else {
+                insights.innerHTML += '<li>Requires focus. Re-read the fundamental concepts of this subject.</li>';
+                insights.innerHTML += '<li>Tip: Practice 10-15 questions daily in this category to build confidence.</li>';
+            }
+
+            document.getElementById('reviewModal').style.display = 'flex';
+        } catch (e) {
+            console.error(e);
+            this.showToast('Could not load test report');
+        }
     },
 
     async loadLeaderboard(exam) {

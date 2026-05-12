@@ -3,6 +3,7 @@ module.exports = {
         id: 'free',
         name: 'Aspirant (Free)',
         price: 0,
+        durationDays: 0,
         features: [
             'Daily Full Mocks',
             'Topic Drills (20 Qs)',
@@ -19,6 +20,7 @@ module.exports = {
         name: 'Pro Path (Monthly)',
         price: 199,
         currency: 'INR',
+        durationDays: 30,
         features: [
             'Unlimited Topic Drills',
             'Unlimited Sectional Tests',
@@ -31,6 +33,24 @@ module.exports = {
         limits: {
             drillsPerDay: -1, // Unlimited
             sectionalTestsPerWeek: -1 // Unlimited
+        }
+    },
+    pro_yearly: {
+        id: 'pro_yearly',
+        name: 'Pro Path (Yearly)',
+        price: 1799,
+        currency: 'INR',
+        durationDays: 365,
+        features: [
+            'All Monthly Features',
+            'Save 25% yearly',
+            'Exclusive Webinar Access',
+            'Downloadable Study Material',
+            'Mentorship Sessions'
+        ],
+        limits: {
+            drillsPerDay: -1,
+            sectionalTestsPerWeek: -1
         }
     }
 };

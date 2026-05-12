@@ -23,14 +23,28 @@ const userSchema = new mongoose.Schema({
     },
     plan: {
         type: String,
-        enum: ['free', 'pro_monthly'],
+        enum: ['free', 'pro_monthly', 'pro_yearly'],
         default: 'free'
+    },
+    subscriptionStatus: {
+        type: String,
+        enum: ['active', 'expired', 'cancelled', 'grace_period'],
+        default: 'active'
     },
     subscriptionEnd: {
         type: Date,
         default: null
     },
+    paymentProvider: {
+        type: String,
+        enum: ['razorpay', 'stripe', 'manual'],
+        default: 'razorpay'
+    },
     razorpaySubscriptionId: {
+        type: String,
+        default: null
+    },
+    razorpayOrderId: {
         type: String,
         default: null
     },

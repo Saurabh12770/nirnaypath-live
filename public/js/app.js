@@ -58,10 +58,12 @@ const PWA = {
 };
 
 const PaymentManager = {
-    async upgrade() {
+    async upgrade(planId = 'pro_monthly') {
         const token = Auth.getToken();
         if (!token) {
             window.showToast('Please login to upgrade.', 'var(--danger)');
+            const modal = document.getElementById('loginModal');
+            if (modal) modal.style.display = 'flex';
             return;
         }
 
@@ -72,34 +74,42 @@ const PaymentManager = {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ planId: 'pro_monthly' })
+                body: JSON.stringify({ planId })
             });
 
             const order = await res.json();
-            if (!res.ok) throw new Error(order.error);
+            if (!res.ok) throw new Error(order.error || order.message);
+
+            const userStr = localStorage.getItem('np_user_data');
+            const user = userStr ? JSON.parse(userStr) : {};
 
             const options = {
-                key: document.getElementById('razorpay-key')?.value || 'rzp_test_your_key',
+                key: order.key_id, // Use key from server
                 amount: order.amount,
                 currency: order.currency,
                 name: "NirnayPath Pro",
-                description: "Monthly Subscription",
+                description: planId === 'pro_yearly' ? "Yearly Subscription" : "Monthly Subscription",
                 order_id: order.order_id,
                 handler: async (response) => {
-                    await this.verifyPayment(response, 'pro_monthly');
+                    await this.verifyPayment(response, planId);
                 },
                 prefill: {
-                    name: localStorage.getItem('nirnaypath_user_name') || "",
-                    email: localStorage.getItem('nirnaypath_user') || ""
+                    name: user.name || "",
+                    email: user.email || ""
                 },
-                theme: { color: "#1B3A6B" }
+                theme: { color: "#6366f1" },
+                modal: {
+                    ondismiss: function() {
+                        console.log('Checkout dismissed');
+                    }
+                }
             };
 
-            const rzp = new Razorpay(options);
+            const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (error) {
             console.error('Upgrade error:', error);
-            window.showToast('Failed to initiate upgrade: ' + error.message, 'var(--danger)');
+            window.showToast(error.message, 'var(--danger)');
         }
     },
 
@@ -124,8 +134,17 @@ const PaymentManager = {
             if (data.success) {
                 window.showToast('Congratulations! You are now a Pro member.', 'var(--success)');
                 document.getElementById('upgradeModal').style.display = 'none';
-                // Refresh profile data to show Pro badge
-                if (window.Dashboard) window.Dashboard.loadData();
+                
+                // Update local storage plan
+                const userStr = localStorage.getItem('np_user_data');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    user.plan = planId;
+                    localStorage.setItem('np_user_data', JSON.stringify(user));
+                }
+
+                // Refresh dashboard if visible
+                if (window.Dashboard) window.Dashboard.show();
             } else {
                 throw new Error(data.error);
             }

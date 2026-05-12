@@ -4,15 +4,59 @@ const fs = require('fs').promises;
 const path = require('path');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
-const User = require('../models/User');
-const Payment = require('../models/Payment');
-const TestResult = require('../models/TestResult');
+const Question = require('../models/Question');
 const { loadQuestions } = require('../utils/questionLoader');
+const { atomicWriteFile } = require('../utils/fileUtils');
 
-// Helper to save questions to JSON file
-const saveQuestionsToFile = async (subject, questions) => {
-    const filePath = path.join(__dirname, '../data', `${subject}.json`);
-    await fs.writeFile(filePath, JSON.stringify(questions, null, 2), 'utf8');
+// List questions from MongoDB (Primary source of truth)
+router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
+    try {
+        const { subject } = req.params;
+        const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
+        
+        const subLower = subject.toLowerCase().trim();
+        const query = { 
+            $or: [{ subjectId: subLower }, { subject: subLower }] 
+        };
+
+        if (topic) query.topicId = topic; // Match current schema
+        if (difficulty) query.difficulty = difficulty.toUpperCase();
+        if (search) {
+            query.$text = { $search: search }; // Assumes text index, or use regex as fallback
+        }
+
+        const skip = (page - 1) * parseInt(limit);
+        const questions = await Question.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean();
+
+        const total = await Question.countDocuments(query);
+
+        res.json({ questions, total, page: parseInt(page), limit: parseInt(limit) });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Sync MongoDB to JSON File (Asynchronous Backup)
+ * Phase 6: JSON is fallback only
+ */
+const syncToJSON = async (subject) => {
+    try {
+        const subLower = subject.toLowerCase().trim();
+        const questions = await Question.find({ 
+            $or: [{ subjectId: subLower }, { subject: subLower }] 
+        }).lean();
+        
+        const filePath = path.join(__dirname, '../data', `${subLower}.json`);
+        await atomicWriteFile(filePath, questions);
+        console.log(`[Backup] Synced ${questions.length} questions to ${subLower}.json`);
+    } catch (err) {
+        console.error('[Backup] JSON Sync Error:', err.message);
+    }
 };
 
 // ══════════════════════════════════════════════════════════
@@ -63,42 +107,47 @@ router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
     }
 });
 
-// Add new question
+// Add new question (MongoDB Direct)
 router.post('/questions/:subject', auth, adminAuth, async (req, res) => {
     try {
         const { subject } = req.params;
-        const newQuestion = req.body;
+        const subLower = subject.toLowerCase().trim();
+        const questionData = { 
+            ...req.body, 
+            subjectId: subLower,
+            subject: subLower,
+            createdAt: new Date()
+        };
         
-        let questions = await loadQuestions(subject);
-        if (!questions) questions = [];
-
-        // Assign a unique ID if not provided
-        if (!newQuestion.id) newQuestion.id = Date.now().toString();
+        const question = new Question(questionData);
+        await question.save();
         
-        questions.push(newQuestion);
-        await saveQuestionsToFile(subject, questions);
+        // Trigger background sync to JSON
+        syncToJSON(subject).catch(() => {});
         
-        res.status(201).json({ message: 'Question added', question: newQuestion });
+        res.status(201).json({ message: 'Question added', question });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update question
+// Update question (Atomic MongoDB Update)
 router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
         const { subject, id } = req.params;
         const updatedData = req.body;
+        delete updatedData._id; // Safety
         
-        let questions = await loadQuestions(subject);
-        const idx = questions.findIndex(q => q.id === id || q._id === id);
+        const question = await Question.findOneAndUpdate(
+            { $or: [{ _id: id.length === 24 ? id : undefined }, { id: id }] },
+            { $set: updatedData },
+            { new: true }
+        );
         
-        if (idx === -1) return res.status(404).json({ error: 'Question not found' });
+        if (!question) return res.status(404).json({ error: 'Question not found' });
 
-        questions[idx] = { ...questions[idx], ...updatedData };
-        await saveQuestionsToFile(subject, questions);
-        
-        res.json({ message: 'Question updated', question: questions[idx] });
+        syncToJSON(subject).catch(() => {});
+        res.json({ message: 'Question updated', question });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

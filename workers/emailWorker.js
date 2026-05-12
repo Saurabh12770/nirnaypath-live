@@ -1,14 +1,27 @@
 const { Worker } = require('bullmq');
 const { connection } = require('../services/queueService');
 const nodemailer = require('nodemailer');
+const logger = require('../utils/logger');
+const { recordMetric } = require('../services/emailMetrics');
 
 const createEmailWorker = () => {
     const worker = new Worker('email-queue', async (job) => {
-        const { to, subject, html } = job.data;
-        console.log(`[Worker] Processing email to ${to} (${job.name})`);
+        const { to, subject, html, _metadata } = job.data;
+        const type = _metadata?.emailType || job.name;
+        
+        // Calculate Queue Latency
+        const queueDelay = _metadata?.enqueuedAt ? (Date.now() - _metadata.enqueuedAt) : 0;
+
+        logger.info(`Processing email: ${type}`, { 
+            to, 
+            requestId: _metadata?.requestId, 
+            userId: _metadata?.userId,
+            queueDelayMs: queueDelay
+        });
 
         if (!process.env.EMAIL_HOST) {
-            console.log('[Worker] No email host configured. Simulating success.');
+            logger.warn('Email host not configured. Skipping send.', { type, to });
+            await recordMetric('sent', type);
             return;
         }
 
@@ -25,10 +38,47 @@ const createEmailWorker = () => {
             subject,
             html
         });
+
+        await recordMetric('sent', type);
     }, { connection });
 
-    worker.on('completed', (job) => console.log(`[Worker] Email job ${job.id} completed.`));
-    worker.on('failed', (job, err) => console.error(`[Worker] Email job ${job.id} failed:`, err));
+    worker.on('completed', (job) => {
+        const type = job.data?._metadata?.emailType || job.name;
+        logger.info(`Email job ${job.id} completed.`, { jobId: job.id, type });
+    });
+
+    worker.on('failed', async (job, err) => {
+        const type = job.data?._metadata?.emailType || job.name;
+        logger.error(`Email job ${job.id} failed.`, { 
+            jobId: job.id, 
+            type, 
+            error: err.message,
+            attempts: job.attemptsMade 
+        });
+
+        await recordMetric('failed', type);
+
+        // Simulation of DLQ persistence
+        if (job.attemptsMade >= 5) {
+            await recordMetric('dlq', 'count');
+            const fs = require('fs');
+            const path = require('path');
+            const dlqPath = path.join(__dirname, '../logs/dlq_failed_jobs.log');
+            const logEntry = JSON.stringify({
+                timestamp: new Date().toISOString(),
+                jobId: job.id,
+                data: job.data,
+                error: err.message
+            }) + '\n';
+            
+            try {
+                if (!fs.existsSync(path.dirname(dlqPath))) fs.mkdirSync(path.dirname(dlqPath), { recursive: true });
+                fs.appendFileSync(dlqPath, logEntry);
+            } catch (logErr) {
+                console.error('[Worker] Failed to write to DLQ log:', logErr.message);
+            }
+        }
+    });
 
     return worker;
 };
