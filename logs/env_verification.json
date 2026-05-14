@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-05-14T15:38:43.095Z",
+  "missingRequired": [
+    "ADMIN_EMAIL"
+  ],
+  "missingOptional": [
+    "REDIS_URL"
+  ],
+  "status": "FAILURE"
+}

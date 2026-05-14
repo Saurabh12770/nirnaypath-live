@@ -23,3 +23,8 @@
 {"timestamp":"2026-05-13T15:36:44.296Z","category":"ADMIN_FLOW","message":"Probe Cycle 23","type":"NAV_SIM"}
 {"timestamp":"2026-05-13T15:36:44.297Z","category":"ADMIN_FLOW","message":"Probe Cycle 24","type":"NAV_SIM"}
 {"timestamp":"2026-05-13T15:36:44.298Z","category":"ADMIN_FLOW","message":"Probe Cycle 25","type":"NAV_SIM"}
+{"timestamp":"2026-05-14T15:35:45.006Z","category":"QUESTION_FLOW","message":"Hardened Selection Completed","userId":"6a05ebd0f62ae112586db269","requested":5,"selected":2,"freshPool":2,"seenPool":0,"excluded":0,"freshAdded":2,"seenAdded":0,"subject":"history"}
+{"timestamp":"2026-05-14T15:36:51.419Z","category":"QUESTION_FLOW","message":"Hardened Selection Completed","userId":"6a05ec13cbb9dd628777158e","requested":5,"selected":2,"freshPool":2,"seenPool":0,"excluded":0,"freshAdded":2,"seenAdded":0,"subject":"history"}
+{"timestamp":"2026-05-14T15:36:51.452Z","category":"QUESTION_FLOW","message":"Hardened Selection Completed","userId":"6a05ec13cbb9dd628777158e","requested":1,"selected":0,"freshPool":0,"seenPool":0,"excluded":1,"freshAdded":0,"seenAdded":0,"subject":"history"}
+{"timestamp":"2026-05-14T15:38:05.128Z","category":"QUESTION_FLOW","message":"Hardened Selection Completed","userId":"6a05ec5d2f51864e791cad13","requested":5,"selected":2,"freshPool":2,"seenPool":0,"excluded":0,"freshAdded":2,"seenAdded":0,"subject":"history"}
+{"timestamp":"2026-05-14T15:38:05.135Z","category":"QUESTION_FLOW","message":"Hardened Selection Completed","userId":"6a05ec5d2f51864e791cad13","requested":1,"selected":1,"freshPool":1,"seenPool":1,"excluded":1,"freshAdded":1,"seenAdded":0,"subject":"history"}

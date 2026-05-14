@@ -6,6 +6,7 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const QuestionSelectionService = require('../utils/questionSelectionService');
+const QuestionIntegrityService = require('../utils/questionIntegrityService');
 const { normalizeQuestion } = require('../utils/questionNormalizer');
 const { getCachedData, setCachedData } = require('../middleware/cache');
 const TestResult = require('../models/testResult');
@@ -41,7 +42,7 @@ async function runTests() {
         const selected = await QuestionSelectionService.select(pool, 5, { userId, subject });
         assert(selected.length === 2, 'Session dedup should collapse 3 variations of ID:1 into one.');
         
-        const ids = selected.map(q => QuestionSelectionService.normalizeId(q));
+        const ids = selected.map(q => QuestionIntegrityService.normalizeId(q));
         assert(new Set(ids).size === selected.length, 'All selected questions must have unique normalized IDs.');
 
         // 2. HISTORY EXCLUSION TEST (Simulated)
@@ -60,11 +61,11 @@ async function runTests() {
         });
 
         const freshPool = [
-            { _id: '1', text: 'Seen Q1' },
-            { _id: '3', text: 'Fresh Q3' }
+            { _id: '1', text: 'Seen Q1', options: ['A','B','C','D'], answer: 0 },
+            { _id: '3', text: 'Fresh Q3', options: ['A','B','C','D'], answer: 0 }
         ];
         const selectedHistory = await QuestionSelectionService.select(freshPool, 1, { userId, subject });
-        assert(selectedHistory[0]._id === '3', 'Selection engine must prioritize fresh questions over seen ones.');
+        assert(selectedHistory.length > 0 && selectedHistory[0]._id === '3', 'Selection engine must prioritize fresh questions over seen ones.');
         
         TestResult.find = originalFind; // Restore
 

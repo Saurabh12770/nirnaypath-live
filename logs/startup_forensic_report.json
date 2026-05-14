@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-05-14T15:31:51.681Z",
+  "status": "SUCCESS",
+  "checks": {
+    "importIntegrity": "UNKNOWN",
+    "appBootstrap": "SUCCESS",
+    "databaseConnection": "UNKNOWN",
+    "redisConnection": "UNKNOWN",
+    "workerInitialization": "UNKNOWN"
+  },
+  "errors": [],
+  "logs": []
+}
