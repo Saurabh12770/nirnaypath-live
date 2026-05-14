@@ -5,7 +5,7 @@
     {
       "id": "ENG-SSC-0001",
       "subject": "English",
-      "topic": "Grammar - Error Detection",
+      "topic": "Grammar Error Detection",
       "difficulty": "medium",
       "exam_tags": [
         "SSC CGL",
@@ -32,7 +32,8 @@
       "explanation_en": "The error is in segment B. 'One of the students' is singular, so it should be 'has submitted' instead of 'have submitted'. The correct sentence: 'One of the students has submitted their project report before the deadline.'",
       "explanation_hi": "त्रुटि खंड B में है। 'One of the students' एकवचन है, इसलिए 'have submitted' के बजाय 'has submitted' होना चाहिए। सही वाक्य: 'One of the students has submitted their project report before the deadline.'",
       "reference": "Objective General English by S.P. Bakshi",
-      "year_asked": "SSC CGL 2019"
+      "year_asked": "SSC CGL 2019",
+      "topicId": "grammar_error_detection"
     },
     {
       "id": "ENG-SSC-0001",
@@ -193,7 +194,7 @@
     {
       "id": "ENG-SSC-0006",
       "subject": "English",
-      "topic": "Fill in the Blanks",
+      "topic": "Fill In The Blanks",
       "difficulty": "easy",
       "question_en": "She is suffering _____ fever.",
       "question_hi": "She is suffering _____ fever. (रिक्त स्थान भरें)",
@@ -219,7 +220,8 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard English textbooks for competitive exams"
+      "reference": "Standard English textbooks for competitive exams",
+      "topicId": "fill_in_the_blanks"
     },
     {
       "id": "ENG-SSC-0007",
@@ -1068,7 +1070,7 @@
     {
       "id": "ENG-SSC-0034",
       "subject": "English",
-      "topic": "Fill in the Blanks",
+      "topic": "Fill In The Blanks",
       "difficulty": "medium",
       "question_en": "The police _____ investigating the case.",
       "question_hi": "पुलिस मामले की जांच _____ रही है।",
@@ -1094,7 +1096,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard English textbooks for competitive exams"
+      "reference": "Standard English textbooks for competitive exams",
+      "topicId": "fill_in_the_blanks"
     },
     {
       "id": "ENG-SSC-0035",

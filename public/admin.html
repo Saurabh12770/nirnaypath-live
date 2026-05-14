@@ -427,33 +427,57 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label>Topic</label>
-                            <input type="text" id="q-topic" required>
+                            <input type="text" id="q-topic" required placeholder="e.g. Ancient History">
                         </div>
                         <div class="form-group">
                             <label>Difficulty</label>
                             <select id="q-difficulty">
-                                <option value="Easy">Easy</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Hard">Hard</option>
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Question (EN)</label>
-                        <textarea id="q-en" rows="3" required></textarea>
+                        <textarea id="q-en" rows="2" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Correct Answer</label>
-                        <input type="text" id="q-correct" required>
+                        <label>Question (HI) - Optional</label>
+                        <textarea id="q-hi" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="admin-btn btn-primary" style="width: 100%;">Save Changes</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <div>
+                            <label>Option A (Correct)</label>
+                            <input type="text" id="q-opt0" required placeholder="Correct Option">
+                        </div>
+                        <div>
+                            <label>Option B</label>
+                            <input type="text" id="q-opt1" required>
+                        </div>
+                        <div>
+                            <label>Option C</label>
+                            <input type="text" id="q-opt2" required>
+                        </div>
+                        <div>
+                            <label>Option D</label>
+                            <input type="text" id="q-opt3" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Explanation (EN)</label>
+                        <textarea id="q-exp-en" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Explanation (HI)</label>
+                        <textarea id="q-exp-hi" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn btn-primary" style="width: 100%; padding: 12px;">Save Question</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <script src="/js/auth.js?v=2.0.0"></script>
-    <script src="/js/chatbot.js?v=2.0.0"></script>
     <script src="/js/auth.js?v=2.0.0"></script>
     <script src="/js/chatbot.js?v=2.0.0"></script>
     <script>
@@ -507,12 +531,18 @@
                         ...(options.headers || {})
                     }
                 });
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error(`Expected JSON but received ${contentType || 'unknown'}`);
+                }
+
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
                 return data;
             } catch (error) {
                 console.error(`API error [${url}]:`, error.message);
-                return null;
+                throw error; // Re-throw so callers can handle it
             } finally {
                 hideSpinner();
             }
@@ -561,54 +591,58 @@
             },
 
             async loadStats() {
-                const rawData = await fetchWithOverlay('/api/admin/stats');
-                
-                // 2.4 Validate All API Responses
-                const data = {
-                    users: {
-                        total: rawData?.users?.total || 0,
-                        pro: rawData?.users?.pro || 0,
-                        banned: rawData?.users?.banned || 0
-                    },
-                    tests: {
-                        today: rawData?.tests?.today || 0,
-                        week: rawData?.tests?.week || 0,
-                        total: rawData?.tests?.total || 0
-                    },
-                    revenue: rawData?.revenue || 0,
-                    activeUsers: rawData?.activeUsers || 0
-                };
+                try {
+                    const rawData = await fetchWithOverlay('/api/admin/stats');
+                    
+                    // 2.4 Validate All API Responses
+                    const data = {
+                        users: {
+                            total: rawData?.users?.total || 0,
+                            pro: rawData?.users?.pro || 0,
+                            banned: rawData?.users?.banned || 0
+                        },
+                        tests: {
+                            today: rawData?.tests?.today || 0,
+                            week: rawData?.tests?.week || 0,
+                            total: rawData?.tests?.total || 0
+                        },
+                        revenue: rawData?.revenue || 0,
+                        activeUsers: rawData?.activeUsers || 0
+                    };
 
-                const grid = document.getElementById('statsGrid');
-                if (grid) {
-                    grid.innerHTML = `
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-users"></i></div>
-                            <div><h3>${data.users.total}</h3><p>Total Users</p></div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-clipboard-check"></i></div>
-                            <div><h3>${data.tests.total}</h3><p>Tests Taken</p></div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-crown"></i></div>
-                            <div><h3>${data.users.pro}</h3><p>Pro Members</p></div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fas fa-user-slash"></i></div>
-                            <div><h3>${data.users.banned}</h3><p>Banned</p></div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;"><i class="fas fa-fire"></i></div>
-                            <div><h3>${data.activeUsers}</h3><p>Active (7d)</p></div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
-                            <div><h3>₹${data.revenue}</h3><p>Revenue</p></div>
-                        </div>
-                    `;
+                    const grid = document.getElementById('statsGrid');
+                    if (grid) {
+                        grid.innerHTML = `
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-users"></i></div>
+                                <div><h3>${data.users.total}</h3><p>Total Users</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-clipboard-check"></i></div>
+                                <div><h3>${data.tests.total}</h3><p>Tests Taken</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+                                <div><h3>${data.users.pro}</h3><p>Pro Members</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fas fa-user-slash"></i></div>
+                                <div><h3>${data.users.banned}</h3><p>Banned</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;"><i class="fas fa-fire"></i></div>
+                                <div><h3>${data.activeUsers}</h3><p>Active (7d)</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
+                                <div><h3>₹${data.revenue}</h3><p>Revenue</p></div>
+                            </div>
+                        `;
+                    }
+                    this.renderCharts(data);
+                } catch (err) {
+                    console.error('Failed to load stats:', err);
                 }
-                this.renderCharts(data);
             },
 
             renderCharts(data) {
@@ -670,45 +704,53 @@
             },
 
             async loadSubjects() {
-                const subjects = await fetchWithOverlay('/api/admin/subjects');
-                if (!Array.isArray(subjects)) return;
-                const select = document.getElementById('subjectSelect');
-                if (!select) return;
-                select.innerHTML = '<option value="">Select a subject...</option>'; // Reset
-                subjects.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s.toUpperCase();
-                    select.appendChild(opt);
-                });
+                try {
+                    const subjects = await fetchWithOverlay('/api/admin/subjects');
+                    if (!Array.isArray(subjects)) return;
+                    const select = document.getElementById('subjectSelect');
+                    if (!select) return;
+                    select.innerHTML = '<option value="">Select a subject...</option>'; // Reset
+                    subjects.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s;
+                        opt.textContent = s.toUpperCase();
+                        select.appendChild(opt);
+                    });
+                } catch (err) {
+                    console.error('Failed to load subjects:', err);
+                }
             },
 
             async loadQuestions() {
-                const select = document.getElementById('subjectSelect');
-                const sub = select ? select.value : '';
-                if (!sub) return alert('Please select a subject first.');
-                
-                const data = await fetchWithOverlay(`/api/admin/questions/${sub}?limit=100`);
-                const tbody = document.getElementById('questionsTableBody');
-                if (!tbody) return;
-                
-                tbody.innerHTML = '';
-                if (!data || !Array.isArray(data.questions) || data.questions.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No questions found for this subject.</td></tr>';
-                    return;
+                try {
+                    const select = document.getElementById('subjectSelect');
+                    const sub = select ? select.value : '';
+                    if (!sub) return alert('Please select a subject first.');
+                    
+                    const data = await fetchWithOverlay(`/api/admin/questions/${sub}?limit=100`);
+                    const tbody = document.getElementById('questionsTableBody');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = '';
+                    if (!data || !Array.isArray(data.questions) || data.questions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No questions found for this subject.</td></tr>';
+                        return;
+                    }
+                    data.questions.forEach(q => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${q.topic || '-'}</td>
+                            <td><span class="tag tag-free">${q.difficulty || '-'}</span></td>
+                            <td title="${q.question_en || ''}">${(q.question_en || '').substring(0, 80)}...</td>
+                            <td>
+                                <button class="admin-btn btn-danger" onclick="AdminPanel.deleteQuestion('${sub}', '${q._id || q.id}')">Del</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch (err) {
+                    alert('Failed to load questions: ' + err.message);
                 }
-                data.questions.forEach(q => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${q.topic || '-'}</td>
-                        <td><span class="tag tag-free">${q.difficulty || '-'}</span></td>
-                        <td title="${q.question_en || ''}">${(q.question_en || '').substring(0, 80)}...</td>
-                        <td>
-                            <button class="admin-btn btn-danger" onclick="AdminPanel.deleteQuestion('${sub}', '${q.id}')">Del</button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
             },
 
             openQuestionModal() {
@@ -717,31 +759,35 @@
             },
 
             async loadUsers(query = '') {
-                const url = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
-                const data = await fetchWithOverlay(url);
-                const tbody = document.getElementById('usersTableBody');
-                if (!tbody) return;
-                
-                tbody.innerHTML = '';
-                if (!data || !Array.isArray(data.users) || data.users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No users found.</td></tr>';
-                    return;
+                try {
+                    const url = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
+                    const data = await fetchWithOverlay(url);
+                    const tbody = document.getElementById('usersTableBody');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = '';
+                    if (!data || !Array.isArray(data.users) || data.users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No users found.</td></tr>';
+                        return;
+                    }
+                    data.users.forEach(u => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>${u.name || 'Unknown'}</strong><br><small>${u.email || 'No email'}</small></td>
+                            <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
+                            <td><span class="tag" style="background:${u.isActive ? '#dcfce7' : '#fee2e2'}; color:${u.isActive ? '#166534' : '#991b1b'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
+                            <td>${u.testsCount || 0}</td>
+                            <td>
+                                <button class="admin-btn ${u.isActive ? 'btn-danger' : 'btn-success'}" onclick="AdminPanel.toggleUserStatus('${u._id}', ${!u.isActive})">
+                                    ${u.isActive ? 'Ban' : 'Unban'}
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch (err) {
+                    console.error('Failed to load users:', err);
                 }
-                data.users.forEach(u => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><strong>${u.name || 'Unknown'}</strong><br><small>${u.email || 'No email'}</small></td>
-                        <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
-                        <td><span class="tag" style="background:${u.isActive ? '#dcfce7' : '#fee2e2'}; color:${u.isActive ? '#166534' : '#991b1b'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
-                        <td>${u.testsCount || 0}</td>
-                        <td>
-                            <button class="admin-btn ${u.isActive ? 'btn-danger' : 'btn-success'}" onclick="AdminPanel.toggleUserStatus('${u._id}', ${!u.isActive})">
-                                ${u.isActive ? 'Ban' : 'Unban'}
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
             },
 
             searchUsers(query) {
@@ -752,53 +798,107 @@
             },
 
             async loadPayments() {
-                const data = await fetchWithOverlay('/api/admin/payments');
-                const tbody = document.getElementById('paymentsTableBody');
-                if (!tbody) return;
-                
-                tbody.innerHTML = '';
-                let revenue = 0;
-                if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payment records yet.</td></tr>';
+                try {
+                    const data = await fetchWithOverlay('/api/admin/payments');
+                    const tbody = document.getElementById('paymentsTableBody');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = '';
+                    let revenue = 0;
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payment records yet.</td></tr>';
+                        const revEl = document.getElementById('totalRevenue');
+                        if (revEl) revEl.textContent = '₹0';
+                        return;
+                    }
+                    data.forEach(p => {
+                        revenue += (p.amount || 0);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${p.userId?.name || 'Unknown'}</td>
+                            <td>${p.planId || '-'}</td>
+                            <td>₹${p.amount || 0}</td>
+                            <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
+                            <td><small>${p.razorpay_payment_id || '-'}</small></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
                     const revEl = document.getElementById('totalRevenue');
-                    if (revEl) revEl.textContent = '₹0';
-                    return;
+                    if (revEl) revEl.textContent = '₹' + revenue;
+                } catch (err) {
+                    console.error('Failed to load payments:', err);
                 }
-                data.forEach(p => {
-                    revenue += (p.amount || 0);
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${p.userId?.name || 'Unknown'}</td>
-                        <td>${p.planId || '-'}</td>
-                        <td>₹${p.amount || 0}</td>
-                        <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
-                        <td><small>${p.razorpay_payment_id || '-'}</small></td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                const revEl = document.getElementById('totalRevenue');
-                if (revEl) revEl.textContent = '₹' + revenue;
             },
 
             async toggleUserStatus(userId, status) {
-                const result = await fetchWithOverlay(`/api/admin/users/${userId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ isActive: status })
-                });
-                if (result) this.loadUsers();
+                try {
+                    const result = await fetchWithOverlay(`/api/admin/users/${userId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ isActive: status })
+                    });
+                    if (result) this.loadUsers();
+                } catch (err) {
+                    alert('Failed to update user: ' + err.message);
+                }
             },
 
             async deleteQuestion(subject, id) {
                 if (!confirm('Delete this question?')) return;
-                await fetchWithOverlay(`/api/admin/questions/${subject}/${id}`, { method: 'DELETE' });
-                this.loadQuestions();
+                try {
+                    await fetchWithOverlay(`/api/admin/questions/${subject}/${id}`, { method: 'DELETE' });
+                    this.loadQuestions();
+                } catch (err) {
+                    alert('Failed to delete question: ' + err.message);
+                }
+            },
+
+            async saveQuestion(e) {
+                if (e) e.preventDefault();
+                const subject = document.getElementById('subjectSelect').value;
+                if (!subject) return alert('Select a subject first');
+
+                const id = document.getElementById('q-id').value;
+                const payload = {
+                    topic: document.getElementById('q-topic').value,
+                    difficulty: document.getElementById('q-difficulty').value,
+                    question_en: document.getElementById('q-en').value,
+                    question_hi: document.getElementById('q-hi').value,
+                    options_en: [
+                        document.getElementById('q-opt0').value,
+                        document.getElementById('q-opt1').value,
+                        document.getElementById('q-opt2').value,
+                        document.getElementById('q-opt3').value
+                    ],
+                    explanation_en: document.getElementById('q-exp-en').value,
+                    explanation_hi: document.getElementById('q-exp-hi').value,
+                    correctAnswer: 0 // First option is always correct in this simple form
+                };
+
+                try {
+                    const method = id ? 'PUT' : 'POST';
+                    const url = id ? `/api/admin/questions/${subject}/${id}` : `/api/admin/questions/${subject}`;
+                    await fetchWithOverlay(url, {
+                        method,
+                        body: JSON.stringify(payload)
+                    });
+                    alert('Question saved successfully!');
+                    this.closeModal();
+                    this.loadQuestions();
+                } catch (err) {
+                    alert('Error saving question: ' + err.message);
+                }
             },
 
             closeModal() {
                 const modal = document.getElementById('questionModal');
                 if (modal) modal.style.display = 'none';
+                document.getElementById('questionForm').reset();
+                document.getElementById('q-id').value = '';
             }
         };
+
+        // Attach form submit listener
+        document.getElementById('questionForm')?.addEventListener('submit', (e) => AdminPanel.saveQuestion(e));
 
         // 2.3 Remove Any Remaining Spinner Instances
         // Ensure spinner is hidden on any unhandled rejections or errors

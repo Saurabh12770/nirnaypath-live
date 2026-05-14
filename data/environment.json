@@ -42,7 +42,7 @@
       "question_hi": "'ईकोसिस्टम' (पारिस्थितिकी तंत्र) शब्द का प्रतिपादन किसने किया था?",
       "options_en": [
         "Charles Darwin",
-        "A.G. Tansley",
+        "G. Tansley",
         "Gregor Mendel",
         "E.P. Odum"
       ],
@@ -62,7 +62,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Environment textbooks for competitive exams"
+      "reference": "Standard Environment textbooks for competitive exams",
+      "options": [
+        "Charles Darwin",
+        "G. Tansley",
+        "Gregor Mendel",
+        "E.P. Odum"
+      ]
     },
     {
       "id": "ENV-SSC-0003",

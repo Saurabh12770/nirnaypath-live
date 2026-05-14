@@ -83,6 +83,9 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpires: Date
 });
 
+userSchema.index({ createdAt: -1 });
+userSchema.index({ role: 1 });
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

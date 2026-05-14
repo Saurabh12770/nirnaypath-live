@@ -316,37 +316,6 @@
       "reference": "Standard Geography textbooks for competitive exams"
     },
     {
-      "id": "GEO-SSC-0011",
-      "subject": "Geography",
-      "topic": "Solar System",
-      "difficulty": "easy",
-      "question_en": "Which planet is known as the 'Red Planet'?",
-      "question_hi": "किस ग्रह को 'लाल ग्रह' कहा जाता है?",
-      "options_en": [
-        "Venus",
-        "Mars",
-        "Jupiter",
-        "Saturn"
-      ],
-      "options_hi": [
-        "शुक्र",
-        "मंगल",
-        "बृहस्पति",
-        "शनि"
-      ],
-      "correctAnswer": 1,
-      "explanation_en": "Mars is called the Red Planet due to iron oxide (rust) on its surface.",
-      "explanation_hi": "सफेद लोहे के ऑक्साइड (जंग) के कारण मंगल को लाल ग्रह कहा जाता है।",
-      "exam_tags": [
-        "SSC CGL",
-        "BPSC",
-        "State PCS",
-        "Railway NTPC",
-        "Group D"
-      ],
-      "reference": "Standard Geography textbooks for competitive exams"
-    },
-    {
       "id": "GEO-SSC-0012",
       "subject": "Geography",
       "topic": "Indian Passes",
@@ -912,7 +881,7 @@
     {
       "id": "GEO-SSC-0030",
       "subject": "Geography",
-      "topic": "Internal Structure of Earth",
+      "topic": "Internal Structure Of Earth",
       "difficulty": "hard",
       "question_en": "The boundary between the Crust and the Mantle is known as:",
       "question_hi": "भूपर्पटी (Crust) और मेंटल के बीच की सीमा को कहा जाता है:",
@@ -939,7 +908,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Geography textbooks for competitive exams"
+      "reference": "Standard Geography textbooks for competitive exams",
+      "topicId": "internal_structure_of_earth"
     },
     {
       "id": "GEO-SSC-0031",
@@ -1193,7 +1163,7 @@
     {
       "id": "GEO-SSC-0039",
       "subject": "Geography",
-      "topic": "Geography of Bihar",
+      "topic": "Geography Of Bihar",
       "difficulty": "hard",
       "question_en": "Kaimur Plateau is famous for which of the following minerals?",
       "question_hi": "कैमूर का पठार निम्नलिखित में से किस खनिज के लिए प्रसिद्ध है?",
@@ -1220,7 +1190,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Geography textbooks for competitive exams"
+      "reference": "Standard Geography textbooks for competitive exams",
+      "topicId": "geography_of_bihar"
     },
     {
       "id": "GEO-SSC-0040",
@@ -2415,37 +2386,6 @@
       "reference": "Standard Geography textbooks for competitive exams"
     },
     {
-      "id": "GEO-SSC-0078",
-      "subject": "Geography",
-      "topic": "Physical Geography",
-      "difficulty": "easy",
-      "question_en": "Which planet is known as the 'Red Planet'?",
-      "question_hi": "किस ग्रह को 'लाल ग्रह' के नाम से जाना जाता है?",
-      "options_en": [
-        "Venus",
-        "Mars",
-        "Jupiter",
-        "Saturn"
-      ],
-      "options_hi": [
-        "शुक्र",
-        "मंगल (Mars)",
-        "बृहस्पति",
-        "शनि"
-      ],
-      "correctAnswer": 1,
-      "explanation_en": "Mars appears red due to the high concentration of iron oxide (rust) on its surface.",
-      "explanation_hi": "मंगल की सतह पर आयरन ऑक्साइड की मौजूदगी के कारण यह लाल रंग का दिखाई देता है।",
-      "exam_tags": [
-        "SSC CGL",
-        "BPSC",
-        "State PCS",
-        "Railway NTPC",
-        "Group D"
-      ],
-      "reference": "Standard Geography textbooks for competitive exams"
-    },
-    {
       "id": "GEO-SSC-0079",
       "subject": "Geography",
       "topic": "Indian Geography",
@@ -3236,60 +3176,6 @@
         "हिंद महासागर",
         "दक्षिणी महासागर",
         "अटलांटिक महासागर"
-      ],
-      "explanation_hi": "A",
-      "exam_tags": [
-        "UPSC",
-        "State PCS"
-      ]
-    },
-    {
-      "id": "GEO-0105",
-      "subject": "Geography",
-      "topic": "Physical Geography",
-      "difficulty": "easy",
-      "question_en": "The Tropic of Cancer passes through how many Indian states?",
-      "options_en": [
-        "8",
-        "6",
-        "7",
-        "9"
-      ],
-      "correctAnswer": "A",
-      "explanation_en": "The Tropic of Cancer passes through 8 Indian states: Gujarat, Rajasthan, MP, Chhattisgarh, Jharkhand, West Bengal, Tripura, Mizoram.",
-      "question_hi": "कर्क रेखा कितने भारतीय राज्यों से होकर गुजरती है?",
-      "options_hi": [
-        "8",
-        "6",
-        "7",
-        "9"
-      ],
-      "explanation_hi": "A",
-      "exam_tags": [
-        "UPSC",
-        "State PCS"
-      ]
-    },
-    {
-      "id": "GEO-0106",
-      "subject": "Geography",
-      "topic": "Physical Geography",
-      "difficulty": "easy",
-      "question_en": "The Sundarbans delta is formed by which rivers?",
-      "options_en": [
-        "Ganga and Brahmaputra",
-        "Krishna and Godavari",
-        "Mahanadi and Brahmani",
-        "Cauvery and Tungabhadra"
-      ],
-      "correctAnswer": "A",
-      "explanation_en": "The Sundarbans is formed at the confluence of the Ganga and Brahmaputra rivers.",
-      "question_hi": "सुंदरबन डेल्टा किन नदियों द्वारा बनता है?",
-      "options_hi": [
-        "गंगा और ब्रह्मपुत्र",
-        "कृष्णा और गोदावरी",
-        "महानदी और ब्राह्मणी",
-        "कावेरी और तुंगभद्रा"
       ],
       "explanation_hi": "A",
       "exam_tags": [

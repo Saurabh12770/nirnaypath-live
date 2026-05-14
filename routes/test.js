@@ -10,10 +10,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const TestSession = require('../models/TestSession');
 const Question = require('../models/Question');
-const { getCachedData, setCachedData } = require('../middleware/cache');
-
-// Phase 6: SingleFlight Pool Fetching
-const poolLoadingPromises = new Map();
+const QuestionService = require('../services/QuestionService');
 
 /**
  * GET /api/test/health
@@ -24,101 +21,29 @@ router.get('/health', (req, res) => {
 
 /**
  * POST /api/test/start
- * HARDENED: Atomic session creation with global uniqueness guarantee
+ * HARDENED: Atomic session creation with global uniqueness guarantee and centralized QuestionRuntimeEngine
  */
 router.post('/start', auth, async (req, res) => {
     const requestId = crypto.randomBytes(4).toString('hex');
     try {
-        const { subject, count, timeLimit, exam } = req.body;
+        const { subject, count, timeLimit, exam, topicId } = req.body;
         if (!subject) return res.status(400).json({ error: 'Subject is required' });
 
-        const qCount = Math.min(parseInt(count) || 50, 200);
         const subLower = subject.toLowerCase().trim();
+        const sessionId = crypto.randomUUID();
 
-        // 1. Fetch Randomized Questions (HARDENED: Topic + Subject Pool Caching)
-        const { topicId } = req.body;
-        
-        let matchQuery = {};
-        if (subLower !== 'all') {
-            matchQuery = { $or: [{ subjectId: subLower }, { subject: subLower }] };
-        }
-        
-        if (topicId) {
-            const tLower = topicId.toLowerCase().trim();
-            matchQuery = {
-                $and: [
-                    matchQuery,
-                    { $or: [{ topicId: tLower }, { topic: tLower }] }
-                ]
-            };
-        }
-        
-        let finalQuestions = [];
-        const cacheKey = topicId ? `pool_${subLower}_${topicId.toLowerCase()}` : `pool_${subLower}`;
-        
-        try {
-            // Check for cached pool first
-            let pool = await getCachedData(cacheKey);
-            
-            if (!pool || pool.length < qCount) {
-                if (poolLoadingPromises.has(cacheKey)) {
-                    console.log(`[TestStart][${requestId}] Attaching to existing pool fetch for: ${subLower}`);
-                    pool = await poolLoadingPromises.get(cacheKey);
-                } else {
-                    console.log(`[TestStart][${requestId}] Cache miss. Fetching pool from DB...`);
-                    const fetchPromise = (async () => {
-                        try {
-                            const result = await Question.aggregate([
-                                { $match: matchQuery },
-                                { $sample: { size: Math.max(qCount * 10, 200) } }
-                            ]).maxTimeMS(10000).lean();
-                            
-                            if (result && result.length > 0) {
-                                await setCachedData(cacheKey, result, 300);
-                            }
-                            return result;
-                        } finally {
-                            poolLoadingPromises.delete(cacheKey);
-                        }
-                    })();
-                    
-                    poolLoadingPromises.set(cacheKey, fetchPromise);
-                    pool = await fetchPromise;
-                }
-            }
-
-            if (pool && pool.length > 0) {
-                // Shuffle the pool and pick qCount
-                finalQuestions = pool
-                    .sort(() => 0.5 - Math.random())
-                    .slice(0, qCount);
-            }
-        } catch (dbErr) {
-            console.error(`[TestStart][${requestId}] Pool Fetch failed/timed out:`, dbErr.message);
-        }
-
-        if (!finalQuestions || finalQuestions.length === 0) {
-            console.log(`[TestStart][${requestId}] DB miss/slow for ${subLower}. Falling back to JSON...`);
-            const { loadQuestions } = require('../utils/questionLoader');
-            const fileQuestions = await loadQuestions(subLower);
-            
-            if (fileQuestions && fileQuestions.length > 0) {
-                finalQuestions = fileQuestions
-                    .sort(() => 0.5 - Math.random())
-                    .slice(0, qCount);
-            }
-        }
+        // 1. Unified Selection Pipeline
+        const finalQuestions = await QuestionService.getTestQuestions({
+            userId: req.user._id,
+            subject: subLower,
+            count
+        });
 
         if (!finalQuestions || finalQuestions.length === 0) {
             return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
         }
 
-        // --- ADAPTIVE FILTERING ---
-        // Refine the fetched pool using AI adaptive logic
-        finalQuestions = await AdaptiveLearningService.selectQuestions(req.user._id, finalQuestions, qCount);
-
         // 2. Atomic Session Creation
-        const sessionId = crypto.randomUUID();
         const session = new TestSession({
             userId: req.user._id,
             sessionId,
@@ -132,7 +57,7 @@ router.post('/start', auth, async (req, res) => {
             questionIds: finalQuestions.map(q => q._id ? q._id.toString() : q.id)
         });
 
-        // Use atomic save with error handling for duplicate sessionId (unlikely but required for hardening)
+        // Use atomic save with error handling for duplicate sessionId
         try {
             await session.save();
         } catch (saveErr) {
@@ -142,25 +67,9 @@ router.post('/start', auth, async (req, res) => {
             throw saveErr;
         }
 
-        // 3. Prepare response questions (Lean mapping)
-        const mappedQuestions = finalQuestions.map(q => {
-            const doc = q._doc || q;
-            return {
-                id: doc._id || doc.id,
-                question_en: doc.question_en || doc.text,
-                question_hi: doc.question_hi,
-                options_en: doc.options_en || doc.options,
-                options_hi: doc.options_hi,
-                explanation_en: doc.explanation_en || doc.explanation,
-                explanation_hi: doc.explanation_hi,
-                subject: doc.subject || doc.subjectId,
-                correctAnswer: doc.correctAnswer !== undefined ? doc.correctAnswer : doc.answer
-            };
-        });
-
         res.status(201).json({
             sessionId,
-            questions: mappedQuestions,
+            questions: finalQuestions,
             startTime: session.startTime
         });
     } catch (error) {

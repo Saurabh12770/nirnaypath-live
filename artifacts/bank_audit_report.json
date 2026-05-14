@@ -1,0 +1,280 @@
+{
+  "timestamp": "2026-05-13T15:02:49.386Z",
+  "totalSubjects": 19,
+  "overall": {
+    "totalQuestions": 95155,
+    "duplicates": 28059,
+    "invalid": 0,
+    "missingHindi": 0,
+    "missingExplanation": 0,
+    "malformedOptions": 496
+  },
+  "subjectBreakdown": {
+    "aptitude": {
+      "count": 5001,
+      "duplicates": 2449,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 10,
+      "difficultyBalance": {
+        "easy": 1242,
+        "medium": 2206,
+        "hard": 1553
+      }
+    },
+    "bihar": {
+      "count": 5000,
+      "duplicates": 2988,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 5,
+      "difficultyBalance": {
+        "easy": 1258,
+        "medium": 2135,
+        "hard": 1607
+      }
+    },
+    "chemistry": {
+      "count": 5000,
+      "duplicates": 4994,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 54,
+      "difficultyBalance": {
+        "easy": 1482,
+        "medium": 2518,
+        "hard": 1000
+      }
+    },
+    "computerscience": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 15,
+      "difficultyBalance": {
+        "easy": 1002,
+        "medium": 2498,
+        "hard": 1500
+      }
+    },
+    "current": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 25,
+      "difficultyBalance": {
+        "easy": 1001,
+        "medium": 2499,
+        "hard": 1500
+      }
+    },
+    "economics": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 47,
+      "difficultyBalance": {
+        "easy": 1003,
+        "medium": 2498,
+        "hard": 1499
+      }
+    },
+    "english": {
+      "count": 5002,
+      "duplicates": 1,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 36,
+      "difficultyBalance": {
+        "easy": 1001,
+        "medium": 2502,
+        "hard": 1499
+      }
+    },
+    "environment": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 23,
+      "difficultyBalance": {
+        "easy": 1001,
+        "medium": 2497,
+        "hard": 1502
+      }
+    },
+    "general_awareness": {
+      "count": 5001,
+      "duplicates": 1,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 27,
+      "difficultyBalance": {
+        "easy": 1005,
+        "medium": 2498,
+        "hard": 1498
+      }
+    },
+    "geography": {
+      "count": 5000,
+      "duplicates": 2,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 48,
+      "difficultyBalance": {
+        "easy": 1007,
+        "medium": 2490,
+        "hard": 1503
+      }
+    },
+    "hindi": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 1,
+      "topicCount": 33,
+      "difficultyBalance": {
+        "easy": 1003,
+        "medium": 2500,
+        "hard": 1497
+      }
+    },
+    "history": {
+      "count": 5150,
+      "duplicates": 168,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 64,
+      "difficultyBalance": {
+        "easy": 1068,
+        "medium": 2518,
+        "hard": 1564
+      }
+    },
+    "law": {
+      "count": 5000,
+      "duplicates": 4989,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 9,
+      "difficultyBalance": {
+        "easy": 1666,
+        "medium": 1668,
+        "hard": 1666
+      }
+    },
+    "math": {
+      "count": 5000,
+      "duplicates": 2455,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 4,
+      "difficultyBalance": {
+        "easy": 1634,
+        "medium": 1641,
+        "hard": 1725
+      }
+    },
+    "police_science": {
+      "count": 5000,
+      "duplicates": 4980,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 9,
+      "difficultyBalance": {
+        "easy": 1667,
+        "medium": 1667,
+        "hard": 1666
+      }
+    },
+    "polity": {
+      "count": 5000,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 495,
+      "topicCount": 45,
+      "difficultyBalance": {
+        "easy": 1001,
+        "medium": 2499,
+        "hard": 1500
+      }
+    },
+    "reasoning": {
+      "count": 5001,
+      "duplicates": 0,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 44,
+      "difficultyBalance": {
+        "easy": 1003,
+        "medium": 2499,
+        "hard": 1499
+      }
+    },
+    "science": {
+      "count": 5000,
+      "duplicates": 38,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 31,
+      "difficultyBalance": {
+        "easy": 996,
+        "medium": 2508,
+        "hard": 1496
+      }
+    },
+    "social_science": {
+      "count": 5000,
+      "duplicates": 4994,
+      "invalid": 0,
+      "missingHindi": 0,
+      "missingExplanation": 0,
+      "malformedOptions": 0,
+      "topicCount": 55,
+      "difficultyBalance": {
+        "easy": 1475,
+        "medium": 2525,
+        "hard": 1000
+      }
+    }
+  }
+}

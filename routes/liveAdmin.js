@@ -54,7 +54,7 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
         if (!session) {
             return res.status(404).json({ error: 'Session not found or already started' });
         }
-        await session.remove();
+        await session.deleteOne();
         res.json({ message: 'Session deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

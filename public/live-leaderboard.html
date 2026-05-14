@@ -76,6 +76,8 @@
         </table>
     </div>
 
+    <script src="/js/utils.js?v=3.0.0"></script>
+    <script src="/js/auth.js?v=3.0.0"></script>
     <script>
         async function fetchLeaderboard() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -87,14 +89,14 @@
             }
 
             try {
-                const response = await fetch(`/api/live/leaderboard/${sessionId}`);
-                const data = await response.json();
+                // Use safeFetch for resilient leaderboard loading
+                const data = await window.NirnayPath.safeFetch(`/api/live/leaderboard/${sessionId}`);
                 
                 document.getElementById('loading').style.display = 'none';
                 const table = document.getElementById('leaderboardTable');
                 const tbody = document.getElementById('leaderboardBody');
 
-                if (!data.length) {
+                if (!data || !data.length) {
                     document.getElementById('loading').textContent = 'No results found for this session yet.';
                     document.getElementById('loading').style.display = 'block';
                     return;
@@ -109,7 +111,7 @@
                     return `
                         <tr>
                             <td class="${rankClass}">#${rank} ${rank <= 3 ? '<i class="fas fa-medal"></i>' : ''}</td>
-                            <td><strong>${res.userId.name}</strong></td>
+                            <td><strong>${res.userId ? res.userId.name : 'Aspirant'}</strong></td>
                             <td>${res.score}</td>
                             <td>${res.totalQuestions}</td>
                             <td style="color: #666; font-size: 0.9rem;">${submitted}</td>

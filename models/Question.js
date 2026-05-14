@@ -24,8 +24,14 @@ const questionSchema = new mongoose.Schema({
     explanation_en: String,
     explanation_hi: String,
     
+    // Quality Intelligence Fields
+    qualityScore: { type: Number, index: true },
+    qualityFlags: [String],
+    reviewRequired: { type: Boolean, default: false, index: true },
+    
     createdAt: { type: Date, default: Date.now }
 }, { strict: false }); // Set strict: false to allow existing data to be read even if fields vary slightly
+questionSchema.index({ question_en: 'text', text: 'text' });
 
 const Question = mongoose.model('Question', questionSchema);
 

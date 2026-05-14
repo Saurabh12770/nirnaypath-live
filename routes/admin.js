@@ -2,27 +2,38 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 const Question = require('../models/Question');
+const User = require('../models/User');
+const TestResult = require('../models/TestResult');
+const Payment = require('../models/Payment');
 const { loadQuestions } = require('../utils/questionLoader');
 const { atomicWriteFile } = require('../utils/fileUtils');
+const QQS = require('../services/questionQualityService');
 
 // List questions from MongoDB (Primary source of truth)
 router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { subject } = req.params;
         const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
         
         const subLower = subject.toLowerCase().trim();
+        trace(CATEGORIES.ADMIN_FLOW, 'Question List Requested', { subject: subLower, page });
+        
         const query = { 
             $or: [{ subjectId: subLower }, { subject: subLower }] 
         };
 
-        if (topic) query.topicId = topic; // Match current schema
-        if (difficulty) query.difficulty = difficulty.toUpperCase();
+        if (topic) query.topic = topic; 
+        if (difficulty) query.difficulty = difficulty;
         if (search) {
-            query.$text = { $search: search }; // Assumes text index, or use regex as fallback
+            query.$or = [
+                { question_en: { $regex: search, $options: 'i' } },
+                { question_hi: { $regex: search, $options: 'i' } }
+            ];
         }
 
         const skip = (page - 1) * parseInt(limit);
@@ -77,66 +88,50 @@ router.get('/subjects', auth, adminAuth, async (req, res) => {
     }
 });
 
-// Paginated questions for a subject
-router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
-    try {
-        const { subject } = req.params;
-        const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
-        
-        let questions = await loadQuestions(subject);
-        if (!questions) return res.status(404).json({ error: 'Subject not found' });
 
-        // Apply Filters
-        if (topic) questions = questions.filter(q => q.topic === topic);
-        if (difficulty) questions = questions.filter(q => q.difficulty === difficulty);
-        if (search) {
-            const s = search.toLowerCase();
-            questions = questions.filter(q => 
-                (q.question_en && q.question_en.toLowerCase().includes(s)) ||
-                (q.question_hi && q.question_hi.toLowerCase().includes(s))
-            );
-        }
-
-        const total = questions.length;
-        const start = (page - 1) * limit;
-        const paginated = questions.slice(start, start + parseInt(limit));
-
-        res.json({ questions: paginated, total, page: parseInt(page), limit: parseInt(limit) });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Add new question (MongoDB Direct)
+// Add new question (MongoDB Direct) — with quality scoring
 router.post('/questions/:subject', auth, adminAuth, async (req, res) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { subject } = req.params;
         const subLower = subject.toLowerCase().trim();
+        
+        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Attempt', { subject: subLower });
+
+        // Validation warnings (non-blocking)
+        const { valid, warnings } = QQS.validate(req.body);
+
         const questionData = { 
             ...req.body, 
             subjectId: subLower,
             subject: subLower,
-            createdAt: new Date()
+            createdAt: new Date(),
+            ...QQS.score(req.body), // attach qualityScore, qualityFlags, reviewRequired
         };
         
         const question = new Question(questionData);
         await question.save();
         
-        // Trigger background sync to JSON
+        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Success', { qId: question._id });
         syncToJSON(subject).catch(() => {});
         
-        res.status(201).json({ message: 'Question added', question });
+        res.status(201).json({ message: 'Question added', question, warnings });
     } catch (error) {
+        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Failure', { error: error.message });
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update question (Atomic MongoDB Update)
+// Update question — re-score quality on every save
 router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
         const { subject, id } = req.params;
         const updatedData = req.body;
         delete updatedData._id; // Safety
+
+        // Attach fresh quality metrics
+        const qualityMeta = QQS.score(updatedData);
+        Object.assign(updatedData, qualityMeta);
         
         const question = await Question.findOneAndUpdate(
             { $or: [{ _id: id.length === 24 ? id : undefined }, { id: id }] },
@@ -146,8 +141,9 @@ router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
         
         if (!question) return res.status(404).json({ error: 'Question not found' });
 
+        const { warnings } = QQS.validate(updatedData);
         syncToJSON(subject).catch(() => {});
-        res.json({ message: 'Question updated', question });
+        res.json({ message: 'Question updated', question, warnings });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -157,33 +153,103 @@ router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
 router.delete('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
         const { subject, id } = req.params;
-        let questions = await loadQuestions(subject);
         
-        const filtered = questions.filter(q => q.id !== id && q._id !== id);
-        if (filtered.length === questions.length) return res.status(404).json({ error: 'Question not found' });
+        const question = await Question.findOneAndDelete({
+            $or: [{ _id: id.length === 24 ? id : null }, { id: id }]
+        });
 
-        await saveQuestionsToFile(subject, filtered);
+        if (!question) return res.status(404).json({ error: 'Question not found' });
+
+        syncToJSON(subject).catch(() => {});
         res.json({ message: 'Question deleted' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Bulk upload
+// Bulk upload — with duplicate detection + quality scoring + validation
 router.post('/questions/:subject/bulk', auth, adminAuth, async (req, res) => {
     try {
         const { subject } = req.params;
         const { questions: newBatch } = req.body;
         
-        if (!Array.isArray(newBatch)) return res.status(400).json({ error: 'Questions must be an array' });
+        if (!Array.isArray(newBatch) || newBatch.length === 0) {
+            return res.status(400).json({ error: 'Questions must be a non-empty array' });
+        }
 
-        let existing = await loadQuestions(subject);
-        if (!existing) existing = [];
+        const subLower = subject.toLowerCase().trim();
+        const uploadSummary = { total: newBatch.length, inserted: 0, duplicatesSkipped: 0, warnings: [] };
 
-        const merged = [...existing, ...newBatch];
-        await saveQuestionsToFile(subject, merged);
+        // Fetch existing hashes for this subject to detect duplicates
+        const existingRaw = await Question.find(
+            { $or: [{ subjectId: subLower }, { subject: subLower }] },
+            { question_en: 1, text: 1 }
+        ).lean();
+        const existingHashes = new Set(
+            existingRaw.map(q => crypto.createHash('md5').update((q.question_en || q.text || '').trim().toLowerCase()).digest('hex'))
+        );
+
+        const toInsert = [];
+        for (const q of newBatch) {
+            const enText = (q.question_en || q.text || '').trim();
+            const hash = crypto.createHash('md5').update(enText.toLowerCase()).digest('hex');
+            if (existingHashes.has(hash)) {
+                uploadSummary.duplicatesSkipped++;
+                continue;
+            }
+            existingHashes.add(hash); // guard within batch too
+
+            const { warnings } = QQS.validate(q);
+            if (warnings.length) uploadSummary.warnings.push({ text: enText.slice(0, 40), warnings });
+
+            toInsert.push({
+                ...q,
+                subjectId: subLower,
+                subject: subLower,
+                createdAt: new Date(),
+                ...QQS.score(q),
+            });
+        }
+
+        if (toInsert.length) await Question.insertMany(toInsert, { ordered: false });
+        uploadSummary.inserted = toInsert.length;
+        syncToJSON(subject).catch(() => {});
         
-        res.json({ message: `Successfully uploaded ${newBatch.length} questions` });
+        res.json({ message: `Bulk upload complete`, ...uploadSummary });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ── Review Queue — questions flagged for admin attention ─────────────────────
+router.get('/questions/review-queue', auth, adminAuth, async (req, res) => {
+    try {
+        const { page = 1, limit = 50 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const [questions, total] = await Promise.all([
+            Question.find({ reviewRequired: true })
+                .sort({ qualityScore: 1 }) // lowest quality first
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean(),
+            Question.countDocuments({ reviewRequired: true }),
+        ]);
+        res.json({ questions, total, page: parseInt(page), limit: parseInt(limit) });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ── Approve a question from review queue ─────────────────────────────────────
+router.patch('/questions/:id/approve', auth, adminAuth, async (req, res) => {
+    try {
+        const q = await Question.findByIdAndUpdate(
+            req.params.id,
+            { $set: { reviewRequired: false } },
+            { new: true }
+        );
+        if (!q) return res.status(404).json({ error: 'Question not found' });
+        res.json({ message: 'Question approved', question: q });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -242,7 +308,9 @@ router.put('/users/:userId', auth, adminAuth, async (req, res) => {
 // ══════════════════════════════════════════════════════════
 
 router.get('/stats', auth, adminAuth, async (req, res) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
+        trace(CATEGORIES.ADMIN_FLOW, 'Dashboard Stats Requested');
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -271,7 +339,7 @@ router.get('/stats', auth, adminAuth, async (req, res) => {
             activeUsers: activeUserIds.length
         });
     } catch (error) {
-        console.error('Admin stats error:', error);
+        trace(CATEGORIES.ADMIN_FLOW, 'Dashboard Stats Error', { error: error.message });
         res.status(500).json({ error: error.message });
     }
 });

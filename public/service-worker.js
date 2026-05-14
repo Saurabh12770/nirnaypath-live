@@ -50,12 +50,12 @@ self.addEventListener('fetch', event => {
                             const clone = response.clone();
                             const cache = await caches.open(CACHE_NAME);
                             cache.put(event.request, clone);
-                            return response.clone(); // Requirement: On success return clone
+                            return response.clone();
                         }
-                        return response;
+                        return response || new Response("offline", { status: 503 });
                     } catch (err) {
                         const cached = await caches.match(event.request);
-                        return cached ? cached.clone() : new Response("offline", { status: 503 }); // Requirement: On failure return 503
+                        return cached ? cached.clone() : new Response("offline", { status: 503 });
                     }
                 } else {
                     const cachedResponse = await caches.match(event.request);
@@ -69,7 +69,7 @@ self.addEventListener('fetch', event => {
                             cache.put(event.request, clone);
                             return response.clone();
                         }
-                        return response;
+                        return response || new Response("offline", { status: 503 });
                     } catch (err) {
                         if (event.request.mode === 'navigate') {
                             const root = await caches.match('/index.html');

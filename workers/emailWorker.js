@@ -4,6 +4,21 @@ const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
 const { recordMetric } = require('../services/emailMetrics');
 
+let transporter;
+
+const getTransporter = () => {
+    if (transporter) return transporter;
+    if (!process.env.EMAIL_HOST) return null;
+
+    transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT || 587,
+        secure: process.env.EMAIL_SECURE === 'true',
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+    return transporter;
+};
+
 const createEmailWorker = () => {
     const worker = new Worker('email-queue', async (job) => {
         const { to, subject, html, _metadata } = job.data;
@@ -19,20 +34,14 @@ const createEmailWorker = () => {
             queueDelayMs: queueDelay
         });
 
-        if (!process.env.EMAIL_HOST) {
-            logger.warn('Email host not configured. Skipping send.', { type, to });
+        const mailTransporter = getTransporter();
+        if (!mailTransporter) {
+            logger.warn('Email transporter not configured. Skipping send.', { type, to });
             await recordMetric('sent', type);
             return;
         }
 
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: process.env.EMAIL_PORT || 587,
-            secure: process.env.EMAIL_SECURE === 'true',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-
-        await transporter.sendMail({
+        await mailTransporter.sendMail({
             from: '"NirnayPath" <noreply@nirnaypath.com>',
             to,
             subject,
@@ -40,7 +49,11 @@ const createEmailWorker = () => {
         });
 
         await recordMetric('sent', type);
-    }, { connection });
+    }, { 
+        connection,
+        concurrency: 5,
+        limiter: { max: 10, duration: 1000 } // Global limit across workers
+    });
 
     worker.on('completed', (job) => {
         const type = job.data?._metadata?.emailType || job.name;

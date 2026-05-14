@@ -49,13 +49,20 @@ async function getCachedData(key) {
     }
 
     // Fallback to local
-    const cachedItem = localCache.get(key);
+    const cachedItem = localCache.get(versionedKey); // Use versionedKey consistently
     if (!cachedItem) return null;
     if (Date.now() > cachedItem.expiry) {
-        localCache.delete(key);
+        localCache.delete(versionedKey);
         return null;
     }
-    return cachedItem.data;
+    
+    // FAANG-Level Immutability: ALWAYS return a deep clone for local memory objects
+    // This prevents one request from mutating the cached pool for all others.
+    try {
+        return JSON.parse(JSON.stringify(cachedItem.data));
+    } catch (e) {
+        return cachedItem.data; // Fallback to reference if cloning fails
+    }
 }
 
 /**

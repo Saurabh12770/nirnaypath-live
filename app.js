@@ -32,6 +32,8 @@ const pagesRoutes = require('./routes/pages');
 const analyticsRoutes = require('./routes/analytics');
 const learningRoutes = require('./routes/learning');
 const healthRoutes = require('./routes/health');
+const liveRoutes = require('./routes/live');
+const liveAdminRoutes = require('./routes/liveAdmin');
 const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { initCronJobs } = require('./services/cronService');
@@ -174,6 +176,8 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/live', liveRoutes);
+app.use('/api/admin/live-sessions', liveAdminRoutes);
 app.use('/api', apiRoutes);
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/admin.html'));
@@ -181,6 +185,11 @@ app.get('/admin', (req, res) => {
 
 app.use('/', pagesRoutes);
 
+
+// 404 Handler for API routes
+app.use('/api', (req, res) => {
+    res.status(404).json({ error: 'API route not found' });
+});
 
 // Global Error Handler
 app.use((err, req, res, next) => {

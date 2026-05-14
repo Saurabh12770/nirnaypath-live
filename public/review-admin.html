@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NirnayPath - Content Governance</title>
+    <link rel="stylesheet" href="/css/review-admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo">NirnayPath</div>
+            <nav>
+                <a href="#" onclick="ReviewUI.showTab('pending')" class="active">Pending Review <span id="pending-count" class="badge">0</span></a>
+                <a href="#" onclick="ReviewUI.showTab('quarantine')">Quarantine <span id="quarantine-count" class="badge">0</span></a>
+                <a href="#" onclick="ReviewUI.showTab('analytics')">Analytics</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header>
+                <h1>Content Governance Dashboard</h1>
+                <div class="user-profile">Admin_001</div>
+            </header>
+
+            <!-- Pending Review Tab -->
+            <section id="tab-pending" class="tab-content active">
+                <h2>Pending Batches</h2>
+                <div id="batch-list" class="grid-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Quarantine Tab -->
+            <section id="tab-quarantine" class="tab-content">
+                <h2>Quarantined Content</h2>
+                <div id="quarantine-list" class="grid-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Analytics Tab -->
+            <section id="tab-analytics" class="tab-content">
+                <h2>System Analytics</h2>
+                <div id="analytics-panel" class="stats-grid">
+                    <!-- Loaded dynamically -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Batch Detail Modal -->
+    <div id="batch-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="ReviewUI.closeModal()">&times;</span>
+            <h2 id="modal-title">Batch Inspector</h2>
+            <div id="modal-coverage-impact" class="impact-panel"></div>
+            <div id="modal-questions" class="questions-list"></div>
+            <div class="modal-actions">
+                <button class="btn-danger" onclick="ReviewUI.rejectActiveBatch()">Reject Batch</button>
+                <button class="btn-success" onclick="ReviewUI.approveActiveBatch()">Approve & Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/reviewAdminRuntime.js"></script>
+</body>
+</html>

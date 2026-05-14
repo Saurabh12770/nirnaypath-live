@@ -14,9 +14,9 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-let currentExam = 'upsc';
-let currentSubject = 'history';
-let currentLanguage = 'en';
+let currentExam = localStorage.getItem('np_exam') || 'upsc';
+let currentSubject = localStorage.getItem('np_subject') || 'history';
+let currentLanguage = localStorage.getItem('np_language') || 'en';
 let currentFilter = 'All';
 let timerInterval = null;
 let tabSwitchCount = 0;
@@ -94,11 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Inject CSS enhancements (scrollbar, animations, etc.) */
     injectDynamicCSS();
 
-    /* Init modules */
-    initTheme();
-
-    initExamRibbon();
+    /* Init modules handled by utils.js */
     initLanguageToggle();
+    
+    initExamRibbon();
     initFilterButtons();
     initStickyHeader();
     initBackToTop();
@@ -121,22 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Try to resume an active test session */
     checkExistingTestSession();
+});
 
-    /* Phase 3: Global Logo Click Fix */
-    document.addEventListener("click", function(e){
-        if(e.target.closest(".logo")){
-            window.location.href = "index.html";
-        }
-    });
-
-    /* Phase 6: Global Image Error Fallback (e.g., UI-Avatars) */
-    document.addEventListener("error", function(e) {
-        if (e.target.tagName === "IMG") {
-            const initials = e.target.alt || "NP";
-            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=random`;
-            e.target.onerror = null; // Prevent infinite loops
-        }
-    }, true);
+/* Redundant functions removed - handled by utils.js */
 
     /* Phase 6: CDN Fallback Handling (FontAwesome) */
     setTimeout(() => {
@@ -448,16 +434,25 @@ function setActiveExam(exam) {
    8. LANGUAGE
    ============================================================ */
 function initLanguageToggle() {
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
-    });
+    if (window.NirnayPath) window.NirnayPath.syncLanguageUI();
 }
 
 function setLanguage(lang) {
     currentLanguage = lang;
+    localStorage.setItem('np_language', lang);
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active-lang'));
-    document.querySelector(`.lang-btn[data-lang="${lang}"]`)?.classList.add('active-lang');
-    if (testState.isActive && testState.selectedQuestions.length) renderQuestion();
+    document.querySelectorAll(`.lang-btn[data-lang="${lang}"]`).forEach(b => b.classList.add('active-lang'));
+    
+    // 1. Rerender active question engine
+    if (testState.isActive && testState.selectedQuestions.length) {
+        renderQuestion();
+    }
+    
+    // 2. Rerender review container if it's currently visible
+    const rc = document.getElementById('review-container');
+    if (rc && rc.style.display === 'block') {
+        buildReview();
+    }
 }
 
 /* ============================================================ 
@@ -1018,29 +1013,19 @@ function submitTest() {
     };
 
     if (testState.isLive) {
-        fetch(`/api/live/submit/${testState.sessionId}`, {
+        window.NirnayPath.safeFetch(`/api/live/submit/${testState.sessionId}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${Auth.getToken()}`
-            },
             body: JSON.stringify({ answers: testState.answers })
         })
-        .then(res => res.json())
         .then(data => console.log('Live Test submitted:', data))
         .catch(err => console.error('Error submitting live test:', err));
         return;
     }
 
-    fetch('/api/test/submit', {
+    window.NirnayPath.safeFetch('/api/test/submit', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Auth.getToken()}`
-        },
         body: JSON.stringify(resultsData)
     })
-    .then(res => res.json())
     .then(data => console.log('Test submitted to server:', data))
     .catch(err => console.error('Error submitting test to server:', err));
 }
@@ -1108,7 +1093,11 @@ function buildReview() {
             <div class="review-explanation">
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
                 <p>${L.exp(q)}</p>
-            </div>` : ''}
+            </div>` : `
+            <div class="review-explanation missing">
+                <strong><i class="fas fa-info-circle"></i> Note:</strong>
+                <p>Explanation is currently being processed for this question. Please check back later.</p>
+            </div>`}
         `;
         rc.appendChild(card);
     });

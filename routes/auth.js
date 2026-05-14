@@ -123,39 +123,52 @@ router.post('/logout', async (req, res) => {
     }
 });
 
-// Forgot Password - Initiate Recovery
+// Forgot Password - Initiate Recovery (Phase 8 Hardened)
 router.post('/forgot-password', async (req, res) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
 
         const user = await User.findOne({ email: email.toLowerCase() });
         
-        // Security Best Practice: Always return generic success to prevent user enumeration
+        trace(CATEGORIES.PASSWORD_FLOW, 'Forgot Password Requested', { email });
+
         if (!user) {
+            // Security Best Practice: Always return generic success to prevent user enumeration
             return res.json({ message: 'If that email exists in our system, a reset link has been sent.' });
         }
 
         // Generate high-entropy secure token
-        const token = crypto.randomBytes(32).toString('hex');
+        const rawToken = crypto.randomBytes(32).toString('hex');
         
-        // Store token and 15-minute expiry
-        user.resetPasswordToken = token;
+        // Phase 8: Hash the token for storage (Replay & Compromise protection)
+        const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+        
+        // Store hashed token and 15-minute expiry
+        user.resetPasswordToken = hashedToken;
         user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 Minutes
         
         await user.save();
 
-        // Queue email via BullMQ dispatcher
-        sendPasswordResetEmail(user, token).catch(err => console.error('[Auth] Password reset queue error:', err));
+        trace(CATEGORIES.PASSWORD_FLOW, 'Reset Token Generated & Hashed', { 
+            userId: user._id, 
+            tokenStub: rawToken.substring(0, 4) + '...'
+        });
+
+        // Queue email via BullMQ dispatcher (Send the RAW token to the user)
+        sendPasswordResetEmail(user, rawToken).catch(err => console.error('[Auth] Password reset queue error:', err));
 
         res.json({ message: 'Reset link sent to your email.' });
     } catch (error) {
+        trace(CATEGORIES.PASSWORD_FLOW, 'Forgot Password Error', { error: error.message });
         res.status(500).json({ error: 'Recovery system failure' });
     }
 });
 
-// Reset Password - Commit Recovery
+// Reset Password - Commit Recovery (Phase 8 Hardened)
 router.post('/reset-password', async (req, res) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { token, newPassword } = req.body;
         
@@ -163,27 +176,34 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ error: 'Token and new password are required' });
         }
 
+        // Hash the incoming raw token to compare with DB
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
         // Atomic check for valid token and non-expired window
         const user = await User.findOne({
-            resetPasswordToken: token,
+            resetPasswordToken: hashedToken,
             resetPasswordExpires: { $gt: Date.now() }
         });
 
         if (!user) {
+            trace(CATEGORIES.PASSWORD_FLOW, 'Reset Attempt Failed: Invalid or Expired Hash', { tokenStub: token.substring(0, 4) });
             return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
         }
 
         // Update and Securely Hash the new password
         user.password = await bcrypt.hash(newPassword, 8);
         
-        // Invalidate token immediately to prevent reuse (Security Hardening)
+        // Invalidate token immediately (Atomic cleanup)
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         
         await user.save();
 
+        trace(CATEGORIES.PASSWORD_FLOW, 'Password Reset Successful', { userId: user._id });
+
         res.json({ message: 'Password has been reset successfully. You can now log in.' });
     } catch (error) {
+        trace(CATEGORIES.PASSWORD_FLOW, 'Password Reset Error', { error: error.message });
         res.status(500).json({ error: 'Reset operation failed' });
     }
 });

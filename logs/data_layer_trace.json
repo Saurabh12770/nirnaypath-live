@@ -1,0 +1,13 @@
+{"operation":"getQuestions_error","error":"Operation `questions.find()` buffering timed out after 10000ms","timestamp":"2026-05-14T02:11:01.569Z"}
+{"operation":"getQuestions_error","error":"Operation `questions.find()` buffering timed out after 10000ms","timestamp":"2026-05-14T02:11:11.603Z"}
+{"operation":"getQuestions_error","error":"Operation `questions.find()` buffering timed out after 10000ms","timestamp":"2026-05-14T02:11:21.616Z"}
+{"operation":"getQuestions","source":"json_fallback","subject":"test_layer","count":2,"duration":8,"cacheHit":false,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.028Z"}
+{"operation":"getQuestions","source":"cache","subject":"test_layer","count":2,"duration":0,"cacheHit":true,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.033Z"}
+{"operation":"getQuestions","source":"cache","subject":"test_layer","count":2,"duration":0,"cacheHit":true,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.035Z"}
+{"operation":"getQuestions","source":"cache","subject":"test_layer","count":1,"duration":0,"cacheHit":true,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.037Z"}
+{"operation":"getQuestions","source":"cache","subject":"test_layer","count":1,"duration":1,"cacheHit":true,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.047Z"}
+{"operation":"appendQuestions","source":"pipeline","subject":"test_layer","count":1,"duration":9,"cacheHit":false,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.061Z"}
+{"operation":"getQuestions","source":"json_fallback","subject":"test_layer","count":3,"duration":1,"cacheHit":false,"driftDetected":false,"timestamp":"2026-05-14T02:11:25.063Z"}
+{"operation":"getQuestions_error","error":"Operation `questions.find()` buffering timed out after 10000ms","timestamp":"2026-05-14T02:11:31.641Z"}
+{"operation":"appendQuestions","source":"pipeline","subject":"test_layer","count":1,"duration":56,"cacheHit":false,"driftDetected":false,"timestamp":"2026-05-14T02:11:31.713Z"}
+{"operation":"getQuestions_error","error":"Operation `questions.find()` buffering timed out after 10000ms","timestamp":"2026-05-14T02:11:41.718Z"}

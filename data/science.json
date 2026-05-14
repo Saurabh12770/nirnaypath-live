@@ -5,7 +5,7 @@
     {
       "id": "SCI-SSC-0001",
       "subject": "Science",
-      "topic": "Physics - Light",
+      "topic": "Physics Light",
       "difficulty": "easy",
       "question_en": "What is the primary phenomenon responsible for the formation of a rainbow?",
       "question_hi": "इंद्रधनुष बनने के लिए जिम्मेदार प्राथमिक घटना क्या है?",
@@ -32,12 +32,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Reflection"
+      "correct_answer": "Reflection",
+      "topicId": "physics_light"
     },
     {
       "id": "SCI-SSC-0002",
       "subject": "Science",
-      "topic": "Biology - Human Body",
+      "topic": "Biology Human Body",
       "difficulty": "medium",
       "question_en": "Which part of the human brain is responsible for maintaining balance and posture?",
       "question_hi": "मानव मस्तिष्क का कौन सा भाग संतुलन और मुद्रा बनाए रखने के लिए जिम्मेदार है?",
@@ -64,12 +65,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Cerebrum"
+      "correct_answer": "Cerebrum",
+      "topicId": "biology_human_body"
     },
     {
       "id": "SCI-SSC-0003",
       "subject": "Science",
-      "topic": "Chemistry - Atoms",
+      "topic": "Chemistry Atoms",
       "difficulty": "easy",
       "question_en": "Which subatomic particle has a negative charge?",
       "question_hi": "किस उप-परमाणु कण पर ऋणात्मक (Negative) आवेश होता है?",
@@ -96,12 +98,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Proton"
+      "correct_answer": "Proton",
+      "topicId": "chemistry_atoms"
     },
     {
       "id": "SCI-SSC-0004",
       "subject": "Science",
-      "topic": "Biology - Cells",
+      "topic": "Biology Cells",
       "difficulty": "medium",
       "question_en": "Which organelle is known as the 'Powerhouse of the Cell'?",
       "question_hi": "किस कोशिकांग को 'कोशिका का पावरहाउस' (Urja Ghar) कहा जाता है?",
@@ -128,12 +131,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Lysosome"
+      "correct_answer": "Lysosome",
+      "topicId": "biology_cells"
     },
     {
       "id": "SCI-SSC-0005",
       "subject": "Science",
-      "topic": "Physics - Mechanics",
+      "topic": "Physics Mechanics",
       "difficulty": "hard",
       "question_en": "What happens to the weight of an object when it is taken from the Earth to the Moon?",
       "question_hi": "जब किसी वस्तु को पृथ्वी से चंद्रमा पर ले जाया जाता है, तो उसके भार का क्या होता है?",
@@ -161,40 +165,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Increases"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0006",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Increases",
+      "topicId": "physics_mechanics"
     },
     {
       "id": "SCI-SSC-0007",
       "subject": "Science",
-      "topic": "Biology - Vitamins",
+      "topic": "Biology Vitamins",
       "difficulty": "easy",
       "question_en": "Which vitamin deficiency causes 'Night Blindness'?",
       "question_hi": "किस विटामिन की कमी से 'रतौंधी' (Night Blindness) होती है?",
@@ -221,40 +198,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Vitamin B"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0008",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Vitamin B",
+      "topicId": "biology_vitamins"
     },
     {
       "id": "SCI-SSC-0009",
       "subject": "Science",
-      "topic": "Chemistry - Metals",
+      "topic": "Chemistry Metals",
       "difficulty": "hard",
       "question_en": "Which metal is liquid at room temperature?",
       "question_hi": "कौन सी धातु कमरे के तापमान पर तरल होती है?",
@@ -282,40 +232,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Sodium"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0010",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Sodium",
+      "topicId": "chemistry_metals"
     },
     {
       "id": "SCI-SSC-0011",
       "subject": "Science",
-      "topic": "Physics - Electricity",
+      "topic": "Physics Electricity",
       "difficulty": "medium",
       "question_en": "Which device is used to measure electric current?",
       "question_hi": "विद्युत धारा मापने के लिए किस उपकरण का उपयोग किया जाता है?",
@@ -342,12 +265,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Voltmeter"
+      "correct_answer": "Voltmeter",
+      "topicId": "physics_electricity"
     },
     {
       "id": "SCI-SSC-0012",
       "subject": "Science",
-      "topic": "Chemistry - Gases",
+      "topic": "Chemistry Gases",
       "difficulty": "hard",
       "question_en": "Which gas is known as 'Laughing Gas'?",
       "question_hi": "'हंसाने वाली गैस' (Laughing Gas) के रूप में किसे जाना जाता है?",
@@ -375,12 +299,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Nitrogen Dioxide"
+      "correct_answer": "Nitrogen Dioxide",
+      "topicId": "chemistry_gases"
     },
     {
       "id": "SCI-SSC-0013",
       "subject": "Science",
-      "topic": "Biology - Plants",
+      "topic": "Biology Plants",
       "difficulty": "easy",
       "question_en": "Which pigment gives green color to leaves?",
       "question_hi": "कौन सा वर्णक (Pigment) पत्तियों को हरा रंग प्रदान करता है?",
@@ -407,96 +332,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Hemoglobin"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0014",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0015",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0016",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Hemoglobin",
+      "topicId": "biology_plants"
     },
     {
       "id": "SCI-SSC-0017",
       "subject": "Science",
-      "topic": "Physics - Heat",
+      "topic": "Physics Heat",
       "difficulty": "medium",
       "question_en": "Transfer of heat in liquids and gases primarily occurs through:",
       "question_hi": "तरल पदार्थों और गैसों में ऊष्मा का स्थानांतरण मुख्य रूप से किसके माध्यम से होता है?",
@@ -523,12 +365,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Conduction"
+      "correct_answer": "Conduction",
+      "topicId": "physics_heat"
     },
     {
       "id": "SCI-SSC-0018",
       "subject": "Science",
-      "topic": "Chemistry - Alloys",
+      "topic": "Chemistry Alloys",
       "difficulty": "medium",
       "question_en": "Brass is an alloy of which two metals?",
       "question_hi": "पीतल (Brass) किन दो धातुओं का मिश्र धातु है?",
@@ -555,12 +398,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Copper and Tin"
+      "correct_answer": "Copper and Tin",
+      "topicId": "chemistry_alloys"
     },
     {
       "id": "SCI-SSC-0019",
       "subject": "Science",
-      "topic": "Biology - Genetics",
+      "topic": "Biology Genetics",
       "difficulty": "hard",
       "question_en": "Who is known as the 'Father of Genetics'?",
       "question_hi": "'आनुवंशिकी के जनक' (Father of Genetics) के रूप में किसे जाना जाता है?",
@@ -588,40 +432,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Charles Darwin"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0020",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Charles Darwin",
+      "topicId": "biology_genetics"
     },
     {
       "id": "SCI-SSC-0021",
       "subject": "Science",
-      "topic": "Chemistry - Daily Life",
+      "topic": "Chemistry Daily Life",
       "difficulty": "medium",
       "question_en": "What is the chemical name of common salt?",
       "question_hi": "साधारण नमक का रासायनिक नाम क्या है?",
@@ -648,40 +465,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Sodium Carbonate"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0022",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Sodium Carbonate",
+      "topicId": "chemistry_daily_life"
     },
     {
       "id": "SCI-SSC-0023",
       "subject": "Science",
-      "topic": "Physics - Optics",
+      "topic": "Physics Optics",
       "difficulty": "hard",
       "question_en": "Which type of mirror is used as a rear-view mirror in vehicles?",
       "question_hi": "वाहनों में पीछे का दृश्य देखने के लिए किस प्रकार के दर्पण का उपयोग किया जाता है?",
@@ -709,68 +499,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Plane Mirror"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0024",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0025",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Plane Mirror",
+      "topicId": "physics_optics"
     },
     {
       "id": "SCI-SSC-0026",
       "subject": "Science",
-      "topic": "Physics - Magnetism",
+      "topic": "Physics Magnetism",
       "difficulty": "easy",
       "question_en": "Like magnetic poles _______ each other.",
       "question_hi": "समान चुंबकीय ध्रुव एक दूसरे को _______ करते हैं।",
@@ -797,12 +532,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Attract"
+      "correct_answer": "Attract",
+      "topicId": "physics_magnetism"
     },
     {
       "id": "SCI-SSC-0027",
       "subject": "Science",
-      "topic": "Chemistry - Reactions",
+      "topic": "Chemistry Reactions",
       "difficulty": "medium",
       "question_en": "Rusting of iron is an example of:",
       "question_hi": "लोहे में जंग लगना किसका उदाहरण है?",
@@ -829,12 +565,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Reduction"
+      "correct_answer": "Reduction",
+      "topicId": "chemistry_reactions"
     },
     {
       "id": "SCI-SSC-0028",
       "subject": "Science",
-      "topic": "Biology - Skeleton",
+      "topic": "Biology Skeleton",
       "difficulty": "medium",
       "question_en": "What is the strongest bone in the human body?",
       "question_hi": "मानव शरीर की सबसे मजबूत हड्डी कौन सी है?",
@@ -861,12 +598,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Stapes"
+      "correct_answer": "Stapes",
+      "topicId": "biology_skeleton"
     },
     {
       "id": "SCI-SSC-0029",
       "subject": "Science",
-      "topic": "Physics - Atoms",
+      "topic": "Physics Atoms",
       "difficulty": "hard",
       "question_en": "Nuclear fusion is the principle behind which of the following?",
       "question_hi": "परमाणु संलयन (Nuclear fusion) निम्नलिखित में से किसके पीछे का सिद्धांत है?",
@@ -894,40 +632,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Atomic Bomb"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0030",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Atomic Bomb",
+      "topicId": "physics_atoms"
     },
     {
       "id": "SCI-SSC-0031",
       "subject": "Science",
-      "topic": "Biology - Cells",
+      "topic": "Biology Cells",
       "difficulty": "hard",
       "question_en": "Which cell organelle is responsible for protein synthesis?",
       "question_hi": "प्रोटीन संश्लेषण के लिए कौन सा कोशिकांग जिम्मेदार है?",
@@ -955,40 +666,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Mitochondria"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0032",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Mitochondria",
+      "topicId": "biology_cells"
     },
     {
       "id": "SCI-SSC-0033",
       "subject": "Science",
-      "topic": "Chemistry - Water",
+      "topic": "Chemistry Water",
       "difficulty": "medium",
       "question_en": "Heavy water is chemically known as:",
       "question_hi": "भारी जल (Heavy water) को रासायनिक रूप से किस नाम से जाना जाता है?",
@@ -1015,12 +699,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Tritium Oxide"
+      "correct_answer": "Tritium Oxide",
+      "topicId": "chemistry_water"
     },
     {
       "id": "SCI-SSC-0034",
       "subject": "Science",
-      "topic": "Biology - Photosynthesis",
+      "topic": "Biology Photosynthesis",
       "difficulty": "medium",
       "question_en": "During photosynthesis, plants convert solar energy into:",
       "question_hi": "प्रकाश संश्लेषण के दौरान, पौधे सौर ऊर्जा को किस्मं बदलते हैं?",
@@ -1047,40 +732,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Heat Energy"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0035",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Heat Energy",
+      "topicId": "biology_photosynthesis"
     },
     {
       "id": "SCI-SSC-0036",
       "subject": "Science",
-      "topic": "Chemistry - Oxygen",
+      "topic": "Chemistry Oxygen",
       "difficulty": "easy",
       "question_en": "Which gas was discovered by Joseph Priestley?",
       "question_hi": "जोसेफ प्रीस्टले ने किस गैस की खोज की थी?",
@@ -1107,68 +765,13 @@
         "Group D"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Nitrogen"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0037",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0038",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Nitrogen",
+      "topicId": "chemistry_oxygen"
     },
     {
       "id": "SCI-SSC-0039",
       "subject": "Science",
-      "topic": "Chemistry - Organic",
+      "topic": "Chemistry Organic",
       "difficulty": "hard",
       "question_en": "The main constituent of Vinegar is:",
       "question_hi": "सिरका (Vinegar) का मुख्य घटक क्या है?",
@@ -1196,12 +799,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Citric Acid"
+      "correct_answer": "Citric Acid",
+      "topicId": "chemistry_organic"
     },
     {
       "id": "SCI-SSC-0040",
       "subject": "Science",
-      "topic": "Biology - Plants",
+      "topic": "Biology Plants",
       "difficulty": "medium",
       "question_en": "The process of loss of water from plant leaves is called:",
       "question_hi": "पौधों की पत्तियों से पानी के नुकसान की प्रक्रिया को क्या कहते हैं?",
@@ -1228,185 +832,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Photosynthesis"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0041",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0042",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0043",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0044",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
-      "id": "SCI-SSC-0045",
-      "subject": "Science",
-      "topic": "Chemistry - Gases",
-      "difficulty": "hard",
-      "question_en": "Which gas is primarily responsible for the 'Greenhouse Effect'?",
-      "question_hi": "'ग्रीनहाउस प्रभाव' के लिए मुख्य रूप से कौन सी गैस जिम्मेदार है?",
-      "options_en": [
-        "Oxygen",
-        "Carbon Dioxide",
-        "Nitrogen",
-        "Argon"
-      ],
-      "options_hi": [
-        "ऑक्सीजन",
-        "कार्बन डाइऑक्साइड",
-        "नाइट्रोजन",
-        "आर्गन"
-      ],
-      "correctAnswer": 1,
-      "explanation_en": "CO2 traps heat in the atmosphere, leading to global warming.",
-      "explanation_hi": "CO2 वायुमंडल में गर्मी को रोकता है, जिससे ग्लोबल वार्मिंग होती है।",
-      "exam_tags": [
-        "SSC CGL",
-        "BPSC",
-        "State PCS",
-        "SSC CGL Tier 2",
-        "BPSC Mains",
-        "UPSC"
-      ],
-      "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Oxygen"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0046",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
+      "correct_answer": "Photosynthesis",
+      "topicId": "biology_plants"
     },
     {
       "id": "SCI-SSC-0047",
       "subject": "Science",
-      "topic": "Physics - Sound",
+      "topic": "Physics Sound",
       "difficulty": "medium",
       "question_en": "The loudness of sound depends on its:",
       "question_hi": "ध्वनि की प्रबलता (Loudness) किस पर निर्भर करती है?",
@@ -1433,12 +865,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Pitch"
+      "correct_answer": "Pitch",
+      "topicId": "physics_sound"
     },
     {
       "id": "SCI-SSC-0048",
       "subject": "Science",
-      "topic": "Chemistry - Acid/Base",
+      "topic": "Chemistry Acid/base",
       "difficulty": "hard",
       "question_en": "Which acid is present in ant stings?",
       "question_hi": "चींटी के डंक में कौन सा अम्ल मौजूद होता है?",
@@ -1466,12 +899,13 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Methanoic Acid"
+      "correct_answer": "Methanoic Acid",
+      "topicId": "chemistry_acid/base"
     },
     {
       "id": "SCI-SSC-0049",
       "subject": "Science",
-      "topic": "Biology - Plants",
+      "topic": "Biology Plants",
       "difficulty": "medium",
       "question_en": "The age of a tree can be determined by counting its:",
       "question_hi": "किसी पेड़ की आयु का निर्धारण क्या गिनकर किया जा सकता है?",
@@ -1498,12 +932,13 @@
         "BPSC Prelims"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Leaves"
+      "correct_answer": "Leaves",
+      "topicId": "biology_plants"
     },
     {
       "id": "SCI-SSC-0050",
       "subject": "Science",
-      "topic": "Physics - Gravity",
+      "topic": "Physics Gravity",
       "difficulty": "hard",
       "question_en": "Value of acceleration due to gravity (g) is maximum at:",
       "question_hi": "गुरुत्वाकर्षण के कारण त्वरण (g) का मान अधिकतम कहाँ होता है?",
@@ -1531,7 +966,8 @@
         "UPSC"
       ],
       "reference": "Standard Science textbooks for competitive exams",
-      "correct_answer": "Equator"
+      "correct_answer": "Equator",
+      "topicId": "physics_gravity"
     },
     {
       "id": "SCI-SSC-0051",
@@ -1564,34 +1000,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Law of Inertia"
-    },
-    {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0052",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0053",
@@ -1658,34 +1066,6 @@
       "correct_answer": "3×10⁸ m/s"
     },
     {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0055",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0056",
       "subject": "Science",
       "topic": "Physics",
@@ -1718,34 +1098,6 @@
       "correct_answer": "Haemoglobin"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0057",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0058",
       "subject": "Science",
       "topic": "Physics",
@@ -1776,34 +1128,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Deoxyribonucleic Acid"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0059",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0060",
@@ -1870,34 +1194,6 @@
       "correct_answer": "Law of Inertia"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0062",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0063",
       "subject": "Science",
       "topic": "Physics",
@@ -1962,34 +1258,6 @@
       "correct_answer": "3×10⁸ m/s"
     },
     {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0065",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0066",
       "subject": "Science",
       "topic": "Physics",
@@ -2022,34 +1290,6 @@
       "correct_answer": "Haemoglobin"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0067",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0068",
       "subject": "Science",
       "topic": "Physics",
@@ -2080,34 +1320,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Deoxyribonucleic Acid"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0069",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0070",
@@ -2174,34 +1386,6 @@
       "correct_answer": "Law of Inertia"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0072",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0073",
       "subject": "Science",
       "topic": "Physics",
@@ -2266,34 +1450,6 @@
       "correct_answer": "3×10⁸ m/s"
     },
     {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0075",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0076",
       "subject": "Science",
       "topic": "Physics",
@@ -2326,34 +1482,6 @@
       "correct_answer": "Haemoglobin"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0077",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0078",
       "subject": "Science",
       "topic": "Physics",
@@ -2384,34 +1512,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Deoxyribonucleic Acid"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0079",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0080",
@@ -2478,34 +1578,6 @@
       "correct_answer": "Law of Inertia"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0082",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0083",
       "subject": "Science",
       "topic": "Physics",
@@ -2570,34 +1642,6 @@
       "correct_answer": "3×10⁸ m/s"
     },
     {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0085",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0086",
       "subject": "Science",
       "topic": "Physics",
@@ -2630,34 +1674,6 @@
       "correct_answer": "Haemoglobin"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0087",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0088",
       "subject": "Science",
       "topic": "Physics",
@@ -2688,34 +1704,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Deoxyribonucleic Acid"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0089",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0090",
@@ -2782,34 +1770,6 @@
       "correct_answer": "Law of Inertia"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0092",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0093",
       "subject": "Science",
       "topic": "Physics",
@@ -2874,34 +1834,6 @@
       "correct_answer": "3×10⁸ m/s"
     },
     {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0095",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0096",
       "subject": "Science",
       "topic": "Physics",
@@ -2934,34 +1866,6 @@
       "correct_answer": "Haemoglobin"
     },
     {
-      "question_en": "Which of the following is NOT a characteristic of transition metals?",
-      "question_hi": "निम्नलिखित में से कौन सा संक्रमण धातुओं की विशेषता नहीं है?",
-      "options_en": [
-        "Formation of colored compounds",
-        "Variable oxidation states",
-        "High melting and boiling points",
-        "Low density and softness"
-      ],
-      "options_hi": [
-        "रंगीन यौगिकों का निर्माण",
-        "परिवर्तनशील ऑक्सीकरण अवस्थाएं",
-        "उच्च गलनांक और क्वथनांक",
-        "कम घनत्व और कोमलता"
-      ],
-      "correct_answer": "Low density and softness",
-      "explanation_en": "Transition metals have high density and hardness, not low density and softness. They exhibit colored compounds due to d-d transitions, variable oxidation states, and high melting/boiling points due to strong metallic bonding.",
-      "explanation_hi": "संक्रमण धातुओं में उच्च घनत्व और कठोरता होती है, कम घनत्व और कोमलता नहीं। वे d-d संक्रमण के कारण रंगीन यौगिक, परिवर्तनशील ऑक्सीकरण अवस्थाएं और मजबूत धात्विक बंधन के कारण उच्च गलनांक/क्वथनांक प्रदर्शित करती हैं।",
-      "difficulty": "medium",
-      "topic": "Transition Metals",
-      "id": "SCI-SSC-0097",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
-    },
-    {
       "id": "SCI-SSC-0098",
       "subject": "Science",
       "topic": "Physics",
@@ -2992,34 +1896,6 @@
       ],
       "reference": "Standard Science textbooks for competitive exams",
       "correct_answer": "Deoxyribonucleic Acid"
-    },
-    {
-      "question_en": "The IUPAC name of CH₃-CH₂-CHO is:",
-      "question_hi": "CH₃-CH₂-CHO का IUPAC नाम है:",
-      "options_en": [
-        "Propanal",
-        "Ethanal",
-        "Butanal",
-        "Methanal"
-      ],
-      "options_hi": [
-        "प्रोपेनल",
-        "एथेनल",
-        "ब्यूटेनल",
-        "मेथेनल"
-      ],
-      "correct_answer": "Propanal",
-      "explanation_en": "CH₃-CH₂-CHO contains 3 carbon atoms with an aldehyde group at the end. According to IUPAC nomenclature, it is named as propanal (propane + aldehyde).",
-      "explanation_hi": "CH₃-CH₂-CHO में अंत में एल्डिहाइड समूह के साथ 3 कार्बन परमाणु होते हैं। IUPAC नामकरण के अनुसार, इसे प्रोपेनल (प्रोपेन + एल्डिहाइड) नाम दिया गया है।",
-      "difficulty": "easy",
-      "topic": "Organic Nomenclature",
-      "id": "SCI-SSC-0099",
-      "exam_tags": [
-        "SSC",
-        "Railway",
-        "Banking"
-      ],
-      "correctAnswer": 0
     },
     {
       "id": "SCI-SSC-0100",

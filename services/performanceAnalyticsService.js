@@ -30,9 +30,14 @@ class PerformanceAnalyticsService {
             }
         ]);
 
-        const result = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
-        await setCachedData(cacheKey, result, 600); // 10 min cache
-        return result;
+        const raw = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
+
+        // ── Analytics accuracy guard: clamp to valid range ───────────────────
+        raw.avgAccuracy    = Math.min(Math.max(raw.avgAccuracy    || 0, 0), 100);
+        raw.avgTimePerTest = Math.max(raw.avgTimePerTest || 0, 0);
+
+        await setCachedData(cacheKey, raw, 600); // 10 min cache
+        return raw;
     }
 
     /**
@@ -112,26 +117,26 @@ class PerformanceAnalyticsService {
             return { readiness: null, message: "Take at least 5 tests to calculate readiness." };
         }
 
-        // Weighted formula for EdTech readiness
-        // 40% Avg Accuracy, 30% Topic Coverage (Mastery > 70%), 20% Volume, 10% Improvement Rate (Simulated)
+        // ── Readiness formula with accuracy guard ────────────────────────────
+        // Weights: 50% avg accuracy, 30% topic coverage, 20% volume (capped 50 tests)
         const masteredTopics = topics.all.filter(t => t.avgAccuracy >= 70).length;
-        const totalTopics = topics.all.length || 1;
-        const coverage = (masteredTopics / totalTopics) * 100;
+        const totalTopics    = Math.max(topics.all.length, 1);
+        const coverage       = (masteredTopics / totalTopics) * 100;
 
-        const readinessScore = (overview.avgAccuracy * 0.5) + (coverage * 0.4) + (Math.min(overview.totalTests, 50) * 0.2);
-        const finalScore = Math.min(Math.round(readinessScore), 100);
+        const rawScore     = (overview.avgAccuracy * 0.5) + (coverage * 0.3) + (Math.min(overview.totalTests, 50) * 0.4);
+        const finalScore   = Math.min(Math.max(Math.round(rawScore), 0), 100); // guard: 0-100
 
-        let confidence = "Low";
-        if (overview.totalTests > 20) confidence = "High";
-        else if (overview.totalTests > 10) confidence = "Medium";
+        let confidence = 'Low';
+        if (overview.totalTests > 20) confidence = 'High';
+        else if (overview.totalTests > 10) confidence = 'Medium';
 
         return {
             score: finalScore,
             confidence,
             factors: {
-                accuracy: overview.avgAccuracy,
-                coverage,
-                consistency: overview.totalTests > 10 ? "High" : "Developing"
+                accuracy:    Math.round(overview.avgAccuracy * 10) / 10,
+                coverage:    Math.round(coverage * 10) / 10,
+                consistency: overview.totalTests > 10 ? 'High' : 'Developing'
             }
         };
     }
@@ -165,10 +170,30 @@ class PerformanceAnalyticsService {
      */
     static async getStreak(userId) {
         const user = await User.findById(userId).select('streakCount lastActiveDate');
+        if (!user) return { currentStreak: 0, lastActive: null };
         return {
-            currentStreak: user.streakCount || 0,
+            currentStreak: Math.max(user.streakCount || 0, 0), // guard: no negative streaks
             lastActive: user.lastActiveDate
         };
+    }
+
+    /**
+     * Analytics health assertions (for drift detection & monitoring)
+     * Returns array of assertion failures — empty array means all healthy.
+     */
+    static assertAnalyticsHealth(overview, readiness) {
+        const failures = [];
+        if (overview) {
+            if (overview.avgAccuracy < 0 || overview.avgAccuracy > 100)
+                failures.push(`avgAccuracy out of range: ${overview.avgAccuracy}`);
+            if (overview.avgTimePerTest < 0)
+                failures.push(`avgTimePerTest is negative: ${overview.avgTimePerTest}`);
+        }
+        if (readiness && readiness.score !== null) {
+            if (readiness.score < 0 || readiness.score > 100)
+                failures.push(`readinessScore out of range: ${readiness.score}`);
+        }
+        return failures;
     }
 }
 

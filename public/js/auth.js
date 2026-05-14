@@ -225,21 +225,33 @@ const Auth = {
      * Enhanced fetch with automatic retry on token expiration
      */
     async fetchWithAuth(url, options = {}) {
+        const fetchFn = (window.NirnayPath && window.NirnayPath.safeFetch) ? window.NirnayPath.safeFetch : fetch;
+        
         let token = this.getToken();
         if (!options.headers) options.headers = {};
-        options.headers['Authorization'] = `Bearer ${token}`;
+        if (token) options.headers['Authorization'] = `Bearer ${token}`;
 
-        let response = await fetch(url, options);
+        let response;
+        try {
+            response = await fetch(url, options); // First attempt with raw fetch to check 401
+        } catch (e) {
+            // If raw fetch fails (network), retry with safeFetch for better handling
+            return await fetchFn(url, options);
+        }
 
         if (response.status === 401) {
-            const data = await response.clone().json();
-            if (data.code === 'TOKEN_EXPIRED') {
-                // Try to refresh
-                const newToken = await this.refreshAccessToken();
-                if (newToken) {
-                    options.headers['Authorization'] = `Bearer ${newToken}`;
-                    response = await fetch(url, options);
+            try {
+                const data = await response.clone().json();
+                if (data.code === 'TOKEN_EXPIRED') {
+                    const newToken = await this.refreshAccessToken();
+                    if (newToken) {
+                        if (!options.headers) options.headers = {};
+                        options.headers['Authorization'] = `Bearer ${newToken}`;
+                        return await fetchFn(url, options);
+                    }
                 }
+            } catch (e) {
+                console.error('Auth check failed:', e);
             }
         }
 

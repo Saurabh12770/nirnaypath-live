@@ -129,7 +129,7 @@
     {
       "id": "CA-SSC-0005",
       "subject": "Current Affairs",
-      "topic": "Places in News",
+      "topic": "Places In News",
       "difficulty": "hard",
       "question_en": "Which Indian city has been designated as the UNESCO World Book Capital for 2025?",
       "question_hi": "2025 के लिए किस भारतीय शहर को यूनेस्को (UNESCO) की विश्व पुस्तक राजधानी के रूप में नामित किया गया है?",
@@ -156,7 +156,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Current Affairs textbooks for competitive exams"
+      "reference": "Standard Current Affairs textbooks for competitive exams",
+      "topicId": "places_in_news"
     },
     {
       "id": "CA-SSC-0006",
@@ -1171,7 +1172,7 @@
         "K. Sivan",
         "S. Somanath",
         "G. Satheesh Reddy",
-        "A.S. Kiran Kumar"
+        "S. Kiran Kumar"
       ],
       "options_hi": [
         "के सिवन",
@@ -1189,7 +1190,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Current Affairs textbooks for competitive exams"
+      "reference": "Standard Current Affairs textbooks for competitive exams",
+      "options": [
+        "K. Sivan",
+        "S. Somanath",
+        "G. Satheesh Reddy",
+        "S. Kiran Kumar"
+      ]
     },
     {
       "id": "CA-SSC-0039",

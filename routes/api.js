@@ -14,33 +14,42 @@ const questionLimiter = rateLimit({
 });
 
 router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
+    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { subject } = req.params;
-        const cacheKey = `questions_${subject}`;
+        const subLower = subject.toLowerCase().trim();
+        const cacheKey = `questions_${subLower}`;
 
-        console.log(`[API] Request for subject: ${subject}`);
+        trace(CATEGORIES.QUESTION_FLOW, 'Question Fetch Requested', { subject: subLower });
 
-        // Check in-memory cache first
+        // 1. Check Cache
         const cachedData = await getCachedData(cacheKey);
         if (cachedData) {
-            console.log(`[API] Cache hit for: ${subject}`);
             return res.json(cachedData);
         }
 
-        console.log(`[API] Cache miss for: ${subject}. Loading from disk...`);
+        // 2. Fetch from MongoDB (Source of Truth)
+        const Question = require('../models/Question');
+        let questions = await Question.find({ 
+            $or: [{ subjectId: subLower }, { subject: subLower }] 
+        }).lean();
 
-        // Load from disk if not cached
-        const questions = await loadQuestions(subject);
-        
+        // 3. Fallback to JSON if MongoDB is empty
+        if (!questions || questions.length === 0) {
+            trace(CATEGORIES.QUESTION_FLOW, 'MongoDB Pool Empty, falling back to JSON', { subject: subLower });
+            const { loadQuestions } = require('../utils/questionLoader');
+            questions = await loadQuestions(subLower);
+        }
+
         if (!questions || questions.length === 0) {
             return res.status(404).json({ error: 'Questions not found for the requested subject' });
         }
 
-        // Store in cache with 10 minutes TTL
+        // 4. Cache & Return
         await setCachedData(cacheKey, questions, 600);
-
         res.json(questions);
     } catch (error) {
+        trace(CATEGORIES.QUESTION_FLOW, 'Question Fetch Error', { error: error.message });
         next(error);
     }
 });

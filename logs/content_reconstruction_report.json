@@ -1,0 +1,57 @@
+{
+  "totalQuestions": 66955,
+  "totalSubjects": 19,
+  "exactDuplicates": 0,
+  "semanticDuplicates": 0,
+  "weakExplanations": 0,
+  "malformedQuestions": 1,
+  "missingHindi": 0,
+  "fakeHindi": 3,
+  "weakTopics": 0,
+  "weakSubjects": 11,
+  "subjectCoverage": {
+    "aptitude": 2552,
+    "bihar": 2012,
+    "chemistry": 6,
+    "computerscience": 5000,
+    "current": 5000,
+    "economics": 5000,
+    "english": 5002,
+    "environment": 5000,
+    "general_awareness": 4998,
+    "geography": 4996,
+    "hindi": 5000,
+    "history": 4974,
+    "law": 11,
+    "math": 2420,
+    "police_science": 20,
+    "polity": 5000,
+    "reasoning": 5001,
+    "science": 4959,
+    "social_science": 4
+  },
+  "difficultyDistribution": {
+    "EASY": 14327,
+    "MEDIUM": 32290,
+    "HARD": 20338
+  },
+  "qualityDistribution": {
+    "HIGH": 66955,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "semanticClusters": 0,
+  "reconstructionRecommendations": [
+    "Subject 'aptitude' has only 2552 questions (requires >= 5000).",
+    "Subject 'bihar' has only 2012 questions (requires >= 5000).",
+    "Subject 'chemistry' has only 6 questions (requires >= 5000).",
+    "Subject 'general_awareness' has only 4998 questions (requires >= 5000).",
+    "Subject 'geography' has only 4996 questions (requires >= 5000).",
+    "Subject 'history' has only 4974 questions (requires >= 5000).",
+    "Subject 'law' has only 11 questions (requires >= 5000).",
+    "Subject 'math' has only 2420 questions (requires >= 5000).",
+    "Subject 'police_science' has only 20 questions (requires >= 5000).",
+    "Subject 'science' has only 4959 questions (requires >= 5000).",
+    "Subject 'social_science' has only 4 questions (requires >= 5000)."
+  ]
+}

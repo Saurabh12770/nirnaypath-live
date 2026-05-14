@@ -286,7 +286,7 @@
     {
       "id": "HIN-SSC-0010",
       "subject": "Hindi",
-      "topic": "तद्भव-तत्सम",
+      "topic": "तद्भव तत्सम",
       "difficulty": "medium",
       "question_en": "Which of the following is a Tatsam word?",
       "question_hi": "निम्नलिखित में से कौन सा 'तत्सम' शब्द है?",
@@ -312,7 +312,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Hindi textbooks for competitive exams"
+      "reference": "Standard Hindi textbooks for competitive exams",
+      "topicId": "तद्भव_तत्सम"
     },
     {
       "id": "HIN-SSC-0011",

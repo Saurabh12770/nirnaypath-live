@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "generationId": "batch_123",
+    "subject": "test_audit",
+    "createdAt": "2026-05-14T02:07:26.303Z",
+    "questionCount": 1,
+    "qualityMetrics": {}
+  },
+  "questions": [
+    {
+      "id": "2",
+      "subject": "test_audit",
+      "topic": "Test",
+      "difficulty": "EASY",
+      "question_en": "Valid Question?",
+      "question_hi": "मान्य प्रश्न?",
+      "options_en": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "options_hi": [
+        "क",
+        "ख",
+        "ग",
+        "घ"
+      ],
+      "correctAnswer": 1,
+      "explanation_en": "This is a completely valid explanation that is long enough.",
+      "explanation_hi": "यह एक पूरी तरह से मान्य स्पष्टीकरण है जो काफी लंबा है।"
+    }
+  ]
+}

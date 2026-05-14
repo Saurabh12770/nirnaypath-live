@@ -1,0 +1,37 @@
+{
+    "phase": 2,
+    "status": "COMPLETED",
+    "timestamp": "2026-05-14T07:03:00+05:30",
+    "root_cause_report": {
+        "summary": "The question engine suffered from distributed state logic, route-level pre-selection, and inconsistent ID canonicalization.",
+        "exact_duplicate_sources": [
+            "1. Route-Level $sample: Routes like test.js used MongoDB $sample to randomly grab 50-200 questions BEFORE deduplication. If the chosen 50 questions contained duplicates, the deduplicator would shrink the pool to < 50, but since the sample was already taken, it artificially limited the pool.",
+            "2. ID Type Mismatch: MongoDB ObjectIds and raw JSON string IDs were being compared using strict equality or failing Set/Map `.has()` checks because `ObjectId('...') !== '...'`. This caused history exclusion to silently fail.",
+            "3. Cache Drift & Mutation: Fallback caches were returning mutable references to the pool array. Concurrent requests to start a test would accidentally shuffle the SAME memory reference, bleeding state across sessions.",
+            "4. Multi-Subject Aggregation: section.js looped through subjects and blindly concatenated arrays. If multiple JSON files had overlapping IDs or duplicate content, they were never deeply deduplicated."
+        ],
+        "broken_exclusion_logic": "History exclusion queried TestResult for recent answers, but passed un-normalized ObjectIds into the selection service, bypassing the filter entirely."
+    },
+    "files_modified": [
+        "server/services/QuestionRuntimeEngine.js (Created)",
+        "server/routes/test.js (Refactored to use Engine)",
+        "server/routes/drills.js (Refactored to use Engine)",
+        "server/routes/section.js (Refactored to use Engine)"
+    ],
+    "exact_patches": [
+        "1. Centralized Pool Loading: Moved all MongoDB/JSON fallback loading into QuestionRuntimeEngine.loadPool.",
+        "2. Canonical IDs: Enforced String(rawId).trim().toLowerCase() on every ID before any Map/Set operations.",
+        "3. Immutable Cache: Enforced JSON.parse(JSON.stringify()) on all pool returns to guarantee concurrent safety.",
+        "4. Strict Dedup Phase: Created a distinct dedup phase that runs BEFORE shuffle and selection.",
+        "5. Hard Assertions: Added a throw IntegrityViolationError if duplicate IDs make it into the final selection."
+    ],
+    "validation_results": {
+        "test1_sequential": "PASS - No question repeats within sequential sessions.",
+        "test2_concurrent": "PASS - 20 concurrent tests started successfully without shared pool mutation.",
+        "test3_sectional": "PASS - Multi-subject section loading works and dedups correctly."
+    },
+    "remaining_risks": [
+        "The underlying JSON banks STILL contain semantic duplicates (questions with different IDs but the same text) and malformed explanations. The runtime engine prevents ID collisions, but cannot magically rewrite bad content."
+    ],
+    "next_recommended_phase": "PHASE 3 — QUESTION CONTENT RECONSTRUCTION"
+}

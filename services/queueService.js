@@ -3,21 +3,33 @@ const Redis = require('ioredis');
 const context = require('../utils/context');
 const logger = require('../utils/logger');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
+    enableReadyCheck: true,
     retryStrategy: (times) => {
-        // Stop retrying after 3 failures to prevent log spam in dev/test
-        if (times > 3) return null;
-        return Math.min(times * 100, 3000);
+        // In production, never give up but slow down. In dev, stop after 5.
+        if (!isProduction && times > 5) {
+            console.error('[Queue] Redis connection failed after 5 attempts. Stopping retries in non-prod.');
+            return null;
+        }
+        // Exponential backoff with jitter
+        const delay = Math.min(times * 500, 30000);
+        return delay + Math.random() * 500;
     }
 });
 
 connection.on('error', (err) => {
-    // Only log once or twice
-    if (!global.redisLoggedError) {
-        console.warn('[Queue] Redis connection failed. Queueing will be disabled/limited.');
-        global.redisLoggedError = true;
-    }
+    console.error('[Queue] Redis Connection Error:', {
+        message: err.message,
+        stack: isProduction ? undefined : err.stack
+    });
+});
+
+connection.on('reconnecting', () => {
+    console.warn('[Queue] Redis attempting to reconnect...');
+    if (global.monitor) global.monitor.metrics.reconnects.redis++;
 });
 
 // 1. Email Queue

@@ -8,17 +8,27 @@ class AdaptiveLearningService {
     
     /**
      * Select questions adaptively for a test session
-     * @param {string} userId 
-     * @param {Array} allQuestions Pool of available questions
-     * @param {number} count Number of questions needed
-     * @returns {Array} Selected and randomized questions
+     * LEGACY WRAPPER: Now uses central QuestionSelectionService
      */
     static async selectQuestions(userId, allQuestions, count) {
+        const QuestionSelectionService = require('../utils/questionSelectionService');
+        const weightedPool = await this.scoreQuestions(userId, allQuestions);
+        return QuestionSelectionService.select(weightedPool, count, { userId });
+    }
+
+    /**
+     * Scores questions based on student profile without selecting them
+     * Used as a pre-processor for QuestionSelectionService
+     */
+    static async scoreQuestions(userId, allQuestions) {
+        if (!allQuestions || allQuestions.length === 0) return [];
+        
+        const StudentLearningProfileService = require('./studentLearningProfileService');
         const profile = await StudentLearningProfileService.getProfile(userId);
         
-        // If new user, use balanced randomization
+        // If new user, return pool as is (shuffling happens in SelectionService)
         if (!profile) {
-            return this.shuffle(allQuestions).slice(0, Math.min(count, allQuestions.length));
+            return allQuestions;
         }
 
         const { topicMastery, overallAccuracy } = profile;
@@ -50,21 +60,19 @@ class AdaptiveLearningService {
             targetDifficulty = { easy: 0.7, medium: 0.2, hard: 0.1 };
         }
 
-        // 3. Score and Filter Pool
+        // 3. Score Pool (Cloned to prevent mutation)
         const scoredPool = allQuestions.map(q => {
             const topicWeight = topicWeights[q.topic] || 10;
             const diffWeight = targetDifficulty[q.difficulty] || 0.1;
+            const doc = q._doc || q;
             return {
-                question: q,
-                score: topicWeight * diffWeight * (0.8 + Math.random() * 0.4) // Randomness factor to prevent repetition fatigue
+                ...doc,
+                selectionScore: topicWeight * diffWeight * (0.8 + Math.random() * 0.4)
             };
         });
 
-        // 4. Return top 'count' scored questions
-        return scoredPool
-            .sort((a, b) => b.score - a.score)
-            .slice(0, Math.min(count, scoredPool.length))
-            .map(item => item.question);
+        // Return all questions sorted by score
+        return scoredPool.sort((a, b) => b.selectionScore - a.selectionScore);
     }
 
     /**
@@ -140,11 +148,12 @@ class AdaptiveLearningService {
     }
 
     static shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+        const cloned = [...array];
+        for (let i = cloned.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
         }
-        return array;
+        return cloned;
     }
 }
 

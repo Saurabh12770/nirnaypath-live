@@ -5,7 +5,7 @@
     {
       "id": "ECO-SSC-0001",
       "subject": "Economics",
-      "topic": "Indian Economy - Planning",
+      "topic": "Indian Economy Planning",
       "difficulty": "easy",
       "question_en": "Which organization replaced the Planning Commission of India?",
       "question_hi": "भारत के योजना आयोग का स्थान किस संगठन ने लिया?",
@@ -31,12 +31,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_planning"
     },
     {
       "id": "ECO-SSC-0002",
       "subject": "Economics",
-      "topic": "Macroeconomics - GDP",
+      "topic": "Macroeconomics Gdp",
       "difficulty": "medium",
       "question_en": "What does GDP stand for in economics?",
       "question_hi": "अर्थशास्त्र में GDP का क्या अर्थ है?",
@@ -62,12 +63,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "macroeconomics_gdp"
     },
     {
       "id": "ECO-SSC-0003",
       "subject": "Economics",
-      "topic": "Banking - RBI",
+      "topic": "Banking Rbi",
       "difficulty": "medium",
       "question_en": "Which of the following is the 'Lender of Last Resort' in the Indian banking system?",
       "question_hi": "भारतीय बैंकिंग प्रणाली में निम्नलिखित में से कौन 'अंतिम ऋणदाता' (Lender of Last Resort) है?",
@@ -93,12 +95,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "banking_rbi"
     },
     {
       "id": "ECO-SSC-0004",
       "subject": "Economics",
-      "topic": "Markets - Inflation",
+      "topic": "Markets Inflation",
       "difficulty": "hard",
       "question_en": "Which index is primarily used by the RBI to measure headline inflation in India?",
       "question_hi": "भारत में हेडलाइन मुद्रास्फीति (Inflation) को मापने के लिए RBI द्वारा मुख्य रूप से किस सूचकांक का उपयोग किया जाता है?",
@@ -125,12 +128,13 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "markets_inflation"
     },
     {
       "id": "ECO-SSC-0005",
       "subject": "Economics",
-      "topic": "Indian Economy - Taxation",
+      "topic": "Indian Economy Taxation",
       "difficulty": "medium",
       "question_en": "When was the Goods and Services Tax (GST) implemented in India?",
       "question_hi": "भारत में माल और सेवा कर (GST) कब लागू किया गया था?",
@@ -156,7 +160,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_taxation"
     },
     {
       "id": "ECO-SSC-0006",
@@ -223,7 +228,7 @@
     {
       "id": "ECO-SSC-0008",
       "subject": "Economics",
-      "topic": "Indian Economy - Agriculture",
+      "topic": "Indian Economy Agriculture",
       "difficulty": "medium",
       "question_en": "The 'Green Revolution' in India was mostly successful in the production of which crops?",
       "question_hi": "भारत में 'हरित क्रांति' मुख्य रूप से किन फसलों के उत्पादन में सफल रही?",
@@ -249,12 +254,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_agriculture"
     },
     {
       "id": "ECO-SSC-0009",
       "subject": "Economics",
-      "topic": "Macroeconomics - Fiscal Policy",
+      "topic": "Macroeconomics Fiscal Policy",
       "difficulty": "hard",
       "question_en": "Which of the following is an 'Indirect Tax' in India?",
       "question_hi": "भारत में निम्नलिखित में से कौन सा एक 'अप्रत्यक्ष कर' (Indirect Tax) है?",
@@ -281,12 +287,13 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "macroeconomics_fiscal_policy"
     },
     {
       "id": "ECO-SSC-0010",
       "subject": "Economics",
-      "topic": "Banking - Terms",
+      "topic": "Banking Terms",
       "difficulty": "medium",
       "question_en": "Concept-based: What is 'Repo Rate'?",
       "question_hi": "अवधारणा-आधारित: 'रेपो रेट' क्या है?",
@@ -312,7 +319,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "banking_terms"
     },
     {
       "id": "ECO-SSC-0011",
@@ -380,7 +388,7 @@
     {
       "id": "ECO-SSC-0013",
       "subject": "Economics",
-      "topic": "Indian Economy - Poverty",
+      "topic": "Indian Economy Poverty",
       "difficulty": "medium",
       "question_en": "Which committee was formed to estimate poverty in India following the calorie-based approach?",
       "question_hi": "कैलोरी-आधारित दृष्टिकोण का पालन करते हुए भारत में गरीबी का अनुमान लगाने के लिए किस समिति का गठन किया गया था?",
@@ -406,7 +414,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_poverty"
     },
     {
       "id": "ECO-SSC-0014",
@@ -442,7 +451,7 @@
     {
       "id": "ECO-SSC-0015",
       "subject": "Economics",
-      "topic": "Macroeconomics - Money Supply",
+      "topic": "Macroeconomics Money Supply",
       "difficulty": "hard",
       "question_en": "Which of the following measures of money supply is known as 'Narrow Money' in India?",
       "question_hi": "भारत में मनी सप्लाई के निम्नलिखित उपायों में से किसे 'नैरो मनी' (Narrow Money) कहा जाता है?",
@@ -469,12 +478,13 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "macroeconomics_money_supply"
     },
     {
       "id": "ECO-SSC-0016",
       "subject": "Economics",
-      "topic": "Banking - History",
+      "topic": "Banking History",
       "difficulty": "medium",
       "question_en": "How many commercial banks were nationalized in India in 1969?",
       "question_hi": "1969 में भारत में कितने वाणिज्यिक बैंकों का राष्ट्रीयकरण किया गया था?",
@@ -500,12 +510,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "banking_history"
     },
     {
       "id": "ECO-SSC-0017",
       "subject": "Economics",
-      "topic": "Indian Economy - Sectors",
+      "topic": "Indian Economy Sectors",
       "difficulty": "easy",
       "question_en": "Agriculture and allied activities come under which sector of the economy?",
       "question_hi": "कृषि और संबद्ध गतिविधियाँ अर्थव्यवस्था के किस क्षेत्र के अंतर्गत आती हैं?",
@@ -531,7 +542,8 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_sectors"
     },
     {
       "id": "ECO-SSC-0018",
@@ -567,7 +579,7 @@
     {
       "id": "ECO-SSC-0019",
       "subject": "Economics",
-      "topic": "Indian Economy - Finance",
+      "topic": "Indian Economy Finance",
       "difficulty": "hard",
       "question_en": "The Fiscal Responsibility and Budget Management (FRBM) Act was enacted in which year?",
       "question_hi": "राजकोषीय उत्तरदायित्व और बजट प्रबंधन (FRBM) अधिनियम किस वर्ष अधिनियमित किया गया था?",
@@ -594,7 +606,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_finance"
     },
     {
       "id": "ECO-SSC-0020",
@@ -661,7 +674,7 @@
     {
       "id": "ECO-SSC-0022",
       "subject": "Economics",
-      "topic": "Indian Economy - Employment",
+      "topic": "Indian Economy Employment",
       "difficulty": "medium",
       "question_en": "What kind of unemployment is mostly found in the agricultural sector of India?",
       "question_hi": "भारत के कृषि क्षेत्र में किस प्रकार की बेरोजगारी मुख्य रूप से पाई जाती है?",
@@ -687,12 +700,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_employment"
     },
     {
       "id": "ECO-SSC-0023",
       "subject": "Economics",
-      "topic": "Finance - Concepts",
+      "topic": "Finance Concepts",
       "difficulty": "hard",
       "question_en": "Concept-based: What is 'Stagflation'?",
       "question_hi": "अवधारणा-आधारित: 'स्टैगफ्लेशन' (Stagflation) क्या है?",
@@ -719,7 +733,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "finance_concepts"
     },
     {
       "id": "ECO-SSC-0024",
@@ -755,7 +770,7 @@
     {
       "id": "ECO-SSC-0025",
       "subject": "Economics",
-      "topic": "Indian Economy - Industry",
+      "topic": "Indian Economy Industry",
       "difficulty": "easy",
       "question_en": "Which city is known as the 'Financial Capital of India'?",
       "question_hi": "किस शहर को 'भारत की वित्तीय राजधानी' के रूप में जाना जाता है?",
@@ -781,12 +796,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_industry"
     },
     {
       "id": "ECO-SSC-0026",
       "subject": "Economics",
-      "topic": "Indian Economy - Indices",
+      "topic": "Indian Economy Indices",
       "difficulty": "medium",
       "question_en": "Which organization publishes the 'Human Development Report'?",
       "question_hi": "कौन सा संगठन 'मानव विकास रिपोर्ट' (Human Development Report) प्रकाशित करता है?",
@@ -812,12 +828,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_indices"
     },
     {
       "id": "ECO-SSC-0027",
       "subject": "Economics",
-      "topic": "Markets - Types",
+      "topic": "Markets Types",
       "difficulty": "hard",
       "question_en": "A market structure where only a few large sellers dominate the industry is called:",
       "question_hi": "एक बाजार संरचना जहां केवल कुछ बड़े विक्रेता उद्योग पर हावी होते हैं, क्या कहलाती है?",
@@ -844,12 +861,13 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "markets_types"
     },
     {
       "id": "ECO-SSC-0028",
       "subject": "Economics",
-      "topic": "Macroeconomics - GNP",
+      "topic": "Macroeconomics Gnp",
       "difficulty": "medium",
       "question_en": "GNP (Gross National Product) is equal to:",
       "question_hi": "GNP (सकल राष्ट्रीय उत्पाद) किसके बराबर होता है?",
@@ -875,12 +893,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "macroeconomics_gnp"
     },
     {
       "id": "ECO-SSC-0029",
       "subject": "Economics",
-      "topic": "Indian Policy - Infrastructure",
+      "topic": "Indian Policy Infrastructure",
       "difficulty": "easy",
       "question_en": "What is the primary objective of 'Pradhan Mantri Gram Sadak Yojana'?",
       "question_hi": "'प्रधानमंत्री ग्राम सड़क योजना' का प्राथमिक उद्देश्य क्या है?",
@@ -906,7 +925,8 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_policy_infrastructure"
     },
     {
       "id": "ECO-SSC-0030",
@@ -943,7 +963,7 @@
     {
       "id": "ECO-SSC-0031",
       "subject": "Economics",
-      "topic": "Banking - Terms",
+      "topic": "Banking Terms",
       "difficulty": "medium",
       "question_en": "What is 'Cash Reserve Ratio' (CRR)?",
       "question_hi": "'नकद आरक्षित अनुपात' (CRR) क्या है?",
@@ -969,12 +989,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "banking_terms"
     },
     {
       "id": "ECO-SSC-0032",
       "subject": "Economics",
-      "topic": "Global Economy - Groups",
+      "topic": "Global Economy Groups",
       "difficulty": "easy",
       "question_en": "Which country is NOT a member of the BRICS nations?",
       "question_hi": "कौन सा देश BRICS देशों का सदस्य नहीं है?",
@@ -1000,12 +1021,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "global_economy_groups"
     },
     {
       "id": "ECO-SSC-0033",
       "subject": "Economics",
-      "topic": "Indian Economy - Insurance",
+      "topic": "Indian Economy Insurance",
       "difficulty": "medium",
       "question_en": "Which body regulates the Insurance sector in India?",
       "question_hi": "भारत में बीमा (Insurance) क्षेत्र को कौन सी संस्था नियंत्रित करती है?",
@@ -1031,7 +1053,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_insurance"
     },
     {
       "id": "ECO-SSC-0034",
@@ -1099,7 +1122,7 @@
     {
       "id": "ECO-SSC-0036",
       "subject": "Economics",
-      "topic": "Economics - Concepts",
+      "topic": "Economics Concepts",
       "difficulty": "easy",
       "question_en": "Adam Smith is famously known as the:",
       "question_hi": "एडम स्मिथ को प्रसिद्ध रूप से किसके रूप में जाना जाता है?",
@@ -1125,12 +1148,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "economics_concepts"
     },
     {
       "id": "ECO-SSC-0037",
       "subject": "Economics",
-      "topic": "Indian Economy - Planning",
+      "topic": "Indian Economy Planning",
       "difficulty": "hard",
       "question_en": "The 'Gandhian Plan' was proposed by whom in 1944?",
       "question_hi": "1944 में 'गांधीवादी योजना' किसके द्वारा प्रस्तावित की गई थी?",
@@ -1157,7 +1181,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_planning"
     },
     {
       "id": "ECO-SSC-0038",
@@ -1225,7 +1250,7 @@
     {
       "id": "ECO-SSC-0040",
       "subject": "Economics",
-      "topic": "Indian Policy - Social",
+      "topic": "Indian Policy Social",
       "difficulty": "easy",
       "question_en": "What is the full form of MGNREGA?",
       "question_hi": "MGNREGA का पूर्ण रूप क्या है?",
@@ -1251,7 +1276,8 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_policy_social"
     },
     {
       "id": "ECO-SSC-0041",
@@ -1319,7 +1345,7 @@
     {
       "id": "ECO-SSC-0043",
       "subject": "Economics",
-      "topic": "Indian Economy - Infrastructure",
+      "topic": "Indian Economy Infrastructure",
       "difficulty": "medium",
       "question_en": "The 'Bharatmala Pariyojana' is related to the development of:",
       "question_hi": "'भारतमाला परियोजना' किसके विकास से संबंधित है?",
@@ -1345,12 +1371,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_infrastructure"
     },
     {
       "id": "ECO-SSC-0044",
       "subject": "Economics",
-      "topic": "Finance - Concepts",
+      "topic": "Finance Concepts",
       "difficulty": "easy",
       "question_en": "A fiscal deficit occurs when:",
       "question_hi": "राजकोषीय घाटा तब होता है जब:",
@@ -1376,12 +1403,13 @@
         "Railway NTPC",
         "Group D"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "finance_concepts"
     },
     {
       "id": "ECO-SSC-0045",
       "subject": "Economics",
-      "topic": "Indian Policy - Digital",
+      "topic": "Indian Policy Digital",
       "difficulty": "medium",
       "question_en": "What is the full form of UPI?",
       "question_hi": "UPI का पूर्ण रूप क्या है?",
@@ -1407,12 +1435,13 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_policy_digital"
     },
     {
       "id": "ECO-SSC-0046",
       "subject": "Economics",
-      "topic": "Macroeconomics - Deflation",
+      "topic": "Macroeconomics Deflation",
       "difficulty": "hard",
       "question_en": "In economics, a general decrease in the price level of goods and services is called:",
       "question_hi": "अर्थशास्त्र में, वस्तुओं और सेवाओं के मूल्य स्तर में सामान्य कमी को क्या कहा जाता है?",
@@ -1439,7 +1468,8 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "macroeconomics_deflation"
     },
     {
       "id": "ECO-SSC-0047",
@@ -1475,7 +1505,7 @@
     {
       "id": "ECO-SSC-0048",
       "subject": "Economics",
-      "topic": "Indian Economy - Finance Commission",
+      "topic": "Indian Economy Finance Commission",
       "difficulty": "hard",
       "question_en": "Who is the Chairman of the 16th Finance Commission of India?",
       "question_hi": "भारत के 16वें वित्त आयोग के अध्यक्ष कौन हैं?",
@@ -1483,7 +1513,7 @@
         "N.K. Singh",
         "Arvind Panagariya",
         "Shaktikanta Das",
-        "C. Rangarajan"
+        "Rangarajan"
       ],
       "options_hi": [
         "एन.के. सिंह",
@@ -1502,7 +1532,14 @@
         "BPSC Mains",
         "UPSC"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_finance_commission",
+      "options": [
+        "N.K. Singh",
+        "Arvind Panagariya",
+        "Shaktikanta Das",
+        "Rangarajan"
+      ]
     },
     {
       "id": "ECO-SSC-0049",
@@ -1538,7 +1575,7 @@
     {
       "id": "ECO-SSC-0050",
       "subject": "Economics",
-      "topic": "Indian Economy - History",
+      "topic": "Indian Economy History",
       "difficulty": "medium",
       "question_en": "Who is known for the concept of 'Drain of Wealth' from India during British rule?",
       "question_hi": "ब्रिटिश शासन के दौरान भारत से 'धन के निष्कासन' (Drain of Wealth) की अवधारणा के लिए किसे जाना जाता है?",
@@ -1564,7 +1601,8 @@
         "SSC CGL Tier 1",
         "BPSC Prelims"
       ],
-      "reference": "Standard Economics textbooks for competitive exams"
+      "reference": "Standard Economics textbooks for competitive exams",
+      "topicId": "indian_economy_history"
     },
     {
       "id": "ECO-SSC-0051",
