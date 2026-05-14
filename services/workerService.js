@@ -1,49 +1,42 @@
 const { createEmailWorker } = require('../workers/emailWorker');
 const { createDigestWorker } = require('../workers/digestWorker');
+const { isRedisAvailable } = require('./redisService');
 
-let workersInitialized = false;
+let _initialized = false;
 let emailWorker = null;
 let digestWorker = null;
 
-/**
- * Safely initialize background workers
- */
 const initWorkers = () => {
-    if (workersInitialized) {
-        console.log('[WorkerService] Workers already running. Skipping initialization.');
+    if (_initialized) return;
+    if (process.env.ENABLE_WORKERS === 'false') {
+        console.log('[WORKER] Disabled via ENABLE_WORKERS=false.');
         return;
     }
-
+    if (!isRedisAvailable()) {
+        console.warn('[WORKER] Redis not ready. Workers dormant.');
+        return;
+    }
     try {
-        console.log('[WorkerService] Initializing background workers...');
-
-        // 1. Initialize Email Worker
+        console.log('[WORKER] Initializing workers...');
         emailWorker = createEmailWorker();
-        console.log('[WorkerService] Email Worker started.');
-
-        // 2. Initialize Digest Worker
+        console.log('[WORKER] Email worker started.');
         digestWorker = createDigestWorker();
-        console.log('[WorkerService] Digest Worker started.');
-
-        workersInitialized = true;
-        console.log('[WorkerService] All workers successfully initialized.');
-    } catch (error) {
-        console.error('[WorkerService] Failed to initialize workers:', error.message);
+        console.log('[WORKER] Digest worker started.');
+        _initialized = true;
+        console.log('[WORKER] All workers running.');
+    } catch (err) {
+        console.error('[WORKER] Init failed (non-fatal):', err.message);
     }
 };
 
-/**
- * Gracefully shutdown workers
- */
 const shutdownWorkers = async () => {
-    console.log('[WorkerService] Shutting down workers...');
-    if (emailWorker) await emailWorker.close();
-    if (digestWorker) await digestWorker.close();
-    workersInitialized = false;
-    console.log('[WorkerService] Workers shut down.');
+    console.log('[WORKER] Shutting down...');
+    await Promise.allSettled([
+        emailWorker?.close().catch(e => console.error('[WORKER] Email close error:', e.message)),
+        digestWorker?.close().catch(e => console.error('[WORKER] Digest close error:', e.message)),
+    ]);
+    _initialized = false;
+    console.log('[WORKER] All workers stopped.');
 };
 
-module.exports = {
-    initWorkers,
-    shutdownWorkers
-};
+module.exports = { initWorkers, shutdownWorkers };

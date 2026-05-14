@@ -1,90 +1,84 @@
-const { Queue, Worker } = require('bullmq');
-const Redis = require('ioredis');
-const context = require('../utils/context');
-const logger = require('../utils/logger');
+const { Queue } = require('bullmq');
+const { initRedis, getRedisClient, isRedisAvailable } = require('./redisService');
 
-const isProduction = process.env.NODE_ENV === 'production';
+let emailQueue = null;
+let digestQueue = null;
+let _initialized = false;
 
-const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-    maxRetriesPerRequest: null,
-    enableReadyCheck: true,
-    retryStrategy: (times) => {
-        // In production, never give up but slow down. In dev, stop after 5.
-        if (!isProduction && times > 5) {
-            console.error('[Queue] Redis connection failed after 5 attempts. Stopping retries in non-prod.');
-            return null;
-        }
-        // Exponential backoff with jitter
-        const delay = Math.min(times * 500, 30000);
-        return delay + Math.random() * 500;
+const initQueues = () => {
+    if (_initialized) return;
+    if (process.env.ENABLE_QUEUE === 'false') {
+        console.log('[QUEUE] Disabled via ENABLE_QUEUE=false.');
+        return;
     }
-});
+    const connection = getRedisClient();
+    if (!connection) {
+        console.error('[QUEUE] Redis unavailable. Queue system not started.');
+        return;
+    }
+    try {
+        emailQueue = new Queue('email-queue', {
+            connection,
+            defaultJobOptions: {
+                removeOnComplete: true,
+                attempts: 5,
+                backoff: { type: 'exponential', delay: 2000 },
+            },
+        });
+        digestQueue = new Queue('digest-queue', {
+            connection,
+            defaultJobOptions: { removeOnComplete: true, attempts: 1 },
+        });
+        emailQueue.on('error', (err) => console.error('[QUEUE] Email error:', err.message));
+        digestQueue.on('error', (err) => console.error('[QUEUE] Digest error:', err.message));
+        _initialized = true;
+        console.log('[QUEUE] BullMQ queues initialized.');
+    } catch (err) {
+        console.error('[QUEUE] Init failed:', err.message);
+    }
+};
 
-connection.on('error', (err) => {
-    console.error('[Queue] Redis Connection Error:', {
-        message: err.message,
-        stack: isProduction ? undefined : err.stack
-    });
-});
+initRedis();
+initQueues();
 
-connection.on('reconnecting', () => {
-    console.warn('[Queue] Redis attempting to reconnect...');
-    if (global.monitor) global.monitor.metrics.reconnects.redis++;
-});
-
-// 1. Email Queue
-const emailQueue = new Queue('email-queue', { connection, defaultJobOptions: { removeOnComplete: true } });
-
-// 2. Digest Queue (for long-running batch jobs)
-const digestQueue = new Queue('digest-queue', { connection, defaultJobOptions: { removeOnComplete: true } });
-
-/**
- * Add email job to queue with safety and context tracking
- */
 const addEmailJob = async (type, data) => {
-    const store = context.getStore() || {};
-    
-    // Inject observability metadata without polluting core business data
-    const metadata = {
-        requestId: store.requestId,
-        userId: store.userId,
-        emailType: type,
-        enqueuedAt: Date.now()
-    };
-
-    await emailQueue.add(type, { ...data, _metadata: metadata }, {
-        attempts: 5,
-        // Intelligent Backoff: Start at 2s, cap at 30s
-        backoff: { 
-            type: 'exponential', 
-            delay: 2000 
-        },
-        removeOnComplete: true
-    });
-    
-    logger.info(`Email job enqueued: ${type}`, { type, recipient: data.to });
+    if (!emailQueue || !isRedisAvailable()) {
+        console.warn(`[QUEUE] Skipping email job "${type}" — Redis/Queue unavailable.`);
+        return null;
+    }
+    try {
+        const job = await emailQueue.add(type, { ...data, _type: type });
+        console.log(`[QUEUE] Email job enqueued: ${type} (id:${job.id})`);
+        return job;
+    } catch (err) {
+        console.error(`[QUEUE] Failed to enqueue "${type}":`, err.message);
+        return null;
+    }
 };
 
-/**
- * Add digest job to queue
- */
 const addDigestJob = async (type, data) => {
-    await digestQueue.add(type, data, {
-        attempts: 1,
-        removeOnComplete: true
-    });
+    if (!digestQueue || !isRedisAvailable()) {
+        console.warn(`[QUEUE] Skipping digest job "${type}" — Redis/Queue unavailable.`);
+        return null;
+    }
+    try {
+        const job = await digestQueue.add(type, data);
+        console.log(`[QUEUE] Digest job enqueued: ${type} (id:${job.id})`);
+        return job;
+    } catch (err) {
+        console.error(`[QUEUE] Failed to enqueue digest "${type}":`, err.message);
+        return null;
+    }
 };
 
-/**
- * Global Queue Observability Listeners
- */
-emailQueue.on('error', (err) => logger.error('Global Queue Error', { error: err.message }));
-emailQueue.on('waiting', (jobId) => logger.info(`Job ${jobId} is waiting`));
+const getConnection = () => getRedisClient();
 
 module.exports = {
-    emailQueue,
-    digestQueue,
+    get emailQueue() { return emailQueue; },
+    get digestQueue() { return digestQueue; },
     addEmailJob,
     addDigestJob,
-    connection
+    initQueues,
+    getConnection,
+    get connection() { return getRedisClient(); },
 };
