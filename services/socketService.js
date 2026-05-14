@@ -4,10 +4,6 @@ const Redis = require('ioredis');
 const jwt = require('jsonwebtoken');
 const notificationService = require('./notificationService');
 
-/**
- * NirnayPath Real-Time & Anti-Cheat WebSocket Engine
- * Handles live updates, session heartbeats, and competitive sync
- */
 class SocketService {
     constructor() {
         this.io = null;
@@ -17,12 +13,9 @@ class SocketService {
 
     init(server) {
         this.io = new Server(server, {
-            cors: {
-                origin: "*",
-                methods: ["GET", "POST"]
-            },
+            cors: { origin: '*', methods: ['GET', 'POST'] },
             pingTimeout: 30000,
-            pingInterval: 10000
+            pingInterval: 10000,
         });
 
         // Redis Adapter for Clustering Support
@@ -48,11 +41,11 @@ class SocketService {
                 console.error('[Socket] Failed to initialize Redis Adapter:', err.message);
             }
         }
+        }
 
         this.setupMiddleware();
         this.setupEvents();
-        
-        global.io = this.io; // Export to global for services to broadcast
+        global.io = this.io;
         return this.io;
     }
 
@@ -60,12 +53,10 @@ class SocketService {
         this.io.use((socket, next) => {
             const token = socket.handshake.auth.token || socket.handshake.query.token;
             if (!token) return next(new Error('Authentication required'));
-
             try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                socket.user = decoded;
+                socket.user = jwt.verify(token, process.env.JWT_SECRET);
                 next();
-            } catch (err) {
+            } catch {
                 next(new Error('Invalid token'));
             }
         });
@@ -73,53 +64,20 @@ class SocketService {
 
     setupEvents() {
         this.io.on('connection', (socket) => {
-            const userId = socket.user.id;
-            console.log(`[Socket] User Connected: ${userId} (${socket.id})`);
-
-            // Join personal room for private notifications
+            const userId = socket.user?.id;
             socket.join(`user:${userId}`);
-
-            // 1. Session Heartbeat (Anti-Cheat / Presence)
-            socket.on('heartbeat', (data) => {
-                // Tracking live presence to prevent multi-tab/device overlap
-                socket.emit('heartbeat_ack', { timestamp: Date.now() });
-            });
-
-            // 2. Competitive Exam Sync
-            socket.on('join_exam', (examId) => {
-                socket.join(`exam:${examId}`);
-                console.log(`[Socket] User ${userId} joined exam room: ${examId}`);
-            });
-
-            // 3. Anti-Cheat: Tab Activity Alerts (Relayed from Client)
+            socket.on('heartbeat', () => socket.emit('heartbeat_ack', { timestamp: Date.now() }));
+            socket.on('join_exam', (examId) => socket.join(`exam:${examId}`));
             socket.on('anti_cheat_event', (data) => {
-                console.warn(`[Anti-Cheat] Activity detected for User ${userId}:`, data.type);
-                notificationService.sendCheatWarning(userId, data.type);
+                console.warn(`[Anti-Cheat] User ${userId}:`, data?.type);
+                try { notificationService.sendCheatWarning(userId, data?.type); } catch {}
             });
-
-            socket.on('disconnect', () => {
-                console.log(`[Socket] User Disconnected: ${userId}`);
-            });
+            socket.on('disconnect', () => console.log(`[Socket] Disconnected: ${userId}`));
         });
     }
 
-    /**
-     * Broadcast XP/Streak updates to specific user
-     */
-    emitToUser(userId, event, data) {
-        if (this.io) {
-            this.io.to(`user:${userId}`).emit(event, data);
-        }
-    }
-
-    /**
-     * Broadcast live leaderboard updates to exam rooms
-     */
-    emitToExam(examId, event, data) {
-        if (this.io) {
-            this.io.to(`exam:${examId}`).emit(event, data);
-        }
-    }
+    emitToUser(userId, event, data) { if (this.io) this.io.to(`user:${userId}`).emit(event, data); }
+    emitToExam(examId, event, data) { if (this.io) this.io.to(`exam:${examId}`).emit(event, data); }
 }
 
 module.exports = new SocketService();

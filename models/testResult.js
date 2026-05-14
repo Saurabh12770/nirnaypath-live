@@ -6,12 +6,6 @@ const testResultSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    sessionId: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true
-    },
     exam: {
         type: String,
         required: true
@@ -19,10 +13,6 @@ const testResultSchema = new mongoose.Schema({
     subject: {
         type: String,
         required: true
-    },
-    topic: {
-        type: String,
-        default: null
     },
     testName: {
         type: String,
@@ -36,10 +26,6 @@ const testResultSchema = new mongoose.Schema({
     modeValue: {
         type: String,
         default: null
-    },
-    timeTaken: {
-        type: Number,
-        default: 0
     },
     score: {
         type: Number,
@@ -67,15 +53,12 @@ const testResultSchema = new mongoose.Schema({
     },
     answers: [{
         questionId: String,
-        question: String,
-        question_hi: String,
-        selected: Number,
-        correct: Number,
-        explanation_en: String,
-        explanation_hi: String,
+        userAnswer: String,
+        correctAnswer: String,
         isCorrect: Boolean,
         topic: String,
-        topicId: String
+        explanation_en: String,
+        explanation_hi: String
     }],
     createdAt: {
         type: Date,
@@ -85,8 +68,6 @@ const testResultSchema = new mongoose.Schema({
 
 testResultSchema.index({ userId: 1 });
 testResultSchema.index({ createdAt: -1 });
-testResultSchema.index({ userId: 1, createdAt: -1 });
-testResultSchema.index({ userId: 1, subject: 1 }); // History exclusion lookup
 testResultSchema.index({ exam: 1, createdAt: -1 });
 
 const TestResult = mongoose.model('TestResult', testResultSchema);

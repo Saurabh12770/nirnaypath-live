@@ -1,5 +1,5 @@
 /* NirnayPath Service Worker v2.0 */
-const CACHE_NAME = 'nirnaypath-cache-v2';
+const CACHE_NAME = 'nirnaypath-cache-v1';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/js/dashboard.js',
     '/js/push.js',
     '/js/app.js',
-    '/logo.png'
+    '/images/logo-icon.png'
 ];
 
 // Install Event - Pre-cache static assets
@@ -34,54 +34,41 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch Event - Hardened to prevent undefined returns
+// Fetch Event - Cache-first for static, Network-first for API
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        (async () => {
-            try {
-                // Cache-First for static, Network-First for API
-                const url = new URL(event.request.url);
-                const isApi = url.pathname.startsWith('/api/');
+    const url = new URL(event.request.url);
 
-                if (isApi) {
-                    try {
-                        const response = await fetch(event.request);
-                        if (response && response.status === 200) {
-                            const clone = response.clone();
-                            const cache = await caches.open(CACHE_NAME);
-                            cache.put(event.request, clone);
-                            return response.clone();
-                        }
-                        return response || new Response("offline", { status: 503 });
-                    } catch (err) {
-                        const cached = await caches.match(event.request);
-                        return cached ? cached.clone() : new Response("offline", { status: 503 });
-                    }
-                } else {
+    // API Caching Strategy (Network First)
+    if (url.pathname.startsWith('/api/questions/') || 
+        url.pathname.startsWith('/api/drill/') || 
+        url.pathname.startsWith('/api/section/')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    const clonedResponse = response.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, clonedResponse);
+                    });
+                    return response;
+                })
+                .catch(async () => {
                     const cachedResponse = await caches.match(event.request);
-                    if (cachedResponse) return cachedResponse.clone();
+                    return cachedResponse || new Response(JSON.stringify({ error: "offline" }), { 
+                        status: 503, 
+                        headers: { 'Content-Type': 'application/json' } 
+                    });
+                })
+        );
+        return;
+    }
 
-                    try {
-                        const response = await fetch(event.request);
-                        if (response && response.status === 200) {
-                            const clone = response.clone();
-                            const cache = await caches.open(CACHE_NAME);
-                            cache.put(event.request, clone);
-                            return response.clone();
-                        }
-                        return response || new Response("offline", { status: 503 });
-                    } catch (err) {
-                        if (event.request.mode === 'navigate') {
-                            const root = await caches.match('/index.html');
-                            if (root) return root.clone();
-                        }
-                        return new Response("offline", { status: 503 });
-                    }
-                }
-            } catch (fatalErr) {
+    // Static Assets Strategy (Cache First)
+    event.respondWith(
+        caches.match(event.request).then(cachedResponse => {
+            return cachedResponse || fetch(event.request).catch(() => {
                 return new Response("offline", { status: 503 });
-            }
-        })()
+            });
+        }).catch(() => new Response("offline", { status: 503 }))
     );
 });
 
@@ -91,8 +78,8 @@ self.addEventListener('push', function(event) {
         const payload = event.data.json();
         const options = {
             body: payload.body,
-            icon: payload.icon || '/logo.png',
-            badge: '/logo.png',
+            icon: payload.icon || '/images/logo-icon.png',
+            badge: '/images/logo-icon.png',
             vibrate: [100, 50, 100],
             data: { url: payload.data ? payload.data.url : '/' }
         };

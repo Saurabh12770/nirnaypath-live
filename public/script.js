@@ -14,10 +14,11 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    1. STATE
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-let currentExam = localStorage.getItem('np_exam') || 'upsc';
-let currentSubject = localStorage.getItem('np_subject') || 'history';
-let currentLanguage = localStorage.getItem('np_language') || 'en';
+let currentExam = 'upsc';
+let currentSubject = 'history';
+let currentLanguage = 'en';
 let currentFilter = 'All';
+window.currentQuestionSet = [];
 let timerInterval = null;
 let tabSwitchCount = 0;
 let acInstalled = false;
@@ -94,10 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Inject CSS enhancements (scrollbar, animations, etc.) */
     injectDynamicCSS();
 
-    /* Init modules handled by utils.js */
-    initLanguageToggle();
-    
+    /* Init modules */
+    initTheme();
+
     initExamRibbon();
+    initLanguageToggle();
     initFilterButtons();
     initStickyHeader();
     initBackToTop();
@@ -120,23 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Try to resume an active test session */
     checkExistingTestSession();
-});
 
-/* Redundant functions removed - handled by utils.js */
-
-    /* Phase 6: CDN Fallback Handling (FontAwesome) */
-    setTimeout(() => {
-        const faTest = document.createElement('span');
-        faTest.className = 'fa';
-        faTest.style.display = 'none';
-        document.body.appendChild(faTest);
-        if (window.getComputedStyle(faTest).fontFamily !== 'FontAwesome' && 
-            window.getComputedStyle(faTest).fontFamily.indexOf('Font Awesome') === -1) {
-            console.warn('FontAwesome CDN failed. Using local icon fallbacks.');
-            document.body.classList.add('cdn-failed');
+    /* ✅ Phase 3: Logo Click Fix */
+    document.addEventListener("click", function(e){
+        if(e.target.closest(".logo")){
+            window.location.href = "/index.html";
         }
-        document.body.removeChild(faTest);
-    }, 2000);
+    });
 });
 
 /* ============================================================ 
@@ -220,7 +212,7 @@ const TopicDrills = {
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading topics...</div>';
         
         try {
-            const res = await Auth.fetchWithAuth(`/api/subject/${subject}/topics`);
+            const res = await fetch(`/api/subject/${subject}/topics`);
             const topics = await res.json();
             
             container.innerHTML = '';
@@ -251,32 +243,21 @@ const TopicDrills = {
 
         showView('loading');
         try {
-            const res = await fetch('/api/test/start', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}` 
-                },
-                body: JSON.stringify({
-                    subject,
-                    count: 20,
-                    timeLimit: 20 * 60,
-                    exam: currentExam
-                })
+            const res = await fetch(`/api/drill/${subject}/${topic}?count=20`, {
+                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
-            const data = await res.json();
+            const questions = await res.json();
             
-            if (!res.ok) throw new Error(data.error || 'Failed to load drill');
+            if (!res.ok) throw new Error(questions.error || 'Failed to load drill');
 
-            const normalized = data.questions.map(q => ({
+            const normalized = questions.map(q => ({
                 ...q,
-                id: q._id || q.id
+                question: L.q(q),
+                options: L.opt(q),
+                explanation: L.exp(q) || 'No explanation provided.'
             }));
-            
-            window.currentQuestionSet = normalized;
 
             testState = {
-                sessionId: data.sessionId,
                 exam: currentExam, subject, testName: `Topic Drill: ${topic}`,
                 answers: {}, marked: [], visited: [0],
                 timeLeft: 20 * 60, currentIdx: 0,
@@ -334,18 +315,8 @@ const SectionalTests = {
         showView('loading');
         
         try {
-            const res = await fetch('/api/test/start', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}` 
-                },
-                body: JSON.stringify({
-                    subject: 'all', // Sectional tests often cover multiple, handled server-side
-                    count: 75,
-                    timeLimit: 60 * 60, // Default 1 hour
-                    exam: sectionName
-                })
+            const res = await fetch(`/api/section/${encodeURIComponent(sectionName)}?count=75`, {
+                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
             const data = await res.json();
             
@@ -353,16 +324,15 @@ const SectionalTests = {
 
             const normalized = data.questions.map(q => ({
                 ...q,
-                id: q._id || q.id
+                question: L.q(q),
+                options: L.opt(q),
+                explanation: L.exp(q) || 'No explanation provided.'
             }));
-            
-            window.currentQuestionSet = normalized;
 
             testState = {
-                sessionId: data.sessionId,
                 exam: 'sectional', subject: 'all', testName: `Sectional: ${sectionName}`,
                 answers: {}, marked: [], visited: [0],
-                timeLeft: Math.round(data.timeLimit || 3600), currentIdx: 0,
+                timeLeft: Math.round(data.timeLimit * 60), currentIdx: 0,
                 isActive: true, selectedQuestions: normalized,
                 mode: 'section', modeValue: sectionName
             };
@@ -434,23 +404,23 @@ function setActiveExam(exam) {
    8. LANGUAGE
    ============================================================ */
 function initLanguageToggle() {
-    if (window.NirnayPath) window.NirnayPath.syncLanguageUI();
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
 }
 
 function setLanguage(lang) {
     currentLanguage = lang;
-    localStorage.setItem('np_language', lang);
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active-lang'));
-    document.querySelectorAll(`.lang-btn[data-lang="${lang}"]`).forEach(b => b.classList.add('active-lang'));
+    document.querySelector(`.lang-btn[data-lang="${lang}"]`)?.classList.add('active-lang');
     
-    // 1. Rerender active question engine
+    // ✅ Phase 4: Toggle UI rendering without refetching
     if (testState.isActive && testState.selectedQuestions.length) {
         renderQuestion();
     }
     
-    // 2. Rerender review container if it's currently visible
-    const rc = document.getElementById('review-container');
-    if (rc && rc.style.display === 'block') {
+    // Also update review screen if visible
+    if (document.getElementById('result-screen')?.classList.contains('active')) {
         buildReview();
     }
 }
@@ -459,7 +429,7 @@ function setLanguage(lang) {
    9. BILINGUAL HELPERS
    ============================================================ */
 const L = {
-    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question || q.text) : (q.question_en || q.question || q.text),
+    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
     opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
     exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
 };
@@ -551,7 +521,7 @@ function renderTestGrid() {
             <span class="test-difficulty ${diffClass}"><i class="fas fa-signal"></i> ${diff}</span>
             <button class="test-start-btn"><i class="fas fa-play-circle"></i> Start Test</button>
           </div>`;
-        const go = () => startTest(currentSubject, `Mock Test ${i}`, q, t);
+        const go = () => startTest(`Mock Test ${i}`, currentSubject, q, t);
         card.querySelector('.test-start-btn').addEventListener('click', e => { e.stopPropagation(); go(); });
         card.addEventListener('click', go);
         grid.appendChild(card);
@@ -582,81 +552,52 @@ function setFilter(f) {
 /* ============================================================ 
    13. START TEST
    ============================================================ */
-function startTest(subject, testName, questionCount, timeLimit) {
+async function startTest(testName, subject, questionCount = 100, timeLimit = 90) {
+    if (!Auth.isLoggedIn()) {
+        alert('Please login to start the mock test.');
+        document.getElementById('loginModal').style.display = 'flex';
+        return;
+    }
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
+    try {
+        const url = `/api/questions/${subject}`;
+        console.log(`[NirnayPath] Fetching: ${url}`);
+        const res = await fetch(url);
+        if (!res.ok) {
+            console.error(`[NirnayPath] Fetch failed: ${res.status} ${res.statusText}`);
+            throw new Error(`HTTP ${res.status} – Subject not found`);
+        }
+        const data = await res.json();
+        let raw = Array.isArray(data) ? data : (data.questions || []);
+        if (!raw.length) throw new Error('Question bank is empty.');
 
-    // Check if we already have questions (Live Test flow)
-    if (window.liveQuestions && window.liveQuestions.length) {
-        const normalized = window.liveQuestions.map(q => ({
+        // ✅ Phase 4: Store full question set globally
+        window.currentQuestionSet = raw;
+
+        const normalized = raw.map(q => ({
             ...q,
             question: L.q(q),
             options: L.opt(q),
             explanation: L.exp(q) || 'No explanation provided.'
         }));
 
+        const selected = shuffleArray([...normalized]).slice(0, Math.min(questionCount, normalized.length));
+
         testState = {
-            sessionId: window.liveSessionId,
-            isLive: true,
-            exam: 'Live Test', subject, testName,
+            exam: currentExam, subject, testName,
             answers: {}, marked: [], visited: [0],
             timeLeft: timeLimit * 60, currentIdx: 0,
-            isActive: true, selectedQuestions: normalized,
-            mode: 'live', modeValue: window.liveSessionId
+            isActive: true, selectedQuestions: selected,
+            mode: 'full', modeValue: null
         };
-        window.liveQuestions = null; // Clear
         saveProgress();
         launchExam();
-        return;
+    } catch (err) {
+        console.error('[NirnayPath] Test load error:', err);
+        alert(`Could not load test.\n\n${err.message}`);
+        showView('dashboard');
     }
-
-    async function doStart() {
-        try {
-            const res = await Auth.fetchWithAuth('/api/test/start', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    subject,
-                    count: questionCount,
-                    timeLimit: timeLimit * 60,
-                    exam: currentExam
-                })
-            });
-            
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error || `HTTP ${res.status} – Could not start test`);
-            }
-            
-            const data = await res.json();
-            const raw = data.questions || [];
-            if (!raw.length) throw new Error('Question bank is empty.');
-
-            const normalized = raw.map(q => ({
-                ...q,
-                id: q._id || q.id // Ensure consistent ID
-            }));
-            
-            // Phase 4: Store globally for bilingual toggle
-            window.currentQuestionSet = normalized;
-
-            testState = {
-                sessionId: data.sessionId,
-                exam: currentExam, subject, testName,
-                answers: {}, marked: [], visited: [0],
-                timeLeft: timeLimit * 60, currentIdx: 0,
-                isActive: true, selectedQuestions: normalized,
-                mode: 'full', modeValue: null
-            };
-            saveProgress();
-            launchExam();
-        } catch (err) {
-            console.error('[NirnayPath] Test load error:', err);
-            showView('home');
-            window.showToast(err.message, 'var(--danger)');
-        }
-    }
-    doStart();
 }
 
 /* ============================================================ 
@@ -679,10 +620,14 @@ function launchExam() {
     if (user) {
         setEl('cand-name', user.split('@')[0]);
         const av = document.getElementById('user-avatar');
-        if (av) av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(user.split('@')[0])}`;
+        if (av) {
+            av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(user.split('@')[0])}`;
+            // ✅ Phase 6: ui-avatars fallback
+            av.onerror = () => { 
+                av.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.split('@')[0])}&background=random`; 
+            };
+        }
     }
-
-    if (window.RealTime) window.RealTime.setExamActive(true, testState.sessionId);
 
     renderPalette();
     renderQuestion();
@@ -902,7 +847,7 @@ function initTrendingTestButtons() {
         const tLimit = parseInt(btn.dataset.time || '90');
         if (exam) currentExam = exam;
         if (subject) currentSubject = subject;
-        startTest(subject, `${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, qCount, tLimit);
+        startTest(`${btn.closest('.trend-card')?.querySelector('h3')?.textContent || 'Mock Test'}`, subject, qCount, tLimit);
     });
 }
 
@@ -935,7 +880,6 @@ function submitTest() {
     clearInterval(timerInterval);
     saveCurrentAnswer();
     testState.isActive = false;
-    if (window.RealTime) window.RealTime.setExamActive(false);
     saveProgress();
 
     /* Robust Answer Comparison Helper */
@@ -991,7 +935,6 @@ function submitTest() {
 
     /* Send results to backend for persistent storage */
     const resultsData = {
-        sessionId: testState.sessionId,
         exam: testState.exam,
         subject: testState.subject,
         testName: testState.testName,
@@ -1002,30 +945,28 @@ function submitTest() {
         unattempted,
         accuracy: parseFloat(accuracy),
         answers: testState.selectedQuestions.map((q, i) => ({
-            questionId: q._id || q.id || `q-${i}`,
+            questionId: q._id || `q-${i}`,
             userAnswer: testState.answers[i] !== undefined ? String(testState.answers[i]) : null,
             correctAnswer: String(q.correctAnswer),
             isCorrect: isCorrect(testState.answers[i], q.correctAnswer, L.opt(q) || q.options || []),
-            topic: q.topic || 'General'
+            topic: q.topic || 'General',
+            // ✅ Phase 5: Store explanations
+            explanation_en: q.explanation_en || q.explanation,
+            explanation_hi: q.explanation_hi || q.explanation
         })),
         mode: testState.mode || 'full',
         modeValue: testState.modeValue || null
     };
 
-    if (testState.isLive) {
-        window.NirnayPath.safeFetch(`/api/live/submit/${testState.sessionId}`, {
-            method: 'POST',
-            body: JSON.stringify({ answers: testState.answers })
-        })
-        .then(data => console.log('Live Test submitted:', data))
-        .catch(err => console.error('Error submitting live test:', err));
-        return;
-    }
-
-    window.NirnayPath.safeFetch('/api/test/submit', {
+    fetch('/api/test/submit', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Auth.getToken()}`
+        },
         body: JSON.stringify(resultsData)
     })
+    .then(res => res.json())
     .then(data => console.log('Test submitted to server:', data))
     .catch(err => console.error('Error submitting test to server:', err));
 }
@@ -1079,7 +1020,7 @@ function buildReview() {
                 <span class="q-badge">Question ${i + 1}</span>
                 <span class="status-badge">${isMatch ? '✅ Correct' : (userAnsId === undefined ? '⚪ Skipped' : '❌ Incorrect')}</span>
             </div>
-            <div class="review-q-text">${L.q(q) || q.question_en || q.text}</div>
+            <div class="review-q-text">${L.q(q)}</div>
             <div class="review-choices">
                 <div class="choice-row ${isMatch ? 'user-correct' : (userAnsId === undefined ? '' : 'user-wrong')}">
                     <strong>Your Answer:</strong> <span>${userText}</span>
@@ -1089,15 +1030,11 @@ function buildReview() {
                     <strong>Correct Answer:</strong> <span>${correctText}</span>
                 </div>` : ''}
             </div>
-            ${(L.exp(q)) ? `
+            ${L.exp(q) ? `
             <div class="review-explanation">
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
                 <p>${L.exp(q)}</p>
-            </div>` : `
-            <div class="review-explanation missing">
-                <strong><i class="fas fa-info-circle"></i> Note:</strong>
-                <p>Explanation is currently being processed for this question. Please check back later.</p>
-            </div>`}
+            </div>` : ''}
         `;
         rc.appendChild(card);
     });
@@ -1133,9 +1070,7 @@ function enterFullscreen() {
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
 }
 function exitFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
-    }
+    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
 }
 
 /* Fullscreen exit warning */
@@ -1500,14 +1435,6 @@ function injectDynamicCSS() {
         to   { opacity:1; transform:translateY(0) scale(1); }
       }
 
-      /* ——— Shake animation for anti-cheat ——— */
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-      }
-      .shake-anim { animation: shake 0.2s ease 2; border: 2px solid var(--danger) !important; }
-
       /* ——— About-page stat items (prevent exam palette style bleed) ——— */
       .stats-counter-section .stat-item {
         background:var(--card-bg) !important;
@@ -1546,6 +1473,18 @@ function injectDynamicCSS() {
                    letter-spacing:2px;text-transform:uppercase;opacity:.8; }
     `;
     document.head.appendChild(s);
+
+    // ✅ Phase 6: CDN Fallback handling
+    setTimeout(() => {
+        const faLoaded = Array.from(document.styleSheets).some(s => s.href?.includes('font-awesome'));
+        if (!faLoaded) {
+            console.warn('CDN: FontAwesome failed to load. Using local fallbacks.');
+            const banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;background:#F59E0B;color:#000;text-align:center;padding:8px;font-size:12px;z-index:9999;font-weight:600;';
+            banner.innerHTML = '⚠️ Some icons may not load due to CDN connectivity issues. Please check your internet.';
+            document.body.appendChild(banner);
+        }
+    }, 3000);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1594,49 +1533,6 @@ function initMobileMenu() {
 
     // Close on ESC key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && navPanel.classList.contains('open')) closePanel();
-    });
-
-    // --- QUICK LINK ACTIVATOR (Delegated for Production Safety) ---
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href="#"]');
-        if (!link) return;
-
-        // PROTECT AUTH FLOWS: Skip links handled by auth.js
-        const authIds = ['showSignup', 'showLogin', 'forgotPasswordLink', 'backToLogin', 'loginBtn', 'mobileLoginBtn'];
-        if (authIds.includes(link.id)) return;
-
-        const text = link.textContent.trim().toLowerCase();
-        
-        // Check for Exam Links (usually in Footer or Sidebar)
-        if (text.includes('tests')) {
-            const examMap = { 'bpsc': 'bpsc', 'upsc': 'upsc', 'ssc': 'ssc', 'railway': 'railway', 'banking': 'banking', 'teaching': 'teaching', 'state psc': 'bpsc' };
-            for (let key in examMap) {
-                if (text.includes(key)) {
-                    e.preventDefault();
-                    setActiveExam(examMap[key]);
-                    renderSubjectCards(examMap[key]);
-                    showView('home');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    if (navPanel.classList.contains('open')) closePanel();
-                    return;
-                }
-            }
-        }
-
-        // General informative toasts for other placeholder links
-        if (link.closest('.social-links') || link.closest('.footer-social') || link.classList.contains('social-link')) {
-            e.preventDefault();
-            window.showToast('Connecting to social media...', 'var(--primary)');
-        } else if (link.closest('.app-badge')) {
-            e.preventDefault();
-            window.showToast('NirnayPath Mobile App coming soon!', 'var(--primary)');
-        } else if (text !== '' && !link.classList.contains('panel-link')) {
-             const handledInIndex = ['about', 'privacy', 'terms', 'faq', 'contact', 'team', 'careers', 'partnerships', 'press', 'testimonials'];
-             if (handledInIndex.some(h => text.includes(h))) {
-                e.preventDefault();
-                window.showToast(`${link.textContent.trim()} section update in progress.`, 'var(--primary)');
-             }
-        }
+        if (e.key === 'Escape') closePanel();
     });
 }
