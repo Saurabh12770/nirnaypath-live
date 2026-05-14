@@ -1,6 +1,6 @@
 const express = require('express');
 const auth = require('../middleware/auth');
-const TestResult = require('../models/TestResult');
+const TestResult = require('../models/testResult');
 const router = express.Router();
 
 // Get user profile and recent tests

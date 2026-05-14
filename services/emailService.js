@@ -1,6 +1,6 @@
 const { addEmailJob } = require('./queueService');
 const PerformanceAnalyticsService = require('./performanceAnalyticsService');
-const Question = require('../models/Question');
+const Question = require('../models/question');
 const fs = require('fs');
 const path = require('path');
 

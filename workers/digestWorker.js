@@ -1,7 +1,7 @@
 const { Worker } = require('bullmq');
 const { connection, addEmailJob } = require('../services/queueService');
-const User = require('../models/User');
-const TestResult = require('../models/TestResult');
+const User = require('../models/user');
+const TestResult = require('../models/testResult');
 
 const createDigestWorker = () => {
     const worker = new Worker('digest-queue', async (job) => {

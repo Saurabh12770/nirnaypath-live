@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const Question = require('../models/Question');
+const Question = require('../models/question');
 
 const DATA_DIR = path.join(__dirname, '../data');
 const BACKUP_DIR = path.join(__dirname, '../backups/repository_snapshots');

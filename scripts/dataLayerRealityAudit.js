@@ -21,7 +21,7 @@ async function runAudit() {
         }
     };
 
-    const Question = require('../models/Question');
+    const Question = require('../models/question');
     Question.find = () => ({ lean: async () => [] });
     Question.updateOne = async () => ({ nModified: 1 });
 

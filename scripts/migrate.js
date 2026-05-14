@@ -9,10 +9,10 @@ const applyIndexes = async () => {
         await mongoose.connect(mongoUri);
         console.log('Connected to MongoDB for indexing...');
 
-        const User = require('../models/User');
-        const TestResult = require('../models/TestResult');
-        const Payment = require('../models/Payment');
-        const ChatMessage = require('../models/ChatMessage');
+        const User = require('../models/user');
+        const TestResult = require('../models/testResult');
+        const Payment = require('../models/payment');
+        const ChatMessage = require('../models/chatMessage');
 
         console.log('Applying User indexes...');
         await User.collection.createIndex({ email: 1 }, { unique: true });

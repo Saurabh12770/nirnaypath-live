@@ -1,5 +1,5 @@
-const TestResult = require('../models/TestResult');
-const User = require('../models/User');
+const TestResult = require('../models/testResult');
+const User = require('../models/user');
 
 /**
  * NirnayPath Student Learning Profile Engine

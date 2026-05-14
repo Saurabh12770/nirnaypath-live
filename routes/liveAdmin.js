@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
-const LiveSession = require('../models/LiveSession');
-const Question = require('../models/Question');
+const LiveSession = require('../models/liveSession');
+const Question = require('../models/question');
 
 // 1. Create a new live session
 router.post('/', auth, adminAuth, async (req, res) => {

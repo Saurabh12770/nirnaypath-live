@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const LiveSession = require('../models/LiveSession');
-const LiveResult = require('../models/LiveResult');
-const Question = require('../models/Question');
+const LiveSession = require('../models/liveSession');
+const LiveResult = require('../models/liveResult');
+const Question = require('../models/question');
 
 // 1. Get upcoming sessions
 router.get('/upcoming', async (req, res) => {

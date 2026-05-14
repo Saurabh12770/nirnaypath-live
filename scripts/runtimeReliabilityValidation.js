@@ -8,7 +8,7 @@ const path = require('path');
 const QuestionSelectionService = require('../utils/questionSelectionService');
 const { normalizeQuestion } = require('../utils/questionNormalizer');
 const { getCachedData, setCachedData } = require('../middleware/cache');
-const TestResult = require('../models/TestResult');
+const TestResult = require('../models/testResult');
 
 async function runTests() {
     console.log('🚀 Starting Reliability Validation Suite...\n');

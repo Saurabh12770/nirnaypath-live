@@ -7,7 +7,7 @@
 
 const crypto = require('crypto');
 const QuestionRepository = require('./questionRepository');
-const TestResult = require('../models/TestResult');
+const TestResult = require('../models/testResult');
 const { normalizeQuestion } = require('../utils/questionNormalizer');
 const { trace, CATEGORIES } = require('../utils/runtimeTrace');
 const AdaptiveLearningService = require('./adaptiveLearningService');

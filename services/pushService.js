@@ -1,5 +1,5 @@
 const webPush = require('web-push');
-const User = require('../models/User');
+const User = require('../models/user');
 
 let isConfigured = false;
 

@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const TestResult = require('../models/TestResult');
+const User = require('../models/user');
+const TestResult = require('../models/testResult');
 const plans = require('../config/plans');
 
 /**

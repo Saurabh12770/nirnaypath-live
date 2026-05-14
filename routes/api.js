@@ -29,7 +29,7 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
         }
 
         // 2. Fetch from MongoDB (Source of Truth)
-        const Question = require('../models/Question');
+        const Question = require('../models/question');
         let questions = await Question.find({ 
             $or: [{ subjectId: subLower }, { subject: subLower }] 
         }).lean();

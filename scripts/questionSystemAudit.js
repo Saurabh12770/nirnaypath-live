@@ -1,8 +1,8 @@
-const QuestionService = require('../services/QuestionService');
-const CacheLayer = require('../services/CacheLayer');
-const HistoryService = require('../services/HistoryService');
-const Question = require('../models/Question');
-const TestResult = require('../models/TestResult');
+const QuestionService = require('../services/questionService');
+const CacheLayer = require('../services/cacheLayer');
+const HistoryService = require('../services/historyService');
+const Question = require('../models/question');
+const TestResult = require('../models/testResult');
 
 async function runAudit() {
     console.log('====================================================');

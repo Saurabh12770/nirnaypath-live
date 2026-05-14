@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
-const TestSession = require('../models/TestSession');
+const TestSession = require('../models/testSession');
 const { requirePlan } = require('../middleware/planGuard');
-const QuestionService = require('../services/QuestionService');
+const QuestionService = require('../services/questionService');
 
 /**
  * GET /api/drill/:subject/:topic?count=20

@@ -3,9 +3,9 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const sectionsMapping = require('../config/sections');
 const { requirePlan } = require('../middleware/planGuard');
-const QuestionService = require('../services/QuestionService');
+const QuestionService = require('../services/questionService');
 const crypto = require('crypto');
-const TestSession = require('../models/TestSession');
+const TestSession = require('../models/testSession');
 
 /**
  * GET /api/section/:sectionName?count=75

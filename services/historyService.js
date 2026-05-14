@@ -3,7 +3,7 @@
  * Exclusion system.
  */
 
-const TestResult = require('../models/TestResult');
+const TestResult = require('../models/testResult');
 
 class HistoryService {
     static async getSeenQuestionIds(userId) {

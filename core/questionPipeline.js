@@ -3,11 +3,11 @@
  * THE ONLY VALID FLOW.
  */
 
-const QuestionRepository = require('../services/QuestionRepository');
-const HistoryService = require('../services/HistoryService');
-const SelectionEngine = require('../services/SelectionEngine');
-const DedupEngine = require('../services/DedupEngine');
-const CacheLayer = require('../services/CacheLayer');
+const QuestionRepository = require('../services/questionRepository');
+const HistoryService = require('../services/historyService');
+const SelectionEngine = require('../services/selectionEngine');
+const DedupEngine = require('../services/dedupEngine');
+const CacheLayer = require('../services/cacheLayer');
 
 class QuestionPipeline {
     static async execute({ userId, subject, count }) {

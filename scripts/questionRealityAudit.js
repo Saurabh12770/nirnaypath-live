@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const QuestionRuntimeEngine = require('../services/QuestionRuntimeEngine');
+const QuestionRuntimeEngine = require('../services/questionRuntimeEngine');
 require('dotenv').config({ path: '../.env' });
 
 async function runAudit() {

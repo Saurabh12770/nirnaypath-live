@@ -38,7 +38,7 @@ const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { initCronJobs } = require('./services/cronService');
 const { initWorkers, shutdownWorkers } = require('./services/workerService');
-const User = require('./models/User');
+const User = require('./models/user');
 
 async function autoPromoteAdmin() {
     const adminEmail = process.env.ADMIN_EMAIL;

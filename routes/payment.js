@@ -3,8 +3,8 @@ const router = express.Router();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const auth = require('../middleware/auth');
-const User = require('../models/User');
-const Payment = require('../models/Payment');
+const User = require('../models/user');
+const Payment = require('../models/payment');
 const plans = require('../config/plans');
 const SubscriptionService = require('../services/subscriptionService');
 

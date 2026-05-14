@@ -1,6 +1,6 @@
 const socketService = require('./socketService');
 const webpush = require('web-push');
-const User = require('../models/User');
+const User = require('../models/user');
 
 /**
  * NirnayPath Enterprise Notification Engine

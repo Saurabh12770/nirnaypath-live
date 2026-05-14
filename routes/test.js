@@ -1,16 +1,16 @@
 const express = require('express');
 const auth = require('../middleware/auth');
-const TestResult = require('../models/TestResult');
-const User = require('../models/User');
+const TestResult = require('../models/testResult');
+const User = require('../models/user');
 const { sendResultEmail } = require('../services/emailService');
 const { evaluateBadges } = require('../services/badgeService');
 const AdaptiveLearningService = require('../services/adaptiveLearningService');
 const router = express.Router();
 
 const crypto = require('crypto');
-const TestSession = require('../models/TestSession');
-const Question = require('../models/Question');
-const QuestionService = require('../services/QuestionService');
+const TestSession = require('../models/testSession');
+const Question = require('../models/question');
+const QuestionService = require('../services/questionService');
 
 /**
  * GET /api/test/health

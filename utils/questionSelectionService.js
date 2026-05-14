@@ -1,4 +1,4 @@
-const TestResult = require('../models/TestResult');
+const TestResult = require('../models/testResult');
 const { resolveTopicIdentifier } = require('./topicNormalizer');
 const Integrity = require('./questionIntegrityService');
 

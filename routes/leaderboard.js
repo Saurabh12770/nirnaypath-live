@@ -1,7 +1,7 @@
 const express = require('express');
 const auth = require('../middleware/auth');
-const TestResult = require('../models/TestResult');
-const User = require('../models/User');
+const TestResult = require('../models/testResult');
+const User = require('../models/user');
 const router = express.Router();
 
 const { getCachedData, setCachedData } = require('../middleware/cache');

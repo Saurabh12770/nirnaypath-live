@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const Payment = require('../models/Payment');
+const User = require('../models/user');
+const Payment = require('../models/payment');
 const plans = require('../config/plans');
 const emailService = require('./emailService');
 

@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const Question = require('../models/Question');
+const Question = require('../models/question');
 
 class QuestionRepository {
     static async fetchQuestions(subjectOrSubjects) {

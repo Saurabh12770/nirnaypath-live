@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const User = require('../models/User');
-const ChatMessage = require('../models/ChatMessage');
+const User = require('../models/user');
+const ChatMessage = require('../models/chatMessage');
 const { askAI } = require('../services/aiService');
 
 // POST /api/chat

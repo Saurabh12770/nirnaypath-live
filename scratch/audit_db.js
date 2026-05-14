@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
-const Question = require('../models/Question');
+const Question = require('../models/question');
 
 dotenv.config();
 

@@ -8,7 +8,7 @@ const path = require('path');
 const crypto = require('crypto');
 const QuestionContentSchema = require('../schemas/questionContentSchema');
 const SemanticFirewallService = require('./semanticFirewallService');
-const Question = require('../models/Question'); // Mongoose Model
+const Question = require('../models/question'); // Mongoose Model
 
 const DATA_DIR = path.join(__dirname, '../data');
 const BACKUP_DIR = path.join(__dirname, '../backups/question_banks');
