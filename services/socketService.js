@@ -26,11 +26,27 @@ class SocketService {
         });
 
         // Redis Adapter for Clustering Support
-        if (process.env.REDIS_URL) {
-            this.pubClient = new Redis(process.env.REDIS_URL);
-            this.subClient = this.pubClient.duplicate();
-            this.io.adapter(createAdapter(this.pubClient, this.subClient));
-            console.log('[Socket] Redis Adapter enabled for real-time scale.');
+        if (process.env.REDIS_URL && process.env.ENABLE_REDIS !== 'false') {
+            try {
+                this.pubClient = new Redis(process.env.REDIS_URL, {
+                    maxRetriesPerRequest: null,
+                    retryStrategy: (times) => Math.min(times * 100, 3000)
+                });
+                
+                this.pubClient.on('error', (err) => {
+                    console.error('[Socket] Redis PubClient Error:', err.message);
+                });
+
+                this.subClient = this.pubClient.duplicate();
+                this.subClient.on('error', (err) => {
+                    console.error('[Socket] Redis SubClient Error:', err.message);
+                });
+
+                this.io.adapter(createAdapter(this.pubClient, this.subClient));
+                console.log('[Socket] Redis Adapter enabled for real-time scale.');
+            } catch (err) {
+                console.error('[Socket] Failed to initialize Redis Adapter:', err.message);
+            }
         }
 
         this.setupMiddleware();

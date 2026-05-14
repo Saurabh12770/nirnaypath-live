@@ -256,6 +256,75 @@ router.patch('/questions/:id/approve', auth, adminAuth, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════
+// 1.5 VERIFICATION ENDPOINTS
+// ══════════════════════════════════════════════════════════
+router.get('/verify-semantic-uniqueness/:subject', auth, adminAuth, async (req, res) => {
+    try {
+        const { subject } = req.params;
+        const subLower = subject.toLowerCase().trim();
+        const DedupEngine = require('../services/dedupEngine');
+        
+        let pool = await Question.find({ 
+            $or: [{ subjectId: subLower }, { subject: subLower }] 
+        }).lean();
+        
+        const rawFs = require('fs');
+        const dataPath = path.join(__dirname, `../data/${subLower}.json`);
+        if (rawFs.existsSync(dataPath)) {
+            const rawData = JSON.parse(rawFs.readFileSync(dataPath, 'utf8'));
+            const subQuestions = Array.isArray(rawData) ? rawData : (rawData.questions || []);
+            pool.push(...subQuestions);
+        }
+
+        const totalQuestions = pool.length;
+        const duplicateGroups = [];
+        const seenEnTexts = new Map();
+        const seenHiTexts = new Map();
+        const finalUnique = [];
+
+        for (const q of pool) {
+            const id = String(q._id || q.id || q.questionId || 'UNKNOWN').trim();
+            const textEn = DedupEngine.normalizeText(q.question_en || q.text || '');
+            const textHi = DedupEngine.normalizeText(q.question_hi || '');
+
+            let isDuplicate = false;
+            let groupEn = null;
+            let groupHi = null;
+
+            if (textEn && seenEnTexts.has(textEn)) {
+                isDuplicate = true;
+                groupEn = seenEnTexts.get(textEn);
+            } else if (textHi && seenHiTexts.has(textHi)) {
+                isDuplicate = true;
+                groupHi = seenHiTexts.get(textHi);
+            }
+
+            if (isDuplicate) {
+                const conflict = groupEn || groupHi;
+                duplicateGroups.push({
+                    originalId: conflict.id,
+                    duplicateId: id,
+                    snippet: (q.question_en || q.text || q.question_hi || '').substring(0, 100)
+                });
+            } else {
+                if (textEn) seenEnTexts.set(textEn, { id, q });
+                if (textHi) seenHiTexts.set(textHi, { id, q });
+                finalUnique.push(q);
+            }
+        }
+
+        res.json({
+            totalQuestions,
+            uniqueQuestions: finalUnique.length,
+            duplicatesFound: duplicateGroups.length,
+            duplicateGroups
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ══════════════════════════════════════════════════════════
 // 2. USER MANAGEMENT
 // ══════════════════════════════════════════════════════════
 

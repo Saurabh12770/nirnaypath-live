@@ -1,96 +1,87 @@
 const { Worker } = require('bullmq');
-const { connection } = require('../services/queueService');
+const { getConnection } = require('../services/queueService');
+const { isRedisAvailable } = require('../services/redisService');
 const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
 const { recordMetric } = require('../services/emailMetrics');
 
-let transporter;
+let _transporter = null;
 
 const getTransporter = () => {
-    if (transporter) return transporter;
+    if (_transporter) return _transporter;
     if (!process.env.EMAIL_HOST) return null;
-
-    transporter = nodemailer.createTransport({
+    _transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT || 587,
+        port: parseInt(process.env.EMAIL_PORT || '587'),
         secure: process.env.EMAIL_SECURE === 'true',
-        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
-    return transporter;
+    return _transporter;
 };
 
 const createEmailWorker = () => {
+    const connection = getConnection();
+    if (!connection || !isRedisAvailable()) {
+        logger.warn('[WORKER][Email] Redis not available. Email worker not started.');
+        return null;
+    }
+
     const worker = new Worker('email-queue', async (job) => {
-        const { to, subject, html, _metadata } = job.data;
-        const type = _metadata?.emailType || job.name;
-        
-        // Calculate Queue Latency
-        const queueDelay = _metadata?.enqueuedAt ? (Date.now() - _metadata.enqueuedAt) : 0;
+        const { to, subject, html, _metadata, _type } = job.data;
+        const type = _metadata?.emailType || _type || job.name;
+        const queueDelay = _metadata?.enqueuedAt ? Date.now() - _metadata.enqueuedAt : 0;
 
-        logger.info(`Processing email: ${type}`, { 
-            to, 
-            requestId: _metadata?.requestId, 
-            userId: _metadata?.userId,
-            queueDelayMs: queueDelay
-        });
+        logger.info(`[WORKER][Email] Processing: ${type}`, { to, queueDelayMs: queueDelay });
 
-        const mailTransporter = getTransporter();
-        if (!mailTransporter) {
-            logger.warn('Email transporter not configured. Skipping send.', { type, to });
-            await recordMetric('sent', type);
+        const transport = getTransporter();
+        if (!transport) {
+            logger.warn('[WORKER][Email] No EMAIL_HOST set. Skipping send.', { type, to });
+            await recordMetric('sent', type).catch(() => {});
             return;
         }
 
-        await mailTransporter.sendMail({
+        await transport.sendMail({
             from: '"NirnayPath" <noreply@nirnaypath.com>',
-            to,
-            subject,
-            html
+            to, subject, html,
         });
 
-        await recordMetric('sent', type);
-    }, { 
+        await recordMetric('sent', type).catch(() => {});
+    }, {
         connection,
         concurrency: 5,
-        limiter: { max: 10, duration: 1000 } // Global limit across workers
+        limiter: { max: 10, duration: 1000 },
     });
 
     worker.on('completed', (job) => {
-        const type = job.data?._metadata?.emailType || job.name;
-        logger.info(`Email job ${job.id} completed.`, { jobId: job.id, type });
+        const type = job.data?._metadata?.emailType || job.data?._type || job.name;
+        logger.info(`[WORKER][Email] Job ${job.id} completed.`, { type });
     });
 
     worker.on('failed', async (job, err) => {
-        const type = job.data?._metadata?.emailType || job.name;
-        logger.error(`Email job ${job.id} failed.`, { 
-            jobId: job.id, 
-            type, 
-            error: err.message,
-            attempts: job.attemptsMade 
-        });
+        const type = job?.data?._metadata?.emailType || job?.data?._type || job?.name;
+        logger.error(`[WORKER][Email] Job ${job?.id} failed.`, { type, error: err.message, attempts: job?.attemptsMade });
+        await recordMetric('failed', type).catch(() => {});
 
-        await recordMetric('failed', type);
-
-        // Simulation of DLQ persistence
-        if (job.attemptsMade >= 5) {
-            await recordMetric('dlq', 'count');
-            const fs = require('fs');
-            const path = require('path');
-            const dlqPath = path.join(__dirname, '../logs/dlq_failed_jobs.log');
-            const logEntry = JSON.stringify({
-                timestamp: new Date().toISOString(),
-                jobId: job.id,
-                data: job.data,
-                error: err.message
-            }) + '\n';
-            
+        if (job?.attemptsMade >= 5) {
+            await recordMetric('dlq', 'count').catch(() => {});
             try {
-                if (!fs.existsSync(path.dirname(dlqPath))) fs.mkdirSync(path.dirname(dlqPath), { recursive: true });
-                fs.appendFileSync(dlqPath, logEntry);
+                const fs = require('fs');
+                const path = require('path');
+                const dlqDir = path.join(__dirname, '../logs');
+                if (!fs.existsSync(dlqDir)) fs.mkdirSync(dlqDir, { recursive: true });
+                fs.appendFileSync(
+                    path.join(dlqDir, 'dlq_failed_jobs.log'),
+                    JSON.stringify({ timestamp: new Date().toISOString(), jobId: job.id, type, error: err.message }) + '\n'
+                );
             } catch (logErr) {
-                console.error('[Worker] Failed to write to DLQ log:', logErr.message);
+                logger.error('[WORKER][Email] DLQ write failed:', { error: logErr.message });
             }
         }
+    });
+
+    // CRITICAL: Without this, BullMQ internal errors become uncaught exceptions
+    worker.on('error', (err) => {
+        logger.error('[WORKER][Email] Worker internal error (non-fatal):', { error: err.message });
     });
 
     return worker;

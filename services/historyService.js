@@ -4,13 +4,25 @@
  */
 
 const TestResult = require('../models/testResult');
+const context = require('../utils/context');
 
 class HistoryService {
     static async getSeenQuestionIds(userId) {
-        if (!userId) return new Set();
+        const store = context.getStore();
+        const ctxUserId = store ? store.userId : null;
+        const validUserId = userId || ctxUserId;
+
+        if (!validUserId) {
+            console.warn('[HistoryService] WARNING: No userId provided. History exclusion bypassed.');
+            return new Set();
+        }
+        
+        if (ctxUserId && String(validUserId) !== String(ctxUserId)) {
+            console.warn(`[HistoryService] WARNING: Passed userId (${validUserId}) doesn't match context userId (${ctxUserId})`);
+        }
         
         // Return IDs from all previous tests
-        const results = await TestResult.find({ userId })
+        const results = await TestResult.find({ userId: validUserId })
             .select('answers.questionId')
             .lean();
 
@@ -28,10 +40,21 @@ class HistoryService {
     }
 
     static async getRecentQuestionWindow(userId, windowSize = 5) {
-        if (!userId) return new Set();
+        const store = context.getStore();
+        const ctxUserId = store ? store.userId : null;
+        const validUserId = userId || ctxUserId;
+
+        if (!validUserId) {
+            console.warn('[HistoryService] WARNING: No userId provided. History exclusion bypassed.');
+            return new Set();
+        }
         
-        // Return IDs from only the last N tests
-        const results = await TestResult.find({ userId })
+        if (ctxUserId && String(validUserId) !== String(ctxUserId)) {
+            console.warn(`[HistoryService] WARNING: Passed userId (${validUserId}) doesn't match context userId (${ctxUserId})`);
+        }
+        
+        // Return IDs from only the last N completed tests
+        const results = await TestResult.find({ userId: validUserId })
             .sort({ createdAt: -1 })
             .limit(windowSize)
             .select('answers.questionId')

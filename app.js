@@ -197,6 +197,25 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal Server Error' });
 });
 
+// --- GLOBAL ERROR HARDENING ---
+process.on('uncaughtException', (err) => {
+    console.error('[FATAL] Uncaught Exception:', {
+        message: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString()
+    });
+    // We don't exit immediately to allow potential recovery, 
+    // but in a real prod env, we might want to restart after a delay if it's recurring.
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[FATAL] Unhandled Rejection:', {
+        reason: reason?.message || reason,
+        stack: reason?.stack,
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Create HTTP Server
 const server = http.createServer(app);
 
@@ -205,31 +224,47 @@ socketService.init(server);
 
 // Bind to 0.0.0.0 to allow access via IP addresses
 const PORT = process.env.PORT || 3000;
+
+/**
+ * BOOT SEQUENCE STABILIZATION
+ * Express MUST boot first to satisfy Railway/K8s health checks
+ */
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Worker ${process.pid}] Server running on http://0.0.0.0:${PORT}`);
-    console.log(`[Worker ${process.pid}] Real-Time Engine Active`);
+    console.log('====================================================');
+    console.log(`[BOOT] NirnayPath Platform v1.0.0`);
+    console.log(`[BOOT] Status: ONLINE`);
+    console.log(`[BOOT] Port: ${PORT}`);
+    console.log(`[BOOT] Mode: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[BOOT] PID: ${process.pid}`);
+    console.log('====================================================');
+
+    // Deferred initialization of background services to ensure port binding is successful first
+    try {
+        console.log('[BOOT] Initializing background services...');
+        initCronJobs();
+        initWorkers();
+        console.log('[BOOT] Background services initialization sequence triggered.');
+    } catch (error) {
+        console.error('[BOOT] Error during background service initialization:', error.message);
+    }
 });
 
 process.on('SIGTERM', async () => {
-    console.log('SIGTERM signal received: closing HTTP server');
+    console.log('[SHUTDOWN] SIGTERM received. Graceful shutdown initiated.');
     await shutdownWorkers();
     server.close(() => {
-        console.log('HTTP server closed');
+        console.log('[SHUTDOWN] HTTP server closed.');
         process.exit(0);
     });
 });
 
 process.on('SIGINT', async () => {
-    console.log('SIGINT signal received: closing HTTP server');
+    console.log('[SHUTDOWN] SIGINT received. Graceful shutdown initiated.');
     await shutdownWorkers();
     server.close(() => {
-        console.log('HTTP server closed');
+        console.log('[SHUTDOWN] HTTP server closed.');
         process.exit(0);
     });
 });
-
-// Initialize Cron Jobs & Background Workers
-initCronJobs();
-initWorkers();
 
 module.exports = app;

@@ -33,11 +33,14 @@ router.post('/start', auth, async (req, res) => {
         const sessionId = crypto.randomUUID();
 
         // 1. Unified Selection Pipeline
-        const finalQuestions = await QuestionService.getTestQuestions({
+        const pipelineResult = await QuestionService.getTestQuestions({
             userId: req.user._id,
             subject: subLower,
             count
         });
+
+        const finalQuestions = Array.isArray(pipelineResult) ? pipelineResult : (pipelineResult.questions || []);
+        const warning = !Array.isArray(pipelineResult) ? pipelineResult.warning : null;
 
         if (!finalQuestions || finalQuestions.length === 0) {
             return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
@@ -67,11 +70,15 @@ router.post('/start', auth, async (req, res) => {
             throw saveErr;
         }
 
-        res.status(201).json({
+        const responsePayload = {
             sessionId,
             questions: finalQuestions,
             startTime: session.startTime
-        });
+        };
+        if (warning) {
+            responsePayload.warning = warning;
+        }
+        res.status(201).json(responsePayload);
     } catch (error) {
         console.error(`[TestStart][${requestId}] CRITICAL ERROR:`, error);
         res.status(500).json({ error: 'Internal system failure during test initialization' });

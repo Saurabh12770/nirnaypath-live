@@ -7,8 +7,8 @@ class SelectionEngine {
     static select(pool, count) {
         if (!pool || pool.length === 0) return [];
         
-        const targetCount = Math.min(parseInt(count) || 50, pool.length);
         const uniquePool = this.removeInternalDuplicates(pool);
+        const targetCount = Math.min(parseInt(count) || 50, uniquePool.length);
 
         // Fisher-Yates shuffle
         const shuffled = [...uniquePool];
@@ -26,7 +26,9 @@ class SelectionEngine {
         const unique = [];
         for (const q of pool) {
             const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
-            if (id && !seen.has(id)) {
+            if (!id) continue; // Skip questions without any valid ID
+            
+            if (!seen.has(id)) {
                 seen.add(id);
                 unique.push(q);
             }
