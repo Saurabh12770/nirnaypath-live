@@ -7,24 +7,17 @@ let emailQueue = null;
 let digestQueue = null;
 let _initialized = false;
 
-/**
- * Initialize BullMQ Queues safely.
- * Only runs when Redis is genuinely available.
- */
 const initQueues = () => {
     if (_initialized) return;
-
     if (process.env.ENABLE_QUEUE === 'false') {
         logger.warn('[QUEUE] Disabled via ENABLE_QUEUE=false.');
         return;
     }
-
     const connection = getRedisClient();
     if (!connection) {
         logger.error('[QUEUE] Redis client unavailable. Queue system will not start.');
         return;
     }
-
     try {
         emailQueue = new Queue('email-queue', {
             connection,

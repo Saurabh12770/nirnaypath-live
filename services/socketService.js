@@ -18,29 +18,24 @@ class SocketService {
             pingInterval: 10000,
         });
 
-        // Redis Adapter for Clustering Support
+        // Redis Adapter — optional, falls back to single-instance mode gracefully
         if (process.env.REDIS_URL && process.env.ENABLE_REDIS !== 'false') {
             try {
-                this.pubClient = new Redis(process.env.REDIS_URL, {
+                const opts = {
                     maxRetriesPerRequest: null,
-                    retryStrategy: (times) => Math.min(times * 100, 3000)
-                });
-                
-                this.pubClient.on('error', (err) => {
-                    console.error('[Socket] Redis PubClient Error:', err.message);
-                });
-
+                    retryStrategy: (t) => t > 5 ? null : Math.min(t * 500, 3000),
+                };
+                this.pubClient = new Redis(process.env.REDIS_URL, opts);
                 this.subClient = this.pubClient.duplicate();
-                this.subClient.on('error', (err) => {
-                    console.error('[Socket] Redis SubClient Error:', err.message);
-                });
-
+                this.pubClient.on('error', (e) => console.error('[Socket] Pub error:', e.message));
+                this.subClient.on('error', (e) => console.error('[Socket] Sub error:', e.message));
                 this.io.adapter(createAdapter(this.pubClient, this.subClient));
-                console.log('[Socket] Redis Adapter enabled for real-time scale.');
+                console.log('[Socket] Redis Adapter enabled (multi-instance mode).');
             } catch (err) {
-                console.error('[Socket] Failed to initialize Redis Adapter:', err.message);
+                console.error('[Socket] Redis Adapter failed, using single-instance:', err.message);
             }
-        }
+        } else {
+            console.log('[Socket] Single-instance mode (no Redis adapter).');
         }
 
         this.setupMiddleware();

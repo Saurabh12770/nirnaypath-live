@@ -3,127 +3,82 @@ const logger = require('../utils/logger');
 
 let redisClient = null;
 let redisAvailable = false;
-let redisErrorLogged = false;
+let _errorLogged = false;
 
 /**
- * Initialize Redis with safety
+ * Initialize Redis safely.
+ * Requires REDIS_URL env var — no localhost fallback on Railway.
+ * NEVER throws. Returns null if Redis is disabled or unavailable.
  */
 const initRedis = () => {
-    // Return existing client if already initialized
     if (redisClient) return redisClient;
 
-    const redisUrl = process.env.REDIS_URL;
-    
-    // Feature Flag check
     if (process.env.ENABLE_REDIS === 'false') {
-        logger.warn('[REDIS] Redis is explicitly disabled via ENABLE_REDIS flag.');
+        logger.warn('[REDIS] Disabled via ENABLE_REDIS=false.');
         return null;
     }
 
-    // Default to localhost for development if no URL provided
-    const connectionString = redisUrl || 'redis://127.0.0.1:6379';
-    
-    try {
-        logger.info('[REDIS] Initializing Redis connection...', { 
-            url: redisUrl ? 'CONNECTED_VIA_ENV' : 'LOCAL_FALLBACK' 
-        });
+    const url = process.env.REDIS_URL;
+    if (!url) {
+        logger.warn('[REDIS] REDIS_URL not set. Redis features disabled.');
+        return null;
+    }
 
-        redisClient = new Redis(connectionString, {
+    try {
+        redisClient = new Redis(url, {
             maxRetriesPerRequest: null,
             enableReadyCheck: true,
-            // Capped retry strategy to prevent infinite reconnect storms
+            connectTimeout: 10000,
             retryStrategy: (times) => {
-                const delay = Math.min(times * 500, 5000); // Max 5s delay
-                
                 if (times > 10) {
-                    if (!redisErrorLogged) {
-                        logger.error('[REDIS] Max reconnection attempts reached. Redis features will be disabled.', { 
-                            attempts: times 
-                        });
-                        redisErrorLogged = true;
+                    if (!_errorLogged) {
+                        logger.error('[REDIS] Max reconnect attempts reached. Giving up.');
+                        _errorLogged = true;
                     }
-                    // Return null to stop retrying and avoid crash loops
-                    // However, for production resilience, we might want to keep trying slowly
-                    // but we MUST ensure it doesn't block the rest of the app.
-                    // Returning null here stops this specific instance.
-                    return null; 
+                    return null;
                 }
-                return delay;
+                return Math.min(times * 500, 5000);
             },
-            reconnectOnError: (err) => {
-                const targetError = 'READONLY';
-                if (err.message.includes(targetError)) {
-                    return true;
-                }
-                return false;
-            },
-            connectTimeout: 10000 // 10 seconds timeout
+            reconnectOnError: (err) => err.message.includes('READONLY'),
         });
 
-        redisClient.on('connect', () => {
-            logger.info('[REDIS] Socket connected to Redis.');
-        });
-
+        redisClient.on('connect', () => logger.info('[REDIS] Socket connected.'));
         redisClient.on('ready', () => {
             redisAvailable = true;
-            redisErrorLogged = false;
-            logger.info('[REDIS] Redis client ready and cluster-ready.');
+            _errorLogged = false;
+            logger.info('[REDIS] Client ready.');
         });
-
         redisClient.on('error', (err) => {
             redisAvailable = false;
-            // Only log the error once until it recovers to prevent log spam
-            if (!redisErrorLogged) {
-                logger.error('[REDIS] Redis connection error', { 
-                    message: err.message,
-                    code: err.code 
-                });
-                redisErrorLogged = true;
+            if (!_errorLogged) {
+                logger.error('[REDIS] Error:', { code: err.code, message: err.message });
+                _errorLogged = true;
             }
         });
-
+        redisClient.on('reconnecting', () => logger.warn('[REDIS] Reconnecting...'));
         redisClient.on('end', () => {
             redisAvailable = false;
-            logger.warn('[REDIS] Redis connection closed.');
+            logger.warn('[REDIS] Connection closed.');
         });
 
         return redisClient;
-    } catch (error) {
-        logger.error('[REDIS] Fatal error during Redis client creation', { error: error.message });
+    } catch (err) {
+        logger.error('[REDIS] Fatal init error:', { error: err.message });
         return null;
     }
 };
 
-/**
- * Get active Redis client
- */
-const getRedisClient = () => {
-    if (!redisClient) return initRedis();
-    return redisClient;
-};
-
-/**
- * Check if Redis is currently available and ready
- */
-const isRedisAvailable = () => {
-    return redisAvailable && redisClient && redisClient.status === 'ready';
-};
-
-/**
- * Force disconnect (useful for testing or shutdown)
- */
+const getRedisClient = () => redisClient || initRedis();
+const isRedisAvailable = () => !!redisClient && redisAvailable && redisClient.status === 'ready';
 const disconnectRedis = async () => {
     if (redisClient) {
-        logger.info('[REDIS] Closing Redis connection...');
-        await redisClient.quit();
+        try { 
+            logger.info('[REDIS] Closing Redis connection...');
+            await redisClient.quit(); 
+        } catch (_) {}
         redisClient = null;
         redisAvailable = false;
     }
 };
 
-module.exports = {
-    initRedis,
-    getRedisClient,
-    isRedisAvailable,
-    disconnectRedis
-};
+module.exports = { initRedis, getRedisClient, isRedisAvailable, disconnectRedis };

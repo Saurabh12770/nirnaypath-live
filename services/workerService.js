@@ -8,51 +8,36 @@ let emailWorker = null;
 let digestWorker = null;
 
 const initWorkers = () => {
-    // 1. Check if already initialized
-    if (_initialized) {
-        logger.info('[WorkerService] Workers already running. Skipping initialization.');
-        return;
-    }
-
-    // 2. Check Feature Flag
+    if (_initialized) return;
     if (process.env.ENABLE_WORKERS === 'false') {
-        logger.warn('[WorkerService] Workers are explicitly disabled via ENABLE_WORKERS flag.');
+        logger.warn('[WORKER] Disabled via ENABLE_WORKERS=false.');
         return;
     }
-
-    // 3. Check Redis Availability
     if (!isRedisAvailable()) {
-        logger.error('[WorkerService] Cannot start workers: Redis is unavailable. Workers will remain dormant.');
+        logger.warn('[WORKER] Redis not ready. Workers dormant.');
         return;
     }
     try {
-        logger.info('[WorkerService] Initializing background workers...');
-
-        // 1. Initialize Email Worker
+        logger.info('[WORKER] Initializing workers...');
         emailWorker = createEmailWorker();
-        logger.info('[WorkerService] Email Worker started.');
-
-        // 2. Initialize Digest Worker
+        logger.info('[WORKER] Email worker started.');
         digestWorker = createDigestWorker();
-        logger.info('[WorkerService] Digest Worker started.');
-
+        logger.info('[WORKER] Digest worker started.');
         _initialized = true;
-        logger.info('[WorkerService] All workers successfully initialized.');
-    } catch (error) {
-        logger.error('[WorkerService] Failed to initialize workers:', { error: error.message });
+        logger.info('[WORKER] All workers running.');
+    } catch (err) {
+        logger.error('[WORKER] Init failed (non-fatal):', { error: err.message });
     }
 };
 
 const shutdownWorkers = async () => {
-    logger.info('[WorkerService] Shutting down workers...');
-    try {
-        if (emailWorker) await emailWorker.close();
-        if (digestWorker) await digestWorker.close();
-        _initialized = false;
-        logger.info('[WorkerService] Workers shut down.');
-    } catch (error) {
-        logger.error('[WorkerService] Error during worker shutdown:', { error: error.message });
-    }
+    logger.info('[WORKER] Shutting down...');
+    await Promise.allSettled([
+        emailWorker?.close().catch(e => logger.error('[WORKER] Email close error:', { error: e.message })),
+        digestWorker?.close().catch(e => logger.error('[WORKER] Digest close error:', { error: e.message })),
+    ]);
+    _initialized = false;
+    logger.info('[WORKER] All workers stopped.');
 };
 
 module.exports = { initWorkers, shutdownWorkers };
