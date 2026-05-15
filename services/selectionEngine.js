@@ -4,10 +4,12 @@
  */
 
 class SelectionEngine {
-    static select(pool, count) {
+    static select(pool, count, reservedIds = new Set()) {
         if (!pool || pool.length === 0) return [];
         
-        const uniquePool = this.removeInternalDuplicates(pool);
+        // [FIX 4] SELECTION ENGINE LOGIC: Build strictly unique eligible pool
+        // Exclude any IDs that might have been reserved since the pool was fetched
+        const uniquePool = this.removeInternalDuplicates(pool, reservedIds);
         const targetCount = Math.min(parseInt(count) || 50, uniquePool.length);
 
         // Fisher-Yates shuffle
@@ -17,19 +19,38 @@ class SelectionEngine {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 
-        return shuffled.slice(0, targetCount);
+        const selected = shuffled.slice(0, targetCount);
+
+        // [FIX 6] FINAL SAFETY DEDUP PASS: Ensure no duplicate IDs in final slice
+        const finalSet = new Set();
+        const finalSelection = [];
+        for (const q of selected) {
+            const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
+            if (!finalSet.has(id) && !reservedIds.has(id)) {
+                finalSet.add(id);
+                finalSelection.push(q);
+            }
+        }
+
+        return finalSelection;
     }
 
-    // Ensure no duplicates within input pool
-    static removeInternalDuplicates(pool) {
-        const seen = new Set();
+    // Ensure no duplicates within input pool by ID AND TEXT
+    static removeInternalDuplicates(pool, reservedIds = new Set()) {
+        const seenIds = new Set();
+        const seenTexts = new Set();
         const unique = [];
+
         for (const q of pool) {
             const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
-            if (!id) continue; // Skip questions without any valid ID
-            
-            if (!seen.has(id)) {
-                seen.add(id);
+            if (!id || reservedIds.has(id)) continue;
+
+            const textEn = q.question_en || q.text || '';
+            const normalizedText = textEn.toLowerCase().replace(/[^\w\u0900-\u097F]/g, '');
+
+            if (!seenIds.has(id) && (!normalizedText || !seenTexts.has(normalizedText))) {
+                seenIds.add(id);
+                if (normalizedText) seenTexts.add(normalizedText);
                 unique.push(q);
             }
         }

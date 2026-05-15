@@ -16,12 +16,10 @@ class DedupEngine {
         for (const q of questions) {
             // Check ID
             const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
-            if (!id) {
-                console.warn(`[DedupEngine] Question missing ID in final output, skipping.`);
-                continue;
-            }
+            if (!id) continue;
+            
             if (seenIds.has(id)) {
-                console.warn(`[DedupEngine] Duplicate Question ID detected and removed: ${id}`);
+                console.warn(`[DedupEngine] Duplicate Question ID detected: ${id}`);
                 continue;
             }
 
@@ -30,18 +28,16 @@ class DedupEngine {
             const normalizedText = this.normalizeText(rawText);
             
             if (normalizedText && seenTexts.has(normalizedText)) {
-                console.warn(`[DedupEngine] Duplicate semantic text detected and removed: ${normalizedText.substring(0, 30)}...`);
+                console.warn(`[DedupEngine] Duplicate semantic text detected: ${normalizedText.substring(0, 30)}...`);
                 continue;
             }
             
             seenIds.add(id);
-            if (normalizedText) {
-                seenTexts.add(normalizedText);
-            }
+            if (normalizedText) seenTexts.add(normalizedText);
             uniqueQuestions.push(q);
         }
 
-        return uniqueQuestions; // Return deduplicated array
+        return uniqueQuestions;
     }
 
     static removeSemanticDuplicates(questions) {

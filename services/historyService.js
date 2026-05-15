@@ -49,11 +49,8 @@ class HistoryService {
             return new Set();
         }
         
-        if (ctxUserId && String(validUserId) !== String(ctxUserId)) {
-            console.warn(`[HistoryService] WARNING: Passed userId (${validUserId}) doesn't match context userId (${ctxUserId})`);
-        }
-        
-        // Return IDs from only the last N completed tests
+        // Return IDs from the sliding window (last N tests)
+        // [FIX 3] HISTORY: Query using userId + sliding window
         const results = await TestResult.find({ userId: validUserId })
             .sort({ createdAt: -1 })
             .limit(windowSize)
@@ -64,8 +61,9 @@ class HistoryService {
         for (const test of results) {
             if (test.answers) {
                 test.answers.forEach(ans => {
-                    if (ans.questionId) {
-                        seen.add(String(ans.questionId).trim().toLowerCase());
+                    const qId = ans.questionId || ans.id; // Support both naming conventions
+                    if (qId) {
+                        seen.add(String(qId).trim().toLowerCase());
                     }
                 });
             }
