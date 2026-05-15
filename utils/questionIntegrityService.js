@@ -31,19 +31,43 @@ class QuestionIntegrityService {
     }
 
     /**
-     * Deduplicate a pool by normalized ID.
+     * Create a semantic hash for a question to detect duplicates with different IDs.
+     * Uses normalized English text as the primary fingerprint.
+     */
+    static getSemanticHash(q) {
+        if (!q) return null;
+        const DedupEngine = require('../services/dedupEngine');
+        const text = DedupEngine.normalizeText(q.question_en || q.question || q.text || '');
+        if (!text || text.length < 5) return null; // Ignore junk
+        return crypto.createHash('md5').update(text).digest('hex');
+    }
+
+    /**
+     * Deduplicate a pool by normalized ID and semantic hash.
      * Ensures structural integrity before selection begins.
      */
     static deduplicate(pool) {
         if (!Array.isArray(pool)) return [];
-        const seen = new Set();
+        const seenIds = new Set();
+        const seenHashes = new Set();
         const clean = [];
         
         for (const q of pool) {
             const id = this.normalizeId(q);
-            if (id && !seen.has(id)) {
-                seen.add(id);
+            const hash = this.getSemanticHash(q);
+            
+            const isDuplicateId = id && seenIds.has(id);
+            const isDuplicateHash = hash && seenHashes.has(hash);
+
+            if (!isDuplicateId && !isDuplicateHash) {
+                if (id) seenIds.add(id);
+                if (hash) seenHashes.add(hash);
                 clean.push(q);
+            } else {
+                // Potential duplicate detected
+                if (isDuplicateHash && !isDuplicateId) {
+                    trace(CATEGORIES.QUESTION_FLOW, 'Semantic duplicate detected', { id, hash });
+                }
             }
         }
         return clean;

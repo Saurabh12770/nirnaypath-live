@@ -31,14 +31,14 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
         console.log(`[API] Request for subject: ${subject}`);
 
         // Load from cache or disk
-        let questions = getCachedData(cacheKey);
+        let questions = await getCachedData(cacheKey);
         if (!questions) {
             console.log(`[API] Cache miss for: ${subject}. Loading from disk...`);
             questions = await loadQuestions(subject);
             if (!questions || questions.length === 0) {
                 return res.status(404).json({ error: 'Questions not found for the requested subject' });
             }
-            setCachedData(cacheKey, questions, 600);
+            await setCachedData(cacheKey, questions, 600);
         } else {
             console.log(`[API] Cache hit for: ${subject}`);
         }
@@ -86,11 +86,11 @@ router.get('/subject/:subject/topics', async (req, res) => {
         const { subject } = req.params;
         const cacheKey = `questions_${subject}`;
 
-        let questions = getCachedData(cacheKey);
+        let questions = await getCachedData(cacheKey);
         if (!questions) {
             questions = await loadQuestions(subject);
             if (questions && questions.length > 0) {
-                setCachedData(cacheKey, questions, 600);
+                await setCachedData(cacheKey, questions, 600);
             }
         }
 

@@ -22,6 +22,13 @@ class CacheLayer {
         if (!this._store.has(key)) return null;
         
         const data = this._store.get(key);
+        
+        // Expiry Check (Phase 7 Fix)
+        if (Date.now() > data.expires) {
+            this._store.delete(key);
+            return null;
+        }
+
         // Guarantee no reference leakage: parse(stringify) then deepFreeze
         try {
             const clone = JSON.parse(JSON.stringify(data.value));

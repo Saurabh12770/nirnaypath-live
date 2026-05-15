@@ -107,4 +107,64 @@ const normalizeQuestion = (q) => {
     };
 };
 
-module.exports = { normalizeQuestion };
+/**
+ * Normalizes an entire bank of questions.
+ * @param {Array} questions - Raw question array
+ * @returns {Object} { valid, invalid, stats }
+ */
+const normalizeBank = (questions) => {
+    if (!Array.isArray(questions)) {
+        return { valid: [], invalid: [], stats: { total: 0, valid: 0, invalid: 0 } };
+    }
+
+    const DedupEngine = require('../services/dedupEngine');
+    const valid = [];
+    const invalid = [];
+    const seenIds = new Set();
+    const seenTexts = new Set();
+
+    questions.forEach(q => {
+        try {
+            const normalized = normalizeQuestion(q);
+            if (!normalized || normalized.isInvalid) {
+                invalid.push(q);
+                return;
+            }
+
+            // 1. ID Dedup
+            const id = String(normalized.id || '').trim().toLowerCase();
+            if (id && seenIds.has(id)) return;
+            if (id) seenIds.add(id);
+
+            // 2. Semantic Dedup
+            const text = DedupEngine.normalizeText(normalized.question_en || normalized.question_hi || '');
+            if (text && seenTexts.has(text)) {
+                // If it's a semantic duplicate, we skip it but don't count it as "invalid" 
+                // because the data itself might be valid, just redundant.
+                return;
+            }
+            if (text) seenTexts.add(text);
+
+            valid.push(normalized);
+        } catch (e) {
+            console.error('[Normalizer] Error normalizing question:', e.message);
+            invalid.push(q);
+        }
+    });
+
+    return {
+        valid,
+        invalid,
+        stats: {
+            total: questions.length,
+            valid: valid.length,
+            invalid: invalid.length,
+            duplicatesRemoved: questions.length - valid.length - invalid.length
+        }
+    };
+};
+
+module.exports = { 
+    normalizeQuestion,
+    normalizeBank
+};

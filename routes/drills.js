@@ -7,7 +7,7 @@ const { requirePlan } = require('../middleware/planGuard');
 const QuestionService = require('../services/questionService');
 
 /**
- * GET /api/drill/:subject/:topic?count=20
+ * GET /api/drill/:subject/:topic
  * HARDENED: Uses QuestionRuntimeEngine for selection and creates a TestSession.
  */
 router.get('/:subject/:topic', auth, requirePlan('free'), async (req, res) => {

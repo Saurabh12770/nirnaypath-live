@@ -142,4 +142,27 @@ class QuestionSelectionService {
     }
 }
 
-module.exports = QuestionSelectionService;
+const pickQuestions = async (pool, count, userId, subject) => {
+    const selected = await QuestionSelectionService.select(pool, count, { userId, subject });
+    return { selected, stats: { total: pool.length, selected: selected.length } };
+};
+
+const selectQuestions = (pool, count) => {
+    const Integrity = require('./questionIntegrityService');
+    const cleanPool = Integrity.deduplicate(pool);
+    const validPool = cleanPool.filter(q => Integrity.validateStructure(q));
+    const shuffled = QuestionSelectionService.shuffle(validPool);
+    const selected = count > 0 ? shuffled.slice(0, count) : shuffled;
+    return { selected };
+};
+
+const shuffleFair = (pool) => {
+    return QuestionSelectionService.shuffle(pool);
+};
+
+module.exports = {
+    QuestionSelectionService,
+    pickQuestions,
+    selectQuestions,
+    shuffleFair
+};

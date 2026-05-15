@@ -18,8 +18,8 @@ class QuestionPipeline {
             // 1. Acquire Atomic User Lock (Prevent parallel requests for same user)
             releaseLock = await QuestionReservationManager.acquireUserLock(userId);
 
-            // 2. Fetch Pool
-            const fullPool = await QuestionRepository.fetchQuestions(subject);
+            // 2. Fetch Pool (FORENSIC FIX: Pass topicId to repository for data-level filtering)
+            const fullPool = await QuestionRepository.fetchQuestions(subject, topicId);
 
             // 3. Filter History & Active Reservations
             const seenIds = await HistoryService.getRecentQuestionWindow(userId, 10 + (retryCount * 5));
@@ -30,6 +30,7 @@ class QuestionPipeline {
                 return !seenIds.has(id) && !reservedIds.has(id);
             });
 
+            // Double check topic filter if repository didn't handle it or for extra safety
             if (topicId) {
                 const searchTopic = String(topicId).trim().toLowerCase();
                 filteredPool = filteredPool.filter(q => {
@@ -49,7 +50,7 @@ class QuestionPipeline {
                 if (retryCount < 3) {
                     console.warn(`[Pipeline] Race condition detected. Retrying selection...`);
                     releaseLock(); releaseLock = null;
-                    return await this.execute({ userId, subject, count, retryCount: retryCount + 1 });
+                    return await this.execute({ userId, subject, topicId, count, retryCount: retryCount + 1 });
                 }
                 throw new Error('Critical selection failure: too many concurrent requests.');
             }
@@ -61,7 +62,7 @@ class QuestionPipeline {
                 await QuestionReservationManager.release(userId, selectedIds);
                 if (retryCount < 3) {
                     releaseLock(); releaseLock = null;
-                    return await this.execute({ userId, subject, count, retryCount: retryCount + 1 });
+                    return await this.execute({ userId, subject, topicId, count, retryCount: retryCount + 1 });
                 }
                 throw new Error('Safety integrity check failed.');
             }
