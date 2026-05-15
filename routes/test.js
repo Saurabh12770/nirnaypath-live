@@ -36,6 +36,7 @@ router.post('/start', auth, async (req, res) => {
         const pipelineResult = await QuestionService.getTestQuestions({
             userId: req.user._id,
             subject: subLower,
+            topicId,
             count
         });
 
@@ -57,7 +58,7 @@ router.post('/start', auth, async (req, res) => {
             timeLimit: parseInt(timeLimit) || 3600,
             startTime: new Date(),
             status: 'active',
-            questionIds: finalQuestions.map(q => q._id ? q._id.toString() : q.id)
+            questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
         });
 
         // Use atomic save with error handling for duplicate sessionId

@@ -44,7 +44,7 @@ router.get('/:sectionName', auth, requirePlan('sectional_tests'), async (req, re
             timeLimit: Math.round(count * 60 * 0.8), // 0.8 min per question
             startTime: new Date(),
             status: 'active',
-            questionIds: finalQuestions.map(q => q._id ? q._id.toString() : q.id)
+            questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
         });
 
         await session.save();

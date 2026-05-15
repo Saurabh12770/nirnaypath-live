@@ -25,7 +25,7 @@ class SelectionEngine {
         const finalSet = new Set();
         const finalSelection = [];
         for (const q of selected) {
-            const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
+            const id = String(q.id || q.questionId || q._id || '').trim().toLowerCase();
             if (!finalSet.has(id) && !reservedIds.has(id)) {
                 finalSet.add(id);
                 finalSelection.push(q);
@@ -37,20 +37,24 @@ class SelectionEngine {
 
     // Ensure no duplicates within input pool by ID AND TEXT
     static removeInternalDuplicates(pool, reservedIds = new Set()) {
+        const SemanticDedupService = require('./semanticDedupService');
         const seenIds = new Set();
         const seenTexts = new Set();
+        const seenFingerprints = new Set();
         const unique = [];
 
         for (const q of pool) {
-            const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
+            const id = String(q.id || q.questionId || q._id || '').trim().toLowerCase();
             if (!id || reservedIds.has(id)) continue;
 
             const textEn = q.question_en || q.text || '';
             const normalizedText = textEn.toLowerCase().replace(/[^\w\u0900-\u097F]/g, '');
+            const fingerprint = SemanticDedupService.getSemanticFingerprint(q);
 
-            if (!seenIds.has(id) && (!normalizedText || !seenTexts.has(normalizedText))) {
+            if (!seenIds.has(id) && (!normalizedText || !seenTexts.has(normalizedText)) && (!fingerprint || !seenFingerprints.has(fingerprint))) {
                 seenIds.add(id);
                 if (normalizedText) seenTexts.add(normalizedText);
+                if (fingerprint) seenFingerprints.add(fingerprint);
                 unique.push(q);
             }
         }

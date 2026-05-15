@@ -25,6 +25,7 @@ router.get('/:subject/:topic', auth, requirePlan('free'), async (req, res) => {
         const finalQuestions = await QuestionService.getTestQuestions({
             userId: req.user._id,
             subject: subLower,
+            topicId: topicLower,
             count
         });
 
@@ -43,7 +44,7 @@ router.get('/:subject/:topic', auth, requirePlan('free'), async (req, res) => {
             timeLimit: 3600,
             startTime: new Date(),
             status: 'active',
-            questionIds: finalQuestions.map(q => q._id ? q._id.toString() : q.id)
+            questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
         });
 
         await session.save();

@@ -6,7 +6,7 @@ const QuestionReservationManager = require('../services/questionReservationServi
 const crypto = require('crypto');
 
 class QuestionPipeline {
-    static async execute({ userId, subject, count, retryCount = 0 }) {
+    static async execute({ userId, subject, topicId, count, retryCount = 0 }) {
         const pipelineStartTime = Date.now();
         const targetCount = parseInt(count) || 50;
         const sessionId = crypto.randomUUID();
@@ -25,14 +25,22 @@ class QuestionPipeline {
             const seenIds = await HistoryService.getRecentQuestionWindow(userId, 10 + (retryCount * 5));
             const reservedIds = await QuestionReservationManager.getReservedIds(userId);
 
-            const filteredPool = fullPool.filter(q => {
-                const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
+            let filteredPool = fullPool.filter(q => {
+                const id = String(q.id || q.questionId || q._id || '').trim().toLowerCase();
                 return !seenIds.has(id) && !reservedIds.has(id);
             });
 
+            if (topicId) {
+                const searchTopic = String(topicId).trim().toLowerCase();
+                filteredPool = filteredPool.filter(q => {
+                    const qTopic = String(q.topic || q.topicId || '').trim().toLowerCase();
+                    return qTopic === searchTopic;
+                });
+            }
+
             // 4. Selection Engine (PURE LOGIC)
             const initialSelection = SelectionEngine.select(filteredPool, targetCount, reservedIds);
-            selectedIds = initialSelection.map(q => String(q._id || q.id || q.questionId || '').trim().toLowerCase());
+            selectedIds = initialSelection.map(q => String(q.id || q.questionId || q._id || '').trim().toLowerCase());
 
             // 5. Atomic Reservation (Source of Truth check)
             const reserveSuccess = await QuestionReservationManager.reserveAtomically(userId, selectedIds, sessionId);

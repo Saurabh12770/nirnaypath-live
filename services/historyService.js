@@ -30,8 +30,9 @@ class HistoryService {
         for (const test of results) {
             if (test.answers) {
                 test.answers.forEach(ans => {
-                    if (ans.questionId) {
-                        seen.add(String(ans.questionId).trim().toLowerCase());
+                    const qId = ans.id || ans.questionId || ans._id;
+                    if (qId) {
+                        seen.add(String(qId).trim().toLowerCase());
                     }
                 });
             }
@@ -61,7 +62,7 @@ class HistoryService {
         for (const test of results) {
             if (test.answers) {
                 test.answers.forEach(ans => {
-                    const qId = ans.questionId || ans.id; // Support both naming conventions
+                    const qId = ans.id || ans.questionId || ans._id;
                     if (qId) {
                         seen.add(String(qId).trim().toLowerCase());
                     }

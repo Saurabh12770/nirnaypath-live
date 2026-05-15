@@ -13,9 +13,12 @@ class DedupEngine {
         const seenTexts = new Set();
         const uniqueQuestions = [];
 
+        const SemanticDedupService = require('./semanticDedupService');
+        const seenFingerprints = new Set();
+
         for (const q of questions) {
-            // Check ID
-            const id = String(q._id || q.id || q.questionId || '').trim().toLowerCase();
+            // Check ID (Prioritize JSON id over Mongo _id)
+            const id = String(q.id || q.questionId || q._id || '').trim().toLowerCase();
             if (!id) continue;
             
             if (seenIds.has(id)) {
@@ -23,16 +26,23 @@ class DedupEngine {
                 continue;
             }
 
-            // Check normalized text
+            // Check normalized text and Semantic Fingerprint
             const rawText = q.question_en || q.question_hi || q.text || '';
             const normalizedText = this.normalizeText(rawText);
+            const fingerprint = SemanticDedupService.getSemanticFingerprint(q);
             
             if (normalizedText && seenTexts.has(normalizedText)) {
-                console.warn(`[DedupEngine] Duplicate semantic text detected: ${normalizedText.substring(0, 30)}...`);
+                console.warn(`[DedupEngine] Duplicate exact text detected: ${normalizedText.substring(0, 30)}...`);
+                continue;
+            }
+            if (fingerprint && seenFingerprints.has(fingerprint)) {
+                console.warn(`[DedupEngine] Duplicate semantic fingerprint detected for ID: ${id}`);
                 continue;
             }
             
             seenIds.add(id);
+            if (normalizedText) seenTexts.add(normalizedText);
+            if (fingerprint) seenFingerprints.add(fingerprint);
             if (normalizedText) seenTexts.add(normalizedText);
             uniqueQuestions.push(q);
         }
@@ -47,19 +57,25 @@ class DedupEngine {
         const seenHiTexts = new Set();
         const uniqueQuestions = [];
         
+        const SemanticDedupService = require('./semanticDedupService');
+        const seenFingerprints = new Set();
         const startTime = Date.now();
 
         const useFuzzy = process.env.USE_FUZZY_DEDUP === 'true';
 
         for (const q of questions) {
-            const id = String(q._id || q.id || q.questionId || 'UNKNOWN').trim();
+            const id = String(q.id || q.questionId || q._id || 'UNKNOWN').trim();
             const textEn = this.normalizeText(q.question_en || q.text || '');
             const textHi = this.normalizeText(q.question_hi || '');
+            const fingerprint = SemanticDedupService.getSemanticFingerprint(q);
 
             let isDuplicate = false;
             let conflictSnippet = '';
 
-            if (textEn && seenEnTexts.has(textEn)) {
+            if (fingerprint && seenFingerprints.has(fingerprint)) {
+                isDuplicate = true;
+                conflictSnippet = 'Semantic Fingerprint Match';
+            } else if (textEn && seenEnTexts.has(textEn)) {
                 isDuplicate = true;
                 conflictSnippet = textEn.substring(0, 50);
             } else if (textHi && seenHiTexts.has(textHi)) {
@@ -93,6 +109,7 @@ class DedupEngine {
 
             if (textEn) seenEnTexts.add(textEn);
             if (textHi) seenHiTexts.add(textHi);
+            if (fingerprint) seenFingerprints.add(fingerprint);
             
             uniqueQuestions.push(q);
         }
