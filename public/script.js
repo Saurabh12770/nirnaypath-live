@@ -429,9 +429,21 @@ function setLanguage(lang) {
    9. BILINGUAL HELPERS
    ============================================================ */
 const L = {
-    q: q => currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question),
-    opt: q => currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options),
-    exp: q => currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation)
+    q: q => {
+        const text = currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question);
+        return typeof text === 'object' ? (text[currentLanguage] || text.en || text.hi || '') : text;
+    },
+    opt: q => {
+        const opts = currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options);
+        if (Array.isArray(opts) && opts.length > 0 && typeof opts[0] === 'object') {
+            return opts.map(o => o.text ? (o.text[currentLanguage] || o.text.en || o.text.hi) : (o[currentLanguage] || o.en || o.hi || o));
+        }
+        return opts;
+    },
+    exp: q => {
+        const text = currentLanguage === 'hi' ? (q.explanation_hi || q.explanation_en || q.explanation) : (q.explanation_en || q.explanation);
+        return typeof text === 'object' ? (text[currentLanguage] || text.en || text.hi || '') : text;
+    }
 };
 
 /* ============================================================ 

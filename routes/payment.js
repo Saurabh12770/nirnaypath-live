@@ -8,10 +8,19 @@ const Payment = require('../models/payment');
 const plans = require('../config/plans');
 const SubscriptionService = require('../services/subscriptionService');
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay = null;
+try {
+    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+    } else {
+        console.warn('[Payment] RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing. Payments disabled.');
+    }
+} catch (e) {
+    console.error('[Payment] Error initializing Razorpay:', e.message);
+}
 
 /**
  * POST /api/payment/create-order
@@ -42,6 +51,9 @@ router.post('/create-order', auth, async (req, res) => {
             }
         };
 
+        if (!razorpay) {
+            return res.status(500).json({ error: 'Payment gateway not configured' });
+        }
         const order = await razorpay.orders.create(options);
         
         // Log pending payment for reconciliation

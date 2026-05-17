@@ -162,6 +162,9 @@ router.post('/submit', auth, async (req, res) => {
             if (question) {
                 if (question.correctAnswer !== undefined && question.correctAnswer !== null) {
                     correctOption = question.correctAnswer;
+                } else if (question.correctOption !== undefined && question.correctOption !== null) {
+                    const optIdx = ['a', 'b', 'c', 'd'].indexOf(String(question.correctOption).toLowerCase().trim());
+                    correctOption = optIdx !== -1 ? optIdx : question.correctOption;
                 } else if (question.answer !== undefined && question.answer !== null) {
                     correctOption = question.answer;
                 }
