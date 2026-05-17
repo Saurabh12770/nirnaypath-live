@@ -156,8 +156,20 @@ router.post('/submit', auth, async (req, res) => {
             const userChoice = answers[index]; // Index-based mapping from frontend
             
             const isAttempted = userChoice !== null && userChoice !== undefined;
-            const correctOption = question ? (question.correctAnswer !== undefined ? question.correctAnswer : question.answer) : null;
-            const isCorrect = isAttempted && String(userChoice) === String(correctOption);
+            let correctOption = null;
+            let isCorrect = false;
+
+            if (question) {
+                if (question.correctAnswer !== undefined && question.correctAnswer !== null) {
+                    correctOption = question.correctAnswer;
+                } else if (question.answer !== undefined && question.answer !== null) {
+                    correctOption = question.answer;
+                }
+            }
+            
+            if (correctOption !== null && isAttempted) {
+                isCorrect = String(userChoice) === String(correctOption);
+            }
             
             const topic = question?.topic || 'General';
             const topicId = (question?.topicId || topic).toLowerCase().trim();

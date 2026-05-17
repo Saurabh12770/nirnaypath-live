@@ -78,7 +78,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath'
     })
     .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // 1. Context Tracking Middleware (Senior Engineer Implementation)
 app.use((req, res, next) => {
@@ -108,7 +108,12 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://nirnaypath-live-production.up.railway.app' 
+    : 'http://localhost:8080',
+  credentials: true
+}));
 app.use(compression());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
@@ -147,20 +152,29 @@ app.use(express.static(publicPath, {
 }));
 
 // Chaos Engineering Middleware (Failure Injection)
-app.use((req, res, next) => {
-    // 1. Latency Injection
-    const delay = req.get('X-Chaos-Delay');
-    if (delay) {
-        return setTimeout(next, parseInt(delay));
-    }
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        // 1. Latency Injection
+        const delay = req.get('X-Chaos-Delay');
+        if (delay) {
+            return setTimeout(next, parseInt(delay));
+        }
 
-    // 2. DB Failure Simulation
-    if (req.get('X-Chaos-DB-Down')) {
-        return res.status(503).json({ error: 'Chaos Simulation: Database Unavailable' });
-    }
+        // 2. DB Failure Simulation
+        if (req.get('X-Chaos-DB-Down')) {
+            return res.status(503).json({ error: 'Chaos Simulation: Database Unavailable' });
+        }
 
-    next();
+        next();
+    });
+}
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 100,
+  message: { success: false, error: 'Too many requests' }
 });
+app.use('/api/', generalLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);

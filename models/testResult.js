@@ -54,11 +54,16 @@ const testResultSchema = new mongoose.Schema({
     answers: [{
         questionId: String,
         userAnswer: String,
-        correctAnswer: String,
+        correctAnswer: mongoose.Schema.Types.Mixed,
         isCorrect: Boolean,
         topic: String,
+        topicId: String,
         explanation_en: String,
-        explanation_hi: String
+        explanation_hi: String,
+        selected: mongoose.Schema.Types.Mixed,
+        correct: mongoose.Schema.Types.Mixed,
+        question_en: String,
+        question_hi: String
     }],
     createdAt: {
         type: Date,

@@ -38,7 +38,7 @@ class QuestionRepository {
 
         // JSON fallback ALWAYS (Merge both sources per requirements)
         for (const sub of subLowers) {
-            const dataPath = path.join(__dirname, `../data/${sub}.json`);
+            const dataPath = path.join(__dirname, `../../data/${sub}.json`);
             if (fs.existsSync(dataPath)) {
                 try {
                     const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
@@ -64,8 +64,22 @@ class QuestionRepository {
         // Cross-source semantic deduplication
         const dedupedPool = DedupEngine.removeSemanticDuplicates(pool);
 
+        const adaptedPool = dedupedPool.map(q => {
+            if (q.options && q.options.length > 0 && typeof q.options[0] === 'object' && !Array.isArray(q.options[0])) {
+                return {
+                    ...q,
+                    question_en: q.question?.en || q.question_en || '',
+                    question_hi: q.question?.hi || q.question_hi || '',
+                    options_en: q.options?.map(o => o.text?.en || '') || [],
+                    options_hi: q.options?.map(o => o.text?.hi || '') || [],
+                    correctAnswer: q.correctOption ? ['a','b','c','d'].indexOf(q.correctOption) : (q.correctAnswer !== undefined ? q.correctAnswer : 0)
+                };
+            }
+            return q;
+        });
+
         // ALWAYS return deep cloned objects (immutable output)
-        return JSON.parse(JSON.stringify(dedupedPool || []));
+        return JSON.parse(JSON.stringify(adaptedPool || []));
     }
 }
 

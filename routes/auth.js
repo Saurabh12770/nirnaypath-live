@@ -8,8 +8,27 @@ const router = express.Router();
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase();
 
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET must be set in production.');
+  process.exit(1);
+}
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!process.env.REFRESH_TOKEN_SECRET) {
+  console.error('FATAL: REFRESH_TOKEN_SECRET must be set in production.');
+  process.exit(1);
+}
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+
+const rateLimit = require('express-rate-limit');
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many requests' }
+});
+
 // Signup
-router.post('/signup', async (req, res) => {
+router.post('/signup', authLimiter, async (req, res) => {
     try {
         const { name, email, password } = req.body;
         
@@ -36,7 +55,7 @@ router.post('/signup', async (req, res) => {
 
         // Fire-and-forget: Trigger welcome email without blocking the response
         sendWelcomeEmail(user).catch(err => console.error('[Signup] Welcome email queue failure:', err.message));
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your_fallback_secret');
+        const token = jwt.sign({ id: user._id }, jwtSecret);
         
         res.status(201).json({ user: { name: user.name, email: user.email, role: user.role }, token });
     } catch (error) {
@@ -45,7 +64,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -65,8 +84,8 @@ router.post('/login', async (req, res) => {
             console.log(`[Admin] ${email} logged in and was auto-promoted to admin.`);
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your_fallback_secret', { expiresIn: '1h' });
-        const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET || 'refresh_fallback_secret', { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+        const refreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, { expiresIn: '7d' });
 
         user.refreshTokens = [...(user.refreshTokens || []), refreshToken].slice(-5); // Keep last 5
         await user.save();
@@ -87,15 +106,15 @@ router.post('/refresh-token', async (req, res) => {
         const { refreshToken } = req.body;
         if (!refreshToken) return res.status(400).json({ error: 'Refresh token required' });
 
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET || 'refresh_fallback_secret');
+        const decoded = jwt.verify(refreshToken, refreshTokenSecret);
         const user = await User.findOne({ _id: decoded.id, refreshTokens: refreshToken });
 
         if (!user) {
             return res.status(403).json({ error: 'Invalid refresh token' });
         }
 
-        const newToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your_fallback_secret', { expiresIn: '1h' });
-        const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET || 'refresh_fallback_secret', { expiresIn: '7d' });
+        const newToken = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+        const newRefreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, { expiresIn: '7d' });
 
         // Replace old refresh token
         user.refreshTokens = user.refreshTokens.filter(t => t !== refreshToken);
