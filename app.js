@@ -215,7 +215,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/admin/live-sessions', liveAdminRoutes);
 app.use('/api', apiRoutes);
-app.get('/admin', (req, res) => {
+app.get('/admin', auth, adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public/admin.html'));
 });
 

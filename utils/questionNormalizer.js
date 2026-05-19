@@ -8,7 +8,7 @@ const normalizeQuestion = (q) => {
     const doc = q._doc || q;
     
     // --- 1. Text Normalization (Bilingual Fallback Chain) ---
-    const question_en = (
+    const question_en = String(
         doc.question_en || 
         doc.questionEnglish || 
         doc.text || 
@@ -16,7 +16,7 @@ const normalizeQuestion = (q) => {
         'Question text missing'
     ).trim();
 
-    const question_hi = (
+    const question_hi = String(
         doc.question_hi || 
         doc.questionHindi || 
         doc.hindi_text ||
@@ -97,8 +97,8 @@ const normalizeQuestion = (q) => {
     }
 
     // --- 4. Explanation Normalization ---
-    const explanation_en = (doc.explanation_en || doc.explanation || doc.solution || 'Detailed explanation is being processed for this question.').trim();
-    const explanation_hi = (doc.explanation_hi || doc.explanation_hindi || explanation_en).trim();
+    const explanation_en = String(doc.explanation_en || doc.explanation || doc.solution || 'Detailed explanation is being processed for this question.').trim();
+    const explanation_hi = String(doc.explanation_hi || doc.explanation_hindi || explanation_en).trim();
 
     // --- 5. Invalid Detection (Forensic Marking) ---
     const isInvalid = (

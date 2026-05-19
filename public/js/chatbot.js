@@ -89,22 +89,17 @@ const Chatbot = {
     },
 
     async sendMessage(message) {
-        if (!Auth.isLoggedIn()) {
-            this.addMessage('bot', 'Please login to chat with me! (कृपया बातचीत करने के लिए लॉगिन करें)');
-            return;
-        }
-
         const indicator = document.getElementById('typingIndicator');
         indicator.classList.remove('hidden');
 
         try {
             const token = Auth.getToken();
-            const res = await fetch('/api/chat', {
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch('/api/chatbot/message', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: headers,
                 body: JSON.stringify({ message })
             });
 

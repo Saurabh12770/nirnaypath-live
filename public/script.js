@@ -23,6 +23,9 @@ let timerInterval = null;
 let tabSwitchCount = 0;
 let acInstalled = false;
 
+/* ── FORENSIC PATCH: one-time guard for module-level fullscreenchange ── */
+let _fsListenersInstalled = false;
+
 let testState = {
     exam: 'upsc', subject: 'history', testName: '',
     answers: {}, marked: [], visited: [],
@@ -81,6 +84,58 @@ const examNames = {
 const VIEW = {};
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   2b. UI STATE MACHINE (Phase C — Centralized State Governance)
+   Prevents invalid transitions. Enforces:
+     HOME → TEST_LOADING → TEST_ACTIVE → RESULT_SCREEN
+   Disallows: HOME → TEST_ACTIVE directly
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const UIStateMachine = {
+    STATES: {
+        HOME:             'HOME',
+        TEST_LOADING:     'TEST_LOADING',
+        PERMISSION_SCREEN:'PERMISSION_SCREEN',
+        TEST_ACTIVE:      'TEST_ACTIVE',
+        RESULT_SCREEN:    'RESULT_SCREEN',
+        ERROR_SCREEN:     'ERROR_SCREEN'
+    },
+
+    /* Valid transitions — only these are allowed */
+    TRANSITIONS: {
+        HOME:              ['TEST_LOADING'],
+        TEST_LOADING:      ['PERMISSION_SCREEN', 'HOME'],   // home=on error
+        PERMISSION_SCREEN: ['TEST_ACTIVE', 'HOME'],
+        TEST_ACTIVE:       ['RESULT_SCREEN', 'HOME'],       // home=abandon
+        RESULT_SCREEN:     ['HOME'],
+        ERROR_SCREEN:      ['HOME']
+    },
+
+    _current: 'HOME',
+
+    current() { return this._current; },
+
+    transition(next, context = '') {
+        const allowed = this.TRANSITIONS[this._current] || [];
+        if (!allowed.includes(next)) {
+            console.error(
+                `[UIStateMachine] INVALID TRANSITION: ${this._current} → ${next}` +
+                (context ? ` (context: ${context})` : '')
+            );
+            return false;
+        }
+        console.info(`[UIStateMachine] ${this._current} → ${next}` + (context ? ` | ${context}` : ''));
+        this._current = next;
+        document.body.setAttribute('data-ui-state', next);
+        return true;
+    },
+
+    /* Force-reset without validation (use only for boot/error recovery) */
+    reset(state = 'HOME') {
+        this._current = state;
+        document.body.setAttribute('data-ui-state', state);
+    }
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    3. BOOT — SINGLE DOMContentLoaded
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTrendingTestButtons();
 
     /* ✅ Always start on dashboard — subject panel hidden by default */
+    UIStateMachine.reset('HOME');
     showView('dashboard');
 
     /* Bind result screen buttons here since engine sections exist */
@@ -134,7 +190,44 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ============================================================ 
    4. VIEW MANAGER – guaranteed visibility control
    ============================================================ */
+
+/**
+ * FORENSIC FIX — cleanupActiveView()
+ * Called before EVERY view transition.
+ * Tears down: timers, hero slider intervals, stale CSS transforms,
+ * opacity leaks, and exam-mode body classes.
+ */
+function cleanupActiveView() {
+    if (window.logDiagnostic) window.logDiagnostic('cleanupActiveView');
+    // Stop the in-page exam timer (if running)
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    // Reset any stale opacity/transform leftover from slide animations
+    const qArea = document.querySelector('.question-area');
+    if (qArea) {
+        qArea.style.opacity = '1';
+        qArea.style.transform = 'none';
+        qArea.style.transition = 'none';
+        qArea.style.display = ''; // Clear display none
+    }
+
+    // Reset pointer-events and overflow leaks on body (Root cause of frozen UI)
+    document.body.style.pointerEvents = 'auto';
+    document.body.style.overflow = 'auto';
+
+    // Flush any lingering overlay display states
+    document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
+
+    // Remove fs-warning banner if present (avoid stale on nav)
+    removeFsWarningBanner();
+}
+
 function showView(id) {
+    if (window.logDiagnostic) window.logDiagnostic('showView');
+    // ── FORENSIC FIX: Always cleanup before switching views
+    cleanupActiveView();
+
     /* Hard-hide EVERY view unconditionally */
     Object.values(VIEW).forEach(v => {
         if (v) {
@@ -568,15 +661,31 @@ function setFilter(f) {
 /* ============================================================ 
    13. START TEST
    ============================================================ */
+let _isStartingTest = false;
 async function startTest(testName, subject, questionCount = 100, timeLimit = 90) {
+    if (_isStartingTest) {
+        console.warn('[NirnayPath] Race condition prevented: startTest already in progress.');
+        return;
+    }
+    _isStartingTest = true;
+
+    if (window.logDiagnostic) window.logDiagnostic('startTest');
     if (!Auth.isLoggedIn()) {
         alert('Please login to start the mock test.');
         document.getElementById('loginModal').style.display = 'flex';
+        _isStartingTest = false;
         return;
     }
-    
+
+    // ── STATE MACHINE: HOME → TEST_LOADING
+    if (!UIStateMachine.transition('TEST_LOADING', `startTest(${testName})`)) {
+        // Already in a test — reset to HOME first to recover
+        UIStateMachine.reset('HOME');
+        UIStateMachine.transition('TEST_LOADING', `startTest(${testName}) [recovered]`);
+    }
+
     document.documentElement.requestFullscreen().catch(() => {});
-    
+
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
     try {
@@ -626,13 +735,17 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
         };
 
         saveProgress();
-        
+
         // Phase 10A: Redirect to Secure CBT Terminal
+        // State: TEST_LOADING stays until test.html takes over via cbt-active-session
         window.location.href = '/test.html';
     } catch (err) {
         console.error('[NirnayPath] Test load error:', err);
         alert(`Could not load test.\n\n${err.message}`);
+        UIStateMachine.reset('HOME');
         showView('dashboard');
+    } finally {
+        _isStartingTest = false;
     }
 }
 
@@ -640,6 +753,13 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
    14. LAUNCH EXAM ENGINE
    ============================================================ */
 function launchExam() {
+    // ── STATE MACHINE: TEST_LOADING → TEST_ACTIVE (drill / sectional modes)
+    if (UIStateMachine.current() !== 'TEST_LOADING') {
+        // Could be a resume from checkExistingTestSession — allow it
+        UIStateMachine.reset('TEST_LOADING');
+    }
+    UIStateMachine.transition('TEST_ACTIVE', 'launchExam');
+
     const total = testState.selectedQuestions.length;
     const subName = subjectNames[testState.subject] || testState.subject;
 
@@ -858,6 +978,8 @@ function bindExamControls() {
     on('btn-home', 'click', () => {
         testState = { answers: {}, marked: [], visited: [], isActive: false, selectedQuestions: [] };
         localStorage.removeItem('mockTestState');
+        // ── STATE MACHINE: RESULT_SCREEN → HOME
+        UIStateMachine.reset('HOME');
         showView('dashboard');
     });
 }
@@ -913,6 +1035,9 @@ function updateTimerDisplay() {
    20. SUBMIT & RESULT
    ============================================================ */
 function submitTest() {
+    // ── STATE MACHINE: TEST_ACTIVE → RESULT_SCREEN
+    UIStateMachine.transition('RESULT_SCREEN', 'submitTest');
+
     clearInterval(timerInterval);
     saveCurrentAnswer();
     testState.isActive = false;
@@ -1086,6 +1211,21 @@ function saveProgress() {
 
 function checkExistingTestSession() {
     try {
+        // ── FORENSIC FIX: If cbt-active is set in sessionStorage this means
+        //    the user was mid-test in test.html.  Redirect them back there
+        //    rather than trying to re-launch the old index.html engine.
+        if (sessionStorage.getItem('cbt-active') === 'true') {
+            if (confirm('You have an active CBT session. Resume your secure exam?')) {
+                window.location.href = '/test.html';
+            } else {
+                // User declined — clear everything cleanly
+                sessionStorage.removeItem('cbt-active');
+                sessionStorage.removeItem('cbt-active-session');
+                localStorage.removeItem('mockTestState');
+            }
+            return;
+        }
+
         const s = JSON.parse(localStorage.getItem('mockTestState'));
         if (s?.isActive && s.selectedQuestions?.length) {
             if (confirm('You have an unfinished test. Resume?')) {
@@ -1114,14 +1254,17 @@ function exitFullscreen() {
     } catch(e) { /* document not active */ }
 }
 
-/* Fullscreen exit warning */
-['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => {
-    document.addEventListener(ev, () => {
-        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
-        if (!isFs && testState.isActive) showFsWarning();
-        else removeFsWarningBanner();
+/* Fullscreen exit warning — module-level listeners with one-time guard */
+if (!_fsListenersInstalled) {
+    _fsListenersInstalled = true;
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => {
+        document.addEventListener(ev, () => {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+            if (!isFs && testState.isActive) showFsWarning();
+            else removeFsWarningBanner();
+        });
     });
-});
+}
 
 function showFsWarning() {
     if (document.getElementById('fs-warning-banner')) return;
@@ -1304,6 +1447,11 @@ function makeHeroSlider(selector) {
     const container = document.querySelector(selector);
     if (!container) return;
 
+    // ── FORENSIC FIX: Guard against multiple initializations (prevents
+    //    infinite clone accumulation if makeHeroSlider is called again)
+    if (container.dataset.sliderInitialized === 'true') return;
+    container.dataset.sliderInitialized = 'true';
+
     const slides = Array.from(container.children);
     if (slides.length === 0) return;
 
@@ -1315,19 +1463,17 @@ function makeHeroSlider(selector) {
 
     let scrollAmount = 0;
     let isPaused = false;
-    const slideWidth = container.offsetWidth;
-    const totalSlides = slides.length;
 
     function autoSlide() {
         if (isPaused) return;
         scrollAmount += container.offsetWidth;
-        
+
         container.scrollTo({
             left: scrollAmount,
             behavior: 'smooth'
         });
 
-        if (scrollAmount >= totalSlides * container.offsetWidth) {
+        if (scrollAmount >= slides.length * container.offsetWidth) {
             setTimeout(() => {
                 container.scrollTo({ left: 0, behavior: 'auto' });
                 scrollAmount = 0;
@@ -1335,7 +1481,9 @@ function makeHeroSlider(selector) {
         }
     }
 
-    let sliderInterval = setInterval(autoSlide, 3000);
+    // Store the interval on dataset so it can be cleared on cleanup
+    const heroInterval = setInterval(autoSlide, 3000);
+    container.dataset.heroInterval = heroInterval;
 
     container.addEventListener('mouseenter', () => isPaused = true);
     container.addEventListener('mouseleave', () => isPaused = false);

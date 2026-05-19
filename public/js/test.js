@@ -1,6 +1,12 @@
 /**
  * NirnayPath Secure CBT Engine
  * Phase 10B: Enterprise Ecosystem & Advanced Integrity
+ *
+ * FORENSIC PATCH v2.0 — Runtime Bug Fixes:
+ *  - Idempotency guards on startCBT / bindCBTControls / initAntiCheat
+ *  - Session-ID handshake prevents stale cbt-active auto-start
+ *  - Duplicate listener elimination
+ *  - Full cleanup on terminate / return-home
  */
 
 let testState = null;
@@ -8,6 +14,11 @@ let timerInterval = null;
 let heartbeatInterval = null;
 let riskScore = 0;
 let isHeartbeatFailing = false;
+
+/* ── Idempotency Guards ────────────────────────────────────────────── */
+let _cbtStarted        = false;  // prevents startCBT running twice
+let _cbtControlsBound  = false;  // prevents bindCBTControls duplicating handlers
+let _antiCheatInstalled = false; // prevents initAntiCheat duplicating listeners
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load State from LocalStorage
@@ -39,11 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('verify-avatar').src = avatarUrl;
 
     // Route depending on resume state
-    if (sessionStorage.getItem('cbt-active') === 'true') {
+    // ── FORENSIC FIX: Validate the stored session ID matches the current
+    //    testState.sessionId before trusting cbt-active.  A stale
+    //    sessionStorage entry from a previous test must NOT auto-start a
+    //    brand-new session without going through the permission flow.
+    const storedActiveSession = sessionStorage.getItem('cbt-active-session');
+    const isGenuineResume = (
+        sessionStorage.getItem('cbt-active') === 'true' &&
+        storedActiveSession &&
+        storedActiveSession === testState.sessionId
+    );
+
+    if (isGenuineResume) {
         switchScreen('exam-screen');
         document.body.addEventListener('click', forceFullscreen, { once: true });
         startCBT(true);
     } else {
+        // Stale cbt-active — clear it and begin normal permission flow
+        sessionStorage.removeItem('cbt-active');
+        sessionStorage.removeItem('cbt-active-session');
         runSystemDiagnostics();
     }
 
@@ -111,6 +136,7 @@ async function runSystemDiagnostics() {
 }
 
 function bindScreenFlows() {
+    if (window.logDiagnostic) window.logDiagnostic('bindScreenFlows');
     // Sys Check -> Verification
     document.getElementById('btn-system-ok').addEventListener('click', () => {
         switchScreen('candidate-verification-screen');
@@ -142,8 +168,24 @@ async function forceFullscreen() {
     }
 }
 
+let _cbtStartLock = false;
 function startCBT(isResume = false) {
+    if (_cbtStartLock) return;
+    _cbtStartLock = true;
+
+    if (window.logDiagnostic) window.logDiagnostic('startCBT');
+    // ── FORENSIC FIX: Idempotency guard — prevent double-start in any code path
+    if (_cbtStarted) {
+        console.warn('[CBT] startCBT() called again — ignoring duplicate invocation.');
+        _cbtStartLock = false;
+        return;
+    }
+    _cbtStarted = true;
+
+    // Persist session-ID handshake so genuine resume is distinguishable
     sessionStorage.setItem('cbt-active', 'true');
+    sessionStorage.setItem('cbt-active-session', testState.sessionId);
+
     switchScreen('exam-screen');
 
     if (!testState.visited.includes(testState.currentIdx)) {
@@ -152,15 +194,19 @@ function startCBT(isResume = false) {
 
     renderQuestion();
     renderPalette();
-    
-    // Start Engine
+
+    // Start Engine (both guards are idempotent internally)
     initAntiCheat();
     bindCBTControls();
-    
-    // Initial sync and start timers
+
+    // Initial sync and start timers — clear any stale ones first
+    clearInterval(timerInterval);
+    clearInterval(heartbeatInterval);
     forceServerSync();
     timerInterval = setInterval(localTimerTick, 1000);
-    heartbeatInterval = setInterval(heartbeatPing, 10000); // 10s Telemetry Heartbeat
+    heartbeatInterval = setInterval(heartbeatPing, 10000);
+    
+    _cbtStartLock = false;
 }
 
 /* ============================================================ 
@@ -169,8 +215,15 @@ function startCBT(isResume = false) {
 let lastBlurTime = 0;
 
 function initAntiCheat() {
+    // ── FORENSIC FIX: Idempotency guard — prevents duplicate listeners
+    if (_antiCheatInstalled) {
+        console.warn('[CBT] initAntiCheat() called again — ignoring duplicate invocation.');
+        return;
+    }
+    _antiCheatInstalled = true;
+
     // Fullscreen Exit (30 pts)
-    document.addEventListener('fullscreenchange', () => {
+    const _onFsChange = () => {
         if (!document.fullscreenElement) {
             increaseRiskScore(30, 'fullscreen_exit');
             document.getElementById('violation-overlay').classList.add('active');
@@ -179,15 +232,18 @@ function initAntiCheat() {
             document.getElementById('violation-overlay').classList.remove('active');
             document.getElementById('exam-screen').style.filter = 'none';
         }
-    });
+    };
+    document.addEventListener('fullscreenchange', _onFsChange);
+    document.addEventListener('webkitfullscreenchange', _onFsChange);
 
     // Tab Switching (20 pts)
-    document.addEventListener('visibilitychange', () => {
+    const _onVisChange = () => {
         if (document.hidden) increaseRiskScore(20, 'tab_switch');
-    });
+    };
+    document.addEventListener('visibilitychange', _onVisChange);
 
     // Window Blur (Focus Loss - 15 pts, Rapid = 25)
-    window.addEventListener('blur', () => {
+    const _onBlur = () => {
         const now = Date.now();
         if (now - lastBlurTime < 10000) {
             increaseRiskScore(25, 'rapid_focus_loss');
@@ -195,7 +251,8 @@ function initAntiCheat() {
             increaseRiskScore(15, 'window_blur');
         }
         lastBlurTime = now;
-    });
+    };
+    window.addEventListener('blur', _onBlur);
 
     // Clipboard and Context (15 pts)
     const blockCopy = (e) => { e.preventDefault(); increaseRiskScore(15, 'clipboard_usage'); };
@@ -205,16 +262,26 @@ function initAntiCheat() {
     document.addEventListener('paste', blockCopy);
 
     // DevTools & Shortcuts (50 pts for DevTools)
-    document.addEventListener('keydown', (e) => {
+    const _onKeyDown = (e) => {
         if (e.key === 'F12') { e.preventDefault(); increaseRiskScore(50, 'devtools_detected'); }
         if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); increaseRiskScore(50, 'devtools_detected'); }
         if (e.ctrlKey && ['C', 'V', 'P'].includes(e.key.toUpperCase())) { e.preventDefault(); increaseRiskScore(15, 'shortcut_usage'); }
-    });
+    };
+    document.addEventListener('keydown', _onKeyDown);
 }
 
-document.getElementById('btn-resume-fullscreen').addEventListener('click', async () => {
-    try { await document.documentElement.requestFullscreen(); } catch (err) { alert("Fullscreen required."); }
-});
+/* ── FORENSIC FIX: Moved from module scope into DOMContentLoaded guard.
+   A bare getElementById() call outside DOMContentLoaded will throw
+   TypeError and crash the ENTIRE CBT script if the element doesn't
+   exist yet (e.g. under 6x CPU throttle). Root cause of blank screen. */
+document.addEventListener('DOMContentLoaded', () => {
+    const resumeBtn = document.getElementById('btn-resume-fullscreen');
+    if (resumeBtn) {
+        resumeBtn.addEventListener('click', async () => {
+            try { await document.documentElement.requestFullscreen(); } catch (err) { alert("Fullscreen required."); }
+        });
+    }
+}, { once: true });
 
 async function increaseRiskScore(points, type) {
     if (!testState.isActive) return;
@@ -242,17 +309,19 @@ function terminateTest(reason) {
     testState.isActive = false;
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
+    // ── FORENSIC FIX: Clear BOTH sessionStorage keys on terminate
     sessionStorage.removeItem('cbt-active');
-    
+    sessionStorage.removeItem('cbt-active-session');
+
     document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
-    
+
     const termOverlay = document.getElementById('terminated-overlay');
     termOverlay.classList.add('active');
-    document.getElementById('terminate-title').textContent = "Exam Terminated";
+    document.getElementById('terminate-title').textContent = 'Exam Terminated';
     document.getElementById('terminate-message').textContent = reason;
     document.getElementById('terminate-icon').className = 'fas fa-shield-alt terminate-icon';
     document.getElementById('terminate-icon').style.color = '#d32f2f';
-    
+
     executeSubmitFlow(true);
 }
 
@@ -438,6 +507,15 @@ function saveLocalAnswer(val) {
 }
 
 function bindCBTControls() {
+    if (window.logDiagnostic) window.logDiagnostic('bindCBTControls');
+    // ── FORENSIC FIX: Idempotency guard — prevents duplicate handlers if
+    //    bindCBTControls is ever called more than once in the page lifecycle
+    if (_cbtControlsBound) {
+        console.warn('[CBT] bindCBTControls() called again — ignoring duplicate binding.');
+        return;
+    }
+    _cbtControlsBound = true;
+
     document.getElementById('cbt-lang-select').addEventListener('change', renderQuestion);
 
     document.getElementById('btn-save-next').addEventListener('click', () => {
@@ -464,8 +542,14 @@ function bindCBTControls() {
         document.getElementById('submit-confirm-overlay').classList.remove('active');
     });
     document.getElementById('btn-confirm-submit').addEventListener('click', () => executeSubmitFlow(false));
-    
+
     document.getElementById('btn-return-home').addEventListener('click', () => {
+        // ── FORENSIC FIX: Full state cleanup before navigating home
+        clearInterval(timerInterval);
+        clearInterval(heartbeatInterval);
+        sessionStorage.removeItem('cbt-active');
+        sessionStorage.removeItem('cbt-active-session');
+        localStorage.removeItem('mockTestState');
         window.location.href = '/index.html';
     });
 }
@@ -508,7 +592,9 @@ async function executeSubmitFlow(isForced) {
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
     testState.isActive = false;
+    // ── FORENSIC FIX: Remove BOTH session keys on normal submit
     sessionStorage.removeItem('cbt-active');
+    sessionStorage.removeItem('cbt-active-session');
     
     document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
     
