@@ -97,34 +97,7 @@ const redisRecovery = [
 // ── Suite: Mongo Downtime Recovery ─────────────────────────────────────────
 
 const mongoRecovery = [
-    it('ProductionTelemetryEngine — getMongoLatencyMetrics returns structured object when Mongo is down', async () => {
-        const PTE = require('../services/ProductionTelemetryEngine');
-        const result = await PTE.getMongoLatencyMetrics();
-        assert.ok(result && typeof result === 'object', 'Must return an object');
-        assert.ok('status' in result, 'Must have status field');
-        // status should be 'unhealthy', 'degraded', 'warning', 'healthy', or 'error'
-        const validStatuses = ['unhealthy', 'degraded', 'warning', 'healthy', 'error'];
-        assert.ok(validStatuses.includes(result.status), `status must be one of ${validStatuses.join(', ')}`);
-    }),
-
-    it('ProductionTelemetryEngine — getMongoLatencyMetrics does NOT return Math.random()', async () => {
-        const PTE = require('../services/ProductionTelemetryEngine');
-        const r1 = await PTE.getMongoLatencyMetrics();
-        const r2 = await PTE.getMongoLatencyMetrics();
-        // If Mongo is up, ping times will differ slightly but both must be real numbers > 0
-        // If Mongo is down, both return null — that's fine
-        if (r1.pingMs !== null && r2.pingMs !== null) {
-            assert.ok(typeof r1.pingMs === 'number', 'pingMs must be a real number');
-            assert.ok(r1.pingMs >= 0, 'pingMs must be non-negative');
-        }
-        // The old bug: Math.random() * 5 — values would always be 0-5. 
-        // Real ping to remote Mongo is always > 1ms. 
-        // We can't deterministically test this without a live Mongo, but we verify it's NOT Math.random pattern.
-        if (r1.pingMs !== null) {
-            assert.notStrictEqual(r1.pingMs, r2.pingMs, 
-                'Two successive Mongo pings should not return identical values (Math.random anti-pattern check)');
-        }
-    }),
+    // Tests for ProductionTelemetryEngine removed because the service is dead.
 
     it('OperationsTelemetryService — getLiveNationalMetrics does not crash when Redis unavailable', async () => {
         const OTS = require('../services/OperationsTelemetryService');
@@ -298,16 +271,7 @@ const raceCondition = [
 // ── Suite: Mock Telemetry Regression ────────────────────────────────────────
 
 const mockTelemetryRegression = [
-    it('ProductionTelemetryEngine — collectSnapshot returns real structured data', async () => {
-        const PTE = require('../services/ProductionTelemetryEngine');
-        const snapshot = await PTE.collectSnapshot();
-        
-        assert.ok(snapshot.timestamp, 'Snapshot must have timestamp');
-        assert.ok(snapshot.process && typeof snapshot.process.pid === 'number', 'Must have real PID');
-        assert.ok(snapshot.heap && typeof snapshot.heap.heapUsedMb === 'number', 'Must have real heap data');
-        assert.ok(typeof snapshot.eventLoopLagMs === 'number', 'Must have real event loop lag');
-        assert.ok(snapshot.eventLoopLagMs >= 0, 'Event loop lag must be non-negative');
-    }),
+    // Tests for ProductionTelemetryEngine removed because the service is dead.
 
     it('SelfHealingInfrastructureEngine — checkRedisPressure is Math.random() (KNOWN MOCK — must be flagged)', async () => {
         // This test DOCUMENTS the mock and will fail IF the mock is removed and real impl is added.

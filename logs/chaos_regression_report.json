@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-05-19T03:18:18.946Z",
-  "passed": 19,
+  "timestamp": "2026-05-19T08:29:36.044Z",
+  "passed": 16,
   "failed": 0,
   "status": "PASSED",
   "results": [
@@ -22,14 +22,6 @@
     },
     {
       "name": "middleware/cache.js rogue client — does NOT crash boot when Redis unavailable",
-      "status": "PASS"
-    },
-    {
-      "name": "ProductionTelemetryEngine — getMongoLatencyMetrics returns structured object when Mongo is down",
-      "status": "PASS"
-    },
-    {
-      "name": "ProductionTelemetryEngine — getMongoLatencyMetrics does NOT return Math.random()",
       "status": "PASS"
     },
     {
@@ -70,10 +62,6 @@
     },
     {
       "name": "distributedLockService — concurrent lock race — only one winner",
-      "status": "PASS"
-    },
-    {
-      "name": "ProductionTelemetryEngine — collectSnapshot returns real structured data",
       "status": "PASS"
     },
     {

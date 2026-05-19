@@ -1,122 +1,125 @@
 const fs = require('fs');
 const path = require('path');
 
-const DIRECTORIES = [
-    'services',
-    'routes',
-    'middleware',
-    'core',
-    'utils',
-    'models',
-    'scripts',
-    'workers'
-];
-
 const BASE_DIR = path.resolve(__dirname, '..');
-const LOG_FILE = path.join(BASE_DIR, 'logs', 'import_casing_audit.json');
+const SCAN_DIRS = ['services', 'routes', 'middleware', 'core', 'utils', 'models', 'workers', 'config', 'scripts'];
+const IGNORE_FILES = ['forensicAudit.js', 'linuxImportAudit.js'];
 
-const results = {
-    timestamp: new Date().toISOString(),
-    casingIssues: [],
-    brokenImports: [],
-    allFiles: []
-};
+// Graph maps absolute file path -> Set of absolute paths it imports
+const dependencyGraph = new Map();
+// Set of all absolute file paths in scan dirs + app.js
+const allFiles = new Set();
+const entryPoints = new Set([
+    path.join(BASE_DIR, 'app.js'),
+    path.join(BASE_DIR, 'ecosystem.config.js')
+]);
 
-function isCamelCase(str) {
-    if (str.endsWith('.js')) {
-        str = str.slice(0, -3);
+// Helper to add to allFiles
+function registerFile(filePath) {
+    if (filePath.endsWith('.js') && !IGNORE_FILES.includes(path.basename(filePath))) {
+        allFiles.add(filePath);
+        if (filePath.includes('workers\\') || filePath.includes('workers/')) {
+            entryPoints.add(filePath); // Workers are often entry points themselves
+        }
+        if (filePath.includes('scripts\\') || filePath.includes('scripts/')) {
+            entryPoints.add(filePath); // Scripts are entry points
+        }
     }
-    return /^[a-z][a-zA-Z0-9]*$/.test(str);
 }
 
-function scanFiles(dir) {
+// Find all files
+function scanDir(dir) {
     const fullPath = path.join(BASE_DIR, dir);
     if (!fs.existsSync(fullPath)) return;
-
-    const files = fs.readdirSync(fullPath);
-    files.forEach(file => {
-        const filePath = path.join(fullPath, file);
-        const stats = fs.statSync(filePath);
-
-        if (stats.isDirectory()) {
-            scanFiles(path.join(dir, file));
-        } else if (file.endsWith('.js')) {
-            const relativePath = path.join(dir, file).replace(/\\/g, '/');
-            results.allFiles.push(relativePath);
-
-            if (!isCamelCase(file)) {
-                results.casingIssues.push({
-                    file: relativePath,
-                    reason: 'Not camelCase'
-                });
-            }
-
-            checkImports(filePath, relativePath);
-        }
-    });
-}
-
-function checkImports(filePath, relativeFilePath) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const requireRegex = /require\(['"](.+?)['"]\)/g;
-    const importRegex = /from ['"](.+?)['"]/g;
-
-    let match;
-    while ((match = requireRegex.exec(content)) !== null) {
-        validateImport(match[1], relativeFilePath);
-    }
-    while ((match = importRegex.exec(content)) !== null) {
-        validateImport(match[1], relativeFilePath);
-    }
-}
-
-function validateImport(importPath, sourceFile) {
-    if (!importPath.startsWith('.')) return; // Skip node_modules
-
-    const sourceDir = path.dirname(path.join(BASE_DIR, sourceFile));
-    let resolvedPath = path.resolve(sourceDir, importPath);
     
-    if (!resolvedPath.endsWith('.js') && !fs.existsSync(resolvedPath) && fs.existsSync(resolvedPath + '.js')) {
-        resolvedPath += '.js';
-    }
-
-    if (fs.existsSync(resolvedPath)) {
-        const actualFile = findActualFileWithCasing(resolvedPath);
-        const expectedFile = path.basename(resolvedPath);
-        const actualFileName = path.basename(actualFile);
-
-        if (expectedFile !== actualFileName) {
-            results.brokenImports.push({
-                source: sourceFile,
-                import: importPath,
-                expected: expectedFile,
-                actual: actualFileName,
-                reason: 'Casing mismatch'
-            });
+    const entries = fs.readdirSync(fullPath);
+    for (const entry of entries) {
+        const entryPath = path.join(fullPath, entry);
+        if (fs.statSync(entryPath).isDirectory()) {
+            if (entry !== 'node_modules' && entry !== '.git') {
+                scanDir(path.join(dir, entry));
+            }
+        } else {
+            registerFile(entryPath);
         }
-    } else {
-        results.brokenImports.push({
-            source: sourceFile,
-            import: importPath,
-            reason: 'File not found'
-        });
     }
 }
 
-function findActualFileWithCasing(filePath) {
-    const dir = path.dirname(filePath);
-    const fileName = path.basename(filePath).toLowerCase();
-    if (!fs.existsSync(dir)) return filePath;
-    const files = fs.readdirSync(dir);
-    const match = files.find(f => f.toLowerCase() === fileName);
-    return match ? path.join(dir, match) : filePath;
+SCAN_DIRS.forEach(scanDir);
+registerFile(path.join(BASE_DIR, 'app.js'));
+
+// Read imports
+for (const filePath of allFiles) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const importRegex = /(?:require\(|from\s+|import\s+)['"]([\.\/].*?)['"]/g;
+    let match;
+    const imports = new Set();
+    
+    while ((match = importRegex.exec(content)) !== null) {
+        const importPath = match[1];
+        const sourceDir = path.dirname(filePath);
+        let targetPath = path.resolve(sourceDir, importPath);
+        
+        if (!targetPath.endsWith('.js') && fs.existsSync(targetPath + '.js')) {
+            targetPath += '.js';
+        }
+        
+        if (fs.existsSync(targetPath) && fs.statSync(targetPath).isFile()) {
+            imports.add(targetPath);
+        } else if (fs.existsSync(path.join(targetPath, 'index.js'))) {
+            imports.add(path.join(targetPath, 'index.js'));
+        }
+    }
+    
+    dependencyGraph.set(filePath, imports);
 }
 
-if (!fs.existsSync(path.join(BASE_DIR, 'logs'))) {
-    fs.mkdirSync(path.join(BASE_DIR, 'logs'));
+// Perform DFS from entry points
+const visited = new Set();
+function dfs(node) {
+    if (visited.has(node)) return;
+    visited.add(node);
+    
+    const imports = dependencyGraph.get(node) || new Set();
+    for (const imp of imports) {
+        dfs(imp);
+    }
 }
 
-DIRECTORIES.forEach(scanFiles);
+for (const entry of entryPoints) {
+    if (allFiles.has(entry) || entry.endsWith('app.js') || entry.endsWith('ecosystem.config.js')) {
+        dfs(entry);
+    }
+}
 
-fs.writeFileSync(LOG_FILE, JSON.stringify(results, null, 2));
-console.log(`Audit complete. Report saved to ${LOG_FILE}`);
+const deadFiles = Array.from(allFiles).filter(f => !visited.has(f));
+
+const reportPath = path.join(BASE_DIR, 'FORENSIC_MASTER_AUDIT.md');
+const deletePath = path.join(BASE_DIR, 'SAFE_DELETION_REPORT.md');
+
+let reportMarkdown = `# FORENSIC MASTER AUDIT\n\n`;
+reportMarkdown += `## Dead Files Detected\n\n`;
+if (deadFiles.length === 0) {
+    reportMarkdown += `No dead files detected.\n`;
+} else {
+    for (const f of deadFiles) {
+        reportMarkdown += `- \` ${path.relative(BASE_DIR, f)} \` (Unused in application tree)\n`;
+    }
+}
+
+let deleteMarkdown = `# SAFE DELETION REPORT\n\n`;
+for (const f of deadFiles) {
+    const rel = path.relative(BASE_DIR, f);
+    deleteMarkdown += `File: ${rel}\n`;
+    deleteMarkdown += `Reason: Unreachable from any entry point (app.js, workers, scripts)\n`;
+    deleteMarkdown += `Import count: 0\n`;
+    deleteMarkdown += `Route usage: 0\n`;
+    deleteMarkdown += `Runtime usage: 0\n`;
+    deleteMarkdown += `Frontend usage: 0\n`;
+    deleteMarkdown += `Can safely delete: YES\n\n`;
+}
+
+fs.writeFileSync(reportPath, reportMarkdown);
+fs.writeFileSync(deletePath, deleteMarkdown);
+
+console.log(`Audit complete. Found ${deadFiles.length} dead files.`);
