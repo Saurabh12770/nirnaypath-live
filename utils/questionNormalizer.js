@@ -47,6 +47,9 @@ const normalizeQuestion = (q) => {
     let opts_en = getOptions(doc.options_en || doc.options || doc.choices || doc.options_English);
     let opts_hi = getOptions(doc.options_hi || doc.options_Hindi);
 
+    const origOptsEnLength = opts_en.length;
+    const origOptsHiLength = opts_hi.length;
+
     // Enforce exactly 4 options
     const normalizeOptions = (opts, lang = 'en') => {
         let clean = [...opts];
@@ -65,19 +68,31 @@ const normalizeQuestion = (q) => {
     // --- 3. Answer Normalization (Intelligent Mapping) ---
     let correctAnswer = 0;
     const rawAns = doc.correctAnswer !== undefined ? doc.correctAnswer : (doc.answer !== undefined ? doc.answer : doc.correct_option);
+    let isCorrectAnswerOutOfRange = false;
 
-    if (typeof rawAns === 'number') {
-        correctAnswer = Math.max(0, Math.min(3, Math.floor(rawAns)));
-    } else if (typeof rawAns === 'string') {
-        const s = rawAns.trim().toUpperCase();
-        if (['A', 'B', 'C', 'D'].includes(s)) {
-            correctAnswer = ['A', 'B', 'C', 'D'].indexOf(s);
-        } else if (['0', '1', '2', '3'].includes(s)) {
-            correctAnswer = parseInt(s);
+    if (rawAns !== undefined && rawAns !== null) {
+        if (typeof rawAns === 'number') {
+            if (rawAns < 0 || rawAns > 3) {
+                isCorrectAnswerOutOfRange = true;
+            }
+            correctAnswer = Math.max(0, Math.min(3, Math.floor(rawAns)));
+        } else if (typeof rawAns === 'string') {
+            const s = rawAns.trim().toUpperCase();
+            if (['A', 'B', 'C', 'D'].includes(s)) {
+                correctAnswer = ['A', 'B', 'C', 'D'].indexOf(s);
+            } else if (['0', '1', '2', '3'].includes(s)) {
+                correctAnswer = parseInt(s);
+            } else {
+                // Try to match text
+                const idx = opts_en.findIndex(o => o.toLowerCase() === s.toLowerCase());
+                if (idx !== -1) {
+                    correctAnswer = idx;
+                } else {
+                    isCorrectAnswerOutOfRange = true;
+                }
+            }
         } else {
-            // Try to match text
-            const idx = opts_en.findIndex(o => o.toLowerCase() === s.toLowerCase());
-            if (idx !== -1) correctAnswer = idx;
+            isCorrectAnswerOutOfRange = true;
         }
     }
 
@@ -88,7 +103,10 @@ const normalizeQuestion = (q) => {
     // --- 5. Invalid Detection (Forensic Marking) ---
     const isInvalid = (
         question_en === 'Question text missing' ||
-        new Set(opts_en).size < 2 // Detect junk data
+        new Set(opts_en).size < 2 || // Detect junk data
+        origOptsEnLength < 4 ||
+        (origOptsHiLength > 0 && origOptsHiLength < 4) ||
+        isCorrectAnswerOutOfRange
     );
 
     return {

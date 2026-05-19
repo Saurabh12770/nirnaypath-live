@@ -40,13 +40,56 @@ const testSessionSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'submitted', 'expired'],
+        enum: ['active', 'submitted', 'expired', 'terminated'],
         default: 'active'
     },
     questionIds: [{
         type: String, // Can be MongoDB _id or JSON id string
         required: true
     }],
+    violations: [{
+        violationType: { 
+            type: String, 
+            enum: ['tab_switch', 'window_blur', 'devtools_detected', 'clipboard_usage', 'fullscreen_exit', 'shortcut_usage', 'multiple_tabs'] 
+        },
+        timestamp: { type: Date, default: Date.now },
+        userAgent: String,
+        ip: String
+    }],
+    violationCount: {
+        type: Number,
+        default: 0
+    },
+    locked: {
+        type: Boolean,
+        default: false
+    },
+    terminatedReason: {
+        type: String,
+        default: null
+    },
+    answers: {
+        type: Map,
+        of: mongoose.Schema.Types.Mixed,
+        default: {}
+    },
+    markedForReview: [{
+        type: Number
+    }],
+    
+    // --- PHASE 11 V2 FIELDS (OPTIONAL / BACKWARD COMPATIBLE) ---
+    telemetryVersion: { type: Number, default: 1 },
+    telemetryBufferId: { type: String, default: null },
+    fraudProbabilityScore: { type: Number, default: 0 },
+    confidenceScore: { type: Number, default: 0 },
+    panicScore: { type: Number, default: 0 },
+    carelessMistakeIndex: { type: Number, default: 0 },
+    adaptiveDifficulty: { type: Number, default: 0 },
+    irtTheta: { type: Number, default: 0 },
+    heartbeatVersion: { type: Number, default: 1 },
+    analyticsProcessed: { type: Boolean, default: false },
+    // -----------------------------------------------------------
+
     createdAt: {
         type: Date,
         default: Date.now,

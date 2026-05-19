@@ -42,17 +42,25 @@ const initCronJobs = () => {
         await generateWeeklyDigest();
     });
 
-    // 3. New Content Announcement (Simulated - e.g., Monthly)
+    // 3. New Content Announcement (Monthly)
     cron.schedule('0 10 1 * *', async () => {
         console.log('Running monthly content announcement...');
-        const users = await User.find({ pushSubscription: { $exists: true, $ne: null } });
-        for (const user of users) {
-            await sendPushNotification(user._id, {
-                title: '📚 New Test Series!',
-                body: 'We have added fresh BPSC 71st Prelims mock tests. Check them out!',
-                icon: '/images/logo-icon.png',
-                data: { url: '/#popular-exams' }
-            });
+        try {
+            const users = await User.find({ pushSubscription: { $exists: true, $ne: null } });
+            for (const user of users) {
+                try {
+                    await sendPushNotification(user._id, {
+                        title: '📚 New Test Series!',
+                        body: 'We have added fresh BPSC 71st Prelims mock tests. Check them out!',
+                        icon: '/images/logo-icon.png',
+                        data: { url: '/#popular-exams' }
+                    });
+                } catch (pushErr) {
+                    console.error(`[Cron] Push notification failed for user ${user._id}:`, pushErr.message);
+                }
+            }
+        } catch (error) {
+            console.error('Monthly content announcement cron error:', error);
         }
     });
 };

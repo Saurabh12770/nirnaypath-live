@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const auth = require('../middleware/auth');
 const { sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
 const crypto = require('crypto');
 const router = express.Router();
@@ -20,28 +21,53 @@ if (!process.env.REFRESH_TOKEN_SECRET) {
 }
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
-const rateLimit = require('express-rate-limit');
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Too many requests' }
-});
+/** SECURITY: Minimum bcrypt cost factor — OWASP recommends >= 10 */
+const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12');
+if (BCRYPT_ROUNDS < 10) {
+  console.error(`FATAL: BCRYPT_ROUNDS=${BCRYPT_ROUNDS} is below minimum of 10.`);
+  process.exit(1);
+}
+
+const { authLimiter } = require('../middleware/rateLimiter');
+
+/**
+ * Validate email format and password strength.
+ * Returns an error message string or null if valid.
+ */
+function validateCredentials(email, password) {
+  if (!email || typeof email !== 'string') return 'Email is required';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email format';
+  if (!password || typeof password !== 'string') return 'Password is required';
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(password) && !/[0-9]/.test(password)) {
+    return 'Password must contain at least one uppercase letter or number';
+  }
+  return null;
+}
 
 // Signup
 router.post('/signup', authLimiter, async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        
+
+        // PHASE 6: Input validation
+        if (!name || typeof name !== 'string' || name.trim().length < 2) {
+            return res.status(400).json({ error: 'Name must be at least 2 characters' });
+        }
+        const validationError = validateCredentials(email, password);
+        if (validationError) return res.status(400).json({ error: validationError });
+
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
         if (existingUser) {
-            return res.status(400).json({ error: 'Email already in use' });
+            return res.status(409).json({ error: 'Email already in use' }); // 409 Conflict
         }
 
-        const hashedPassword = await bcrypt.hash(password, 8);
+        // PHASE 6: bcrypt rounds >= 10
+        const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
         const user = new User({
-            name,
-            email,
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
             password: hashedPassword
         });
 
@@ -55,10 +81,16 @@ router.post('/signup', authLimiter, async (req, res) => {
 
         // Fire-and-forget: Trigger welcome email without blocking the response
         sendWelcomeEmail(user).catch(err => console.error('[Signup] Welcome email queue failure:', err.message));
-        const token = jwt.sign({ id: user._id }, jwtSecret);
-        
-        res.status(201).json({ user: { name: user.name, email: user.email, role: user.role }, token });
+
+        // PHASE 6: JWT on signup MUST have expiry
+        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
+        res.status(201).json({ user: { name: user.name, email: user.email, role: user.role } });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ error: 'Email already in use' });
+        }
         res.status(400).json({ error: error.message });
     }
 });
@@ -67,8 +99,15 @@ router.post('/signup', authLimiter, async (req, res) => {
 router.post('/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        
+
+        // PHASE 6: Input validation
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        // PHASE 6: Must use .select('+password') because select:false on schema
+        const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+
         if (!user) {
             return res.status(401).json({ error: 'Invalid login credentials' });
         }
@@ -90,10 +129,11 @@ router.post('/login', authLimiter, async (req, res) => {
         user.refreshTokens = [...(user.refreshTokens || []), refreshToken].slice(-5); // Keep last 5
         await user.save();
 
-        res.json({ 
-            user: { name: user.name, email: user.email, role: user.role }, 
-            token,
-            refreshToken
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        res.json({
+            user: { name: user.name, email: user.email, role: user.role }
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -103,7 +143,14 @@ router.post('/login', authLimiter, async (req, res) => {
 // Refresh Token
 router.post('/refresh-token', async (req, res) => {
     try {
-        const { refreshToken } = req.body;
+        let refreshToken = req.body.refreshToken;
+        if (!refreshToken && req.headers.cookie) {
+            req.headers.cookie.split(';').forEach(cookie => {
+                let [name, ...rest] = cookie.split('=');
+                name = name.trim();
+                if (name === 'refreshToken') refreshToken = decodeURIComponent(rest.join('=').trim());
+            });
+        }
         if (!refreshToken) return res.status(400).json({ error: 'Refresh token required' });
 
         const decoded = jwt.verify(refreshToken, refreshTokenSecret);
@@ -121,7 +168,10 @@ router.post('/refresh-token', async (req, res) => {
         user.refreshTokens.push(newRefreshToken);
         await user.save();
 
-        res.json({ token: newToken, refreshToken: newRefreshToken });
+        res.cookie('token', newToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
+        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        res.json({ message: 'Token refreshed' });
     } catch (error) {
         res.status(403).json({ error: 'Token refresh failed' });
     }
@@ -130,16 +180,30 @@ router.post('/refresh-token', async (req, res) => {
 // Logout
 router.post('/logout', async (req, res) => {
     try {
-        const { refreshToken } = req.body;
+        let refreshToken = req.body.refreshToken;
+        if (!refreshToken && req.headers.cookie) {
+            req.headers.cookie.split(';').forEach(cookie => {
+                let [name, ...rest] = cookie.split('=');
+                name = name.trim();
+                if (name === 'refreshToken') refreshToken = decodeURIComponent(rest.join('=').trim());
+            });
+        }
         const user = await User.findOne({ refreshTokens: refreshToken });
         if (user) {
             user.refreshTokens = user.refreshTokens.filter(t => t !== refreshToken);
             await user.save();
         }
+        res.clearCookie('token');
+        res.clearCookie('refreshToken');
         res.json({ message: 'Logged out' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// Get currently logged in user info (BUG-006 endpoint)
+router.get('/me', auth, async (req, res) => {
+    res.json({ user: { name: req.user.name, email: req.user.email, role: req.user.role } });
 });
 
 // Forgot Password - Initiate Recovery (Phase 8 Hardened)
@@ -210,7 +274,7 @@ router.post('/reset-password', async (req, res) => {
         }
 
         // Update and Securely Hash the new password
-        user.password = await bcrypt.hash(newPassword, 8);
+        user.password = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
         
         // Invalidate token immediately (Atomic cleanup)
         user.resetPasswordToken = undefined;

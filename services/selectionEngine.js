@@ -12,10 +12,11 @@ class SelectionEngine {
         const uniquePool = this.removeInternalDuplicates(pool, reservedIds);
         const targetCount = Math.min(parseInt(count) || 50, uniquePool.length);
 
-        // Fisher-Yates shuffle
+        // Fisher-Yates shuffle using cryptographically secure random integers
+        const crypto = require('crypto');
         const shuffled = [...uniquePool];
         for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j = crypto.randomInt(0, i + 1);
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NirnayPath Digital Twin Observability</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .panel { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
+        h1 { font-size: 24px; border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-top: 0; }
+        h2 { font-size: 18px; color: #58a6ff; }
+        .metric { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .status-healthy { color: #3fb950; }
+        .status-warning { color: #d29922; }
+        .status-critical { color: #f85149; }
+        .simulation-controls { margin-top: 20px; padding-top: 20px; border-top: 1px solid #30363d; }
+        button { background-color: #238636; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #2ea043; }
+    </style>
+</head>
+<body>
+
+    <h1>🌐 National Digital Twin Observability</h1>
+
+    <div class="dashboard">
+        <div class="panel">
+            <h2>System Health Simulation</h2>
+            <div class="metric status-healthy" id="system-health">HEALTHY</div>
+            <p>Simulating current operational state...</p>
+        </div>
+
+        <div class="panel">
+            <h2>Candidate Traffic Density</h2>
+            <div class="metric" id="traffic-density">12,450</div>
+            <p>Active concurrent sessions.</p>
+        </div>
+
+        <div class="panel">
+            <h2>Regional Infrastructure</h2>
+            <ul id="regional-status">
+                <li><span class="status-healthy">North (Delhi)</span> - Stable</li>
+                <li><span class="status-warning">South (Bangalore)</span> - Elevated Latency</li>
+                <li><span class="status-healthy">East (Kolkata)</span> - Stable</li>
+                <li><span class="status-healthy">West (Mumbai)</span> - Stable</li>
+            </ul>
+        </div>
+
+        <div class="panel">
+            <h2>Incident Propagation Forecast</h2>
+            <p id="incident-forecast">No cascading failures predicted in the next 4 hours.</p>
+        </div>
+    </div>
+
+    <div class="panel simulation-controls">
+        <h2>Chaos & Simulation Controls</h2>
+        <button onclick="simulateSurge()">Simulate Traffic Surge</button>
+        <button onclick="simulateRedisFailure()">Simulate Redis Failure</button>
+    </div>
+
+    <script>
+        function simulateSurge() {
+            document.getElementById('traffic-density').innerText = '85,000+';
+            document.getElementById('traffic-density').className = 'metric status-warning';
+            document.getElementById('incident-forecast').innerText = 'Warning: Approaching PM2 memory limits in North Region.';
+            document.getElementById('incident-forecast').className = 'status-warning';
+        }
+
+        function simulateRedisFailure() {
+            document.getElementById('system-health').innerText = 'CRITICAL';
+            document.getElementById('system-health').className = 'metric status-critical';
+            document.getElementById('incident-forecast').innerText = 'CRITICAL: Redis connection pool exhausted. Expect queue starvation.';
+            document.getElementById('incident-forecast').className = 'status-critical';
+        }
+    </script>
+</body>
+</html>

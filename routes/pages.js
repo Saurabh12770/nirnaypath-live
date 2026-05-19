@@ -17,4 +17,12 @@ router.get('/about.html', (req, res) => {
     res.sendFile(path.join(publicPath, 'about.html'));
 });
 
+// Review admin was removed — redirect to main admin dashboard
+router.get('/review-admin', (req, res) => {
+    res.redirect(301, '/admin');
+});
+router.get('/review-admin.html', (req, res) => {
+    res.redirect(301, '/admin');
+});
+
 module.exports = router;

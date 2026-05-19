@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: "nirnaypath-server",
-    script: "./server/app.js",
+    script: "./app.js",
     instances: "max", // Or a specific number like 4
     exec_mode: "cluster",
     watch: false,

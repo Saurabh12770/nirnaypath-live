@@ -66,12 +66,26 @@
     <div id="panelOverlay" class="panel-overlay"></div>
 
     <main>
-        <section class="hero-slider-section reveal">
-            <div class="hero-slider" id="aboutHeroSlider">
-                <img src="about_hero1.jpg" alt="About Hero 1">
-                <img src="about_hero2.jpg" alt="About Hero 2">
-                <img src="about_hero3.jpg" alt="About Hero 3">
-                <img src="about_hero4.jpg" alt="About Hero 4">
+        <!-- Professional SaaS Hero -->
+        <section class="about-hero reveal">
+            <div class="container text-center">
+                <h1 class="hero-title" style="font-size: 3.5rem; margin-bottom: 1rem;">Empowering Every Aspirant <br>to Reach Their <span class="gradient-text">True Potential</span></h1>
+                <p class="hero-subtitle" style="font-size: 1.25rem; color: var(--text-secondary); max-width: 800px; margin: 0 auto 3rem;">We are building India's most trusted, accessible, and high-quality mock test platform. Selection depends on preparation, not your wallet.</p>
+                
+                <div class="about-hero-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto;">
+                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
+                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">50K+</h3>
+                        <p style="font-weight: 600; color: var(--text-secondary);">Active Aspirants</p>
+                    </div>
+                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
+                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">100+</h3>
+                        <p style="font-weight: 600; color: var(--text-secondary);">Exam Categories</p>
+                    </div>
+                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
+                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">10M+</h3>
+                        <p style="font-weight: 600; color: var(--text-secondary);">Questions Attempted</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -81,15 +95,16 @@
                 <div class="founder-grid">
                     <div class="founder-visual">
                         <div class="founder-image-wrapper">
-                            <img src="founder.jpeg" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
+                            <img src="founder.jpeg" loading="lazy" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
                         </div>
                         <div class="founder-badge">Built by an Engineer, For Every Aspirant</div>
                         <div class="founder-meta">
                             <h3>Saurabh Kumar</h3>
-                            <div class="social-links">
-                                <a href="#"><i class="fab fa-linkedin"></i></a>
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="#"><i class="fas fa-envelope"></i></a>
+                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Founder & Lead Engineer</p>
+                            <div class="social-links" style="justify-content: center; gap: 15px;">
+                                <a href="#" style="font-size: 1.5rem;"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" style="font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                                <a href="#" style="font-size: 1.5rem;"><i class="fas fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -100,8 +115,8 @@
                             <p>"I built NirnayPath with a single promise: every Indian student deserves access to world-class mock tests absolutely free. Our platform is not a business; it is a movement to level the playing field."</p>
                         </div>
                         <div class="founder-quote">
-                            <i class="fas fa-quote-left"></i>
-                            <p>Selection depends on preparation, and preparation should not depend on your wallet.</p>
+                            <i class="fas fa-quote-left" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
+                            <p style="font-size: 1.25rem; font-style: italic; font-weight: 600;">Selection depends on preparation, and preparation should not depend on your wallet.</p>
                         </div>
                     </div>
                 </div>
@@ -109,81 +124,56 @@
         </section>
 
         <!-- Mission & Vision -->
-        <section class="mission-vision-section reveal">
+        <section class="mission-vision-section reveal" style="padding: 6rem 0; background: var(--bg-soft);">
             <div class="container">
                 <h2 class="section-title text-center">Our Core <span class="gradient-text">Beliefs</span></h2>
-                <div class="mission-grid grid-standard">
-                    <div class="mission-card np-card">
-                        <i class="fas fa-bullseye"></i>
-                        <h3>Our Mission</h3>
-                        <p>To demolish financial barriers in education by providing high-quality mock tests for free.</p>
+                <div class="mission-grid grid-standard" style="margin-top: 3rem;">
+                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <i class="fas fa-bullseye" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; display: block;"></i>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Mission</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6;">To demolish financial barriers in education by providing high-quality, scientifically designed mock tests entirely for free.</p>
                     </div>
-                    <div class="mission-card np-card">
-                        <i class="fas fa-eye"></i>
-                        <h3>Our Vision</h3>
-                        <p>To become India's most trusted platform for merit-based self-assessment.</p>
+                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <i class="fas fa-eye" style="font-size: 2.5rem; color: var(--secondary); margin-bottom: 1.5rem; display: block;"></i>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Vision</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6;">To become India's most trusted digital public infrastructure for merit-based self-assessment and competitive exam preparation.</p>
                     </div>
-                    <div class="mission-card np-card">
-                        <i class="fas fa-hand-holding-heart"></i>
-                        <h3>Our Promise</h3>
-                        <p>We promise to keep our core mock tests 100% free forever.</p>
+                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <i class="fas fa-hand-holding-heart" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 1.5rem; display: block;"></i>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Promise</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6;">We promise to maintain our core mock testing engine and extensive question banks 100% free forever for all students.</p>
                     </div>
-                    <div class="mission-card np-card">
-                        <i class="fas fa-users-cog"></i>
-                        <h3>Our Strategy</h3>
-                        <p>Using data-driven insights to bridge the gap between effort and selection.</p>
+                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <i class="fas fa-users-cog" style="font-size: 2.5rem; color: var(--success); margin-bottom: 1.5rem; display: block;"></i>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Strategy</h3>
+                        <p style="color: var(--text-secondary); line-height: 1.6;">Leveraging AI and data-driven insights to bridge the gap between candidate effort and successful selection.</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Experts -->
-        <section class="team-section reveal">
+        <section class="team-section reveal" style="padding: 6rem 0;">
             <div class="container">
                 <h2 class="section-title text-center">Guidance from <span class="gradient-text">The Experts</span></h2>
-                <div class="mentor-grid grid-standard">
-                    <div class="mentor-card np-card">
-                        <img src="https://ui-avatars.com/api/?name=Dr.+Mehra&background=4f46e5&color=fff" alt="Mentor">
-                        <h4>Dr. R.K. Mehra</h4>
-                        <p>Ex-IAS, Senior Mentor</p>
+                <div class="mentor-grid grid-standard" style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <img src="https://ui-avatars.com/api/?name=Dr.+Mehra&background=4f46e5&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Dr. R.K. Mehra</h4>
+                        <p style="color: var(--primary); font-weight: 600; margin-bottom: 1rem;">Ex-IAS, Senior Mentor</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Providing strategic insights and interview guidance for UPSC candidates.</p>
                     </div>
-                    <div class="mentor-card np-card">
-                        <img src="https://ui-avatars.com/api/?name=Anshul+T&background=ec4899&color=fff" alt="Mentor">
-                        <h4>Anshul Tiwari</h4>
-                        <p>Quant Specialist</p>
+                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <img src="https://ui-avatars.com/api/?name=Anshul+T&background=ec4899&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Anshul Tiwari</h4>
+                        <p style="color: var(--secondary); font-weight: 600; margin-bottom: 1rem;">Quant Specialist</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Developing advanced quantitative aptitude frameworks for SSC & Banking.</p>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Community -->
-        <section class="contact-section reveal">
-            <div class="container">
-                <h2 class="section-title text-center">Join Our <span class="gradient-text">Community</span></h2>
-                <div class="community-row">
-                    <div class="info-card np-card ratio-3-4">
-                        <i class="fas fa-envelope"></i>
-                        <h4>Support Center</h4>
-                        <p>Have questions? Reach out to our dedicated support team for help.</p>
-                        <a href="mailto:help@nirnaypath.com" class="learn-more-link">Email Us <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="info-card np-card ratio-3-4">
-                        <i class="fas fa-paper-plane"></i>
-                        <h4>Telegram Group</h4>
-                        <p>Join our free Telegram group for daily quizzes and study materials.</p>
-                        <a href="https://t.me/nirnaypath_official" class="learn-more-link">Join Group <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="info-card np-card ratio-3-4">
-                        <i class="fab fa-youtube"></i>
-                        <h4>YouTube Channel</h4>
-                        <p>Subscribe for expert guidance, strategy videos, and live sessions.</p>
-                        <a href="#" class="learn-more-link">Subscribe <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="info-card np-card ratio-3-4">
-                        <i class="fab fa-whatsapp"></i>
-                        <h4>WhatsApp Alerts</h4>
-                        <p>Get instant exam notifications and updates directly on your phone.</p>
-                        <a href="#" class="learn-more-link">Get Alerts <i class="fas fa-arrow-right"></i></a>
+                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
+                        <img src="https://ui-avatars.com/api/?name=Priya+S&background=10b981&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Priya Sharma</h4>
+                        <p style="color: var(--success); font-weight: 600; margin-bottom: 1rem;">Current Affairs Lead</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Curating high-yield daily current affairs and general awareness modules.</p>
                     </div>
                 </div>
             </div>
@@ -192,10 +182,10 @@
         <!-- Final CTA -->
         <section class="cta-banner reveal">
             <div class="cta-banner-content">
-                <h2>Start Your Preparation <span class="gradient-text">Today</span></h2>
-                <p>Join 50,000+ aspirants and start your journey towards excellence.</p>
-                <button class="cta-btn primary-btn pulse" onclick="location.href='index.html'">
-                    Start Free Test Now <i class="fas fa-arrow-right"></i>
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Ready to Begin Your <span class="gradient-text">Success Story?</span></h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">Join over 50,000+ serious aspirants who trust NirnayPath for their daily preparation.</p>
+                <button class="cta-btn primary-btn pulse" onclick="location.href='index.html'" style="font-size: 1.1rem; padding: 1rem 2.5rem; border-radius: 99px;">
+                    Start Free Mock Test <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
                 </button>
             </div>
         </section>

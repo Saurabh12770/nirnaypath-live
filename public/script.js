@@ -164,7 +164,6 @@ function showView(id) {
 
     if (id === 'engine') {
         document.body.classList.add('test-mode');
-        enterFullscreen();
         installAntiCheat();
     } else {
         document.body.classList.remove('test-mode');
@@ -240,6 +239,8 @@ const TopicDrills = {
             document.getElementById('loginModal').style.display = 'flex';
             return;
         }
+        
+        document.documentElement.requestFullscreen().catch(() => {});
 
         showView('loading');
         try {
@@ -312,6 +313,8 @@ const SectionalTests = {
 
     async startSection(sectionName) {
         this.closeModal();
+        
+        document.documentElement.requestFullscreen().catch(() => {});
         showView('loading');
         
         try {
@@ -431,7 +434,8 @@ function setLanguage(lang) {
 const L = {
     q: q => {
         const text = currentLanguage === 'hi' ? (q.question_hi || q.question_en || q.question) : (q.question_en || q.question);
-        return typeof text === 'object' ? (text[currentLanguage] || text.en || text.hi || '') : text;
+        const resolved = typeof text === 'object' ? (text[currentLanguage] || text.en || text.hi || '') : text;
+        return String(resolved).replace(/\s*\[V\d+\]\s*/gi, ' ').trim();
     },
     opt: q => {
         const opts = currentLanguage === 'hi' ? (q.options_hi || q.options_en || q.options) : (q.options_en || q.options);
@@ -570,41 +574,61 @@ async function startTest(testName, subject, questionCount = 100, timeLimit = 90)
         document.getElementById('loginModal').style.display = 'flex';
         return;
     }
+    
+    document.documentElement.requestFullscreen().catch(() => {});
+    
     console.log(`[NirnayPath] Starting test: ${testName} for subject: ${subject}`);
     showView('loading');
     try {
-        const url = `/api/questions/${subject}`;
-        console.log(`[NirnayPath] Fetching: ${url}`);
-        const res = await fetch(url);
+        const res = await fetch('/api/test/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Auth.getToken()}`
+            },
+            body: JSON.stringify({
+                subject: subject,
+                count: questionCount,
+                timeLimit: timeLimit * 60,
+                exam: currentExam
+            })
+        });
+
         if (!res.ok) {
-            console.error(`[NirnayPath] Fetch failed: ${res.status} ${res.statusText}`);
-            throw new Error(`HTTP ${res.status} – Subject not found`);
+            const errData = await res.json();
+            throw new Error(errData.error || 'Failed to initialize test session.');
         }
+
         const data = await res.json();
-        let raw = Array.isArray(data) ? data : (data.questions || []);
-        if (!raw.length) throw new Error('Question bank is empty.');
+        const { sessionId, questions } = data;
+
+        if (!questions || !questions.length) {
+            throw new Error('Question bank is empty.');
+        }
 
         // ✅ Phase 4: Store full question set globally
-        window.currentQuestionSet = raw;
+        window.currentQuestionSet = questions;
 
-        const normalized = raw.map(q => ({
+        const normalized = questions.map(q => ({
             ...q,
             question: L.q(q),
             options: L.opt(q),
             explanation: L.exp(q) || 'No explanation provided.'
         }));
 
-        const selected = shuffleArray([...normalized]).slice(0, Math.min(questionCount, normalized.length));
-
         testState = {
             exam: currentExam, subject, testName,
             answers: {}, marked: [], visited: [0],
             timeLeft: timeLimit * 60, currentIdx: 0,
-            isActive: true, selectedQuestions: selected,
+            isActive: true, selectedQuestions: normalized,
+            sessionId: sessionId,
             mode: 'full', modeValue: null
         };
+
         saveProgress();
-        launchExam();
+        
+        // Phase 10A: Redirect to Secure CBT Terminal
+        window.location.href = '/test.html';
     } catch (err) {
         console.error('[NirnayPath] Test load error:', err);
         alert(`Could not load test.\n\n${err.message}`);
@@ -947,6 +971,7 @@ function submitTest() {
 
     /* Send results to backend for persistent storage */
     const resultsData = {
+        sessionId: testState.sessionId,
         exam: testState.exam,
         subject: testState.subject,
         testName: testState.testName,
@@ -1082,7 +1107,11 @@ function enterFullscreen() {
     (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => { })).call(el);
 }
 function exitFullscreen() {
-    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => { })).call(document);
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) return;
+    if (document.visibilityState !== 'visible') return;
+    try {
+        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen || (() => {})).call(document);
+    } catch(e) { /* document not active */ }
 }
 
 /* Fullscreen exit warning */
@@ -1311,9 +1340,9 @@ function makeHeroSlider(selector) {
     container.addEventListener('mouseenter', () => isPaused = true);
     container.addEventListener('mouseleave', () => isPaused = false);
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', debounce(() => {
         scrollAmount = Math.round(container.scrollLeft / container.offsetWidth) * container.offsetWidth;
-    });
+    }, 150));
 }
 
 /**
@@ -1333,17 +1362,33 @@ function makeInfiniteSlider(id, intervalTime = 3000) {
 
     // Wait for content to load
     setTimeout(() => {
-        const slides = Array.from(track.children);
-        if (slides.length === 0) return;
+        if (track.dataset.sliderInterval) {
+            clearInterval(Number(track.dataset.sliderInterval));
+        }
 
-        // Clone slides for seamless looping
-        slides.forEach(slide => {
-            const clone = slide.cloneNode(true);
-            track.appendChild(clone);
-        });
+        const slides = Array.from(track.children).filter(c => !c.classList.contains('clone'));
+        if (slides.length === 0) return;
 
         let index = 0;
         let isPaused = false;
+        let startX = 0;
+        let isDragging = false;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+
+        function syncClones() {
+            const existing = track.querySelectorAll('.clone');
+            if (window.innerWidth >= 1024) {
+                existing.forEach(el => el.remove());
+            } else if (existing.length === 0) {
+                slides.forEach(slide => {
+                    const clone = slide.cloneNode(true);
+                    clone.classList.add('clone');
+                    track.appendChild(clone);
+                });
+            }
+        }
+        syncClones();
 
         function getSlideWidth() {
             const firstSlide = track.children[0];
@@ -1352,7 +1397,12 @@ function makeInfiniteSlider(id, intervalTime = 3000) {
         }
 
         function move() {
-            if (isPaused) return;
+            if (isPaused || isDragging || document.hidden) return;
+            if (window.innerWidth >= 1024) {
+                track.style.transform = 'none';
+                return;
+            }
+
             index++;
             const slideWidth = getSlideWidth();
             
@@ -1361,6 +1411,7 @@ function makeInfiniteSlider(id, intervalTime = 3000) {
 
             if (index >= slides.length) {
                 setTimeout(() => {
+                    if (isDragging) return;
                     track.style.transition = 'none';
                     index = 0;
                     track.style.transform = `translateX(0)`;
@@ -1369,15 +1420,78 @@ function makeInfiniteSlider(id, intervalTime = 3000) {
         }
 
         let slideInterval = setInterval(move, intervalTime);
+        track.dataset.sliderInterval = slideInterval;
 
-        track.parentElement.addEventListener('mouseenter', () => isPaused = true);
-        track.parentElement.addEventListener('mouseleave', () => isPaused = false);
+        if (!track.dataset.eventsBound) {
+            track.dataset.eventsBound = "true";
+            
+            track.parentElement.addEventListener('mouseenter', () => isPaused = true);
+            track.parentElement.addEventListener('mouseleave', () => isPaused = false);
 
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            track.style.transition = 'none';
-            track.style.transform = `translateX(-${index * getSlideWidth()}px)`;
-        });
+            track.addEventListener('touchstart', (e) => {
+                if (window.innerWidth >= 1024) return;
+                isDragging = true;
+                isPaused = true;
+                startX = e.touches[0].clientX;
+                const slideWidth = getSlideWidth();
+                prevTranslate = -(index * slideWidth);
+                track.style.transition = 'none';
+            }, {passive: true});
+
+            track.addEventListener('touchmove', (e) => {
+                if (!isDragging || window.innerWidth >= 1024) return;
+                const currentPosition = e.touches[0].clientX;
+                const diff = currentPosition - startX;
+                currentTranslate = prevTranslate + diff;
+                track.style.transform = `translateX(${currentTranslate}px)`;
+            }, {passive: true});
+
+            track.addEventListener('touchend', (e) => {
+                if (!isDragging || window.innerWidth >= 1024) return;
+                isDragging = false;
+                isPaused = false;
+                const slideWidth = getSlideWidth();
+                const movedBy = currentTranslate - prevTranslate;
+                
+                if (movedBy < -50) index++;
+                else if (movedBy > 50) index--;
+
+                if (index < 0) index = 0;
+                
+                track.style.transition = 'transform 0.4s ease-out';
+                track.style.transform = `translateX(-${index * slideWidth}px)`;
+
+                if (index >= slides.length) {
+                    setTimeout(() => {
+                        if (isDragging) return;
+                        track.style.transition = 'none';
+                        index = 0;
+                        track.style.transform = `translateX(0)`;
+                    }, 400);
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(Number(track.dataset.sliderInterval));
+                } else {
+                    const newInterval = setInterval(move, intervalTime);
+                    track.dataset.sliderInterval = newInterval;
+                }
+            });
+
+            window.addEventListener('resize', debounce(() => {
+                syncClones();
+                if (window.innerWidth >= 1024) {
+                    track.style.transition = 'none';
+                    track.style.transform = 'none';
+                    index = 0;
+                } else {
+                    track.style.transition = 'none';
+                    track.style.transform = `translateX(-${index * getSlideWidth()}px)`;
+                }
+            }, 150));
+        }
     }, 500);
 }
 
@@ -1547,4 +1661,13 @@ function initMobileMenu() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closePanel();
     });
+}
+
+// --- UX & Performance Upgrades (Phase 20B) ---
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
 }

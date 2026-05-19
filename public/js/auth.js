@@ -1,15 +1,13 @@
 /**
  * NirnayPath Auth System
- * Handles JWT storage, Login/Signup, and Protected Routes
+ * Handles Cookie-based authentication and updates UI
  */
 
 const Auth = {
-    tokenKey: 'np_auth_token',
-    refreshKey: 'np_refresh_token',
     userKey: 'np_user_data',
 
-    init() {
-        this.checkAuthStatus();
+    async init() {
+        await this.checkAuthStatus();
         this.setupEventListeners();
         
         // Check for reset success
@@ -22,7 +20,6 @@ const Auth = {
     },
 
     setupEventListeners() {
-        // ... (existing listeners remain same)
         const loginForm = document.getElementById('loginForm');
         const signupForm = document.getElementById('signupForm');
         const showSignup = document.getElementById('showSignup');
@@ -112,7 +109,7 @@ const Auth = {
 
             const data = await response.json();
             if (response.ok) {
-                this.saveSession(data.token, data.refreshToken, data.user);
+                this.saveSession(data.user);
                 this.updateUI(true, data.user);
                 document.getElementById('loginModal').style.display = 'none';
                 this.showToast('Welcome back, ' + data.user.name);
@@ -135,7 +132,7 @@ const Auth = {
 
             const data = await response.json();
             if (response.ok) {
-                this.saveSession(data.token, data.refreshToken, data.user);
+                this.saveSession(data.user);
                 this.updateUI(true, data.user);
                 document.getElementById('loginModal').style.display = 'none';
                 this.showToast('Account created successfully!');
@@ -171,24 +168,17 @@ const Auth = {
         }
     },
 
-    saveSession(token, refreshToken, user) {
-        localStorage.setItem(this.tokenKey, token);
-        localStorage.setItem(this.refreshKey, refreshToken);
+    saveSession(user) {
         localStorage.setItem(this.userKey, JSON.stringify(user));
     },
 
     async logout() {
-        const refreshToken = localStorage.getItem(this.refreshKey);
         try {
             await fetch('/api/auth/logout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken })
+                method: 'POST'
             });
         } catch (e) { }
 
-        localStorage.removeItem(this.tokenKey);
-        localStorage.removeItem(this.refreshKey);
         localStorage.removeItem(this.userKey);
         localStorage.removeItem('mockTestState');
         this.updateUI(false);
@@ -196,28 +186,14 @@ const Auth = {
     },
 
     async refreshAccessToken() {
-        const refreshToken = localStorage.getItem(this.refreshKey);
-        if (!refreshToken) return null;
-
         try {
             const response = await fetch('/api/auth/refresh-token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken })
+                method: 'POST'
             });
-
-            const data = await response.json();
-            if (response.ok) {
-                localStorage.setItem(this.tokenKey, data.token);
-                localStorage.setItem(this.refreshKey, data.refreshToken);
-                return data.token;
-            } else {
-                this.logout();
-                return null;
-            }
+            return response.ok;
         } catch (error) {
             this.logout();
-            return null;
+            return false;
         }
     },
 
@@ -227,10 +203,6 @@ const Auth = {
     async fetchWithAuth(url, options = {}) {
         const fetchFn = (window.NirnayPath && window.NirnayPath.safeFetch) ? window.NirnayPath.safeFetch : fetch;
         
-        let token = this.getToken();
-        if (!options.headers) options.headers = {};
-        if (token) options.headers['Authorization'] = `Bearer ${token}`;
-
         let response;
         try {
             response = await fetch(url, options); // First attempt with raw fetch to check 401
@@ -241,14 +213,9 @@ const Auth = {
 
         if (response.status === 401) {
             try {
-                const data = await response.clone().json();
-                if (data.code === 'TOKEN_EXPIRED') {
-                    const newToken = await this.refreshAccessToken();
-                    if (newToken) {
-                        if (!options.headers) options.headers = {};
-                        options.headers['Authorization'] = `Bearer ${newToken}`;
-                        return await fetchFn(url, options);
-                    }
+                const refreshed = await this.refreshAccessToken();
+                if (refreshed) {
+                    return await fetchFn(url, options);
                 }
             } catch (e) {
                 console.error('Auth check failed:', e);
@@ -258,19 +225,19 @@ const Auth = {
         return response;
     },
 
-    checkAuthStatus() {
-        const token = localStorage.getItem(this.tokenKey);
-        const userStr = localStorage.getItem(this.userKey);
-        
-        if (token && userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                this.updateUI(true, user);
+    async checkAuthStatus() {
+        try {
+            const response = await fetch('/api/auth/me');
+            if (response.ok) {
+                const data = await response.json();
+                this.saveSession(data.user);
+                this.updateUI(true, data.user);
                 return true;
-            } catch (e) {
-                this.logout();
             }
+        } catch (e) {
+            console.error('Auth status check failed:', e);
         }
+        localStorage.removeItem(this.userKey);
         this.updateUI(false);
         return false;
     },
@@ -333,11 +300,11 @@ const Auth = {
     },
 
     getToken() {
-        return localStorage.getItem(this.tokenKey);
+        return null;
     },
 
     isLoggedIn() {
-        return !!this.getToken();
+        return !!localStorage.getItem(this.userKey);
     },
 
     showToast(msg) {

@@ -6,6 +6,11 @@ const testResultSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    sessionId: {
+        type: String,
+        unique: true,
+        required: true
+    },
     exam: {
         type: String,
         required: true
@@ -65,6 +70,17 @@ const testResultSchema = new mongoose.Schema({
         question_en: String,
         question_hi: String
     }],
+
+    // --- PHASE 11 V2 FIELDS ---
+    fraudProbabilityScore: { type: Number, default: 0 },
+    confidenceScore: { type: Number, default: 0 },
+    normalizedScore: { type: Number, default: null },
+    allIndiaRank: { type: Number, default: null },
+    stateRank: { type: Number, default: null },
+    categoryRank: { type: Number, default: null },
+    irtThetaFinal: { type: Number, default: null },
+    // --------------------------
+
     createdAt: {
         type: Date,
         default: Date.now

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Forensic Replay Engine</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #334155;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
+        .meta-bar { display: flex; gap: 20px; background: var(--surface); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .meta-item { display: flex; flex-direction: column; }
+        .meta-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; }
+        .meta-val { font-size: 18px; font-weight: bold; }
+        
+        .timeline-container { position: relative; padding-left: 30px; margin-top: 20px; }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        .event { position: relative; margin-bottom: 20px; background: var(--surface); padding: 15px; border-radius: 6px; }
+        .event::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--bg);
+        }
+        .event.danger::before { background: var(--danger); }
+        .event.warning::before { background: var(--warning); }
+        
+        .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; }
+        .event-time { color: var(--text-dim); font-size: 14px; font-weight: normal; }
+        .event-details { font-family: monospace; font-size: 13px; color: var(--text-dim); background: #000; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1 style="margin: 0; font-size: 24px;">Forensic Session Replay</h1>
+            <div style="color: var(--text-dim);">Candidate: CAN-89102-VX | Exam: SSC-CGL-T1-04</div>
+        </div>
+        <button style="background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer;">Export Audit Trail (PDF)</button>
+    </div>
+
+    <div class="meta-bar">
+        <div class="meta-item">
+            <span class="meta-label">Total Exam Duration</span>
+            <span class="meta-val">120m 00s</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Focus Lost Events</span>
+            <span class="meta-val" style="color: var(--warning);">3</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Fullscreen Exits</span>
+            <span class="meta-val" style="color: var(--danger);">1</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Total Risk Score</span>
+            <span class="meta-val" style="color: var(--danger);">75 / 100</span>
+        </div>
+    </div>
+
+    <h2>Replay Timeline</h2>
+    <div class="timeline-container">
+        <!-- Mock Data for visual -->
+        <div class="event">
+            <div class="event-header">
+                <span>SESSION_START</span>
+                <span class="event-time">Timer: 120:00 | 10:00:00 AM</span>
+            </div>
+            <div class="event-details">IP: 192.168.1.1, UA: Mozilla/5.0...</div>
+        </div>
+
+        <div class="event warning">
+            <div class="event-header">
+                <span>FOCUS_LOST</span>
+                <span class="event-time">Timer: 110:00 | 10:10:00 AM</span>
+            </div>
+            <div class="event-details">Risk Score Delta: +10 | Duration: 5000ms</div>
+        </div>
+
+        <div class="event danger">
+            <div class="event-header">
+                <span>FULLSCREEN_EXIT</span>
+                <span class="event-time">Timer: 105:30 | 10:14:30 AM</span>
+            </div>
+            <div class="event-details">Risk Score Delta: +25 | Window visibility changed.</div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span>ANSWER_CHANGED</span>
+                <span class="event-time">Timer: 100:00 | 10:20:00 AM</span>
+            </div>
+            <div class="event-details">Question: Q-15 | From: A | To: C | Hesitation: 4500ms</div>
+        </div>
+
+        <div class="event">
+            <div class="event-header">
+                <span>FINAL_SUBMISSION</span>
+                <span class="event-time">Timer: 00:00 | 12:00:00 PM</span>
+            </div>
+            <div class="event-details">Payload Hash: abcd1234efgh5678</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -11,6 +11,10 @@
     <meta name="robots" content="index, follow">
     <meta name="author" content="NirnayPath EdTech">
     <link rel="canonical" href="https://nirnaypath.com/">
+    
+    <!-- ── Performance Preloads ── -->
+    <link rel="preload" href="/style.css?v=3.0.0" as="style">
+    <link rel="preload" href="/home_hero1.png" as="image">
 
     <!-- ── Open Graph ── -->
     <meta property="og:type" content="website">
@@ -60,9 +64,9 @@
     <link rel="manifest" href="/manifest.json?v=3.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=3.0.0">
     <link rel="stylesheet" href="/css/dashboard.css?v=3.0.0">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
 <body>
     <header class="sticky-header">
@@ -158,13 +162,13 @@
             <section class="hero-slider-section reveal">
                 <div class="hero-slider" id="homeHeroSlider">
                     <img src="home_hero1.png" alt="Home Hero 1">
-                    <img src="home_hero2.png" alt="Home Hero 2">
-                    <img src="Home_hero3.png" alt="Home Hero 3">
-                    <img src="home_hero4.png" alt="Home Hero 4">
-                    <img src="home_hero5.png" alt="Home Hero 5">
-                    <img src="home_hero6.png" alt="Home Hero 6">
-                    <img src="home_hero7.png" alt="Home Hero 7">
-                    <img src="home_hero8.jpg" alt="Home Hero 8">
+                    <img src="home_hero2.png" loading="lazy" alt="Home Hero 2">
+                    <img src="Home_hero3.png" loading="lazy" alt="Home Hero 3">
+                    <img src="home_hero4.png" loading="lazy" alt="Home Hero 4">
+                    <img src="home_hero5.png" loading="lazy" alt="Home Hero 5">
+                    <img src="home_hero6.png" loading="lazy" alt="Home Hero 6">
+                    <img src="home_hero7.png" loading="lazy" alt="Home Hero 7">
+                    <img src="home_hero8.jpg" loading="lazy" alt="Home Hero 8">
                 </div>
             </section>
 

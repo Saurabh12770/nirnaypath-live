@@ -147,13 +147,67 @@ const pickQuestions = async (pool, count, userId, subject) => {
     return { selected, stats: { total: pool.length, selected: selected.length } };
 };
 
-const selectQuestions = (pool, count) => {
+const selectQuestions = (pool, count, excludeIds = new Set()) => {
     const Integrity = require('./questionIntegrityService');
+    
+    // 1. Initial pool stats
+    const poolTotal = pool.length;
+    
+    // 2. Validate/Normalize structures and deduplicate
     const cleanPool = Integrity.deduplicate(pool);
     const validPool = cleanPool.filter(q => Integrity.validateStructure(q));
-    const shuffled = QuestionSelectionService.shuffle(validPool);
-    const selected = count > 0 ? shuffled.slice(0, count) : shuffled;
-    return { selected };
+    const afterIntegrityFilter = validPool.length;
+    
+    // Convert excludeIds to a lowercase string set for casing resilience
+    const excludes = new Set(Array.from(excludeIds || []).map(id => String(id).toLowerCase().trim()));
+    
+    // 3. Separate fresh vs seen pools
+    const freshPool = [];
+    const seenPool = [];
+    
+    validPool.forEach(q => {
+        const id = String(q.id || q.questionId || q._id || '').toLowerCase().trim();
+        if (excludes.has(id)) {
+            seenPool.push(q);
+        } else {
+            freshPool.push(q);
+        }
+    });
+    
+    const historyExcluded = seenPool.length;
+    
+    // 4. Perform Fisher-Yates shuffle
+    const shuffledFresh = QuestionSelectionService.shuffle(freshPool);
+    const shuffledSeen = QuestionSelectionService.shuffle(seenPool);
+    
+    let selected = [];
+    let usedFallback = false;
+    
+    if (shuffledFresh.length >= count) {
+        selected = shuffledFresh.slice(0, count);
+    } else {
+        // Fallback: take all fresh, and pad from seen pool
+        selected = [...shuffledFresh];
+        const needed = count - selected.length;
+        selected.push(...shuffledSeen.slice(0, needed));
+        usedFallback = true;
+    }
+    
+    // Limit to validPool length to avoid exceeding pool size
+    if (selected.length > validPool.length) {
+        selected = selected.slice(0, validPool.length);
+    }
+    
+    return {
+        selected,
+        stats: {
+            poolTotal,
+            afterIntegrityFilter,
+            historyExcluded,
+            usedFallback,
+            served: selected.length
+        }
+    };
 };
 
 const shuffleFair = (pool) => {

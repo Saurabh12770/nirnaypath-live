@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NirnayPath - Notification Center</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #fff; padding: 20px; }
+        .notification-card { background-color: #1E293B; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #3B82F6; }
+        .notification-card.alert { border-left-color: #F59E0B; }
+        .notification-card.critical { border-left-color: #EF4444; }
+        .timestamp { font-size: 0.8em; color: #94A3B8; }
+    </style>
+</head>
+<body>
+    <h1>Notification Center</h1>
+    <div id="notifications">
+        <!-- JS dynamically populates this via SSE/WebSockets -->
+    </div>
+    <script>
+        // Mock connection to NotificationCenterService
+        console.log("Listening for real-time notifications...");
+    </script>
+</body>
+</html>

@@ -1,16 +1,23 @@
-const express = require('express');
-const auth = require('../middleware/auth');
-const TestResult = require('../models/testResult');
-const User = require('../models/user');
-const { sendResultEmail } = require('../services/emailService');
-const { evaluateBadges } = require('../services/badgeService');
-const AdaptiveLearningService = require('../services/adaptiveLearningService');
-const router = express.Router();
+'use strict';
 
-const crypto = require('crypto');
-const TestSession = require('../models/testSession');
-const Question = require('../models/question');
+const express    = require('express');
+const auth       = require('../middleware/auth');
+const TestResult = require('../models/testResult');
+const User       = require('../models/user');
+const { sendResultEmail }   = require('../services/emailService');
+const { evaluateBadges }    = require('../services/badgeService');
+const AdaptiveLearningService = require('../services/adaptiveLearningService');
+const router  = express.Router();
+const crypto  = require('crypto');
+const TestSession   = require('../models/testSession');
+const Question      = require('../models/question');
 const QuestionService = require('../services/questionService');
+const TestViolation   = require('../models/testViolation');
+const { normalizePipelineResult }  = require('../utils/normalizePipelineResult');
+const { sanitizeForClient, inspectPayloadForLeaks } = require('../utils/sanitizeQuestions');
+
+/** Number of violations that trigger a session lock */
+const VIOLATION_LOCK_THRESHOLD = parseInt(process.env.VIOLATION_LOCK_THRESHOLD || '3');
 
 /**
  * GET /api/test/health
@@ -24,6 +31,9 @@ router.get('/health', (req, res) => {
  * HARDENED: Atomic session creation with global uniqueness guarantee and centralized QuestionRuntimeEngine
  */
 router.post('/start', auth, async (req, res) => {
+    const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+    await yieldIfLagging(50); // SRE: yield thread control under high event-loop lag
+
     const requestId = crypto.randomBytes(4).toString('hex');
     try {
         const { subject, count, timeLimit, exam, topicId } = req.body;
@@ -33,19 +43,26 @@ router.post('/start', auth, async (req, res) => {
         const sessionId = crypto.randomUUID();
 
         // 1. Unified Selection Pipeline
-        const pipelineResult = await QuestionService.getTestQuestions({
+        const rawPipelineResult = await QuestionService.getTestQuestions({
             userId: req.user._id,
             subject: subLower,
             topicId,
             count
         });
 
-        const finalQuestions = Array.isArray(pipelineResult) ? pipelineResult : (pipelineResult.questions || []);
-        const warning = !Array.isArray(pipelineResult) ? pipelineResult.warning : null;
+        // FIX #3: normalize contract — prevents .map crash
+        const { questions: finalQuestions, warnings } = normalizePipelineResult(
+            rawPipelineResult,
+            { requestId, subject: subLower }
+        );
 
         if (!finalQuestions || finalQuestions.length === 0) {
             return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
         }
+
+        // FIX #2: Strip all answer/explanation fields via centralized sanitizer
+        const sanitizedQuestions = sanitizeForClient(finalQuestions);
+        const warning = warnings && warnings.length > 0 ? warnings[0] : null;
 
         // 2. Atomic Session Creation
         const session = new TestSession({
@@ -73,7 +90,7 @@ router.post('/start', auth, async (req, res) => {
 
         const responsePayload = {
             sessionId,
-            questions: finalQuestions,
+            questions: sanitizedQuestions,
             startTime: session.startTime
         };
         if (warning) {
@@ -153,7 +170,12 @@ router.post('/submit', auth, async (req, res) => {
         
         const validatedAnswers = session.questionIds.map((qId, index) => {
             const question = allAvailableQuestions.find(q => (q._id?.toString() === qId || q.id === qId));
-            const userChoice = answers[index]; // Index-based mapping from frontend
+            let userChoice = answers[index]; // Index-based mapping from frontend
+            
+            // Security/Robustness: Extract answer if userChoice is an object
+            if (userChoice && typeof userChoice === 'object') {
+                userChoice = userChoice.userAnswer !== undefined ? userChoice.userAnswer : userChoice.selected;
+            }
             
             const isAttempted = userChoice !== null && userChoice !== undefined;
             let correctOption = null;
@@ -283,6 +305,234 @@ router.post('/submit', auth, async (req, res) => {
     } catch (error) {
         console.error('Submission error:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * POST /api/test/violation
+ * ========================
+ * PHASE 4 — Real backend anti-cheat.
+ * Receives integrity violation events from the frontend, persists them to
+ * MongoDB, and auto-locks the session after VIOLATION_LOCK_THRESHOLD is reached.
+ *
+ * Body: { sessionId, type, detail }
+ */
+router.post('/violation', auth, async (req, res) => {
+    const { sessionId, type, detail } = req.body;
+
+    if (!sessionId || !type) {
+        return res.status(400).json({ error: 'sessionId and type are required' });
+    }
+
+    const ALLOWED_TYPES = [
+        'tab_switch', 'window_blur', 'copy_paste', 'right_click',
+        'devtools_open', 'fullscreen_exit', 'multiple_sessions',
+        'time_anomaly', 'other'
+    ];
+    const safeType = ALLOWED_TYPES.includes(type) ? type : 'other';
+
+    try {
+        // 1. Verify session belongs to user and is still active
+        const session = await TestSession.findOne({
+            sessionId,
+            userId: req.user._id
+        });
+
+        if (!session) {
+            return res.status(404).json({ error: 'Session not found' });
+        }
+
+        if (session.status !== 'active') {
+            return res.status(409).json({
+                error: 'Session is no longer active',
+                status: session.status
+            });
+        }
+
+        // 2. Persist the violation
+        await TestViolation.create({
+            userId:    req.user._id,
+            sessionId,
+            type:      safeType,
+            detail:    String(detail || '').slice(0, 500), // cap length
+            ipAddress: req.ip || '',
+            userAgent: req.get('User-Agent') || ''
+        });
+
+        console.log(
+            `[ANTI_CHEAT] Violation recorded: user=${req.user._id} ` +
+            `session=${sessionId} type=${safeType}`
+        );
+
+        // 3. Count total violations for this session
+        const violationCount = await TestViolation.countDocuments({ sessionId });
+
+        let locked = false;
+        if (violationCount >= VIOLATION_LOCK_THRESHOLD) {
+            // 4. Lock the session — prevents further submission
+            await TestSession.findOneAndUpdate(
+                { sessionId, status: 'active' },
+                { $set: { status: 'expired' } }
+            );
+            locked = true;
+            console.warn(
+                `[ANTI_CHEAT] SESSION LOCKED: user=${req.user._id} ` +
+                `session=${sessionId} violations=${violationCount}`
+            );
+        }
+
+        return res.json({
+            recorded: true,
+            violationCount,
+            locked,
+            message: locked
+                ? 'Session locked due to repeated integrity violations.'
+                : `Violation recorded (${violationCount}/${VIOLATION_LOCK_THRESHOLD}).`
+        });
+
+    } catch (error) {
+        console.error('[ANTI_CHEAT] Error recording violation:', error.message);
+        res.status(500).json({ error: 'Failed to record violation' });
+    }
+});
+
+/**
+ * GET /api/test/health
+ * Lightweight ping endpoint to calculate network latency for the System Diagnostic Engine.
+ */
+router.get('/health', (req, res) => {
+    res.json({ ok: true, timestamp: Date.now() });
+});
+
+/**
+ * POST /api/test/heartbeat
+ * Enterprise unified endpoint handling Telemetry, Integrity Validation, Clock Sync, and Autosave.
+ */
+router.post('/heartbeat', auth, async (req, res) => {
+    const { sessionId, clientState, metrics, answers, markedForReview } = req.body;
+    if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
+
+    try {
+        const session = await TestSession.findOne({ sessionId, userId: req.user._id });
+        if (!session) return res.status(404).json({ error: 'Session not found' });
+        
+        if (session.locked || session.status !== 'active') {
+            return res.status(403).json({ error: 'Session terminated', status: session.status });
+        }
+
+        // 1. Authoritative Clock Sync
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
+        let timeLeft = session.timeLimit - elapsedSeconds;
+        
+        let isExpired = false;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            isExpired = true;
+            session.status = 'expired';
+        }
+
+        // 2. Autosave State Merger
+        if (answers) {
+            for (const [key, val] of Object.entries(answers)) {
+                session.answers.set(key, val);
+            }
+        }
+        if (markedForReview && Array.isArray(markedForReview)) {
+            session.markedForReview = markedForReview;
+        }
+
+        // 3. Telemetry & Integrity Injection (Phase 10B)
+        // If client sends riskScore >= 100, enforce server lock immediately.
+        if (metrics && metrics.riskScore >= 100) {
+             session.status = 'terminated';
+             session.locked = true;
+             session.terminatedReason = 'integrity_failure_heartbeat';
+        }
+
+        await session.save();
+        
+        res.json({
+            success: true,
+            serverTime: now,
+            elapsedSeconds,
+            timeLeft,
+            isExpired,
+            status: session.status
+        });
+    } catch (error) {
+        console.error('[HEARTBEAT] Error:', error.message);
+        res.status(500).json({ error: 'Heartbeat failed' });
+    }
+});
+
+/**
+ * POST /api/test/autosave
+ * Continuously save the student's progress and marked-for-review state.
+ */
+router.post('/autosave', auth, async (req, res) => {
+    const { sessionId, answers, markedForReview } = req.body;
+    if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
+
+    try {
+        const session = await TestSession.findOne({ sessionId, userId: req.user._id, status: 'active' });
+        if (!session) return res.status(404).json({ error: 'Active session not found' });
+
+        if (answers) {
+            for (const [key, val] of Object.entries(answers)) {
+                session.answers.set(key, val);
+            }
+        }
+        if (markedForReview && Array.isArray(markedForReview)) {
+            session.markedForReview = markedForReview;
+        }
+
+        await session.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('[AUTOSAVE] Error:', error.message);
+        res.status(500).json({ error: 'Autosave failed' });
+    }
+});
+
+/**
+ * GET /api/test/sync/:sessionId
+ * Returns the authoritative server time, elapsed time, and the latest saved answers.
+ * Essential for resuming crashed exams safely.
+ */
+router.get('/sync/:sessionId', auth, async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const session = await TestSession.findOne({ sessionId, userId: req.user._id });
+        if (!session) return res.status(404).json({ error: 'Session not found' });
+
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
+        let timeLeft = session.timeLimit - elapsedSeconds;
+        
+        // Force expiry strictly if time is up
+        let isExpired = false;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            isExpired = true;
+            if (session.status === 'active') {
+                session.status = 'expired';
+                await session.save();
+            }
+        }
+
+        res.json({
+            serverTime: now,
+            elapsedSeconds,
+            timeLeft,
+            isExpired,
+            status: session.status,
+            answers: session.answers || {},
+            markedForReview: session.markedForReview || []
+        });
+    } catch (error) {
+        console.error('[SYNC] Error:', error.message);
+        res.status(500).json({ error: 'Sync failed' });
     }
 });
 

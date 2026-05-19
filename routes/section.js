@@ -1,20 +1,32 @@
-const express = require('express');
-const router = express.Router();
-const auth = require('../middleware/auth');
-const sectionsMapping = require('../config/sections');
-const { requirePlan } = require('../middleware/planGuard');
-const QuestionService = require('../services/questionService');
-const crypto = require('crypto');
+'use strict';
+
+const express    = require('express');
+const router     = express.Router();
+const auth       = require('../middleware/auth');
+const crypto     = require('crypto');
 const TestSession = require('../models/testSession');
+const sectionsMapping = require('../config/sections');
+const { requirePlan }             = require('../middleware/planGuard');
+const QuestionService             = require('../services/questionService');
+const { normalizePipelineResult } = require('../utils/normalizePipelineResult');
+const { sanitizeForClient, inspectPayloadForLeaks } = require('../utils/sanitizeQuestions');
 
 /**
  * GET /api/section/:sectionName?count=75
+ *
  * Returns combined randomized questions from multiple subjects in a section.
+ *
+ * HARDENED (Phase 7):
+ *  - FIX #2: Answers stripped via sanitizeForClient() before response
+ *  - FIX #3: Pipeline result normalized via normalizePipelineResult()
+ *            (eliminates "finalQuestions.map is not a function" crash)
  */
 router.get('/:sectionName', auth, requirePlan('sectional_tests'), async (req, res) => {
+    const requestId = crypto.randomBytes(4).toString('hex');
+
     try {
         const { sectionName } = req.params;
-        const count = parseInt(req.query.count) || 75;
+        const count    = Math.min(parseInt(req.query.count) || 75, 200);
         const subjects = sectionsMapping[sectionName];
 
         if (!subjects || subjects.length === 0) {
@@ -23,43 +35,64 @@ router.get('/:sectionName', auth, requirePlan('sectional_tests'), async (req, re
 
         const sessionId = crypto.randomUUID();
 
-        // 1. Unified Selection Pipeline
-        const finalQuestions = await QuestionService.getTestQuestions({
-            userId: req.user._id,
-            subject: subjects, // Array of subjects
+        console.log(`[SectionStart][${requestId}] Section "${sectionName}" subjects=[${subjects.join(',')}] count=${count}`);
+
+        // 1. Unified Selection Pipeline (subjects is an array)
+        const rawPipelineResult = await QuestionService.getTestQuestions({
+            userId:  req.user._id,
+            subject: subjects,
             count
         });
 
+        // FIX #3: Normalize — prevents .map crash when pipeline returns object
+        const { questions: finalQuestions, warnings } = normalizePipelineResult(
+            rawPipelineResult,
+            { requestId, section: sectionName }
+        );
+
         if (!finalQuestions || finalQuestions.length === 0) {
+            console.warn(`[SectionStart][${requestId}] No questions found for section: "${sectionName}"`);
             return res.status(404).json({ error: 'No questions found for this section' });
         }
 
         // 2. Atomic Session Creation
         const session = new TestSession({
-            userId: req.user._id,
+            userId:        req.user._id,
             sessionId,
-            subject: 'sectional',
-            exam: sectionName,
+            subject:       'sectional',
+            exam:          sectionName,
             questionCount: finalQuestions.length,
-            timeLimit: Math.round(count * 60 * 0.8), // 0.8 min per question
-            startTime: new Date(),
-            status: 'active',
-            questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
+            timeLimit:     Math.round(count * 60 * 0.8), // 0.8 min per question
+            startTime:     new Date(),
+            status:        'active',
+            questionIds:   finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
         });
 
         await session.save();
 
-        res.json({
+        // FIX #2: Strip all answer/explanation fields before sending to client
+        const sanitizedQuestions = sanitizeForClient(finalQuestions);
+
+        const responsePayload = {
             sessionId,
-            questions: finalQuestions,
-            timeLimit: count * 0.8, // Approx 48 seconds per question
-            sectionName: sectionName,
-            startTime: session.startTime
-        });
+            sectionName,
+            questions:  sanitizedQuestions,
+            timeLimit:  Math.round(count * 0.8 * 60), // in seconds
+            startTime:  session.startTime,
+        };
+
+        if (warnings && warnings.length > 0) {
+            responsePayload.warning = warnings[0];
+        }
+
+        // Dev-mode leak detector (no-op in production)
+        inspectPayloadForLeaks(responsePayload, `GET /api/section/${sectionName}`);
+
+        res.json(responsePayload);
+
     } catch (error) {
-        const { trace, CATEGORIES } = require('../utils/runtimeTrace');
-        trace(CATEGORIES.QUESTION_FLOW, 'Sectional Test Error', { error: error.message });
-        res.status(500).json({ error: error.message });
+        console.error(`[SectionStart][${requestId}] CRITICAL ERROR:`, error.message, error.stack);
+        res.status(500).json({ error: 'Internal failure during sectional test initialization' });
     }
 });
 

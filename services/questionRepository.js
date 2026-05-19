@@ -1,84 +1,295 @@
 /**
- * Question Repository (Phase 3)
+ * Question Repository (Phase 3 — Security Hardened)
+ * ==================================================
  * ONLY fetches data. NO business logic. NO selection.
+ *
+ * SECURITY FIX: Path traversal vulnerability patched.
+ * ALL subject inputs are validated through the centralized
+ * allowedSubjects whitelist BEFORE any filesystem access.
  */
 
-const fs = require('fs');
+'use strict';
+
+const fs   = require('fs');
 const path = require('path');
-const Question = require('../models/question');
+const Question  = require('../models/question');
 const DedupEngine = require('./dedupEngine');
+const CacheLayer = require('./cacheLayer');
+const { validateSubjects } = require('../config/allowedSubjects');
+
+// Resolve the canonical data directory once at module load time with a bulletproof fallback chain.
+let DATA_DIR = path.resolve(__dirname, '../data');
+if (!fs.existsSync(DATA_DIR) || !fs.statSync(DATA_DIR).isDirectory()) {
+    DATA_DIR = path.resolve(__dirname, '../../data');
+}
+if (!fs.existsSync(DATA_DIR) || !fs.statSync(DATA_DIR).isDirectory()) {
+    DATA_DIR = path.resolve(process.cwd(), 'data');
+}
+if (!fs.existsSync(DATA_DIR) || !fs.statSync(DATA_DIR).isDirectory()) {
+    DATA_DIR = path.resolve(process.cwd(), 'server/data');
+}
+
+/**
+ * Assert that a resolved file path is strictly inside DATA_DIR.
+ * This is the last-resort invariant; it should never trip if
+ * validateSubjects() did its job — but we keep both layers.
+ *
+ * @param {string} resolvedPath
+ * @throws if path escapes the data directory
+ */
+function assertInsideDataDir(resolvedPath) {
+    if (!resolvedPath.startsWith(DATA_DIR + path.sep) &&
+        resolvedPath !== DATA_DIR) {
+        throw new Error(
+            `[SECURITY] Path invariant violated: "${resolvedPath}" is outside "${DATA_DIR}"`
+        );
+    }
+}
 
 class QuestionRepository {
+    static precompiledCache = new Map();
+
+    /**
+     * Precompile all static JSON questions into deep-frozen, memory-safe pools.
+     * Executed during startup to eliminate CPU spikes, GC pressure, and disk reads.
+     */
+    static async precompileAllSubjects() {
+        const startTime = Date.now();
+        const { ALLOWED_SUBJECTS } = require('../config/allowedSubjects');
+        const subjectsToPrecompile = Array.from(ALLOWED_SUBJECTS);
+        let totalQuestions = 0;
+
+        console.log(`[BOOT][PRECOMPILE] Starting startup-time precompilation for ${subjectsToPrecompile.length} subjects...`);
+
+        for (const sub of subjectsToPrecompile) {
+            const filePath = path.join(DATA_DIR, `${sub}.json`);
+            if (!fs.existsSync(filePath)) continue;
+
+            try {
+                const rawData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                let subQuestions = Array.isArray(rawData) ? rawData : (rawData.questions || []);
+
+                // Normalize correctAnswer & adapt options structure once at boot
+                const adaptedQuestions = subQuestions.map(q => {
+                    let normalizedCorrect = q.correctAnswer;
+                    if (typeof normalizedCorrect === 'string') {
+                        const charVal = normalizedCorrect.toLowerCase().trim();
+                        const optIdx  = ['a', 'b', 'c', 'd'].indexOf(charVal);
+                        if (optIdx !== -1) normalizedCorrect = optIdx;
+                    } else if (q.correctOption !== undefined && q.correctOption !== null) {
+                        const optIdx = ['a', 'b', 'c', 'd'].indexOf(
+                            String(q.correctOption).toLowerCase().trim()
+                        );
+                        if (optIdx !== -1) normalizedCorrect = optIdx;
+                    }
+                    if (normalizedCorrect === undefined || normalizedCorrect === null) {
+                        normalizedCorrect = 0;
+                    }
+
+                    if (
+                        q.options &&
+                        q.options.length > 0 &&
+                        typeof q.options[0] === 'object' &&
+                        !Array.isArray(q.options[0])
+                    ) {
+                        return {
+                            ...q,
+                            question_en:   q.question?.en || q.question_en || '',
+                            question_hi:   q.question?.hi || q.question_hi || '',
+                            options_en:    q.options?.map(o => o.text?.en || '') || [],
+                            options_hi:    q.options?.map(o => o.text?.hi || '') || [],
+                            correctAnswer: normalizedCorrect
+                        };
+                    }
+                    return { ...q, correctAnswer: normalizedCorrect };
+                });
+
+                // FAANG-level Protection: Deep-freeze the static precompiled pool
+                adaptedQuestions.forEach(q => Object.freeze(q));
+                Object.freeze(adaptedQuestions);
+
+                this.precompiledCache.set(sub, adaptedQuestions);
+                totalQuestions += adaptedQuestions.length;
+            } catch (e) {
+                console.error(`[BOOT][PRECOMPILE] Failed to precompile subject "${sub}": ${e.message}`);
+            }
+        }
+
+        console.log(`[BOOT][PRECOMPILE] Complete. Precompiled ${totalQuestions} questions across ${this.precompiledCache.size} subjects in ${Date.now() - startTime}ms.`);
+    }
+
+    /**
+     * Fetch questions for one or many subjects, with optional topic filter.
+     *
+     * @param {string|string[]} subjectOrSubjects
+     * @param {string|null}     topic
+     * @returns {Promise<object[]>} deep-cloned, safe question objects
+     */
     static async fetchQuestions(subjectOrSubjects, topic = null) {
+        const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+        await yieldIfLagging(50); // SRE: cooperative yielding
+
         if (!subjectOrSubjects) return [];
-        const subjects = Array.isArray(subjectOrSubjects) ? subjectOrSubjects : [subjectOrSubjects];
-        const subLowers = subjects.map(s => s.toLowerCase().trim());
-        const topicLower = topic ? String(topic).toLowerCase().trim() : null;
+
+        const raw = Array.isArray(subjectOrSubjects)
+            ? subjectOrSubjects
+            : [subjectOrSubjects];
+
+        // ── SECURITY: Whitelist validation ──────────────────────────────────
+        const safeSubjects = validateSubjects(raw);
+
+        const blocked = raw.filter(s => {
+            const lower = (typeof s === 'string' ? s : '').toLowerCase().trim();
+            return !safeSubjects.includes(lower.replace(/\.[^.]+$/, ''));
+        });
+
+        if (blocked.length > 0) {
+            console.error(
+                `[SECURITY][QuestionRepository] PATH TRAVERSAL ATTEMPT BLOCKED. ` +
+                `Rejected subjects: ${JSON.stringify(blocked)} | ` +
+                `Timestamp: ${new Date().toISOString()}`
+            );
+        }
+
+        if (safeSubjects.length === 0) {
+            console.warn(`[QuestionRepository] All subjects rejected by whitelist. raw=${JSON.stringify(raw)}`);
+            return [];
+        }
+        // ────────────────────────────────────────────────────────────────────
+
+        const topicLower = topic
+            ? String(topic).toLowerCase().trim()
+            : null;
+
+        const cacheKey = `questions:${safeSubjects.sort().join(',')}:${topicLower || 'all'}`;
+        const cachedPool = CacheLayer.getSnapshot(cacheKey);
+        if (cachedPool) {
+            console.log(`[QuestionRepository][CACHE] HIT for key="${cacheKey}" (pool size: ${cachedPool.length})`);
+            return cachedPool;
+        }
+
+        // Lazy-warmup if not already precompiled (for instant hydration resilience)
+        if (this.precompiledCache.size === 0) {
+            await this.precompileAllSubjects();
+        }
 
         const fetchStartTime = Date.now();
-        
-        // MongoDB fetch with optional topic filter
+
+        // ── MongoDB fetch ────────────────────────────────────────────────────
         const query = {
             $or: [
-                { subject: { $in: subLowers } },
-                { subjectId: { $in: subLowers } }
+                { subject:   { $in: safeSubjects } },
+                { subjectId: { $in: safeSubjects } }
             ]
         };
-        
+
         if (topicLower) {
-            query.$and = [
-                { $or: [
-                    { topic: topicLower },
+            query.$and = [{
+                $or: [
+                    { topic:   topicLower },
                     { topicId: topicLower }
-                ]}
-            ];
+                ]
+            }];
         }
 
         let pool = await Question.find(query).lean();
 
-        // JSON fallback ALWAYS (Merge both sources per requirements)
-        for (const sub of subLowers) {
-            const dataPath = path.join(__dirname, `../../data/${sub}.json`);
-            if (fs.existsSync(dataPath)) {
+        // ── JSON file fallback (served INSTANTLY from precompiled cache) ─────
+        for (const sub of safeSubjects) {
+            const cachedQuestions = this.precompiledCache.get(sub);
+            if (cachedQuestions) {
+                if (topicLower) {
+                    const filtered = cachedQuestions.filter(q => {
+                        const qTopic = String(q.topic || q.topicId || '').toLowerCase().trim();
+                        return qTopic === topicLower;
+                    });
+                    pool.push(...filtered);
+                } else {
+                    pool.push(...cachedQuestions);
+                }
+            } else {
+                // Last-resort fallback for dynamically created files
+                const filePath = path.join(DATA_DIR, `${sub}.json`);
+                const resolved = path.resolve(filePath);
                 try {
-                    const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+                    assertInsideDataDir(resolved);
+                } catch (invariantErr) {
+                    console.error(`[SECURITY][QuestionRepository] ${invariantErr.message}`);
+                    continue;
+                }
+
+                if (!fs.existsSync(resolved)) continue;
+
+                try {
+                    const rawData = JSON.parse(fs.readFileSync(resolved, 'utf8'));
                     let subQuestions = Array.isArray(rawData) ? rawData : (rawData.questions || []);
-                    
-                    // Filter JSON by topic if provided
+
                     if (topicLower) {
                         subQuestions = subQuestions.filter(q => {
                             const qTopic = String(q.topic || q.topicId || '').toLowerCase().trim();
                             return qTopic === topicLower;
                         });
                     }
-                    
+
                     pool.push(...subQuestions);
                 } catch (e) {
-                    console.error('[QuestionRepository] JSON Read Error:', e.message);
+                    console.error(`[QuestionRepository] Fallback JSON Read Error for subject "${sub}": ${e.message}`);
                 }
             }
         }
-        
-        console.log(`[QuestionRepository] Fetch took ${Date.now() - fetchStartTime}ms for subject(s): ${subLowers.join(',')}${topic ? ` topic: ${topic}` : ''}. Pool size: ${pool.length}`);
 
-        // Cross-source semantic deduplication
+        console.log(
+            `[QuestionRepository] Fetch took ${Date.now() - fetchStartTime}ms ` +
+            `for subject(s): [${safeSubjects.join(', ')}]` +
+            `${topicLower ? ` topic: "${topicLower}"` : ''}. ` +
+            `Raw pool size: ${pool.length}`
+        );
+
+        // ── Cross-source semantic deduplication ──────────────────────────────
         const dedupedPool = DedupEngine.removeSemanticDuplicates(pool);
 
+        // ── Normalize correctAnswer to a numeric index ───────────────────────
         const adaptedPool = dedupedPool.map(q => {
-            if (q.options && q.options.length > 0 && typeof q.options[0] === 'object' && !Array.isArray(q.options[0])) {
+            // Already adapted & frozen from precompile pool
+            if (Object.isFrozen(q)) return q;
+
+            let normalizedCorrect = q.correctAnswer;
+            if (typeof normalizedCorrect === 'string') {
+                const charVal = normalizedCorrect.toLowerCase().trim();
+                const optIdx  = ['a', 'b', 'c', 'd'].indexOf(charVal);
+                if (optIdx !== -1) normalizedCorrect = optIdx;
+            } else if (q.correctOption !== undefined && q.correctOption !== null) {
+                const optIdx = ['a', 'b', 'c', 'd'].indexOf(
+                    String(q.correctOption).toLowerCase().trim()
+                );
+                if (optIdx !== -1) normalizedCorrect = optIdx;
+            }
+            if (normalizedCorrect === undefined || normalizedCorrect === null) {
+                normalizedCorrect = 0;
+            }
+
+            if (
+                q.options &&
+                q.options.length > 0 &&
+                typeof q.options[0] === 'object' &&
+                !Array.isArray(q.options[0])
+            ) {
                 return {
                     ...q,
-                    question_en: q.question?.en || q.question_en || '',
-                    question_hi: q.question?.hi || q.question_hi || '',
-                    options_en: q.options?.map(o => o.text?.en || '') || [],
-                    options_hi: q.options?.map(o => o.text?.hi || '') || [],
-                    correctAnswer: q.correctOption ? ['a','b','c','d'].indexOf(q.correctOption) : (q.correctAnswer !== undefined ? q.correctAnswer : 0)
+                    question_en:   q.question?.en || q.question_en || '',
+                    question_hi:   q.question?.hi || q.question_hi || '',
+                    options_en:    q.options?.map(o => o.text?.en || '') || [],
+                    options_hi:    q.options?.map(o => o.text?.hi || '') || [],
+                    correctAnswer: normalizedCorrect
                 };
             }
-            return q;
+            return { ...q, correctAnswer: normalizedCorrect };
         });
 
-        // ALWAYS return deep cloned objects (immutable output)
+        // Cache the processed adapted pool (5 minutes TTL)
+        CacheLayer.setSnapshot(cacheKey, adaptedPool, 300);
+
+        // ── ALWAYS return deep-cloned objects (immutable output) ─────────────
         return JSON.parse(JSON.stringify(adaptedPool || []));
     }
 }

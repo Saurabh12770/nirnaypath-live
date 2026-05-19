@@ -1,0 +1,49 @@
+<!-- internal/shadow-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Operations Dashboard - Phase 11C</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; }
+        h1 { color: #38bdf8; text-align: center; }
+        h3 { margin-top: 0; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .metric { font-size: 32px; font-weight: bold; color: #10b981; }
+        .warning { color: #f59e0b; }
+        .danger { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>Shadow Operations Dashboard [Zero-Trust]</h1>
+    <div class="grid" id="dashboard-grid">
+        <div class="card">
+            <h3>Active Heartbeats (Shadow)</h3>
+            <div class="metric" id="heartbeat-count">0</div>
+        </div>
+        <div class="card">
+            <h3>Redis Pressure</h3>
+            <div class="metric" id="redis-pressure">0%</div>
+        </div>
+        <div class="card">
+            <h3>Event Loop Lag</h3>
+            <div class="metric" id="loop-lag">0ms</div>
+        </div>
+        <div class="card">
+            <h3>Fraud Heatmap</h3>
+            <div class="metric warning" id="fraud-flags">0 Flags</div>
+        </div>
+        <div class="card">
+            <h3>PM2 Worker Sync</h3>
+            <div class="metric" id="pm2-sync">100%</div>
+        </div>
+        <div class="card">
+            <h3>Ranking Throughput</h3>
+            <div class="metric" id="ranking-tps">0 TPS</div>
+        </div>
+    </div>
+    <script src="js/shadow-dashboard.js"></script>
+</body>
+</html>

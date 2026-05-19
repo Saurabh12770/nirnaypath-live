@@ -125,45 +125,106 @@ router.post('/verify', auth, async (req, res) => {
 
 /**
  * POST /api/payment/webhook
- * Razorpay Webhook Handler for asynchronous fulfillment
+ * =========================
+ * PHASE 5 — Hardened Razorpay Webhook Handler.
+ *
+ * Fixes:
+ *  1. HMAC computed over req.rawBody (raw bytes) — not JSON.stringify(body)
+ *     which can differ due to key ordering or encoding.
+ *  2. Timestamp validation — rejects events older than 5 minutes.
+ *  3. Idempotency — skips processing if event_id was already handled.
+ *  4. Secret guard — 500 if webhook secret not configured.
  */
 router.post('/webhook', async (req, res) => {
     try {
+        // --- Guard: secret must be configured ---
         const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+        if (!secret) {
+            console.error('[Payment][Webhook] RAZORPAY_WEBHOOK_SECRET is not set!');
+            return res.status(500).send('Webhook secret not configured');
+        }
+
         const signature = req.headers['x-razorpay-signature'];
+        if (!signature) {
+            console.warn('[Payment][Webhook] Missing x-razorpay-signature header');
+            return res.status(400).send('Missing signature');
+        }
+
+        // --- FIX: HMAC over raw body bytes, not JSON.stringify ---
+        const rawBody = req.rawBody;
+        if (!rawBody || rawBody.length === 0) {
+            console.error('[Payment][Webhook] req.rawBody is empty — raw body middleware not applied');
+            return res.status(400).send('Empty body');
+        }
 
         const expectedSignature = crypto
             .createHmac('sha256', secret)
-            .update(JSON.stringify(req.body))
+            .update(rawBody) // raw Buffer — exact bytes Razorpay signed
             .digest('hex');
 
-        if (expectedSignature !== signature) {
+        // Constant-time comparison to prevent timing attacks
+        const sigBuffer = Buffer.from(signature, 'hex');
+        const expBuffer = Buffer.from(expectedSignature, 'hex');
+        const signatureValid = sigBuffer.length === expBuffer.length &&
+            crypto.timingSafeEqual(sigBuffer, expBuffer);
+
+        if (!signatureValid) {
+            console.warn(`[Payment][Webhook][SECURITY] Invalid signature. Possible replay or forgery.`);
             return res.status(400).send('Invalid webhook signature');
         }
 
         const { event, payload } = req.body;
-        
-        // Handle "payment.captured" as a fallback fulfillment
-        if (event === 'payment.captured') {
-            const payment = payload.payment.entity;
-            const userId = payment.notes.userId;
-            const planId = payment.notes.planId;
 
-            // Check if already fulfilled to avoid double processing
-            const existingPayment = await Payment.findOne({ razorpay_payment_id: payment.id });
-            if (!existingPayment || existingPayment.status !== 'success') {
-                await SubscriptionService.fulfillOrder(userId, {
-                    razorpay_order_id: payment.order_id,
-                    razorpay_payment_id: payment.id,
-                    razorpay_signature: 'webhook_verified'
-                }, planId);
+        // --- Timestamp validation: reject events older than 5 minutes ---
+        const eventTime = req.body.created_at; // Unix timestamp from Razorpay
+        if (eventTime) {
+            const ageSeconds = Math.floor(Date.now() / 1000) - eventTime;
+            if (ageSeconds > 300) { // 5 minutes
+                console.warn(`[Payment][Webhook] Stale event rejected: age=${ageSeconds}s event=${event}`);
+                return res.status(400).send('Stale webhook event');
             }
+        }
+
+        // --- Idempotency: skip if this payment_id was already processed ---
+        if (event === 'payment.captured') {
+            const payment = payload?.payment?.entity;
+            if (!payment) {
+                return res.status(400).send('Malformed payment payload');
+            }
+
+            const userId = payment.notes?.userId;
+            const planId = payment.notes?.planId;
+
+            if (!userId || !planId) {
+                console.error('[Payment][Webhook] Missing userId or planId in payment notes');
+                return res.status(400).send('Incomplete payment notes');
+            }
+
+            // Idempotency check
+            const existingPayment = await Payment.findOne({
+                razorpay_payment_id: payment.id,
+                status: 'success'
+            });
+
+            if (existingPayment) {
+                console.log(`[Payment][Webhook] Idempotency: payment ${payment.id} already fulfilled. Skipping.`);
+                return res.status(200).send('OK');
+            }
+
+            await SubscriptionService.fulfillOrder(userId, {
+                razorpay_order_id:  payment.order_id,
+                razorpay_payment_id: payment.id,
+                razorpay_signature:  'webhook_verified'
+            }, planId);
+
+            console.log(`[Payment][Webhook] Fulfilled: user=${userId} plan=${planId} payment=${payment.id}`);
         }
 
         await SubscriptionService.handleWebhook(event, payload);
         res.status(200).send('OK');
+
     } catch (error) {
-        console.error('[Payment] Webhook Error:', error);
+        console.error('[Payment][Webhook] Error:', error.message, error.stack);
         res.status(500).send('Internal Server Error');
     }
 });

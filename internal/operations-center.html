@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NirnayPath - Global Operations Center</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--surface);
+        }
+        h1 { margin: 0; font-size: 24px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--text-dim);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .metric {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background-color: var(--success); }
+        .status-degraded { background-color: var(--warning); }
+        .status-offline { background-color: var(--danger); }
+        
+        .emergency-panel {
+            grid-column: 1 / -1;
+            background: linear-gradient(45deg, #450a0a, #7f1d1d);
+            border: 1px solid var(--danger);
+        }
+        .emergency-panel h3 { color: #fecaca; }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .btn-danger { background-color: var(--danger); }
+        .btn-warning { background-color: var(--warning); color: #000; }
+        
+        .map-placeholder {
+            height: 300px;
+            background-color: #0f172a;
+            border: 1px dashed var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>NirnayPath Operations Center</h1>
+            <span style="color: var(--text-dim); font-size: 14px;">National Infrastructure Monitoring</span>
+        </div>
+        <div>
+            <span class="status-indicator status-online" id="global-status-dot"></span>
+            <span id="global-status-text">System Online</span>
+        </div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Live Candidates</h3>
+            <div class="metric" id="active-candidates">--</div>
+            <div style="color: var(--success); font-size: 14px;">Across <span id="active-exams">--</span> active exams</div>
+        </div>
+        
+        <div class="card">
+            <h3>System Health</h3>
+            <div>PM2 Workers: <span id="pm2-workers">--</span></div>
+            <div>Event Loop Lag: <span id="event-loop-lag">--</span> ms</div>
+            <div>Average Heartbeat RTT: <span id="heartbeat-rtt">--</span> ms</div>
+        </div>
+
+        <div class="card">
+            <h3>Data Infrastructure</h3>
+            <div>Redis Stream Depth: <span id="redis-depth">--</span></div>
+            <div>Queue Backpressure: <span id="queue-depth">--</span></div>
+            <div>Mongo Rep Lag: <span id="mongo-lag">--</span> ms</div>
+        </div>
+
+        <div class="card">
+            <h3>Security & Integrity</h3>
+            <div>Active Fraud Reviews: <span id="fraud-reviews" style="color: var(--warning);">--</span></div>
+            <div>Suspicious Spikes: <span id="suspicious-spikes">--</span></div>
+        </div>
+
+        <div class="card emergency-panel">
+            <h3>Emergency Operations Control</h3>
+            <p>Authorized personnel only. All actions are immutable and audited.</p>
+            <div style="margin-top: 16px;">
+                <button class="btn btn-danger" onclick="executeEmergencyAction('pause-national')">Pause Exam Nationally</button>
+                <button class="btn btn-warning" onclick="executeEmergencyAction('extend-timer')">Extend Global Timer (+5m)</button>
+                <button class="btn" onclick="executeEmergencyAction('force-sync')">Force Telemetry Sync</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>Regional Traffic & Health Map</h3>
+        <div class="map-placeholder">
+            [Live Geographic Traffic Visualization (Placeholder)]
+        </div>
+    </div>
+
+    <script src="/js/operations-center.js"></script>
+</body>
+</html>

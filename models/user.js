@@ -11,11 +11,18 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        index: true,
+        validate: {
+            validator: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+            message: 'Invalid email format'
+        }
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false,   // SECURITY: never returned in queries unless explicitly selected
+        minlength: [8, 'Password must be at least 8 characters']
     },
     pushSubscription: {
         type: Object,

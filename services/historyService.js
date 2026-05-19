@@ -71,6 +71,40 @@ class HistoryService {
         }
         return seen;
     }
+
+    static async getRecentQuestionWindowExclusions(userId, windowSize = 5) {
+        const store = context.getStore();
+        const ctxUserId = store ? store.userId : null;
+        const validUserId = userId || ctxUserId;
+
+        if (!validUserId) {
+            console.warn('[HistoryService] WARNING: No userId provided. History exclusions bypassed.');
+            return { ids: new Set(), texts: new Set() };
+        }
+
+        const results = await TestResult.find({ userId: validUserId })
+            .sort({ createdAt: -1 })
+            .limit(windowSize)
+            .select('answers.questionId answers.question_en')
+            .lean();
+
+        const ids = new Set();
+        const texts = new Set();
+        const { normalizeText } = require('../utils/questionFingerprint');
+
+        for (const test of results) {
+            if (test.answers) {
+                test.answers.forEach(ans => {
+                    const qId = ans.questionId || ans.id || ans._id;
+                    if (qId) ids.add(String(qId).trim().toLowerCase());
+                    
+                    const normTxt = normalizeText(ans.question_en);
+                    if (normTxt) texts.add(normTxt);
+                });
+            }
+        }
+        return { ids, texts };
+    }
 }
 
 module.exports = HistoryService;

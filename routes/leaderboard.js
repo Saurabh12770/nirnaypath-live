@@ -11,6 +11,9 @@ const { getCachedData, setCachedData } = require('../middleware/cache');
  * Top 10 users across all exams by total XP (Total Correct * 10)
  */
 router.get('/global', auth, async (req, res) => {
+    const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+    await yieldIfLagging(50); // SRE: Cooperative yielding
+
     try {
         const cacheKey = 'leaderboard_global';
         const cached = await getCachedData(cacheKey);
@@ -70,6 +73,9 @@ router.get('/global', auth, async (req, res) => {
  * GET /api/leaderboard/subject/:subject
  */
 router.get('/subject/:subject', auth, async (req, res) => {
+    const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+    await yieldIfLagging(50); // SRE: Cooperative yielding
+
     try {
         const { subject } = req.params;
         const cacheKey = `leaderboard_sub_${subject.toLowerCase()}`;
@@ -126,6 +132,9 @@ router.get('/subject/:subject', auth, async (req, res) => {
  * Returns top 10 users for a specific exam in the last 7 days.
  */
 router.get('/:exam', auth, async (req, res) => {
+    const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+    await yieldIfLagging(50); // SRE: Cooperative yielding
+
     try {
         const { exam } = req.params;
         const cacheKey = `leaderboard_${exam.toLowerCase()}`;

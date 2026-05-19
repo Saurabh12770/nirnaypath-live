@@ -19,7 +19,17 @@ async function loadQuestions(subject) {
 
     const loadPromise = (async () => {
         try {
-            const dataPath = path.join(__dirname, '../../data', `${safeSubject}.json`);
+            // Fallback chain for robust path resolution in all execution environments
+            let dataPath = path.join(__dirname, '../data', `${safeSubject}.json`);
+            if (!require('fs').existsSync(dataPath)) {
+                dataPath = path.join(__dirname, '../../data', `${safeSubject}.json`);
+            }
+            if (!require('fs').existsSync(dataPath)) {
+                dataPath = path.resolve(process.cwd(), 'data', `${safeSubject}.json`);
+            }
+            if (!require('fs').existsSync(dataPath)) {
+                dataPath = path.resolve(process.cwd(), 'server/data', `${safeSubject}.json`);
+            }
             console.log(`[loader] Primary load started: ${dataPath}`);
             
             const data = await fs.readFile(dataPath, 'utf-8');
@@ -29,6 +39,23 @@ async function loadQuestions(subject) {
             let raw = Array.isArray(parsedData) ? parsedData : (parsedData.questions || []);
             
             raw = raw.map(q => {
+                let normalizedCorrect = q.correctAnswer;
+                if (typeof normalizedCorrect === 'string') {
+                    const charVal = normalizedCorrect.toLowerCase().trim();
+                    const optIdx = ['a','b','c','d'].indexOf(charVal);
+                    if (optIdx !== -1) {
+                        normalizedCorrect = optIdx;
+                    }
+                } else if (q.correctOption !== undefined && q.correctOption !== null) {
+                    const optIdx = ['a','b','c','d'].indexOf(String(q.correctOption).toLowerCase().trim());
+                    if (optIdx !== -1) {
+                        normalizedCorrect = optIdx;
+                    }
+                }
+                if (normalizedCorrect === undefined || normalizedCorrect === null) {
+                    normalizedCorrect = 0;
+                }
+
                 if (q.options && q.options.length > 0 && typeof q.options[0] === 'object' && !Array.isArray(q.options[0])) {
                     return {
                         ...q,
@@ -36,10 +63,13 @@ async function loadQuestions(subject) {
                         question_hi: q.question?.hi || q.question_hi || '',
                         options_en: q.options?.map(o => o.text?.en || '') || [],
                         options_hi: q.options?.map(o => o.text?.hi || '') || [],
-                        correctAnswer: q.correctOption ? ['a','b','c','d'].indexOf(q.correctOption) : (q.correctAnswer !== undefined ? q.correctAnswer : 0)
+                        correctAnswer: normalizedCorrect
                     };
                 }
-                return q;
+                return {
+                    ...q,
+                    correctAnswer: normalizedCorrect
+                };
             });
             
             return raw;

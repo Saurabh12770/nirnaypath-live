@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NirnayPath - Operator Training Portal</title>
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --text: #1e293b;
+            --text-dim: #64748b;
+            --border: #cbd5e1;
+            --success: #10b981;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 5px; }
+        .subtitle { color: var(--text-dim); margin-bottom: 30px; }
+        
+        .module {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-info h3 { margin: 0 0 10px 0; color: var(--primary); }
+        .module-info p { margin: 0; font-size: 14px; color: var(--text-dim); max-width: 600px; }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover { background-color: #4338ca; }
+        .btn-success { background-color: var(--success); }
+        
+        .progress-bar { background-color: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 15px; }
+        .progress-fill { background-color: var(--success); height: 100%; width: 25%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NirnayPath National Operator Training</h1>
+        <div class="subtitle">Mandatory certification modules for Level-1 and Level-2 Administrators.</div>
+
+        <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+            <strong>Your Certification Progress:</strong> 1/4 Modules Completed
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+
+        <div class="module">
+            <div class="module-info">
+                <h3>1. War Room & Incident Handling</h3>
+                <p>Learn how to declare P0-P3 incidents, broadcast telemetry updates, and use emergency overrides safely during a live national exam.</p>
+            </div>
+            <button class="btn btn-success">Completed ✅</button>
+        </div>
+
+        <div class="module">
+            <div class="module-info">
+                <h3>2. Fraud Review Board Protocols</h3>
+                <p>Understand how to analyze AI Risk Scores, review Session Replay evidence, and cast consensus votes without introducing human bias.</p>
+            </div>
+            <button class="btn">Start Module</button>
+        </div>
+
+        <div class="module">
+            <div class="module-info">
+                <h3>3. Disaster Governance & SRE Recovery</h3>
+                <p>Procedures for executing safe PM2 worker restarts, managing Redis queue backpressure, and handling Center-level failovers.</p>
+            </div>
+            <button class="btn">Start Module</button>
+        </div>
+
+        <div class="module">
+            <div class="module-info">
+                <h3>4. Support Escalation & Legal Auditing</h3>
+                <p>How to handle candidate SLA breaches, export cryptographic evidence bundles, and manage Right to Information (RTI) compliance.</p>
+            </div>
+            <button class="btn">Start Module</button>
+        </div>
+    </div>
+</body>
+</html>

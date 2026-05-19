@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-05-19T03:18:18.805Z",
+  "rogueModules": [],
+  "duplicateViolations": [
+    {
+      "responsibility": "Redis Client Management",
+      "canonical": "services/redisService.js",
+      "rogues": [
+        "middleware/cache.js (FM-006)",
+        "services/NotificationCenterService.js (FM-010)",
+        "workers/ai-perf-worker.js"
+      ]
+    },
+    {
+      "responsibility": "In-Process Cache",
+      "canonical": "services/cacheLayer.js",
+      "rogues": [
+        "middleware/cache.js (maintains own localCache Map)"
+      ]
+    },
+    {
+      "responsibility": "Event Loop Lag Measurement",
+      "canonical": "routes/health.js",
+      "rogues": [
+        "services/OperationsTelemetryService.js (duplicate implementation)"
+      ]
+    },
+    {
+      "responsibility": "Mongo Replication Lag",
+      "canonical": "routes/health.js (real admin().ping())",
+      "rogues": [
+        "services/OperationsTelemetryService.js (Math.random() — FAKE)"
+      ]
+    }
+  ],
+  "unregisteredModules": [
+    "tests/chaosRegressionSuite.js",
+    "services/ProductionTelemetryEngine.js",
+    "models/user.js",
+    "models/testResult.js",
+    "services/ArchitectureLockService.js"
+  ],
+  "warnings": [
+    {
+      "type": "ROGUE_REDIS_CLIENT",
+      "file": "middleware/cache.js"
+    }
+  ],
+  "summary": {
+    "totalDriftIssues": 9,
+    "status": "DRIFT_DETECTED"
+  }
+}

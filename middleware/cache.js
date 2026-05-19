@@ -90,9 +90,10 @@ async function setCachedData(key, data, ttlSeconds) {
  * Clear cache
  */
 async function clearCache(key) {
+    const versionedKey = key ? `${CACHE_VERSION}_${key}` : null;
     if (isRedisAvailable) {
         try {
-            if (key) await redis.del(key);
+            if (versionedKey) await redis.del(versionedKey);
             else await redis.flushall();
             return;
         } catch (err) {
@@ -100,7 +101,7 @@ async function clearCache(key) {
         }
     }
 
-    if (key) localCache.delete(key);
+    if (versionedKey) localCache.delete(versionedKey);
     else localCache.clear();
 }
 

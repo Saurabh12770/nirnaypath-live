@@ -1,19 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const rateLimit = require('express-rate-limit');
+const { createRateLimiter } = require('../middleware/rateLimiter');
 const { loadQuestions } = require('../utils/questionLoader');
 const { getCachedData, setCachedData } = require('../middleware/cache');
 const { pickQuestions, selectQuestions, shuffleFair } = require('../utils/questionSelectionService');
 const optionalAuth = require('../middleware/auth');
 
-// Specific rate limit for questions endpoint
-const questionLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 200,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: 'Too many requests from this IP for questions, please try again after 1 minute' }
-});
+// Specific dynamic rate limit for questions endpoint
+const questionLimiter = createRateLimiter('questions', 60 * 1000, 200);
 
 /**
  * GET /api/questions/:subject?count=100
@@ -24,7 +18,7 @@ const questionLimiter = rateLimit({
  */
 router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
     try {
-        const { subject } = req.params;
+        const subject = req.params.subject.toLowerCase();
         const count = parseInt(req.query.count) || 0; // 0 = serve full pool
         const cacheKey = `questions_${subject}`;
 
@@ -83,7 +77,7 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
  */
 router.get('/subject/:subject/topics', async (req, res) => {
     try {
-        const { subject } = req.params;
+        const subject = req.params.subject.toLowerCase();
         const cacheKey = `questions_${subject}`;
 
         let questions = await getCachedData(cacheKey);

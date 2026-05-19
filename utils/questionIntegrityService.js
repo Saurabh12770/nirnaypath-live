@@ -101,9 +101,10 @@ class QuestionIntegrityService {
      */
     static validateStructure(q) {
         if (!q) return false;
+        if (q.isInvalid === true) return false;
         const hasText = q.question_en || q.question_hi || q.question || q.text;
-        const hasOptions = (q.options_en && q.options_en.length > 0) || (q.options && q.options.length > 0) || q.option1;
-        return hasText && hasOptions;
+        const hasOptions = (q.options_en && q.options_en.length >= 4) || (q.options && q.options.length >= 4) || q.option1;
+        return !!(hasText && hasOptions);
     }
 }
 

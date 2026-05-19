@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NirnayPath - National Analytics Command Center</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; }
+    .card h3 { margin-top: 0; color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; }
+    .value { font-size: 2rem; font-weight: bold; color: #38bdf8; }
+    .critical { color: #f87171; }
+    header { border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px; }
+    h1 { margin: 0; color: #f8fafc; font-size: 1.5rem; }
+    .status-indicator { display: inline-block; width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="status-indicator"></span>National Analytics Command Center</h1>
+    <p style="color: #64748b; font-size: 0.9rem;">Operational telemetry & Governance Overview</p>
+  </header>
+  
+  <div class="grid">
+    <div class="card">
+      <h3>Active Candidates</h3>
+      <div class="value">1,245,678</div>
+    </div>
+    <div class="card">
+      <h3>System Health (PM2 Cluster)</h3>
+      <div class="value" style="color: #10b981;">99.99%</div>
+    </div>
+    <div class="card">
+      <h3>Fraud Clusters Detected</h3>
+      <div class="value critical">12</div>
+    </div>
+    
+    <div class="card">
+      <h3>Redis Queue Pressure</h3>
+      <div class="value">42%</div>
+    </div>
+    <div class="card">
+      <h3>Normalization Variance</h3>
+      <div class="value">0.03σ</div>
+    </div>
+    <div class="card">
+      <h3>High Risk Centers</h3>
+      <div class="value critical">4</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px; grid-column: span 3;">
+    <h3>Live Geospacial Distribution</h3>
+    <div style="height: 300px; background: #0f172a; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #475569;">
+      [ Interactive WebGL Heatmap Rendered Here ]
+    </div>
+  </div>
+</body>
+</html>

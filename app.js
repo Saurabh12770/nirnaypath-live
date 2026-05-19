@@ -2,7 +2,6 @@ const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -13,6 +12,8 @@ const crypto = require('crypto');
 const http = require('http');
 const context = require('./utils/context');
 const socketService = require('./services/socketService');
+const CrashReportingService = require('./services/crashReportingService');
+const ArchitectureLockService = require('./services/ArchitectureLockService');
 
 
 dotenv.config();
@@ -64,6 +65,7 @@ async function autoPromoteAdmin() {
 
 // Initialize app
 const app = express();
+CrashReportingService.init(app);
 
 // Trust proxy for production (needed for rate limiting and HTTPS behind proxies like Railway/Render)
 if (process.env.NODE_ENV === 'production') {
@@ -78,16 +80,6 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath'
     })
     .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(express.json({ limit: '1mb' }));
-
-// 1. Context Tracking Middleware (Senior Engineer Implementation)
-app.use((req, res, next) => {
-    const requestId = req.get('X-Request-ID') || crypto.randomUUID();
-    res.setHeader('X-Request-ID', requestId);
-    context.run({ requestId, startTime: Date.now() }, next);
-});
-
-
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Security Headers
@@ -95,12 +87,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://checkout.razorpay.com", "https://cdnjs.cloudflare.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            scriptSrc: ["'self'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
-            connectSrc: ["'self'", "https://api.razorpay.com", "https://ui-avatars.com"],
+            connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://ui-avatars.com"],
             frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
             upgradeInsecureRequests: [],
         },
     },
@@ -114,6 +106,38 @@ app.use(cors({
     : 'http://localhost:8080',
   credentials: true
 }));
+
+// PHASE 5: Capture raw body buffer for webhook HMAC verification.
+// MUST be registered BEFORE express.json() so the raw bytes are available.
+// The webhook route reads req.rawBody; all other routes use req.body as normal.
+app.use((req, res, next) => {
+    if (req.path === '/api/payment/webhook') {
+        let data = [];
+        req.on('data', chunk => data.push(chunk));
+        req.on('end', () => {
+            req.rawBody = Buffer.concat(data);
+            // Also parse as JSON so req.body works in the handler
+            try {
+                req.body = JSON.parse(req.rawBody.toString('utf8'));
+            } catch (e) {
+                req.body = {};
+            }
+            next();
+        });
+        req.on('error', next);
+    } else {
+        next();
+    }
+});
+app.use(express.json({ limit: '1mb' }));
+
+// 1. Context Tracking Middleware (Senior Engineer Implementation)
+app.use((req, res, next) => {
+    const requestId = req.get('X-Request-ID') || crypto.randomUUID();
+    res.setHeader('X-Request-ID', requestId);
+    context.run({ requestId, startTime: Date.now() }, next);
+});
+
 app.use(compression());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
@@ -126,11 +150,13 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Debug logger for all requests
-app.use((req, res, next) => {
-    console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.url} - IP: ${req.ip}`);
-    next();
-});
+// Debug logger only in development (morgan already covers production logging above)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.url} - IP: ${req.ip}`);
+        next();
+    });
+}
 
 // Set up simple versioning middleware for static views
 app.use((req, res, next) => {
@@ -169,11 +195,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 100,
-  message: { success: false, error: 'Too many requests' }
-});
+const { generalLimiter } = require('./middleware/rateLimiter');
 app.use('/api/', generalLimiter);
 
 // Routes
@@ -200,6 +222,9 @@ app.get('/admin', (req, res) => {
 app.use('/', pagesRoutes);
 
 
+// Sentry error handler registered before other error handlers
+CrashReportingService.registerErrorHandler(app);
+
 // 404 Handler for API routes
 app.use('/api', (req, res) => {
     res.status(404).json({ error: 'API route not found' });
@@ -207,27 +232,13 @@ app.use('/api', (req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    CrashReportingService.captureException(err, {
+        category: 'http_error_handler',
+        url: req.url,
+        method: req.method,
+        ip: req.ip
+    });
     res.status(500).json({ error: 'Internal Server Error' });
-});
-
-// --- GLOBAL ERROR HARDENING ---
-process.on('uncaughtException', (err) => {
-    console.error('[FATAL] Uncaught Exception:', {
-        message: err.message,
-        stack: err.stack,
-        timestamp: new Date().toISOString()
-    });
-    // We don't exit immediately to allow potential recovery, 
-    // but in a real prod env, we might want to restart after a delay if it's recurring.
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('[FATAL] Unhandled Rejection:', {
-        reason: reason?.message || reason,
-        stack: reason?.stack,
-        timestamp: new Date().toISOString()
-    });
 });
 
 // Create HTTP Server
@@ -254,10 +265,19 @@ server.listen(PORT, '0.0.0.0', () => {
 
     // Deferred initialization of background services to ensure port binding is successful first
     try {
+        console.log('[BOOT] Initializing architecture drift check...');
+        ArchitectureLockService.runStartupValidation();
+
         console.log('[BOOT] Initializing background services...');
         initCronJobs();
         initWorkers();
         console.log('[BOOT] Background services initialization sequence triggered.');
+        
+        // Trigger precompiled cache generation for sub-50ms warm reads
+        const QuestionRepository = require('./services/questionRepository');
+        QuestionRepository.precompileAllSubjects().catch(err => {
+            console.error('[BOOT][PRECOMPILE] Error warming up question cache:', err.message);
+        });
     } catch (error) {
         console.error('[BOOT] Error during background service initialization:', error.message);
     }

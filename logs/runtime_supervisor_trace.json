@@ -3,3 +3,5 @@
 {"type":"MEMORY_PRESSURE","severity":"CRITICAL","heapUsedMB":5,"heapTotalMB":6,"rssMB":32,"timestamp":"2026-05-14T02:14:56.514Z"}
 {"type":"BACKPRESSURE_ACTIVATED","timestamp":"2026-05-14T02:14:56.515Z"}
 {"type":"EMERGENCY_DUMP","severity":"CRITICAL","file":"C:\\Users\\SAURABH KUMAR\\Desktop\\NirnayPath\\server\\logs\\runtime_dump_1778724896517.json","reason":"Audit Test Dump","timestamp":"2026-05-14T02:14:56.520Z"}
+{"type":"CIRCUIT_OPEN","source":"mongo_test","reason":"DB Down","timestamp":"2026-05-18T18:41:23.957Z"}
+{"type":"EMERGENCY_DUMP","severity":"CRITICAL","file":"C:\\Users\\SAURABH KUMAR\\Desktop\\NirnayPath\\logs\\runtime_dump_1779129683959.json","reason":"Audit Test Dump","timestamp":"2026-05-18T18:41:23.962Z"}
