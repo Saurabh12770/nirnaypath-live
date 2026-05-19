@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <script src="/js/diagnostics.js"></script>
+    <script src="/js/chaos.js"></script>
 
     <!-- ── Primary SEO ── -->
     <title>NirnayPath – Free Mock Tests for UPSC, BPSC, SSC &amp; More | Bilingual EdTech</title>
@@ -1064,6 +1066,7 @@
                     </form>
                     <div class="login-footer">
                         <p>Don't have an account? <a href="#" class="signup-link" id="showSignup">Sign up for free</a></p>
+                        <p style="margin-top: 8px;"><a href="#" class="signup-link" id="forgotPasswordLink">Forgot Password?</a></p>
                     </div>
                 </div>
 
@@ -1108,7 +1111,27 @@
                     </div>
                 </div>
 
-                
+                <div class="login-body" id="forgotPasswordFormContainer" style="display: none;">
+                    <form id="forgotPasswordForm" class="login-form">
+                        <div class="form-group">
+                            <label for="forgotEmail">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope-open"></i>
+                                <input type="email" id="forgotEmail" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="login-btn primary-btn" id="doForgotPassword">
+                            <i class="fas fa-paper-plane"></i> Send Recovery Email
+                        </button>
+                    </form>
+                    <div class="login-footer">
+                        <p>Remember your password? <a href="#" class="signup-link" id="backToLogin">Sign in instead</a></p>
+                    </div>
+                </div>
+
                 <div class="login-motivation">
                     <div class="motivation-card">
                         <i class="fas fa-quote-left"></i>
