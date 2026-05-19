@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-19T03:18:18.805Z",
+  "timestamp": "2026-05-19T06:42:15.559Z",
   "rogueModules": [],
   "duplicateViolations": [
     {
@@ -34,11 +34,34 @@
     }
   ],
   "unregisteredModules": [
-    "tests/chaosRegressionSuite.js",
-    "services/ProductionTelemetryEngine.js",
     "models/user.js",
+    "services/ArchitectureLockService.js",
+    "routes/api.js",
     "models/testResult.js",
-    "services/ArchitectureLockService.js"
+    "routes/auth.js",
+    "models/question.js",
+    "routes/user.js",
+    "routes/test.js",
+    "models/testSession.js",
+    "models/questionReservation.js",
+    "models/testViolation.js",
+    "routes/leaderboard.js",
+    "routes/drills.js",
+    "routes/section.js",
+    "routes/push.js",
+    "routes/payment.js",
+    "models/payment.js",
+    "routes/admin.js",
+    "routes/chat.js",
+    "models/chatMessage.js",
+    "routes/pages.js",
+    "routes/analytics.js",
+    "routes/learning.js",
+    "routes/health.js",
+    "routes/live.js",
+    "models/liveSession.js",
+    "models/liveResult.js",
+    "routes/liveAdmin.js"
   ],
   "warnings": [
     {
@@ -47,7 +70,7 @@
     }
   ],
   "summary": {
-    "totalDriftIssues": 9,
+    "totalDriftIssues": 32,
     "status": "DRIFT_DETECTED"
   }
 }

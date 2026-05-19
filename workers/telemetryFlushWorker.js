@@ -1,5 +1,5 @@
 const QuestionTelemetry = require('../models/QuestionTelemetry');
-// const redisClient = require('../config/redis');
+// const { getRedisClient } = require('../services/redisService');
 
 /**
  * Phase 11: Telemetry Flush Worker

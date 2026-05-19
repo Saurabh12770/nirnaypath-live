@@ -1,6 +1,6 @@
 const FeatureFlags = require('../config/featureFlags');
 // Assume a generic redisClient is available in the real system
-// const redisClient = require('../config/redis'); 
+// const { getRedisClient } = require('./redisService'); 
 
 class TelemetryIngestService {
     /**

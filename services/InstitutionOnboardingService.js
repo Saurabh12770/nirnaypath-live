@@ -3,7 +3,7 @@
  */
 const crypto = require('crypto');
 const logger = require('../utils/logger');
-// const Tenant = require('../models/Tenant');
+// const Institution = require('../models/Institution');
 
 class InstitutionOnboardingService {
     async initiateOnboarding(institutionData) {

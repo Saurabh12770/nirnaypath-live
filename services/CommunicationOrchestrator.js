@@ -2,7 +2,7 @@
  * Phase 16: National Communication Engine
  */
 const logger = require('../utils/logger');
-// const redis = require('../utils/redisClient'); // Assuming redis is configured
+// const { getRedisClient } = require('./redisService'); // Assuming redis is configured
 
 class CommunicationOrchestrator {
     async dispatch(type, payload, priority = 'normal') {
