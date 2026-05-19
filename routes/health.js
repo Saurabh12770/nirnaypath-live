@@ -325,4 +325,89 @@ router.get('/deep', async (req, res) => {
     });
 });
 
+/**
+ * GET /api/health/env-audit
+ * Audits all live environment variables securely with masking.
+ */
+router.get('/env-audit', (req, res) => {
+    const auditVars = [
+        { name: 'MONGO_URI', actual: process.env.MONGO_URI, expectedType: 'string', isSecret: true },
+        { name: 'MONGODB_URI', actual: process.env.MONGODB_URI, expectedType: 'string', isSecret: true },
+        { name: 'JWT_SECRET', actual: process.env.JWT_SECRET, expectedType: 'string', isSecret: true },
+        { name: 'EMAIL_HOST', actual: process.env.EMAIL_HOST, expectedType: 'string', isSecret: false },
+        { name: 'EMAIL_PORT', actual: process.env.EMAIL_PORT, expectedType: 'string_or_number', isSecret: false },
+        { name: 'EMAIL_USER', actual: process.env.EMAIL_USER, expectedType: 'string', isSecret: false },
+        { name: 'EMAIL_PASSWORD', actual: process.env.EMAIL_PASSWORD, expectedType: 'string', isSecret: true },
+        { name: 'EMAIL_PASS', actual: process.env.EMAIL_PASS, expectedType: 'string', isSecret: true },
+        { name: 'EMAIL_FROM', actual: process.env.EMAIL_FROM, expectedType: 'string', isSecret: false },
+        { name: 'RAZORPAY_KEY_ID', actual: process.env.RAZORPAY_KEY_ID, expectedType: 'string', isSecret: false },
+        { name: 'RAZORPAY_SECRET', actual: process.env.RAZORPAY_SECRET, expectedType: 'string', isSecret: true },
+        { name: 'RAZORPAY_KEY_SECRET', actual: process.env.RAZORPAY_KEY_SECRET, expectedType: 'string', isSecret: true },
+        { name: 'REDIS_URL', actual: process.env.REDIS_URL, expectedType: 'string', isSecret: true },
+        { name: 'VAPID_PUBLIC_KEY', actual: process.env.VAPID_PUBLIC_KEY, expectedType: 'string', isSecret: false },
+        { name: 'VAPID_PRIVATE_KEY', actual: process.env.VAPID_PRIVATE_KEY, expectedType: 'string', isSecret: true }
+    ];
+
+    const results = {};
+    const missing = [];
+    const invalid = [];
+    const unused = [];
+
+    const mask = (str) => {
+        if (!str) return 'not_set';
+        if (str.length <= 8) return '***';
+        return str.substring(0, 3) + '...' + str.substring(str.length - 3);
+    };
+
+    auditVars.forEach(v => {
+        const val = v.actual;
+        const exists = val !== undefined && val !== null && val !== '';
+        
+        results[v.name] = {
+            present: exists,
+            valueLength: exists ? String(val).length : 0,
+            maskedValue: exists ? (v.isSecret ? mask(String(val)) : String(val)) : null
+        };
+
+        if (!exists) {
+            // Check if there's a valid fallback/alias
+            let fallbackExists = false;
+            if (v.name === 'MONGODB_URI' && process.env.MONGO_URI) fallbackExists = true;
+            if (v.name === 'MONGO_URI' && process.env.MONGODB_URI) fallbackExists = true;
+            if (v.name === 'EMAIL_PASSWORD' && process.env.EMAIL_PASS) fallbackExists = true;
+            if (v.name === 'EMAIL_PASS' && process.env.EMAIL_PASSWORD) fallbackExists = true;
+            if (v.name === 'RAZORPAY_SECRET' && process.env.RAZORPAY_KEY_SECRET) fallbackExists = true;
+            if (v.name === 'RAZORPAY_KEY_SECRET' && process.env.RAZORPAY_SECRET) fallbackExists = true;
+
+            if (!fallbackExists) {
+                missing.push(v.name);
+            } else {
+                unused.push(v.name + ' (Fallback/Alias ' + (v.name.includes('URI') ? 'MONGO_URI' : v.name.includes('PASS') ? 'EMAIL_PASS' : 'RAZORPAY_KEY_SECRET') + ' is active instead)');
+            }
+        } else {
+            // Validation
+            let isValid = true;
+            if (v.name.includes('PORT')) {
+                const portNum = parseInt(val, 10);
+                if (isNaN(portNum) || portNum <= 0) isValid = false;
+            } else if (v.name.includes('URI')) {
+                if (!val.startsWith('mongodb://') && !val.startsWith('mongodb+srv://')) isValid = false;
+            }
+            if (!isValid) {
+                invalid.push(v.name);
+            }
+        }
+    });
+
+    res.json({
+        timestamp: new Date().toISOString(),
+        audit: results,
+        summary: {
+            missing,
+            invalid,
+            unused
+        }
+    });
+});
+
 module.exports = router;
