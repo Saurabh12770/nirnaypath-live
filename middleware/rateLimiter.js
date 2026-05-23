@@ -71,13 +71,19 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
             try {
                 const redis = getRedisClient();
                 
-                // Atomic increment and TTL setter
-                const count = await redis.incr(key);
-                if (count === 1) {
+                // Atomic increment and TTL setter via multi block
+                const multi = redis.multi();
+                multi.incr(key);
+                multi.ttl(key);
+                const results = await multi.exec();
+                
+                const count = results[0][1];
+                let ttlSec = results[1][1];
+                
+                if (count === 1 || ttlSec === -1) {
                     await redis.expire(key, windowSeconds);
                     ttlLeftMs = windowMs;
                 } else {
-                    const ttlSec = await redis.ttl(key);
                     ttlLeftMs = ttlSec > 0 ? ttlSec * 1000 : windowMs;
                 }
 
@@ -132,25 +138,30 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
 
 // --- PRE-CONFIGURED PRODUCTION TIERS ---
 
+const parseEnvInt = (value, defaultValue) => {
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) || parsed <= 0 ? defaultValue : parsed;
+};
+
 // General API Rate Limiter
 const generalLimiter = createRateLimiter(
     'general',
     15 * 60 * 1000, // 15 minutes
-    () => parseInt(process.env.RATE_LIMIT_MAX || '100')
+    () => parseEnvInt(process.env.RATE_LIMIT_MAX, 100)
 );
 
 // Authentication Endpoint Rate Limiter
 const authLimiter = createRateLimiter(
     'auth',
     15 * 60 * 1000, // 15 minutes
-    () => parseInt(process.env.AUTH_LIMIT_MAX || '5')
+    () => parseEnvInt(process.env.AUTH_LIMIT_MAX, 5)
 );
 
 // Payment Initiation Rate Limiter
 const paymentLimiter = createRateLimiter(
     'payment',
     15 * 60 * 1000, // 15 minutes
-    () => parseInt(process.env.PAYMENT_LIMIT_MAX || '15')
+    () => parseEnvInt(process.env.PAYMENT_LIMIT_MAX, 15)
 );
 
 module.exports = {

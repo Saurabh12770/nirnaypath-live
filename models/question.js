@@ -32,6 +32,10 @@ const questionSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 }, { strict: false }); // Set strict: false to allow existing data to be read even if fields vary slightly
 questionSchema.index({ question_en: 'text', text: 'text' });
+questionSchema.index({ examId: 1, subjectId: 1, topicId: 1 });
+questionSchema.index({ subjectId: 1, difficulty: 1 });
+questionSchema.index({ reviewRequired: 1, qualityScore: 1 });
+questionSchema.index({ subjectId: 1, qualityScore: -1 });
 
 const Question = mongoose.model('Question', questionSchema);
 

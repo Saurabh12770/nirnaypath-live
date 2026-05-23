@@ -30,5 +30,6 @@ const liveResultSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 liveResultSchema.index({ liveSessionId: 1, score: -1 });
+liveResultSchema.index({ userId: 1, liveSessionId: 1 }, { unique: true });
 
 module.exports = mongoose.model('LiveResult', liveResultSchema);

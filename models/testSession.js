@@ -99,5 +99,7 @@ const testSessionSchema = new mongoose.Schema({
 
 testSessionSchema.index({ userId: 1, status: 1 });
 testSessionSchema.index({ sessionId: 1, status: 1 });
+testSessionSchema.index({ userId: 1, createdAt: -1 });
+testSessionSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('TestSession', testSessionSchema);

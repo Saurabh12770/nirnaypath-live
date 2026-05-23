@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     badges: [String],
+    refreshTokens: [String],
     role: {
         type: String,
         enum: ['user', 'admin'],
@@ -85,13 +86,21 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    refreshTokens: [String],
+    friends: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     resetPasswordToken: String,
     resetPasswordExpires: Date
 });
 
 userSchema.index({ createdAt: -1 });
 userSchema.index({ role: 1 });
+// Phase 11 — Production compound indexes
+userSchema.index({ isActive: 1, role: 1 });              // Admin user listing
+userSchema.index({ plan: 1, subscriptionStatus: 1 });    // Subscription queries
+userSchema.index({ subscriptionEnd: 1 }, { sparse: true }); // Expiry sweeper
+userSchema.index({ lastActiveDate: -1 });                // Streak crons
 
 const User = mongoose.model('User', userSchema);
 

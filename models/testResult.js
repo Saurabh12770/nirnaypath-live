@@ -90,6 +90,13 @@ const testResultSchema = new mongoose.Schema({
 testResultSchema.index({ userId: 1 });
 testResultSchema.index({ createdAt: -1 });
 testResultSchema.index({ exam: 1, createdAt: -1 });
+// Phase 11 — Compound indexes for production query patterns
+testResultSchema.index({ userId: 1, createdAt: -1 });          // User history queries
+testResultSchema.index({ userId: 1, subject: 1, createdAt: -1 }); // Per-subject analytics
+testResultSchema.index({ userId: 1, exam: 1, createdAt: -1 }); // Exam-scoped history
+testResultSchema.index({ subject: 1, score: -1 });              // Subject leaderboard
+testResultSchema.index({ exam: 1, score: -1, createdAt: -1 }); // Exam rank + recent
+testResultSchema.index({ fraudProbabilityScore: 1 }, { sparse: true }); // Anti-cheat queries
 
 const TestResult = mongoose.model('TestResult', testResultSchema);
 

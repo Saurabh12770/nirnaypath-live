@@ -38,20 +38,27 @@ const requirePlan = (requiredFeature) => {
                 }
 
                 // If active pro member, they pass all gates
-                return next();
+                if (user.subscriptionStatus === 'active' || user.subscriptionStatus === 'grace_period' || (user.subscriptionStatus === 'cancelled' && user.subscriptionEnd && now <= user.subscriptionEnd)) {
+                    return next();
+                } else {
+                    return res.status(403).json({
+                        error: 'Pro subscription is not active',
+                        message: 'Your Pro access has expired or is cancelled. Please renew to continue.'
+                    });
+                }
             }
 
             // 2. Free User Quota Logic (Feature Gating)
             
             // Sectional Tests Gate
             if (requiredFeature === 'sectional_tests') {
-                const startOfWeek = new Date();
-                startOfWeek.setDate(startOfWeek.getDate() - 7);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
                 
                 const weeklyTests = await TestResult.countDocuments({
                     userId: user._id,
                     mode: 'section', // Ensure mode is correctly stored in TestResult
-                    createdAt: { $gte: startOfWeek }
+                    createdAt: { $gte: sevenDaysAgo }
                 });
 
                 if (weeklyTests >= (plans.free.limits.sectionalTestsPerWeek || 2)) {

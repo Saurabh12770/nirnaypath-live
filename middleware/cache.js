@@ -1,32 +1,6 @@
-const Redis = require('ioredis');
+const { getRedisClient, isRedisAvailable } = require('../services/redisService');
 
-// Initialize Redis client with fallback
-let redis;
-let isRedisAvailable = false;
 const CACHE_VERSION = 'v1'; // Phase 4: Version-based cache keying
-
-try {
-    redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-        maxRetriesPerRequest: 1,
-        commandTimeout: 2000, // Phase 3: Circuit Breaker - prevent slow Redis from hanging requests
-        retryStrategy: (times) => {
-            if (times > 2) return null; // stop retrying quickly
-            return 500;
-        }
-    });
-
-    redis.on('error', (err) => {
-        console.warn('Redis Connection Error:', err.message);
-        isRedisAvailable = false;
-    });
-
-    redis.on('connect', () => {
-        console.log('Redis connected successfully.');
-        isRedisAvailable = true;
-    });
-} catch (err) {
-    console.warn('Redis failed to initialize:', err.message);
-}
 
 // In-memory fallback for high availability
 const localCache = new Map();
@@ -36,20 +10,19 @@ const localCache = new Map();
  */
 async function getCachedData(key) {
     const versionedKey = `${CACHE_VERSION}_${key}`;
-    if (isRedisAvailable) {
+    if (isRedisAvailable()) {
         try {
-            // maxTimeMS for redis.get simulation via commandTimeout
+            const redis = getRedisClient();
             const data = await redis.get(versionedKey);
             if (!data) return null;
             return JSON.parse(data);
         } catch (err) {
             console.warn('[Cache] Redis Get Error (Falling back):', err.message);
-            // Don't disable redis on single error, but use fallback
         }
     }
 
     // Fallback to local
-    const cachedItem = localCache.get(versionedKey); // Use versionedKey consistently
+    const cachedItem = localCache.get(versionedKey);
     if (!cachedItem) return null;
     if (Date.now() > cachedItem.expiry) {
         localCache.delete(versionedKey);
@@ -57,11 +30,10 @@ async function getCachedData(key) {
     }
     
     // FAANG-Level Immutability: ALWAYS return a deep clone for local memory objects
-    // This prevents one request from mutating the cached pool for all others.
     try {
         return JSON.parse(JSON.stringify(cachedItem.data));
     } catch (e) {
-        return cachedItem.data; // Fallback to reference if cloning fails
+        return cachedItem.data;
     }
 }
 
@@ -70,8 +42,9 @@ async function getCachedData(key) {
  */
 async function setCachedData(key, data, ttlSeconds) {
     const versionedKey = `${CACHE_VERSION}_${key}`;
-    if (isRedisAvailable) {
+    if (isRedisAvailable()) {
         try {
+            const redis = getRedisClient();
             await redis.set(versionedKey, JSON.stringify(data), 'EX', ttlSeconds);
             return;
         } catch (err) {
@@ -91,8 +64,9 @@ async function setCachedData(key, data, ttlSeconds) {
  */
 async function clearCache(key) {
     const versionedKey = key ? `${CACHE_VERSION}_${key}` : null;
-    if (isRedisAvailable) {
+    if (isRedisAvailable()) {
         try {
+            const redis = getRedisClient();
             if (versionedKey) await redis.del(versionedKey);
             else await redis.flushall();
             return;
