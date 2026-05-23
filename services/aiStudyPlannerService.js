@@ -3,7 +3,7 @@
 const TestResult = require('../models/testResult');
 const UserXP = require('../models/UserXP');
 const AdaptiveLearningService = require('./adaptiveLearningService');
-const RecommendationService = require('../server/services/recommendationService');
+const RecommendationService = require('./recommendationService');
 
 /**
  * NirnayPath AI Study Planner Service

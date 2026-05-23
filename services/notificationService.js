@@ -6,7 +6,6 @@
  * Supports: study reminders, streak alerts, achievements, exam countdown, recommendations
  */
 
-const socketService   = require('./socketService');
 const webpush         = require('web-push');
 const User            = require('../models/user');
 const Notification    = require('../models/Notification');
@@ -49,6 +48,7 @@ class NotificationService {
             });
 
             // 2. Real-time delivery via Socket.IO
+            const socketService = require('./socketService');
             socketService.emitToUser(String(userId), 'notification', {
                 id:        notification._id,
                 title, message, type, icon, action, priority,

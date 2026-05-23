@@ -3,7 +3,7 @@
 const TestResult = require('../models/testResult');
 const UserXP = require('../models/UserXP');
 const QuestionSelectionService = require('../utils/questionSelectionService');
-const RecommendationService = require('../server/services/recommendationService');
+const RecommendationService = require('./recommendationService');
 const PerformanceAnalyticsService = require('./performanceAnalyticsService');
 
 /**

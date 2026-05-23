@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
 const auth = require('../middleware/auth');
-const recommendationService = require('../server/services/recommendationService');
+const recommendationService = require('../services/recommendationService');
 const router = express.Router();
 
 /**

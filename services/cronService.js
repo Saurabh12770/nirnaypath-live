@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const User = require('../models/user');
 const UserXP = require('../models/UserXP');
 const notificationService = require('./notificationService');
-const recommendationService = require('../server/services/recommendationService');
+const recommendationService = require('./recommendationService');
 const { generateWeeklyDigest } = require('./emailDigest');
 
 // autorun scheduled tasks configs
