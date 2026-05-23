@@ -43,6 +43,8 @@ const Dashboard = {
             }
 
             if (profileRes.ok && statsRes.ok) {
+                this.profileData = profileData;
+                this.statsData = statsData;
                 this.renderDashboard(profileData, statsData);
                 this.loadLeaderboard('upsc'); // Default leaderboard
             } else {
@@ -114,7 +116,7 @@ const Dashboard = {
         const tbody = document.getElementById('recent-tests-body');
         tbody.innerHTML = '';
         
-        if (profile.recentTests.length === 0) {
+        if (!profile.recentTests || profile.recentTests.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No tests taken yet. Start your first mock test!</td></tr>';
         } else {
             profile.recentTests.forEach(test => {
@@ -172,10 +174,17 @@ const Dashboard = {
 
     async viewResult(id) {
         try {
-            const res = await Auth.fetchWithAuth(`/api/user/stats`);
-            const stats = await res.json();
-            const profileRes = await Auth.fetchWithAuth(`/api/user/me`);
-            const profile = await profileRes.json();
+            let profile = this.profileData;
+            let stats = this.statsData;
+            
+            if (!profile || !stats) {
+                const res = await Auth.fetchWithAuth(`/api/user/stats`);
+                stats = await res.json();
+                const profileRes = await Auth.fetchWithAuth(`/api/user/me`);
+                profile = await profileRes.json();
+                this.profileData = profile;
+                this.statsData = stats;
+            }
             
             const test = profile.recentTests.find(t => t._id === id);
             if (!test) return this.showToast('Test record not found');

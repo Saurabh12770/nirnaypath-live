@@ -31,7 +31,22 @@ const logToDeadLetter = (type, payload, error) => {
 /**
  * Unified Dispatcher
  */
-const sendEmail = async (type, payload) => {
+const sendEmail = async (typeOrTo, payloadOrType, context) => {
+    let to, type, payload;
+    if (typeof payloadOrType === 'string') {
+        to = typeOrTo;
+        type = payloadOrType;
+        payload = context || {};
+        if (!payload.user) {
+            payload.user = { email: to, name: payload.name || 'Student' };
+        } else if (!payload.user.email) {
+            payload.user.email = to;
+        }
+    } else {
+        type = typeOrTo;
+        payload = payloadOrType || {};
+    }
+
     const { user } = payload;
     if (!user || !user.email) {
         console.error(`[EmailService] Dispatch failed: No recipient for ${type}`);
@@ -172,6 +187,46 @@ const sendEmail = async (type, payload) => {
 
                         <div style="text-align: center; margin-top: 30px;">
                             <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">View Full Intelligence Dashboard</a>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case 'PAYMENT_SUCCESS':
+                subject = 'Payment Successful - Welcome to NirnayPath Pro!';
+                html = `
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #334155; line-height: 1.6;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #10b981; margin: 0; font-size: 28px;">NirnayPath Pro</h1>
+                            <p style="color: #64748b; margin: 5px 0 0;">Empowering Your Exam Success</p>
+                        </div>
+                        <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <h2 style="color: #10b981; margin-top: 0; text-align: center;">Payment Successful!</h2>
+                            <p>Hi ${user.name}, your payment of <b>INR ${payload.amount}</b> for the <b>${payload.planName || 'Pro'}</b> plan was successfully processed.</p>
+                            <p>Your subscription is now active until <b>${payload.expiryDate || 'N/A'}</b>.</p>
+                            <div style="text-align: center; margin: 35px 0;">
+                                <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Go to Dashboard</a>
+                            </div>
+                            <p style="font-size: 14px; color: #64748b; text-align: center; margin-top: 20px;">Enjoy your unlimited tests and full access to intelligence analytics!</p>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case 'SUBSCRIPTION_EXPIRED':
+                subject = 'Your Pro Subscription Has Expired - NirnayPath';
+                html = `
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #334155; line-height: 1.6;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #ef4444; margin: 0; font-size: 28px;">NirnayPath</h1>
+                        </div>
+                        <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <h2 style="color: #ef4444; margin-top: 0; text-align: center;">Subscription Expired</h2>
+                            <p>Hi ${user.name}, your NirnayPath Pro subscription has expired and your account has been downgraded to the Free tier.</p>
+                            <p>You can upgrade back to Pro at any time to regain unlimited access to sectional tests and advanced performance insights.</p>
+                            <div style="text-align: center; margin: 35px 0;">
+                                <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #2563eb; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Renew Subscription</a>
+                            </div>
                         </div>
                     </div>
                 `;

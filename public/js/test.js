@@ -72,6 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
         runSystemDiagnostics();
     }
 
+    const resumeBtn = document.getElementById('btn-resume-fullscreen');
+    if (resumeBtn) {
+        resumeBtn.addEventListener('click', async () => {
+            try { await document.documentElement.requestFullscreen(); } catch (err) { alert("Fullscreen required."); }
+        });
+    }
+
     bindScreenFlows();
 });
 
@@ -270,18 +277,6 @@ function initAntiCheat() {
     document.addEventListener('keydown', _onKeyDown);
 }
 
-/* ── FORENSIC FIX: Moved from module scope into DOMContentLoaded guard.
-   A bare getElementById() call outside DOMContentLoaded will throw
-   TypeError and crash the ENTIRE CBT script if the element doesn't
-   exist yet (e.g. under 6x CPU throttle). Root cause of blank screen. */
-document.addEventListener('DOMContentLoaded', () => {
-    const resumeBtn = document.getElementById('btn-resume-fullscreen');
-    if (resumeBtn) {
-        resumeBtn.addEventListener('click', async () => {
-            try { await document.documentElement.requestFullscreen(); } catch (err) { alert("Fullscreen required."); }
-        });
-    }
-}, { once: true });
 
 async function increaseRiskScore(points, type) {
     if (!testState.isActive) return;
@@ -294,7 +289,7 @@ async function increaseRiskScore(points, type) {
     }
 
     try {
-        const token = localStorage.getItem('nirnaypath_token');
+        const token = Auth.getToken();
         const res = await fetch('/api/test/violation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -346,7 +341,7 @@ function updateTimerDisplay() {
 async function forceServerSync() {
     if (!testState.isActive) return;
     try {
-        const token = localStorage.getItem('nirnaypath_token');
+        const token = Auth.getToken();
         const res = await fetch(`/api/test/sync/${testState.sessionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (res.ok) {
             const data = await res.json();
@@ -380,7 +375,7 @@ async function heartbeatPing() {
     };
 
     try {
-        const token = localStorage.getItem('nirnaypath_token');
+        const token = Auth.getToken();
         const start = performance.now();
         const res = await fetch('/api/test/heartbeat', {
             method: 'POST',
@@ -645,7 +640,7 @@ async function executeSubmitFlow(isForced) {
     };
 
     try {
-        const token = localStorage.getItem('nirnaypath_token');
+        const token = Auth.getToken();
         await fetch('/api/test/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -653,7 +648,7 @@ async function executeSubmitFlow(isForced) {
         });
         
         localStorage.removeItem('mockTestState');
-        if (!isForced) document.getElementById('terminated-overlay').classList.add('active');
+        if (isForced) document.getElementById('terminated-overlay').classList.add('active');
     } catch (err) {
         console.error("Submit failed", err);
         alert("Network error during submission. Results are saved locally and will sync when connection restores.");

@@ -7,6 +7,10 @@ const User       = require('../models/user');
 const { sendResultEmail }   = require('../services/emailService');
 const { evaluateBadges }    = require('../services/badgeService');
 const AdaptiveLearningService = require('../services/adaptiveLearningService');
+const XPService = require('../services/xpService');
+const AchievementService = require('../services/achievementService');
+const notificationService = require('../services/notificationService');
+const RecommendationService = require('../server/services/recommendationService');
 const router  = express.Router();
 const crypto  = require('crypto');
 const TestSession   = require('../models/testSession');
@@ -109,23 +113,49 @@ router.post('/submit', auth, async (req, res) => {
         const { sessionId, exam, subject, testName, score, totalQuestions, correct, incorrect, unattempted, accuracy, answers, mode, modeValue } = req.body;
         
         // --- INPUT VALIDATION ---
-        if (!answers || !Array.isArray(answers)) {
-            return res.status(400).json({ error: 'Answers array is required.' });
+        if (!answers || (typeof answers !== 'object' && !Array.isArray(answers))) {
+            console.error(`[Submit][400] Validation failed: answers payload is missing or invalid. Received type: ${typeof answers}`);
+            return res.status(400).json({ error: 'Answers payload must be an array or an object.' });
         }
         // 1. Session Identity Lock (Harden userId + sessionId binding)
         if (!sessionId) {
+            console.error('[Submit][400] Validation failed: sessionId is missing.');
             return res.status(400).json({ error: 'Session ID is required for submission.' });
         }
 
-        const session = await TestSession.findOne({ 
-            sessionId, 
-            userId: req.user._id, 
-            status: 'active' 
-        });
+        // Perform the atomic status update from 'active' to 'submitted' first to block duplicate requests
+        const session = await TestSession.findOneAndUpdate(
+            { sessionId, userId: req.user._id, status: 'active' },
+            { $set: { status: 'submitted' } },
+            { new: false } // returns the original session before update so we can use its details
+        );
         
         if (!session) {
             console.log(`[Submit][403] Session not found or not active: sid=${sessionId}, uid=${req.user._id}`);
             return res.status(403).json({ error: 'Invalid, already submitted, or unauthorized test session.' });
+        }
+
+        // --- IMMEDIATELY NORMALIZE INTO STANDARD INTERNAL STRUCTURE ---
+        let normalizedAnswers = [];
+        if (Array.isArray(answers)) {
+            normalizedAnswers = answers.map((a, idx) => {
+                if (a && typeof a === 'object') {
+                    const qId = a.questionId || a.id || (session.questionIds && session.questionIds[idx]);
+                    const ansVal = a.userAnswer !== undefined ? a.userAnswer : (a.selected !== undefined ? a.selected : a.answer);
+                    return { questionId: String(qId), answer: ansVal };
+                } else {
+                    const qId = session.questionIds && session.questionIds[idx];
+                    return { questionId: String(qId), answer: a };
+                }
+            });
+        } else if (answers && typeof answers === 'object') {
+            normalizedAnswers = Object.entries(answers).map(([qId, val]) => {
+                if (val && typeof val === 'object') {
+                    const ansVal = val.userAnswer !== undefined ? val.userAnswer : (val.selected !== undefined ? val.selected : val.answer);
+                    return { questionId: String(qId), answer: ansVal };
+                }
+                return { questionId: String(qId), answer: val };
+            });
         }
 
         // 2. Time Validation (Server-side source of truth with immutable timestamp)
@@ -170,12 +200,10 @@ router.post('/submit', auth, async (req, res) => {
         
         const validatedAnswers = session.questionIds.map((qId, index) => {
             const question = allAvailableQuestions.find(q => (q._id?.toString() === qId || q.id === qId));
-            let userChoice = answers[index]; // Index-based mapping from frontend
             
-            // Security/Robustness: Extract answer if userChoice is an object
-            if (userChoice && typeof userChoice === 'object') {
-                userChoice = userChoice.userAnswer !== undefined ? userChoice.userAnswer : userChoice.selected;
-            }
+            // Query only from normalizedAnswers
+            const ansObj = normalizedAnswers.find(a => a && String(a.questionId) === String(qId));
+            const userChoice = ansObj ? ansObj.answer : undefined;
             
             const isAttempted = userChoice !== null && userChoice !== undefined;
             let correctOption = null;
@@ -250,28 +278,37 @@ router.post('/submit', auth, async (req, res) => {
             throw saveErr;
         }
         
-        // Mark session as submitted (Atomic Update)
-        const updatedSession = await TestSession.findOneAndUpdate(
-            { sessionId, status: 'active' },
-            { $set: { status: 'submitted' } },
-            { new: true }
-        );
-
-        if (!updatedSession) {
-            // This handles the race condition where another request already submitted
-            return res.status(409).json({ error: 'Session already submitted or no longer active.' });
-        }
+        // Note: Session status was atomically updated to 'submitted' at the start of submission to prevent races.
+        const updatedSession = session;
 
         // --- Streak & Badge Logic (HARDENED: Atomic Updates) ---
         const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         
+        // Fetch original user info to check their last active date for streak calculations
+        const originalUser = await User.findById(req.user._id).select('lastActiveDate streakCount').lean();
+        let newStreak = originalUser ? (originalUser.streakCount || 0) : 0;
+        let gapDays = 0;
+
+        if (originalUser && originalUser.lastActiveDate) {
+            const lastActive = new Date(originalUser.lastActiveDate);
+            const lastActiveUTC = new Date(Date.UTC(lastActive.getUTCFullYear(), lastActive.getUTCMonth(), lastActive.getUTCDate()));
+            const diffTime = today - lastActiveUTC;
+            gapDays = Math.floor(diffTime / 86400000);
+
+            if (gapDays === 1) {
+                newStreak += 1;
+            } else if (gapDays > 1) {
+                newStreak = 1;
+            }
+        } else {
+            newStreak = 1;
+        }
+
         // Use findOneAndUpdate to avoid VersionError under high concurrency
         const user = await User.findOneAndUpdate(
             { _id: req.user._id },
             { 
-                $set: { lastActiveDate: today },
-                // Streak logic needs more care if we want it perfectly atomic, 
-                // but at least we avoid crashing.
+                $set: { lastActiveDate: today, streakCount: newStreak }
             },
             { new: true }
         );
@@ -281,16 +318,63 @@ router.post('/submit', auth, async (req, res) => {
         let earnedBadges = [];
         try {
             const totalTests = await TestResult.countDocuments({ userId: req.user._id });
-            earnedBadges = evaluateBadges(user, testResult, totalTests);
             
-            if (earnedBadges.length > 0) {
+            // 1. Award XP for test completion & accuracy
+            const xpAwards = await XPService.awardForTestSubmit(req.user._id, testResult);
+            
+            // 2. Award XP for streak if milestone hit
+            const streakAwards = await XPService.awardForStreak(req.user._id, newStreak);
+            xpAwards.push(...streakAwards);
+
+            // 3. Award XP for comeback if milestone hit
+            if (gapDays > 1) {
+                const comebackAwards = await XPService.awardForComeback(req.user._id, gapDays);
+                xpAwards.push(...comebackAwards);
+            }
+
+            // 4. Update current streak in UserXP record
+            const xpRecord = await XPService.getOrCreate(req.user._id);
+            xpRecord.currentStreak = newStreak;
+            if (newStreak > xpRecord.longestStreak) {
+                xpRecord.longestStreak = newStreak;
+            }
+            await xpRecord.save();
+
+            // 5. Evaluate achievements
+            const unlockedAchievements = await AchievementService.evaluateAfterTest(req.user._id, testResult, totalTests, newStreak);
+            
+            // 6. Notify user of achievements
+            for (const ach of unlockedAchievements) {
+                earnedBadges.push(ach.name);
+                await notificationService.sendAchievement(req.user._id, ach).catch(() => {});
+            }
+
+            // 7. Check if user leveled up
+            const hasLevelUp = xpAwards.some(a => a.levelUp);
+            if (hasLevelUp) {
+                const maxAwardedLevel = Math.max(...xpAwards.filter(a => a.levelUp).map(a => a.level));
+                await notificationService.sendLevelUp(req.user._id, maxAwardedLevel).catch(() => {});
+            }
+
+            // 8. If new badges were earned via legacy badgeService too, combine them
+            const legacyBadges = evaluateBadges(user, testResult, totalTests);
+            if (legacyBadges.length > 0) {
                 await User.updateOne(
                     { _id: req.user._id },
-                    { $addToSet: { badges: { $each: earnedBadges } } }
+                    { $addToSet: { badges: { $each: legacyBadges } } }
                 );
+                for (const badge of legacyBadges) {
+                    if (!earnedBadges.includes(badge)) {
+                        earnedBadges.push(badge);
+                    }
+                }
             }
-        } catch (badgeErr) {
-            console.error('[BadgeError] Failed to update badges:', badgeErr.message);
+
+            // 9. Invalidate AI Recommendations Cache to trigger fresh predictions on dashboard reload
+            RecommendationService.invalidateCache(req.user._id);
+
+        } catch (gamifyErr) {
+            console.error('[GamificationError] Failed to process gamification rewards:', gamifyErr.message);
         }
         
         // Send email (now queued via BullMQ in emailService)
@@ -299,7 +383,7 @@ router.post('/submit', auth, async (req, res) => {
         res.status(201).json({ 
             message: 'Test result saved successfully', 
             resultId: testResult._id,
-            streak: user.streakCount,
+            streak: newStreak,
             newBadges: earnedBadges
         });
     } catch (error) {
@@ -396,13 +480,7 @@ router.post('/violation', auth, async (req, res) => {
     }
 });
 
-/**
- * GET /api/test/health
- * Lightweight ping endpoint to calculate network latency for the System Diagnostic Engine.
- */
-router.get('/health', (req, res) => {
-    res.json({ ok: true, timestamp: Date.now() });
-});
+
 
 /**
  * POST /api/test/heartbeat

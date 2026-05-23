@@ -150,6 +150,24 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Inject CSS enhancements (scrollbar, animations, etc.) */
     injectDynamicCSS();
 
+    // Detect if FontAwesome CSS and font files have loaded
+    const checkFontAwesome = () => {
+        const span = document.createElement('span');
+        span.className = 'fa-solid fa-compass';
+        span.style.display = 'none';
+        document.body.appendChild(span);
+        const loaded = document.fonts.check('12px "Font Awesome 6 Free"') || 
+                       document.fonts.check('12px "Font Awesome 5 Free"') ||
+                       (window.getComputedStyle(span).fontFamily.includes('Font Awesome'));
+        document.body.removeChild(span);
+        if (loaded) {
+            document.body.classList.add('fa-loaded');
+        }
+    };
+    checkFontAwesome();
+    document.fonts.ready.then(checkFontAwesome);
+    setTimeout(checkFontAwesome, 2000);
+
     /* Init modules */
     initTheme();
 
@@ -158,16 +176,25 @@ document.addEventListener('DOMContentLoaded', () => {
     initFilterButtons();
     initStickyHeader();
     initBackToTop();
-    initScrollAnimations();
-    initFAQ();
-    initTypingAnimation();
     initMobileMenu();
-    initTipsSlider();
-    initHeroSliders();
-    makeInfiniteSlider('testimonial-slider', 4000);
-    makeInfiniteSlider('trending-slider', 3000);
-    animateCounters();
-    initTrendingTestButtons();
+
+    const initDeferredModules = () => {
+        initScrollAnimations();
+        initFAQ();
+        initTypingAnimation();
+        initTipsSlider();
+        initHeroSliders();
+        makeInfiniteSlider('testimonial-slider', 4000);
+        makeInfiniteSlider('trending-slider', 3000);
+        animateCounters();
+        initTrendingTestButtons();
+    };
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(initDeferredModules);
+    } else {
+        setTimeout(initDeferredModules, 200);
+    }
 
     /* ✅ Always start on dashboard — subject panel hidden by default */
     UIStateMachine.reset('HOME');
@@ -214,7 +241,7 @@ function cleanupActiveView() {
 
     // Reset pointer-events and overflow leaks on body (Root cause of frozen UI)
     document.body.style.pointerEvents = 'auto';
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = ''; // FIX: '' defers to CSS; 'auto' was overriding overflow-x:clip in style.css
 
     // Flush any lingering overlay display states
     document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
@@ -446,15 +473,18 @@ const SectionalTests = {
    5. THEME
    ============================================================ */
 function initTheme() {
+    if (window.NirnayPath && typeof window.NirnayPath.initTheme === 'function') {
+        // Delegate to unified utility implementation
+        return;
+    }
     const toggle = document.getElementById('themeToggle');
     if (!toggle) return;
     if (localStorage.getItem('theme') === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
         toggle.innerHTML = '<i class="fas fa-sun"></i>';
     }
-    toggle.addEventListener('click', () => {
+    toggle.onclick = () => {
         const dark = document.body.getAttribute('data-theme') === 'dark';
-        document.body.setAttribute('data-theme', dark ? '' : 'dark');
         if (dark) {
             document.body.removeAttribute('data-theme');
             toggle.innerHTML = '<i class="fas fa-moon"></i>';
@@ -464,7 +494,7 @@ function initTheme() {
             toggle.innerHTML = '<i class="fas fa-sun"></i>';
             localStorage.setItem('theme', 'dark');
         }
-    });
+    };
 }
 
 /* ============================================================ 
@@ -1455,11 +1485,33 @@ function makeHeroSlider(selector) {
     const slides = Array.from(container.children);
     if (slides.length === 0) return;
 
+    // Load first image immediately if not already loaded
+    const firstImg = slides[0].tagName === 'IMG' ? slides[0] : slides[0].querySelector('img');
+    if (firstImg && firstImg.dataset.src) {
+        firstImg.src = firstImg.dataset.src;
+        firstImg.removeAttribute('data-src');
+    }
+
     // Clone first few slides for infinite loop
     slides.forEach(slide => {
         const clone = slide.cloneNode(true);
         container.appendChild(clone);
     });
+
+    // Lazy load the remaining images asynchronously (original and clones)
+    const lazyImages = Array.from(container.querySelectorAll('img[data-src]'));
+    const loadRemainingImages = () => {
+        lazyImages.forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+    };
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadRemainingImages);
+    } else {
+        setTimeout(loadRemainingImages, 1000);
+    }
 
     let scrollAmount = 0;
     let isPaused = false;
@@ -1742,7 +1794,7 @@ function injectDynamicCSS() {
       .logo-text { display:flex; flex-direction:column; line-height:1.1; }
       .logo-main { font-size:1.5rem; font-weight:900;
                    background:var(--gradient);-webkit-background-clip:text;
-                   background-clip:text;color:transparent;letter-spacing:-.5px; }
+                   background-clip:text;-webkit-text-fill-color:transparent;color:var(--primary);letter-spacing:-.5px; }
       .logo-sub  { font-size:.65rem;font-weight:600;color:var(--primary);
                    letter-spacing:2px;text-transform:uppercase;opacity:.8; }
     `;

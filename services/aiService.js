@@ -1,6 +1,12 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY || "DUMMY_KEY");
+const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
+
+if (!apiKey || apiKey === "DUMMY_KEY") {
+    console.warn("AI Service Startup Validation: Neither GEMINI_API_KEY nor AI_API_KEY environment variable is defined. AI features will run in fallback mode.");
+} else {
+    console.log("AI Service Startup Validation: Valid AI API key detected.");
+}
 
 const SYSTEM_PROMPT = `You are "Nirnay Help Center", a highly knowledgeable AI Tutor for the NirnayPath platform.
 Your goal is to help Indian students preparing for competitive exams like UPSC, BPSC, SSC, Banking, and Railways.
@@ -16,7 +22,19 @@ Guidelines:
 Context: You are talking to a student on the NirnayPath platform.`;
 
 const askAI = async (userMessage, history = []) => {
+    const keyToUse = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
+    
+    if (!keyToUse || keyToUse === "DUMMY_KEY") {
+        return {
+            success: false,
+            source: "fallback",
+            message: "AI service unavailable",
+            isFallback: true
+        };
+    }
+
     try {
+        const genAI = new GoogleGenerativeAI(keyToUse);
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const chat = model.startChat({
@@ -36,16 +54,15 @@ const askAI = async (userMessage, history = []) => {
 
         const result = await chat.sendMessage(prompt);
         const response = await result.response;
-        return { text: response.text(), isFallback: false };
+        return { text: response.text(), isFallback: false, success: true };
     } catch (error) {
-        console.error("AI Service Error:", error);
-        if (!process.env.AI_API_KEY || error.message.includes("API_KEY_INVALID")) {
-            return {
-                text: "I’m currently in learning mode. Our team is setting up the full AI assistant soon. In the meantime, feel free to ask me about exam patterns, general tips, or navigation help!\n\n(मैं अभी सीख रहा हूँ। हमारी टीम जल्द ही पूर्ण AI सहायक सेट कर रही है। तब तक, आप मुझसे परीक्षा पैटर्न, सामान्य सुझाव या नेविगेशन के बारे में पूछ सकते हैं!)",
-                isFallback: true
-            };
-        }
-        throw new Error("Failed to get response from AI tutor.");
+        console.error("AI Service Error:", error.message || error);
+        return {
+            success: false,
+            source: "fallback",
+            message: "AI service unavailable",
+            isFallback: true
+        };
     }
 };
 

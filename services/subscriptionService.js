@@ -62,7 +62,7 @@ const SubscriptionService = {
             console.error('[SubscriptionService] Fulfillment error:', error);
             throw error;
         } finally {
-            session.endSession();
+            await session.endSession().catch(() => {});
         }
     },
 

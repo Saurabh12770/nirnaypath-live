@@ -5,6 +5,8 @@
 
 const Auth = {
     userKey: 'np_user_data',
+    eventListenersSetup: false,
+    logoutInProgress: false,
 
     async init() {
         await this.checkAuthStatus();
@@ -20,6 +22,8 @@ const Auth = {
     },
 
     setupEventListeners() {
+        if (this.eventListenersSetup) return;
+        this.eventListenersSetup = true;
         const loginForm = document.getElementById('loginForm');
         const signupForm = document.getElementById('signupForm');
         const showSignup = document.getElementById('showSignup');
@@ -95,6 +99,29 @@ const Auth = {
                 e.preventDefault();
                 const email = document.getElementById('forgotEmail').value;
                 await this.forgotPassword(email);
+            });
+        }
+
+        const loginBtn = document.getElementById('loginBtn');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                if (loginBtn.textContent.includes('Logout')) {
+                    this.logout();
+                } else {
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = 'flex';
+                }
+            });
+        }
+        if (mobileLoginBtn) {
+            mobileLoginBtn.addEventListener('click', () => {
+                if (mobileLoginBtn.textContent.includes('Logout')) {
+                    this.logout();
+                } else {
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = 'flex';
+                }
             });
         }
     },
@@ -173,6 +200,8 @@ const Auth = {
     },
 
     async logout() {
+        if (this.logoutInProgress) return;
+        this.logoutInProgress = true;
         try {
             await fetch('/api/auth/logout', {
                 method: 'POST'
@@ -255,11 +284,9 @@ const Auth = {
             const logoutHtml = `<i class="fas fa-sign-out-alt"></i> Logout`;
             if (loginBtn) {
                 loginBtn.innerHTML = logoutHtml;
-                loginBtn.onclick = () => this.logout();
             }
             if (mobileLoginBtn) {
                 mobileLoginBtn.innerHTML = logoutHtml;
-                mobileLoginBtn.onclick = () => this.logout();
             }
             if (userNameDisplay) {
                 userNameDisplay.textContent = user.name;
@@ -280,17 +307,9 @@ const Auth = {
             const loginHtml = `<i class="fas fa-sign-in-alt"></i> Login`;
             if (loginBtn) {
                 loginBtn.innerHTML = loginHtml;
-                loginBtn.onclick = () => {
-                    const modal = document.getElementById('loginModal');
-                    if (modal) modal.style.display = 'flex';
-                };
             }
             if (mobileLoginBtn) {
                 mobileLoginBtn.innerHTML = loginHtml;
-                mobileLoginBtn.onclick = () => {
-                    const modal = document.getElementById('loginModal');
-                    if (modal) modal.style.display = 'flex';
-                };
             }
             if (userNameDisplay) userNameDisplay.style.display = 'none';
             if (adminNavLink) adminNavLink.style.display = 'none';
@@ -300,7 +319,14 @@ const Auth = {
     },
 
     getToken() {
-        return null;
+        try {
+            const data = localStorage.getItem(this.userKey);
+            if (!data) return null;
+            const parsed = JSON.parse(data);
+            return parsed.token || null;
+        } catch (e) {
+            return null;
+        }
     },
 
     isLoggedIn() {

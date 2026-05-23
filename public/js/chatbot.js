@@ -7,11 +7,6 @@ const Chatbot = {
     init() {
         this.injectHTML();
         this.setupEventListeners();
-        
-        // Load history if user is already logged in
-        if (Auth.isLoggedIn()) {
-            this.loadHistory();
-        }
     },
 
     injectHTML() {
@@ -53,7 +48,12 @@ const Chatbot = {
         toggle.onclick = () => {
             this.isOpen = !this.isOpen;
             window.classList.toggle('active', this.isOpen);
-            if (this.isOpen) document.getElementById('chatInput').focus();
+            if (this.isOpen) {
+                document.getElementById('chatInput').focus();
+                if (Auth.isLoggedIn()) {
+                    this.loadHistory();
+                }
+            }
         };
 
         close.onclick = () => {
@@ -146,4 +146,10 @@ const Chatbot = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => Chatbot.init());
+document.addEventListener('DOMContentLoaded', () => {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => Chatbot.init());
+    } else {
+        setTimeout(() => Chatbot.init(), 200);
+    }
+});

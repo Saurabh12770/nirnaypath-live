@@ -13,22 +13,25 @@ class QuestionReservationManager {
 
     /**
      * Acquire an async lock for a specific user to prevent race conditions in selection.
+     * Upgraded to cluster-safe DistributedLockService for zero-trust concurrency safety.
      */
     async acquireUserLock(userId) {
         const uId = userId.toString();
-        while (this._userLocks.has(uId)) {
-            await this._userLocks.get(uId);
-        }
-        
-        let release;
-        const lock = new Promise(resolve => {
-            release = resolve;
+        const lockKey = `lock:user_reservation:${uId}`;
+        const DistributedLockService = require('./distributedLockService');
+
+        const result = await DistributedLockService.acquireLock(lockKey, 15000, {
+            retries: 30,
+            retryDelayMs: 100
         });
-        
-        this._userLocks.set(uId, lock);
+
+        if (!result.success) {
+            throw new Error(`Could not acquire selection lock for user ${uId}. Please retry.`);
+        }
+
         return () => {
-            this._userLocks.delete(uId);
-            release();
+            DistributedLockService.releaseLock(lockKey, result.lockId)
+                .catch(err => console.error(`[Reservation] Lock release failed: ${err.message}`));
         };
     }
 

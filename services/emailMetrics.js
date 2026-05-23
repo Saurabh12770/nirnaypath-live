@@ -1,8 +1,10 @@
-const { connection } = require('./queueService');
+const queueService = require('./queueService');
 
 const recordMetric = async (category, field, increment = 1) => {
     try {
-        await connection.hincrby(`metrics:email:${category}`, field, increment);
+        const conn = queueService.getConnection();
+        if (!conn) return;
+        await conn.hincrby(`metrics:email:${category}`, field, increment);
     } catch (err) {
         // Silent fail to prevent side-effects on primary flow
     }
@@ -10,12 +12,14 @@ const recordMetric = async (category, field, increment = 1) => {
 
 const getMetrics = async () => {
     try {
+        const conn = queueService.getConnection();
+        if (!conn) return { sent: {}, failed: {}, dlq: {} };
         const [sent, failed, dlq] = await Promise.all([
-            connection.hgetall('metrics:email:sent'),
-            connection.hgetall('metrics:email:failed'),
-            connection.hgetall('metrics:email:dlq')
+            conn.hgetall('metrics:email:sent'),
+            conn.hgetall('metrics:email:failed'),
+            conn.hgetall('metrics:email:dlq')
         ]);
-        return { sent, failed, dlq };
+        return { sent: sent || {}, failed: failed || {}, dlq: dlq || {} };
     } catch (err) {
         return { error: 'Failed to fetch metrics' };
     }

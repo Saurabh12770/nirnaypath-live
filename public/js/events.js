@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
-  const el1 = document.getElementById('gen-btn-1');
+  const el1 = document.getElementById('dashNavLink');
   if (el1) { el1.addEventListener('click', (e) => { Dashboard.show() }); }
   const el2 = document.getElementById('gen-btn-2');
   if (el2) { el2.addEventListener('click', (e) => { setActiveExam('upsc') }); }
@@ -31,5 +31,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const el15 = document.getElementById('gen-btn-15');
   if (el15) { el15.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none' }); }
   const el16 = document.getElementById('gen-btn-16');
-  if (el16) { el16.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none'; showView('subjects') }); }
+  if (el16) { el16.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none'; showView('dashboard') }); }
 });

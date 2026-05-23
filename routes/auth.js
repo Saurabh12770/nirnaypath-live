@@ -84,8 +84,21 @@ router.post('/signup', authLimiter, async (req, res) => {
 
         // PHASE 6: JWT on signup MUST have expiry
         const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+        // PHASE-4A FIX: Generate refresh token on signup (consistent with login flow)
+        const refreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, { expiresIn: '7d' });
 
-        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
+        // PHASE-4A FIX: Persist refresh token (BUG-1 — schema now has refreshTokens field)
+        user.refreshTokens = [refreshToken];
+        await user.save();
+
+        // PHASE-4A FIX: Relax sameSite to 'lax' for compatibility with email redirects and PWA flows
+        const cookieSecure = process.env.NODE_ENV === 'production';
+        res.cookie('token', token, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 60 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        // PHASE-4A: Tokens are httpOnly-cookie-only by design.
+        // The auth middleware supports Bearer tokens via Authorization header for
+        // clients that already possess a token. Native mobile apps should use a
+        // dedicated mobile-auth endpoint (future feature), not body-exposed tokens.
         res.status(201).json({ user: { name: user.name, email: user.email, role: user.role } });
     } catch (error) {
         if (error.code === 11000) {
@@ -126,15 +139,16 @@ router.post('/login', authLimiter, async (req, res) => {
         const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
         const refreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, { expiresIn: '7d' });
 
+        // PHASE-4A FIX: refreshTokens is now a declared schema field; persist correctly
         user.refreshTokens = [...(user.refreshTokens || []), refreshToken].slice(-5); // Keep last 5
         await user.save();
 
-        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        // PHASE-4A FIX: Relax sameSite to 'lax' for compatibility with email redirects and PWA flows
+        const cookieSecure = process.env.NODE_ENV === 'production';
+        res.cookie('token', token, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 60 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
-        res.json({
-            user: { name: user.name, email: user.email, role: user.role }
-        });
+        res.json({ user: { name: user.name, email: user.email, role: user.role } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -163,13 +177,16 @@ router.post('/refresh-token', async (req, res) => {
         const newToken = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
         const newRefreshToken = jwt.sign({ id: user._id }, refreshTokenSecret, { expiresIn: '7d' });
 
-        // Replace old refresh token
+        // Replace old refresh token (BUG-1 FIX: refreshTokens now persists correctly)
         user.refreshTokens = user.refreshTokens.filter(t => t !== refreshToken);
         user.refreshTokens.push(newRefreshToken);
+        user.refreshTokens = user.refreshTokens.slice(-5); // Keep last 5
         await user.save();
 
-        res.cookie('token', newToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 60 * 60 * 1000 });
-        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        // PHASE-4A FIX: Consistent cookie settings with login/signup
+        const cookieSecure = process.env.NODE_ENV === 'production';
+        res.cookie('token', newToken, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 60 * 60 * 1000 });
+        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: cookieSecure, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
         res.json({ message: 'Token refreshed' });
     } catch (error) {

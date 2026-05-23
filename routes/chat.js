@@ -42,7 +42,16 @@ router.post('/', auth, async (req, res) => {
 
         // Get AI Response
         const aiResult = await askAI(message, history.reverse());
-        const botReply = typeof aiResult === 'string' ? aiResult : aiResult.text;
+        
+        if (aiResult && aiResult.success === false) {
+            return res.json({
+                success: false,
+                source: "fallback",
+                message: "AI service unavailable"
+            });
+        }
+
+        const botReply = aiResult.text;
         const isFallback = aiResult.isFallback || false;
 
         // Save Bot Message
@@ -57,7 +66,7 @@ router.post('/', auth, async (req, res) => {
         user.chatCount += 1;
         await user.save();
 
-        res.json({ reply: botReply, isFallback: isFallback });
+        res.json({ reply: botReply, isFallback: isFallback, success: true });
     } catch (error) {
         console.error("Chat Route Error:", error);
         res.status(500).json({ error: error.message });

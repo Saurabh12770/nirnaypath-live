@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Secure CBT Terminal | NirnayPath</title>
-    <script src="/js/diagnostics.js"></script>
+    <!-- diagnostics.js removed: file does not exist (was causing 404 / stall) -->
+    <!-- Performance Optimizations -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onerror="this.onerror=null;this.href='/vendor/fontawesome/css/all.min.css';">
+    <link rel="preload" href="/css/test.css" as="style">
+
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="this.onerror=null;this.href='/vendor/fontawesome/css/all.min.css';">
     <link rel="stylesheet" href="/css/test.css">
     
     <!-- Professional Rendering Engine (MathJax) -->
@@ -44,7 +55,7 @@
         </div>
         <div class="instruction-container" style="display:flex; flex-direction:row; gap: 30px;">
             <div class="candidate-photo" style="width: 150px; text-align: center;">
-                <img id="verify-avatar" src="" style="width: 150px; height: 150px; border: 2px solid #ccc; border-radius: 4px; object-fit: cover;">
+                <img id="verify-avatar" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20150%20150'%2F%3E" style="width: 150px; height: 150px; border: 2px solid #ccc; border-radius: 4px; object-fit: cover;">
                 <p style="margin-top:10px; font-weight:bold; color: #333;">Candidate Image</p>
             </div>
             <div class="candidate-details" style="flex:1;">
@@ -215,6 +226,7 @@
         </div>
     </div>
 
+    <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js"></script>
     <script src="/js/test.js"></script>
 </body>

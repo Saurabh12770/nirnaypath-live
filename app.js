@@ -5,9 +5,9 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
-const cluster = require('cluster');
-const os = require('os');
 const mongoose = require('mongoose');
+const { registerGlobalQueryLogger } = require('./services/slowQueryLogger');
+registerGlobalQueryLogger(mongoose);
 const crypto = require('crypto');
 const http = require('http');
 const context = require('./utils/context');
@@ -35,8 +35,15 @@ const learningRoutes = require('./routes/learning');
 const healthRoutes = require('./routes/health');
 const liveRoutes = require('./routes/live');
 const liveAdminRoutes = require('./routes/liveAdmin');
+const notificationRoutes = require('./routes/notifications');
+const recommendationRoutes = require('./routes/recommendations');
+const growthRoutes = require('./routes/growth');
+const seoRoutes = require('./routes/seo');
+const engagementRoutes = require('./routes/engagement');
+const adminIntelligenceRoutes = require('./routes/adminIntelligence');
 const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
+const { requestTracer } = require('./middleware/requestTracing');
 const { initCronJobs } = require('./services/cronService');
 const { initWorkers, shutdownWorkers } = require('./services/workerService');
 const User = require('./models/user');
@@ -73,7 +80,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath', {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+    heartbeatFrequencyMS: 10000
+})
     .then(async () => {
         console.log('Connected to MongoDB');
         await autoPromoteAdmin();
@@ -90,7 +101,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
-            connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://ui-avatars.com"],
+            connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://ui-avatars.com", "https://lumberjack.razorpay.com"],
             frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
             upgradeInsecureRequests: [],
@@ -103,20 +114,22 @@ app.use(helmet({
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? 'https://nirnaypath-live-production.up.railway.app' 
-    : 'http://localhost:8080',
+    : ['http://localhost:3000', 'http://localhost:8080'],
   credentials: true
 }));
+
+app.use(requestTracer);
 
 // PHASE 5: Capture raw body buffer for webhook HMAC verification.
 // MUST be registered BEFORE express.json() so the raw bytes are available.
 // The webhook route reads req.rawBody; all other routes use req.body as normal.
 app.use((req, res, next) => {
-    if (req.path === '/api/payment/webhook') {
+    const isWebhook = req.originalUrl && req.originalUrl.split('?')[0].toLowerCase() === '/api/payment/webhook';
+    if (isWebhook) {
         let data = [];
         req.on('data', chunk => data.push(chunk));
         req.on('end', () => {
             req.rawBody = Buffer.concat(data);
-            // Also parse as JSON so req.body works in the handler
             try {
                 req.body = JSON.parse(req.rawBody.toString('utf8'));
             } catch (e) {
@@ -129,7 +142,14 @@ app.use((req, res, next) => {
         next();
     }
 });
-app.use(express.json({ limit: '1mb' }));
+
+app.use((req, res, next) => {
+    const isWebhook = req.originalUrl && req.originalUrl.split('?')[0].toLowerCase() === '/api/payment/webhook';
+    if (isWebhook) {
+        return next();
+    }
+    express.json({ limit: '1mb' })(req, res, next);
+});
 
 // 1. Context Tracking Middleware (Senior Engineer Implementation)
 app.use((req, res, next) => {
@@ -214,6 +234,12 @@ app.use('/api/learning', learningRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/admin/live-sessions', liveAdminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/growth', growthRoutes);
+app.use('/api/engagement', engagementRoutes);
+app.use('/api/admin/intelligence', adminIntelligenceRoutes);
+app.use('/', seoRoutes);
 app.use('/api', apiRoutes);
 app.get('/admin', auth, adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public/admin.html'));

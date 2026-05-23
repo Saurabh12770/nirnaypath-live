@@ -1,69 +1,191 @@
+'use strict';
 const express = require('express');
 const auth = require('../middleware/auth');
 const TestResult = require('../models/testResult');
 const User = require('../models/user');
+const UserXP = require('../models/UserXP');
 const router = express.Router();
 
 const { getCachedData, setCachedData } = require('../middleware/cache');
 
 /**
+ * Assign ranks with tie handling (standard competition ranking: 1, 1, 3)
+ * @param {Array} list - Sorted list of users
+ * @param {string} scoreField - Field name containing the score
+ * @returns {Array} List with rank, percentile, and rankMovement added
+ */
+function rankAndComputeStats(list, scoreField, totalUsers) {
+    let currentRank = 1;
+    let usersAtRank = 0;
+    let prevScore = null;
+
+    return list.map((item, index) => {
+        const score = item[scoreField] || 0;
+        if (prevScore !== null && score < prevScore) {
+            currentRank += usersAtRank;
+            usersAtRank = 1;
+        } else {
+            usersAtRank++;
+        }
+        prevScore = score;
+
+        // Rank movement tracking
+        // previousRank defaults to currentRank if not set or 0
+        const previousRank = item.previousRank || currentRank;
+        const movement = previousRank - currentRank;
+
+        // Percentile calculation
+        const percentile = totalUsers > 0
+            ? Math.max(0, Math.min(100, Math.round(((totalUsers - currentRank) / totalUsers) * 100)))
+            : 100;
+
+        return {
+            userId:       item.userId || item._id,
+            userName:     item.userName || item.name || 'Anonymous User',
+            score:        score,
+            level:        item.level || 1,
+            streak:       item.streak || item.currentStreak || 0,
+            rank:         currentRank,
+            previousRank: previousRank,
+            movement:     movement,
+            percentile:   percentile
+        };
+    });
+}
+
+/**
  * GET /api/leaderboard/global
- * Top 10 users across all exams by total XP (Total Correct * 10)
+ * Paginated global leaderboard sorted by totalXP.
  */
 router.get('/global', auth, async (req, res) => {
     const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
-    await yieldIfLagging(50); // SRE: Cooperative yielding
+    await yieldIfLagging(50);
 
     try {
-        const cacheKey = 'leaderboard_global';
-        const cached = await getCachedData(cacheKey);
-        if (cached) return res.json(cached);
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 10));
+        const cacheKey = 'leaderboard_global_full';
 
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        let rankedList = await getCachedData(cacheKey);
 
-        const leaderboard = await TestResult.aggregate([
-            { 
-                $match: { 
-                    createdAt: { $gte: thirtyDaysAgo },
-                    timeTaken: { $gt: 10 } // Anti-cheat: exclude suspiciously fast tests
-                } 
-            },
-            {
-                $group: {
-                    _id: "$userId",
-                    totalScore: { $sum: "$score" },
-                    testsCount: { $sum: 1 },
-                    avgAccuracy: { $avg: "$accuracy" }
+        if (!rankedList) {
+            // Anti-cheat: only active users, exclude admins from competitive rankings
+            const activeUsersXP = await UserXP.find()
+                .populate({
+                    path: 'userId',
+                    match: { isActive: true, role: 'user' },
+                    select: 'name'
+                })
+                .sort({ totalXP: -1 })
+                .lean();
+
+            // Filter out populated null users (admins or inactive)
+            const validUsers = activeUsersXP.filter(item => item.userId);
+            const totalCount = validUsers.length;
+
+            const baseList = validUsers.map(item => ({
+                userId:       item.userId._id,
+                userName:     item.userId.name,
+                totalXP:      item.totalXP,
+                level:        item.level,
+                streak:       item.currentStreak,
+                previousRank: item.rewardLog.includes('rank_init') ? item.level : 0 // Placeholder or fallback logic
+            }));
+
+            // Assign ranks using tie handling
+            rankedList = rankAndComputeStats(baseList, 'totalXP', totalCount);
+
+            // Cache full ranked list for 60 seconds
+            await setCachedData(cacheKey, rankedList, 60);
+
+            // Update users' previousRank in the DB to keep rank history (non-blocking)
+            // This ensures next updates will calculate correct real movement
+            const bulkOps = rankedList.map(entry => ({
+                updateOne: {
+                    filter: { userId: entry.userId },
+                    update: { $set: { previousRank: entry.rank } }
                 }
-            },
-            { $sort: { totalScore: -1, avgAccuracy: -1 } },
-            { $limit: 10 },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "userInfo"
-                }
-            },
-            { $unwind: "$userInfo" },
-            {
-                $project: {
-                    _id: 0,
-                    userId: "$_id",
-                    userName: "$userInfo.name",
-                    totalScore: 1,
-                    testsCount: 1,
-                    avgAccuracy: 1,
-                    level: { $add: [{ $floor: { $divide: [{ $multiply: ["$totalScore", 10] }, 1000] } }, 1] }
-                }
+            }));
+            if (bulkOps.length > 0) {
+                UserXP.bulkWrite(bulkOps).catch(err => console.error('Bulk rank update failed:', err.message));
             }
-        ]);
+        }
 
-        const result = leaderboard.map((entry, index) => ({ rank: index + 1, ...entry }));
-        await setCachedData(cacheKey, result, 600);
-        res.json(result);
+        const totalUsers = rankedList.length;
+        const startIndex = (page - 1) * limit;
+        const paginatedList = rankedList.slice(startIndex, startIndex + limit);
+
+        // Find current requesting user's rank
+        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+
+        res.json({
+            success: true,
+            leaderboard: paginatedList,
+            totalUsers,
+            page,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentUser: currentUserEntry || null
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * GET /api/leaderboard/weekly
+ * Paginated weekly leaderboard sorted by weeklyXP.
+ */
+router.get('/weekly', auth, async (req, res) => {
+    const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
+    await yieldIfLagging(50);
+
+    try {
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 10));
+        const cacheKey = 'leaderboard_weekly_full';
+
+        let rankedList = await getCachedData(cacheKey);
+
+        if (!rankedList) {
+            const activeUsersXP = await UserXP.find()
+                .populate({
+                    path: 'userId',
+                    match: { isActive: true, role: 'user' },
+                    select: 'name'
+                })
+                .sort({ weeklyXP: -1 })
+                .lean();
+
+            const validUsers = activeUsersXP.filter(item => item.userId);
+            const totalCount = validUsers.length;
+
+            const baseList = validUsers.map(item => ({
+                userId:       item.userId._id,
+                userName:     item.userId.name,
+                weeklyXP:     item.weeklyXP,
+                level:        item.level,
+                streak:       item.currentStreak,
+                previousRank: item.previousRank || 0
+            }));
+
+            rankedList = rankAndComputeStats(baseList, 'weeklyXP', totalCount);
+            await setCachedData(cacheKey, rankedList, 60);
+        }
+
+        const totalUsers = rankedList.length;
+        const startIndex = (page - 1) * limit;
+        const paginatedList = rankedList.slice(startIndex, startIndex + limit);
+
+        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+
+        res.json({
+            success: true,
+            leaderboard: paginatedList,
+            totalUsers,
+            page,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentUser: currentUserEntry || null
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -71,134 +193,159 @@ router.get('/global', auth, async (req, res) => {
 
 /**
  * GET /api/leaderboard/subject/:subject
+ * Paginated subject-specific leaderboard.
+ * Calculated dynamically from TestResult records in last 30 days.
+ * Excludes cheated tests.
  */
 router.get('/subject/:subject', auth, async (req, res) => {
     const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
-    await yieldIfLagging(50); // SRE: Cooperative yielding
+    await yieldIfLagging(50);
 
     try {
         const { subject } = req.params;
-        const cacheKey = `leaderboard_sub_${subject.toLowerCase()}`;
-        const cached = await getCachedData(cacheKey);
-        if (cached) return res.json(cached);
+        const subLower = subject.toLowerCase().trim();
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 10));
+        const cacheKey = `leaderboard_sub_${subLower}_full`;
 
-        const leaderboard = await TestResult.aggregate([
-            { 
-                $match: { 
-                    subject: subject.toLowerCase(),
-                    timeTaken: { $gt: 10 }
-                } 
-            },
-            {
-                $group: {
-                    _id: "$userId",
-                    totalScore: { $sum: "$score" },
-                    testsCount: { $sum: 1 },
-                    maxAccuracy: { $max: "$accuracy" }
-                }
-            },
-            { $sort: { totalScore: -1, maxAccuracy: -1 } },
-            { $limit: 10 },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "userInfo"
-                }
-            },
-            { $unwind: "$userInfo" },
-            {
-                $project: {
-                    _id: 0,
-                    userName: "$userInfo.name",
-                    totalScore: 1,
-                    testsCount: 1,
-                    maxAccuracy: 1
-                }
-            }
-        ]);
+        let rankedList = await getCachedData(cacheKey);
 
-        const result = leaderboard.map((entry, index) => ({ rank: index + 1, ...entry }));
-        await setCachedData(cacheKey, result, 600);
-        res.json(result);
+        if (!rankedList) {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            // Anti-cheat: Exclude tests with:
+            // 1. timeTaken <= 10 seconds
+            // 2. fraudProbabilityScore >= 80
+            const leaderboardData = await TestResult.aggregate([
+                {
+                    $match: {
+                        subject: subLower,
+                        createdAt: { $gte: thirtyDaysAgo },
+                        timeTaken: { $gt: 10 },
+                        fraudProbabilityScore: { $lt: 80 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$userId",
+                        totalScore: { $sum: "$score" },
+                        testsCount: { $sum: 1 },
+                        avgAccuracy: { $avg: "$accuracy" }
+                    }
+                },
+                { $sort: { totalScore: -1, avgAccuracy: -1 } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "userInfo"
+                    }
+                },
+                { $unwind: "$userInfo" },
+                {
+                    $match: {
+                        "userInfo.isActive": true,
+                        "userInfo.role": "user"
+                    }
+                },
+                {
+                    $project: {
+                        userId: "$_id",
+                        userName: "$userInfo.name",
+                        totalScore: 1,
+                        testsCount: 1,
+                        avgAccuracy: { $round: ["$avgAccuracy", 0] }
+                    }
+                }
+            ]);
+
+            const totalCount = leaderboardData.length;
+            rankedList = rankAndComputeStats(leaderboardData, 'totalScore', totalCount);
+            await setCachedData(cacheKey, rankedList, 120); // 2 minute cache
+        }
+
+        const totalUsers = rankedList.length;
+        const startIndex = (page - 1) * limit;
+        const paginatedList = rankedList.slice(startIndex, startIndex + limit);
+
+        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+
+        res.json({
+            success: true,
+            leaderboard: paginatedList,
+            totalUsers,
+            page,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentUser: currentUserEntry || null
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 /**
- * GET /api/leaderboard/:exam
- * Returns top 10 users for a specific exam in the last 7 days.
+ * GET /api/leaderboard/friends
+ * Leaderboard among user's friends list.
+ * Fallback: if user has no friends, include peer users created in the same week.
  */
-router.get('/:exam', auth, async (req, res) => {
+router.get('/friends', auth, async (req, res) => {
     const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
-    await yieldIfLagging(50); // SRE: Cooperative yielding
+    await yieldIfLagging(50);
 
     try {
-        const { exam } = req.params;
-        const cacheKey = `leaderboard_${exam.toLowerCase()}`;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 10));
         
-        // Cache Check
-        const cached = await getCachedData(cacheKey);
-        if (cached) return res.json(cached);
+        // Fetch current user with their friends list
+        const currentUser = await User.findById(req.user._id).select('friends').lean();
+        let targetUserIds = [req.user._id];
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        if (currentUser && currentUser.friends && currentUser.friends.length > 0) {
+            targetUserIds.push(...currentUser.friends);
+        } else {
+            // Fallback: get 15 peer users to fill the friend list dynamically (no mocked data)
+            const peers = await User.find({ role: 'user', isActive: true, _id: { $ne: req.user._id } })
+                .limit(15)
+                .select('_id')
+                .lean();
+            targetUserIds.push(...peers.map(p => p._id));
+        }
 
-        const leaderboard = await TestResult.aggregate([
-            {
-                $match: {
-                    exam: exam.toLowerCase(),
-                    createdAt: { $gte: sevenDaysAgo }
-                }
-            },
-            {
-                $group: {
-                    _id: "$userId",
-                    totalScore: { $sum: "$score" },
-                    testsCount: { $sum: 1 }
-                }
-            },
-            {
-                $sort: { totalScore: -1, testsCount: -1 }
-            },
-            {
-                $limit: 10
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "userInfo"
-                }
-            },
-            {
-                $unwind: "$userInfo"
-            },
-            {
-                $project: {
-                    _id: 0,
-                    userId: "$_id",
-                    userName: "$userInfo.name",
-                    totalScore: 1,
-                    testsCount: 1
-                }
-            }
-        ]);
+        const xpRecords = await UserXP.find({ userId: { $in: targetUserIds } })
+            .populate('userId', 'name')
+            .sort({ totalXP: -1 })
+            .lean();
 
-        const result = leaderboard.map((entry, index) => ({
-            rank: index + 1,
-            ...entry
-        }));
+        const baseList = xpRecords
+            .filter(item => item.userId)
+            .map(item => ({
+                userId:       item.userId._id,
+                userName:     item.userId.name,
+                totalXP:      item.totalXP,
+                level:        item.level,
+                streak:       item.currentStreak,
+                previousRank: item.previousRank || 0
+            }));
 
-        // Cache for 5 minutes
-        await setCachedData(cacheKey, result, 300);
+        const totalUsers = baseList.length;
+        const rankedList = rankAndComputeStats(baseList, 'totalXP', totalUsers);
 
-        res.json(result);
+        const startIndex = (page - 1) * limit;
+        const paginatedList = rankedList.slice(startIndex, startIndex + limit);
+
+        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+
+        res.json({
+            success: true,
+            leaderboard: paginatedList,
+            totalUsers,
+            page,
+            totalPages: Math.ceil(totalUsers / limit),
+            currentUser: currentUserEntry || null
+        });
     } catch (error) {
-        console.error('Leaderboard error:', error);
         res.status(500).json({ error: error.message });
     }
 });

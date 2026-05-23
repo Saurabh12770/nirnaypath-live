@@ -19,6 +19,11 @@ const { emailQueue, digestQueue } = require('../services/queueService');
 const { isRedisAvailable, getRedisClient } = require('../services/redisService');
 const socketService = require('../services/socketService');
 const cacheLayer = require('../services/cacheLayer');
+const RedisCacheLayer = require('../services/redisCacheLayer');
+const CacheTagService = require('../services/cacheTagService');
+const QueryProfiler = require('../services/queryProfiler');
+const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 /**
  * Helper to measure Node.js event-loop lag
@@ -268,11 +273,28 @@ router.get('/deep', async (req, res) => {
 
     // ── 7. Cache Metrics ────────────────────────────────────────────────────
     try {
-        results.cache = typeof cacheLayer.getDiagnostics === 'function'
-            ? cacheLayer.getDiagnostics()
-            : { status: 'healthy', note: 'Local in-memory active' };
+        const redisCacheDiag = await RedisCacheLayer.getDiagnostics();
+        const tagDiag = CacheTagService.getDiagnostics();
+        results.cache = {
+            status: redisCacheDiag.l2.status === 'healthy' ? 'healthy' : 'degraded',
+            l1: redisCacheDiag.l1,
+            l2: redisCacheDiag.l2,
+            swr: {
+                swrWindowSecs: redisCacheDiag.swrWindowSecs,
+                revalidatingKeys: redisCacheDiag.revalidatingKeys,
+                swrMetaKeys: redisCacheDiag.swrMetaKeys
+            },
+            tags: tagDiag
+        };
     } catch (e) {
         results.cache = { status: 'degraded', error: e.message };
+    }
+
+    // ── 7b. Query Profiler Metrics ──────────────────────────────────────────
+    try {
+        results.queryProfiler = QueryProfiler.getSummary();
+    } catch (e) {
+        results.queryProfiler = { status: 'degraded', error: e.message };
     }
 
     // ── 8. Active Test Sessions ─────────────────────────────────────────────
@@ -329,7 +351,7 @@ router.get('/deep', async (req, res) => {
  * GET /api/health/env-audit
  * Audits all live environment variables securely with masking.
  */
-router.get('/env-audit', (req, res) => {
+router.get('/env-audit', auth, adminAuth, (req, res) => {
     const auditVars = [
         { name: 'MONGO_URI', actual: process.env.MONGO_URI, expectedType: 'string', isSecret: true },
         { name: 'MONGODB_URI', actual: process.env.MONGODB_URI, expectedType: 'string', isSecret: true },

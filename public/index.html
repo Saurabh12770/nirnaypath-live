@@ -13,7 +13,7 @@
     
     <!-- ── Performance Preloads ── -->
     <link rel="preload" href="/style.css?v=3.0.0" as="style">
-    <link rel="preload" href="/home_hero1.png" as="image">
+    <link rel="preload" href="/home_hero1.jpg" as="image">
 
     <!-- ── Open Graph ── -->
     <meta property="og:type" content="website">
@@ -58,7 +58,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="this.onerror=null;this.href='/vendor/fontawesome/css/all.min.css';">
     <link rel="stylesheet" href="/style.css?v=3.0.0">
     <link rel="manifest" href="/manifest.json?v=3.0.0">
     <link rel="stylesheet" href="/css/chatbot.css?v=3.0.0">
@@ -81,7 +81,7 @@
         <nav id="desktopNav">
             <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
             <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About Us</a>
-            <a href="#" id="dashNavLink" class="nav-link" style="display:none" id="gen-btn-1"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="#" id="dashNavLink" class="nav-link" style="display:none"><i class="fas fa-chart-line"></i> Dashboard</a>
             <a href="/admin" id="adminNavLink" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a>
             <button id="loginBtn" class="nav-link">
                 <i class="fas fa-sign-in-alt"></i> Login
@@ -160,14 +160,14 @@
 
             <section class="hero-slider-section reveal">
                 <div class="hero-slider" id="homeHeroSlider">
-                    <img src="home_hero1.png" alt="Home Hero 1">
-                    <img src="home_hero2.png" loading="lazy" alt="Home Hero 2">
-                    <img src="Home_hero3.png" loading="lazy" alt="Home Hero 3">
-                    <img src="home_hero4.png" loading="lazy" alt="Home Hero 4">
-                    <img src="home_hero5.png" loading="lazy" alt="Home Hero 5">
-                    <img src="home_hero6.png" loading="lazy" alt="Home Hero 6">
-                    <img src="home_hero7.png" loading="lazy" alt="Home Hero 7">
-                    <img src="home_hero8.jpg" loading="lazy" alt="Home Hero 8">
+                    <img src="home_hero1.jpg" alt="Home Hero 1" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero2.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 2" width="1200" height="675" decoding="async">
+                    <img data-src="Home_hero3.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 3" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero4.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 4" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero5.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 5" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero6.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 6" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero7.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 7" width="1200" height="675" decoding="async">
+                    <img data-src="home_hero8.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 8" width="1200" height="675" decoding="async">
                 </div>
             </section>
 
@@ -1454,6 +1454,7 @@
         </div>
     </div>
 
+    <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js?v=3.0.0"></script>
     <script src="/js/auth.js?v=3.0.0"></script>
     <script src="/js/intelligence.js?v=3.0.0"></script>

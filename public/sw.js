@@ -1,37 +1,16 @@
-const CACHE_NAME = 'nirnaypath-cbt-v1';
-const ASSETS_TO_CACHE = [
-    '/',
-    '/design-system/index.css',
-    '/manifest.json'
-];
-
+/* Self-uninstalling legacy service worker to clear 'sw.js' scope */
 self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
+    self.skipWaiting();
 });
 
-self.addEventListener('fetch', event => {
-    // Zero-Trust: Do not cache API responses or exam content
-    if (event.request.url.includes('/api/')) {
-        return fetch(event.request);
-    }
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
+self.addEventListener('activate', event => {
+    self.registration.unregister()
+        .then(() => self.clients.matchAll())
+        .then(clients => {
+            clients.forEach(client => {
+                if (client.navigate) {
+                    client.navigate(client.url);
+                }
+            });
+        });
 });
-
-self.addEventListener('sync', event => {
-    if (event.tag === 'sync-telemetry') {
-        event.waitUntil(syncTelemetryQueue());
-    }
-});
-
-async function syncTelemetryQueue() {
-    // Logic to sync queued heartbeats back to server when online
-    console.log("Background sync: Telemetry pushed to server.");
-}

@@ -4,7 +4,7 @@ const { createRateLimiter } = require('../middleware/rateLimiter');
 const { loadQuestions } = require('../utils/questionLoader');
 const { getCachedData, setCachedData } = require('../middleware/cache');
 const { pickQuestions, selectQuestions, shuffleFair } = require('../utils/questionSelectionService');
-const optionalAuth = require('../middleware/auth');
+const auth = require('../middleware/auth');
 
 // Specific dynamic rate limit for questions endpoint
 const questionLimiter = createRateLimiter('questions', 60 * 1000, 200);
@@ -47,7 +47,12 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 userId = decoded._id || decoded.id || null;
             }
-        } catch (_) { /* unauthenticated — proceed as guest */ }
+        } catch (err) {
+            if (req.headers['authorization']) {
+                console.warn('[API] JWT verification failed for optional auth:', err.message);
+            }
+            /* unauthenticated — proceed as guest */
+        }
 
         // Phase 1/6/7: Deduplicate + integrity check + fair shuffle
         if (count > 0 && userId) {

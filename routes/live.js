@@ -65,12 +65,26 @@ router.post('/submit/:sessionId', auth, async (req, res) => {
             return res.status(403).json({ error: 'Session is no longer accepting submissions' });
         }
 
+        // Verify session time window (startTime + duration in minutes) has not expired
+        const now = Date.now();
+        const endTime = session.startTime.getTime() + (session.duration * 60 * 1000);
+        const GRACE_PERIOD_MS = 60 * 1000; // 1 minute network delay grace period
+        if (now > (endTime + GRACE_PERIOD_MS)) {
+            return res.status(403).json({ error: 'Live test time has expired. Submission rejected.' });
+        }
+
+        // Check for duplicate submission
+        const existingResult = await LiveResult.findOne({ userId: req.user._id, liveSessionId: session._id });
+        if (existingResult) {
+            return res.status(409).json({ error: 'You have already submitted answers for this live test.' });
+        }
+
         // Evaluate score
         let score = 0;
         const qMap = {};
         session.questions.forEach(q => qMap[q._id.toString()] = q);
 
-        Object.keys(answers).forEach(qId => {
+        Object.keys(answers || {}).forEach(qId => {
             const question = qMap[qId];
             if (question && String(question.correctAnswer) === String(answers[qId])) {
                 score++;
