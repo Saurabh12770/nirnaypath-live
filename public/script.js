@@ -140,6 +140,12 @@ const UIStateMachine = {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Guard: Prevent script.js from running on non-home pages
+    if (!document.getElementById('dashboard')) {
+        console.info('[NirnayPath] Non-home page detected. script.js execution halted.');
+        return;
+    }
+
     /* Cache views */
     VIEW.dashboard = document.getElementById('dashboard');
     VIEW.loading = document.getElementById('loading-screen');
@@ -481,16 +487,23 @@ function initTheme() {
     if (!toggle) return;
     if (localStorage.getItem('theme') === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
+        document.body.classList.remove('light-mode');
         toggle.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+        document.body.removeAttribute('data-theme');
+        document.body.classList.add('light-mode');
+        toggle.innerHTML = '<i class="fas fa-moon"></i>';
     }
     toggle.onclick = () => {
         const dark = document.body.getAttribute('data-theme') === 'dark';
         if (dark) {
             document.body.removeAttribute('data-theme');
+            document.body.classList.add('light-mode');
             toggle.innerHTML = '<i class="fas fa-moon"></i>';
             localStorage.setItem('theme', 'light');
         } else {
             document.body.setAttribute('data-theme', 'dark');
+            document.body.classList.remove('light-mode');
             toggle.innerHTML = '<i class="fas fa-sun"></i>';
             localStorage.setItem('theme', 'dark');
         }

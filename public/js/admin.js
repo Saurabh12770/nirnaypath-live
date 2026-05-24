@@ -731,7 +731,7 @@ window.addEventListener('error', hideSpinner);
     });
 
     // --- Static Event Listeners ---
-    document.addEventListener('DOMContentLoaded', () => {
+    function initAdminModule() {
         const bind = (id, fn, eventType = 'click') => { 
             const el = document.getElementById(id); 
             if (el) {
@@ -806,5 +806,11 @@ window.addEventListener('error', hideSpinner);
             console.error("Admin init error:", err);
             hideSpinner();
         });
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAdminModule);
+    } else {
+        initAdminModule();
+    }
 }

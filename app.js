@@ -13,7 +13,6 @@ const http = require('http');
 const context = require('./utils/context');
 const socketService = require('./services/socketService');
 const CrashReportingService = require('./services/crashReportingService');
-const ArchitectureLockService = require('./services/ArchitectureLockService');
 
 
 dotenv.config();
@@ -289,11 +288,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`[BOOT] PID: ${process.pid}`);
     console.log('====================================================');
 
-    // Deferred initialization of background services to ensure port binding is successful first
     try {
-        console.log('[BOOT] Initializing architecture drift check...');
-        ArchitectureLockService.runStartupValidation();
-
         console.log('[BOOT] Initializing background services...');
         initCronJobs();
         initWorkers();
@@ -303,6 +298,13 @@ server.listen(PORT, '0.0.0.0', () => {
         const QuestionRepository = require('./services/questionRepository');
         QuestionRepository.precompileAllSubjects().catch(err => {
             console.error('[BOOT][PRECOMPILE] Error warming up question cache:', err.message);
+        });
+
+        // Launch isolated background workers AFTER port is fully bound.
+        // workersLoader is the ONLY bridge between boot and runtime subsystems.
+        // process.nextTick guarantees this runs after the listen() I/O completes.
+        process.nextTick(() => {
+            require('./bootstrap/workersLoader').start(server);
         });
     } catch (error) {
         console.error('[BOOT] Error during background service initialization:', error.message);

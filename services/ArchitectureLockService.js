@@ -154,14 +154,20 @@ class ArchitectureLockService {
     static getDriftReport() { return this._driftReport; }
 
     static _writeDriftReportToDisk() {
-        try {
-            const logsDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
-            const outPath = path.join(logsDir, 'architecture_drift_report.json');
-            if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
-            fs.writeFileSync(outPath, JSON.stringify(this._driftReport, null, 2), 'utf8');
-        } catch (err) {
-            logger.warn(`[ARCH-LOCK] Could not write drift report: ${err.message}`);
-        }
+        const logsDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+        const outPath = path.join(logsDir, 'architecture_drift_report.json');
+        
+        fs.mkdir(logsDir, { recursive: true }, (mkdirErr) => {
+            if (mkdirErr) {
+                logger.warn(`[ARCH-LOCK] Could not create logs directory: ${mkdirErr.message}`);
+                return;
+            }
+            fs.writeFile(outPath, JSON.stringify(this._driftReport, null, 2), 'utf8', (writeErr) => {
+                if (writeErr) {
+                    logger.warn(`[ARCH-LOCK] Could not write drift report: ${writeErr.message}`);
+                }
+            });
+        });
     }
 }
 

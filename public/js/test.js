@@ -63,12 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isGenuineResume) {
         switchScreen('exam-screen');
-        document.body.addEventListener('click', (e) => {
-            if (e.target.closest('#btn-submit-test') || e.target.closest('.cbt-overlay') || e.target.closest('#btn-confirm-submit')) {
-                return;
-            }
-            forceFullscreen();
-        }, { once: true });
         startCBT(true);
     } else {
         // Stale cbt-active — clear it and begin normal permission flow
@@ -236,6 +230,7 @@ function initAntiCheat() {
 
     // Fullscreen Exit (30 pts)
     const _onFsChange = () => {
+        if (!testState || !testState.isActive) return;
         if (!document.fullscreenElement) {
             increaseRiskScore(30, 'fullscreen_exit');
             document.getElementById('violation-overlay').classList.add('active');
@@ -504,6 +499,8 @@ function saveLocalAnswer(val) {
         testState.answers[testState.currentIdx] = val;
         localStorage.setItem('mockTestState', JSON.stringify(testState));
         updatePaletteClasses();
+        // IMMEDIATE sync to server to prevent mid-test data loss
+        heartbeatPing();
     }
     // Rapid answer tracking logic for behavior detection
     const duration = Date.now() - questionEntryTime;
@@ -542,11 +539,21 @@ function bindCBTControls() {
         heartbeatPing();
     });
 
-    document.getElementById('btn-submit-test').addEventListener('click', showSubmitConfirmation);
-    document.getElementById('btn-cancel-submit').addEventListener('click', () => {
+    document.getElementById('btn-submit-test').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showSubmitConfirmation();
+    });
+    document.getElementById('btn-cancel-submit').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         document.getElementById('submit-confirm-overlay').classList.remove('active');
     });
-    document.getElementById('btn-confirm-submit').addEventListener('click', () => executeSubmitFlow(false));
+    document.getElementById('btn-confirm-submit').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        executeSubmitFlow(false);
+    });
 
     document.getElementById('btn-return-home').addEventListener('click', () => {
         // ── FORENSIC FIX: Full state cleanup before navigating home

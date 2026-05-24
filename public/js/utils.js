@@ -52,11 +52,13 @@ window.NirnayPath = {
      * Initialize Global UI Components (Logo, Theme, Mobile Nav)
      */
     initGlobalUI() {
-        // 1. Logo Click Reliability
-        document.querySelectorAll(".logo").forEach(el => {
-            el.style.cursor = 'pointer';
-            el.onclick = () => window.location.href = "/index.html";
-        });
+        // 1. Logo Click Reliability (Disabled on Secure Test Terminal page to prevent accidental abandonment)
+        if (!window.location.pathname.includes('test.html')) {
+            document.querySelectorAll(".logo").forEach(el => {
+                el.style.cursor = 'pointer';
+                el.onclick = () => window.location.href = "/index.html";
+            });
+        }
 
         // 2. Global Image Fallback
         document.addEventListener("error", function(e) {

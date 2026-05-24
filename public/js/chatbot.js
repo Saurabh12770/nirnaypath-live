@@ -76,7 +76,7 @@ const Chatbot = {
     addMessage(role, text) {
         const container = document.getElementById('chatMessages');
         const div = document.createElement('div');
-        div.className = `message ${role === 'user' ? 'user' : 'bot'}`;
+        div.className = `chatbot-message ${role === 'user' ? 'user' : 'bot'}`;
         
         // Handle markdown-like formatting (simple)
         const formattedText = text
