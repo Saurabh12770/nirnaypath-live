@@ -8,7 +8,7 @@ const path = require('path');
  * Fallback: Log to Dead-Letter storage if the primary queue fails
  */
 const logToDeadLetter = (type, payload, error) => {
-    const dlqDir = path.join(__dirname, '../logs');
+    const dlqDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
     const dlqPath = path.join(dlqDir, 'email_dead_letter.jsonl');
     
     const entry = JSON.stringify({

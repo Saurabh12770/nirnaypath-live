@@ -21,16 +21,32 @@ const fs = require('fs');
 const path = require('path');
 const context = require('./context');
 
-const LOGS_DIR = path.resolve(process.cwd(), 'logs');
+const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+const LOGS_DIR = LOG_DIR;
 
-// Ensure log directory exists
-try {
-    if (!fs.existsSync(LOGS_DIR)) {
-        fs.mkdirSync(LOGS_DIR, { recursive: true });
+const LOGGING_MODE = process.env.LOGGING_MODE || "console";
+const memoryLogBuffer = [];
+const MAX_MEMORY_LOGS = 1000;
+
+function pushToMemoryBuffer(entry) {
+    memoryLogBuffer.push(entry);
+    if (memoryLogBuffer.length > MAX_MEMORY_LOGS) {
+        memoryLogBuffer.shift();
     }
-} catch (e) {
-    console.error('[LOGGER_BOOT_ERROR] Failed to create logs directory:', e.message);
 }
+
+function ensureDir(dirPath) {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    } catch (err) {
+        console.warn("[LOGGER] Log directory creation failed, falling back to memory logs only:", err.message);
+    }
+}
+
+// Ensure log directory exists safely
+// Defer creation to runtime appendToLogFile to guarantee startup safety in read-only environments.
 
 /**
  * Append content to a specific log file with size-based rotation.
@@ -39,7 +55,17 @@ try {
  * @param {string} content JSON formatted log entry string
  */
 function appendToLogFile(filename, content) {
+    if (LOGGING_MODE === 'console') {
+        // console mode, no disk writing, stdout is printed already
+        return;
+    }
+    if (LOGGING_MODE === 'memory') {
+        pushToMemoryBuffer({ filename, content });
+        return;
+    }
+
     try {
+        ensureDir(LOGS_DIR);
         const filePath = path.join(LOGS_DIR, filename);
         
         // Dynamic Log Rotation Invariant: Rotate if file size exceeds 10MB
@@ -55,6 +81,7 @@ function appendToLogFile(filename, content) {
     } catch (err) {
         // Fail-safe: Never crash the application due to logging disk failures
         console.error(`[LOGGER_DISK_ERROR] Failed to write to file "${filename}": ${err.message}`);
+        pushToMemoryBuffer({ filename, content, error: err.message });
     }
 }
 
@@ -186,5 +213,6 @@ module.exports = {
     warn: (msg, meta) => log('warn', msg, meta),
     error: (msg, meta) => log('error', msg, meta),
     fatal: (msg, meta) => log('fatal', msg, meta),
-    debug: (msg, meta) => log('debug', msg, meta)
+    debug: (msg, meta) => log('debug', msg, meta),
+    getMemoryLogs: () => memoryLogBuffer
 };

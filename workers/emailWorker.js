@@ -67,7 +67,7 @@ const createEmailWorker = () => {
             try {
                 const fs = require('fs');
                 const path = require('path');
-                const dlqDir = path.join(__dirname, '../logs');
+                const dlqDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
                 if (!fs.existsSync(dlqDir)) fs.mkdirSync(dlqDir, { recursive: true });
                 fs.appendFileSync(
                     path.join(dlqDir, 'dlq_failed_jobs.log'),

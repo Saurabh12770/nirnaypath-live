@@ -1,19 +1,29 @@
 // workers/ai-perf-worker.js
-const Redis = require('ioredis');
-const redis = new Redis(process.env.REDIS_URL);
+'use strict';
+
+const { getRedisClient, isRedisAvailable } = require('../services/redisService');
+const logger = require('../utils/logger');
 
 async function processAIPerformance() {
     if (process.env.ENABLE_AI_ANALYTICS !== 'true') {
-        console.log("AI Analytics disabled via feature flag.");
+        logger.info("AI Analytics disabled via feature flag.");
         return;
     }
 
-    console.log("Starting AI Performance Engine (Live Mode)...");
+    const redis = getRedisClient();
+    if (!redis) {
+        logger.warn("Redis client unavailable. AI Performance Engine will run in degraded/memory-only state.");
+    }
+
+    logger.info("Starting AI Performance Engine (Live Mode)...");
     
     // Simulating queue processing for async calculations
-    setInterval(async () => {
-        // Read from submission queue without blocking
-        // Generate Confidence, Panic Probability, Careless Mistake
+    const intervalId = setInterval(async () => {
+        if (!isRedisAvailable()) {
+            logger.warn("[AI-PERF] Redis not available, skipping telemetry flush");
+            return;
+        }
+
         const analyticsResult = {
             userId: 'user_123',
             confidenceScore: 85,
@@ -28,8 +38,17 @@ async function processAIPerformance() {
             }
         };
 
-        await redis.set(`ai:perf:${analyticsResult.userId}`, JSON.stringify(analyticsResult), 'EX', 86400);
+        try {
+            await redis.set(`ai:perf:${analyticsResult.userId}`, JSON.stringify(analyticsResult), 'EX', 86400);
+        } catch (err) {
+            logger.error("[AI-PERF] Failed to save analytics to Redis:", { error: err.message });
+        }
     }, 5000);
+
+    // Keep reference in case of graceful termination
+    process.on('SIGTERM', () => clearInterval(intervalId));
+    process.on('SIGINT', () => clearInterval(intervalId));
 }
 
 processAIPerformance();
+

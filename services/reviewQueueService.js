@@ -13,8 +13,15 @@ const DATA_DIR = path.join(__dirname, '../data');
 const QUEUE_DIR = path.join(__dirname, '../generated/review_queue');
 const QUARANTINE_DIR = path.join(__dirname, '../generated/quarantine');
 
-if (!fs.existsSync(QUEUE_DIR)) fs.mkdirSync(QUEUE_DIR, { recursive: true });
-if (!fs.existsSync(QUARANTINE_DIR)) fs.mkdirSync(QUARANTINE_DIR, { recursive: true });
+function ensureDir(dirPath) {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    } catch (e) {
+        console.warn('[SRE_WARNING] Failed to create directory safely:', e.message);
+    }
+}
 
 class ReviewQueueService {
     /**
@@ -51,6 +58,7 @@ class ReviewQueueService {
             questions: batch.questions
         };
 
+        ensureDir(QUEUE_DIR);
         fs.writeFileSync(queueFile, JSON.stringify(payload, null, 2));
         return generationId;
     }
@@ -69,6 +77,7 @@ class ReviewQueueService {
             question
         };
 
+        ensureDir(QUARANTINE_DIR);
         fs.writeFileSync(quarantineFile, JSON.stringify(payload, null, 2));
         return fingerprint;
     }

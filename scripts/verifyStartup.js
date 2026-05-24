@@ -40,11 +40,14 @@ async function verify() {
 
     report.status = report.errors.length === 0 ? 'SUCCESS' : 'FAILURE';
     
-    const logDir = path.join(__dirname, '..', 'logs');
-    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
-    
-    fs.writeFileSync(path.join(logDir, 'startup_forensic_report.json'), JSON.stringify(report, null, 2));
-    console.log('Report generated: logs/startup_forensic_report.json');
+    const logDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+    try {
+        if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+        fs.writeFileSync(path.join(logDir, 'startup_forensic_report.json'), JSON.stringify(report, null, 2));
+        console.log(`Report generated: ${path.join(logDir, 'startup_forensic_report.json')}`);
+    } catch (err) {
+        console.warn("Could not write startup forensic report to disk:", err.message);
+    }
 }
 
 verify();

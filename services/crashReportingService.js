@@ -15,7 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('../utils/logger');
 
-const CRASH_DUMP_FILE = path.resolve(process.cwd(), 'logs/crash_dumps.json');
+const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+const CRASH_DUMP_FILE = path.join(LOG_DIR, 'crash_dumps.json');
 let sentryClient = null;
 let isSentryEnabled = false;
 

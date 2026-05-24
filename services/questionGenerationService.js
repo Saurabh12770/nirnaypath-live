@@ -16,10 +16,14 @@ class QuestionGenerationService {
     static TRACE_DIR = path.join(__dirname, '../generated/traces');
     static TEMPLATE_DIR = path.join(__dirname, '../generated/templates');
 
-    static {
-        if (!fs.existsSync(this.TRACE_DIR)) fs.mkdirSync(this.TRACE_DIR, { recursive: true });
-        if (!fs.existsSync(this.QUEUE_DIR)) fs.mkdirSync(this.QUEUE_DIR, { recursive: true });
-        if (!fs.existsSync(this.TEMPLATE_DIR)) fs.mkdirSync(this.TEMPLATE_DIR, { recursive: true });
+    static ensureDir(dirPath) {
+        try {
+            if (!fs.existsSync(dirPath)) {
+                fs.mkdirSync(dirPath, { recursive: true });
+            }
+        } catch (e) {
+            console.warn('[SRE_WARNING] Failed to create directory safely:', e.message);
+        }
     }
 
     // Pseudo-random deterministic generator based on seed
@@ -34,6 +38,7 @@ class QuestionGenerationService {
     static trace(action, payload) {
         try {
             const entry = { timestamp: new Date().toISOString(), action, ...payload };
+            this.ensureDir(this.TRACE_DIR);
             const traceFile = path.join(this.TRACE_DIR, 'question_generation_trace.json');
             fs.appendFileSync(traceFile, JSON.stringify(entry) + '\n');
         } catch (e) {

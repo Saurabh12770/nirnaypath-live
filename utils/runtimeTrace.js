@@ -2,13 +2,32 @@ const fs = require('fs');
 const path = require('path');
 const context = require('./context');
 
-const LOG_DIR = path.join(__dirname, '../logs');
+const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
 const LOG_FILE = path.join(LOG_DIR, 'runtime_trace.json');
 
-// Ensure log directory exists
-if (!fs.existsSync(LOG_DIR)) {
-    fs.mkdirSync(LOG_DIR, { recursive: true });
+const LOGGING_MODE = process.env.LOGGING_MODE || "console";
+const memoryTraceBuffer = [];
+const MAX_MEMORY_TRACES = 1000;
+
+function pushToMemoryTrace(entry) {
+    memoryTraceBuffer.push(entry);
+    if (memoryTraceBuffer.length > MAX_MEMORY_TRACES) {
+        memoryTraceBuffer.shift();
+    }
 }
+
+function ensureDir(dirPath) {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    } catch (err) {
+        console.warn("[LOGGER] Log directory creation failed, falling back to memory logs only:", err.message);
+    }
+}
+
+// Ensure log directory exists safely
+// Defer creation to runtime trace execution to guarantee absolute boot safety.
 
 /**
  * Structured Runtime Trace Logger
@@ -32,14 +51,25 @@ const trace = (category, message, data = {}) => {
         delete logEntry.token;
     }
 
-    try {
-        fs.appendFileSync(LOG_FILE, JSON.stringify(logEntry) + '\n');
-    } catch (err) {
-        process.stderr.write(`Failed to write trace log: ${err.message}\n`);
+    const logStr = JSON.stringify(logEntry);
+
+    if (LOGGING_MODE === 'memory') {
+        pushToMemoryTrace(logEntry);
+    } else if (LOGGING_MODE === 'file') {
+        try {
+            ensureDir(LOG_DIR);
+            fs.appendFileSync(LOG_FILE, logStr + '\n');
+        } catch (err) {
+            process.stderr.write(`Failed to write trace log: ${err.message}\n`);
+            pushToMemoryTrace({ ...logEntry, error: err.message });
+        }
+    } else {
+        // default/console mode: keep in-memory backup and print
+        pushToMemoryTrace(logEntry);
     }
 
-    // Also log to stdout in non-production for visibility
-    if (process.env.NODE_ENV !== 'production') {
+    // Also log to stdout in non-production or when LOGGING_MODE is console
+    if (LOGGING_MODE === 'console' || process.env.NODE_ENV !== 'production') {
         console.log(`[TRACE][${category}] ${message}`, JSON.stringify(data));
     }
 };
@@ -51,5 +81,6 @@ module.exports = {
         TEST_FLOW: 'TEST_FLOW',
         ADMIN_FLOW: 'ADMIN_FLOW',
         PASSWORD_FLOW: 'PASSWORD_FLOW'
-    }
+    },
+    getMemoryTraces: () => memoryTraceBuffer
 };

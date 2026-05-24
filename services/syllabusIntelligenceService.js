@@ -284,10 +284,11 @@ class SyllabusIntelligenceService {
                 subject: this.normalizeName(subject),
                 ...data
             };
-            const logFile = path.join(__dirname, '../logs/syllabus_runtime_trace.json');
+            const logsDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+            const logFile = path.join(logsDir, 'syllabus_runtime_trace.json');
             
-            if (!fs.existsSync(path.dirname(logFile))) {
-                fs.mkdirSync(path.dirname(logFile), { recursive: true });
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir, { recursive: true });
             }
             fs.appendFileSync(logFile, JSON.stringify(logEntry) + '\n');
         } catch (e) {

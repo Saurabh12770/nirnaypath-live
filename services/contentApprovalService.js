@@ -14,13 +14,20 @@ const DATA_DIR = path.join(__dirname, '../data');
 const BACKUP_DIR = path.join(__dirname, '../backups/question_banks');
 const LOGS_DIR = path.join(__dirname, '../logs');
 
-// Ensure backups dir exists
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
-if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
+function ensureDir(dirPath) {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+    } catch (e) {
+        console.warn('[SRE_WARNING] Failed to create directory safely:', e.message);
+    }
+}
 
 class ContentApprovalService {
     static logTrace(entry) {
         try {
+            ensureDir(LOGS_DIR);
             const traceFile = path.join(LOGS_DIR, 'review_admin_trace.json');
             fs.appendFileSync(traceFile, JSON.stringify(entry) + '\n');
         } catch (e) {
@@ -94,6 +101,7 @@ class ContentApprovalService {
         const backupId = `${subject.toLowerCase()}-${Date.now()}-backup.json`;
         const backupFile = path.join(BACKUP_DIR, backupId);
 
+        ensureDir(BACKUP_DIR);
         fs.copyFileSync(masterFile, backupFile);
         return backupId;
     }

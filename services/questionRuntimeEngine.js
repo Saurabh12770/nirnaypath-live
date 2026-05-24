@@ -198,11 +198,12 @@ class QuestionRuntimeEngine {
 
         const fs = require('fs');
         const path = require('path');
-        const traceFile = path.join(__dirname, '../logs/question_runtime_trace.json');
+        const logsDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+        const traceFile = path.join(logsDir, 'question_runtime_trace.json');
         
         try {
-            if (!fs.existsSync(path.dirname(traceFile))) {
-                fs.mkdirSync(path.dirname(traceFile), { recursive: true });
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir, { recursive: true });
             }
             fs.appendFileSync(traceFile, JSON.stringify(traceLog) + '\n');
         } catch(e) {
