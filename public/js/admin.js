@@ -114,14 +114,14 @@ if (window.__adminScriptLoaded) {
             }
             document.getElementById('adminName').textContent = data.user.name || 'Admin';
 
-            // Ensure initial sections load properly
-            await Promise.allSettled([
-                this.loadStats(),
-                this.loadSubjects()
-            ]);
-
-            // Load section based on current hash or default to analytics
+            // Ensure initial sections load properly based on current hash to avoid double concurrent stats fetch
             const initialSection = window.location.hash.slice(1) || 'analytics';
+            const initPromises = [this.loadSubjects()];
+            if (initialSection !== 'analytics') {
+                initPromises.push(this.loadStats());
+            }
+
+            await Promise.allSettled(initPromises);
             this.showSection(initialSection);
         },
 

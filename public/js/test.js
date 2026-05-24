@@ -63,7 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isGenuineResume) {
         switchScreen('exam-screen');
-        document.body.addEventListener('click', forceFullscreen, { once: true });
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('#btn-submit-test') || e.target.closest('.cbt-overlay') || e.target.closest('#btn-confirm-submit')) {
+                return;
+            }
+            forceFullscreen();
+        }, { once: true });
         startCBT(true);
     } else {
         // Stale cbt-active — clear it and begin normal permission flow
@@ -495,7 +500,11 @@ function updatePaletteClasses() {
 }
 
 function saveLocalAnswer(val) {
-    if (val !== undefined) testState.answers[testState.currentIdx] = val;
+    if (val !== undefined) {
+        testState.answers[testState.currentIdx] = val;
+        localStorage.setItem('mockTestState', JSON.stringify(testState));
+        updatePaletteClasses();
+    }
     // Rapid answer tracking logic for behavior detection
     const duration = Date.now() - questionEntryTime;
     if (duration < 500) increaseRiskScore(5, 'rapid_answering'); // 5 points for spamming answers
@@ -529,6 +538,7 @@ function bindCBTControls() {
         delete testState.answers[testState.currentIdx];
         document.querySelectorAll('input[name="cbt_opt"]').forEach(r => r.checked = false);
         updatePaletteClasses();
+        localStorage.setItem('mockTestState', JSON.stringify(testState));
         heartbeatPing();
     });
 
@@ -556,6 +566,7 @@ function advanceQuestion() {
     }
     renderQuestion();
     updatePaletteClasses();
+    localStorage.setItem('mockTestState', JSON.stringify(testState));
     heartbeatPing();
 }
 
@@ -648,7 +659,28 @@ async function executeSubmitFlow(isForced) {
         });
         
         localStorage.removeItem('mockTestState');
-        if (isForced) document.getElementById('terminated-overlay').classList.add('active');
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            try {
+                (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
+            } catch (fsErr) {
+                console.warn("Error exiting fullscreen:", fsErr);
+            }
+        }
+        if (isForced) {
+            document.getElementById('terminated-overlay').classList.add('active');
+        } else {
+            const termOverlay = document.getElementById('terminated-overlay');
+            if (termOverlay) {
+                termOverlay.classList.add('active');
+                document.getElementById('terminate-title').textContent = 'Test Submitted';
+                document.getElementById('terminate-message').textContent = 'Your responses have been saved securely.';
+                const termIcon = document.getElementById('terminate-icon');
+                if (termIcon) {
+                    termIcon.className = 'fas fa-check-circle terminate-icon';
+                    termIcon.style.color = '#10b981';
+                }
+            }
+        }
     } catch (err) {
         console.error("Submit failed", err);
         alert("Network error during submission. Results are saved locally and will sync when connection restores.");
