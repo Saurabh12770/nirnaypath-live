@@ -111,6 +111,13 @@ router.post('/tutor/explain', auth, async (req, res) => {
             return res.status(400).json({ error: 'sessionId and questionId are required.' });
         }
         const explanation = await AITutorService.explainWrongAnswer(req.user._id, sessionId, questionId);
+        if (explanation && explanation.success === false) {
+            return res.json({
+                success: false,
+                source: "fallback",
+                message: "AI service unavailable"
+            });
+        }
         res.json(explanation);
     } catch (err) {
         console.error('[LEARNING] /tutor/explain error:', err.message);
@@ -130,6 +137,9 @@ router.post('/tutor/hint', auth, async (req, res) => {
             return res.status(400).json({ error: 'questionText and correctAnswer are required.' });
         }
         const hints = await AITutorService.generateHints(questionText, topic, correctAnswer);
+        if (hints && hints.success === false) {
+            return res.json(hints);
+        }
         res.json({ hints });
     } catch (err) {
         console.error('[LEARNING] /tutor/hint error:', err.message);
@@ -149,6 +159,13 @@ router.get('/tutor/summary', auth, async (req, res) => {
             return res.status(400).json({ error: 'topic query parameter is required.' });
         }
         const summary = await AITutorService.generateConceptSummary(topic, exam || 'UPSC');
+        if (summary && summary.success === false) {
+            return res.json({
+                success: false,
+                source: "fallback",
+                message: "AI service unavailable"
+            });
+        }
         res.json(summary);
     } catch (err) {
         console.error('[LEARNING] /tutor/summary error:', err.message);

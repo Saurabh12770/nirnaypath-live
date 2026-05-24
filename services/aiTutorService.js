@@ -75,6 +75,22 @@ Please:
 
         const aiResponse = await askAI(prompt, []);
 
+        if (aiResponse && aiResponse.success === false) {
+            return {
+                questionId,
+                question_en: answer.question_en || answer.question || 'UNKNOWN',
+                topic: answer.topic || 'UNKNOWN',
+                userAnswer: answer.userAnswer,
+                correctAnswer: answer.correctAnswer,
+                explanation_en: "AI service unavailable",
+                explanation_hi: null,
+                isFallback: true,
+                source: 'ai_generated',
+                success: false,
+                message: "AI service unavailable"
+            };
+        }
+
         return {
             questionId,
             question_en: answer.question_en || answer.question || 'UNKNOWN',
@@ -115,6 +131,10 @@ HINT_2: <text>
 HINT_3: <text>`;
 
         const aiResponse = await askAI(prompt, []);
+
+        if (aiResponse && aiResponse.success === false) {
+            return aiResponse;
+        }
 
         // Parse structured output
         const lines = (aiResponse.text || '').split('\n').map(l => l.trim()).filter(Boolean);
@@ -168,6 +188,10 @@ KEY_FACTS:
 MNEMONICS: <text>`;
 
         const aiResponse = await askAI(prompt, []);
+
+        if (aiResponse && aiResponse.success === false) {
+            return aiResponse;
+        }
 
         // Parse the structured output
         let summaryText = '';

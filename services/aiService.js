@@ -28,8 +28,7 @@ const askAI = async (userMessage, history = []) => {
         return {
             success: false,
             source: "fallback",
-            message: "AI service unavailable",
-            isFallback: true
+            message: "AI service unavailable"
         };
     }
 
@@ -60,8 +59,7 @@ const askAI = async (userMessage, history = []) => {
         return {
             success: false,
             source: "fallback",
-            message: "AI service unavailable",
-            isFallback: true
+            message: "AI service unavailable"
         };
     }
 };

@@ -43,11 +43,11 @@ async function sendPushNotification(userId, payload) {
     } catch (error) {
         console.error(`Error sending push to user ${userId}:`, error);
         // If subscription is expired, invalid, or forbidden (403 credentials mismatch), remove it
-        if (error.statusCode === 403 || error.statusCode === 410 || error.statusCode === 404) {
+        if (error && (error.statusCode === 403 || error.statusCode === 410 || error.statusCode === 404)) {
             await User.findByIdAndUpdate(userId, { pushSubscription: null });
             console.log(`Removed invalid/unauthorized push subscription for user ${userId} due to status ${error.statusCode}`);
         }
-        return { success: false, error: error.message };
+        return { success: false, error: error ? error.message : 'Unknown web-push error' };
     }
 }
 

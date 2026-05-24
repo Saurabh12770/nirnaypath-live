@@ -5,7 +5,7 @@
 
 const mongoose = require('mongoose');
 const path = require('path');
-const QuestionSelectionService = require('../utils/questionSelectionService');
+const { QuestionSelectionService } = require('../utils/questionSelectionService');
 const QuestionIntegrityService = require('../utils/questionIntegrityService');
 const { normalizeQuestion } = require('../utils/questionNormalizer');
 const { getCachedData, setCachedData } = require('../middleware/cache');

@@ -99,71 +99,7 @@ class QuestionRepository {
      * Hardened: Only precompiles frequently used subjects in background to prevent memory spikes & OOM.
      */
     static async precompileAllSubjects() {
-        const startTime = Date.now();
-        const subjectsToPrecompile = ['history', 'polity', 'geography'];
-        let totalQuestions = 0;
-
-        console.log(`[BOOT][PRECOMPILE] Starting background warmup for frequently used subjects: ${subjectsToPrecompile.join(', ')}`);
-
-        // Async/background warmup process to prevent startup thread blocking and memory spikes
-        (async () => {
-            for (const sub of subjectsToPrecompile) {
-                const filePath = path.join(DATA_DIR, `${sub}.json`);
-                if (!fs.existsSync(filePath)) continue;
-
-                try {
-                    const rawData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                    let subQuestions = Array.isArray(rawData) ? rawData : (rawData.questions || []);
-
-                    // Normalize correctAnswer & adapt options structure once at boot
-                    const adaptedQuestions = subQuestions.map(q => {
-                        let normalizedCorrect = q.correctAnswer;
-                        if (typeof normalizedCorrect === 'string') {
-                            const charVal = normalizedCorrect.toLowerCase().trim();
-                            const optIdx  = ['a', 'b', 'c', 'd'].indexOf(charVal);
-                            if (optIdx !== -1) normalizedCorrect = optIdx;
-                        } else if (q.correctOption !== undefined && q.correctOption !== null) {
-                            const optIdx = ['a', 'b', 'c', 'd'].indexOf(
-                                String(q.correctOption).toLowerCase().trim()
-                            );
-                            if (optIdx !== -1) normalizedCorrect = optIdx;
-                        }
-                        if (normalizedCorrect === undefined || normalizedCorrect === null) {
-                            normalizedCorrect = 0;
-                        }
-
-                        if (
-                            q.options &&
-                            q.options.length > 0 &&
-                            typeof q.options[0] === 'object' &&
-                            !Array.isArray(q.options[0])
-                        ) {
-                            return {
-                                ...q,
-                                question_en:   q.question?.en || q.question_en || '',
-                                question_hi:   q.question?.hi || q.question_hi || '',
-                                options_en:    q.options?.map(o => o.text?.en || '') || [],
-                                options_hi:    q.options?.map(o => o.text?.hi || '') || [],
-                                correctAnswer: normalizedCorrect
-                            };
-                        }
-                        return { ...q, correctAnswer: normalizedCorrect };
-                    });
-
-                    // FAANG-level Protection: Deep-freeze the static precompiled pool
-                    adaptedQuestions.forEach(q => Object.freeze(q));
-                    Object.freeze(adaptedQuestions);
-
-                    this.precompiledCache.set(sub, adaptedQuestions);
-                    totalQuestions += adaptedQuestions.length;
-                } catch (e) {
-                    console.error(`[BOOT][PRECOMPILE] Failed to precompile subject "${sub}": ${e.message}`);
-                }
-            }
-            console.log(`[BOOT][PRECOMPILE] Warmup complete. Cached ${totalQuestions} questions across background subjects.`);
-        })().catch(err => {
-            console.error(`[BOOT][PRECOMPILE] Background precompilation failed:`, err.message);
-        });
+        console.log(`[BOOT][PRECOMPILE] Lazy-loading enabled. Subjects will be loaded on demand.`);
     }
 
     /**
