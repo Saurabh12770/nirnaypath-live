@@ -1,5 +1,5 @@
-
-document.addEventListener('DOMContentLoaded', () => {
+﻿
+AppLifecycle.register(() => {
   const el1 = document.getElementById('dashNavLink');
   if (el1) { el1.addEventListener('click', (e) => { Dashboard.show() }); }
   const el2 = document.getElementById('gen-btn-2');
@@ -33,3 +33,4 @@ document.addEventListener('DOMContentLoaded', () => {
   const el16 = document.getElementById('gen-btn-16');
   if (el16) { el16.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none'; showView('dashboard') }); }
 });
+

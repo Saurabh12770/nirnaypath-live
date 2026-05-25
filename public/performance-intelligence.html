@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/js/lifecycle.js"></script>
+    <script src="/js/uiState.js"></script>
+    <script src="/js/renderController.js"></script>
+
+    <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Performance Intelligence</title>
@@ -15,10 +20,20 @@
     </style>
 </head>
 <body>
+<div class="app-shell">
+    <div class="app-content">
     <h1>Performance Intelligence Dashboard</h1>
     <div class="dashboard" id="ai-dashboard">
         <!-- Rendered via JS -->
     </div>
     <script src="/js/performance-intelligence.js"></script>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
+
+

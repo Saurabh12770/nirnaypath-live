@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/js/lifecycle.js"></script>
+    <script src="/js/uiState.js"></script>
+    <script src="/js/renderController.js"></script>
+
+    <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Live Test Leaderboard - NirnayPath</title>
@@ -20,6 +25,8 @@
     </style>
 </head>
 <body class="light-mode">
+<div class="app-shell">
+    <div class="app-content">
     <header class="sticky-header">
         <div class="logo">
             <div class="logo-icon">
@@ -146,5 +153,13 @@
 
         document.addEventListener('DOMContentLoaded', fetchLeaderboard);
     </script>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
+
+

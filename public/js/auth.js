@@ -204,6 +204,10 @@ const Auth = {
     async logout() {
         if (this.logoutInProgress) return;
         this.logoutInProgress = true;
+
+        if (window.AsyncManager) AsyncManager.cancelAll();
+        if (window.AppState) AppState.clear();
+
         try {
             await fetch('/api/auth/logout', {
                 method: 'POST'
@@ -274,6 +278,13 @@ const Auth = {
     },
 
     updateUI(isLoggedIn, user = null) {
+        if (window.AppState) {
+            AppState.dispatch('auth', { user: isLoggedIn ? user : null, loaded: true });
+        } else if (window.AuthStore) {
+            if (isLoggedIn && user) AuthStore.setUser(user);
+            else AuthStore.clear();
+        }
+
         const loginBtn = document.getElementById('loginBtn');
         const mobileLoginBtn = document.getElementById('mobileLoginBtn');
         const userNameDisplay = document.getElementById('userNameDisplay');
@@ -344,4 +355,5 @@ const Auth = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => Auth.init());
+AppLifecycle.register(() => Auth.init());
+

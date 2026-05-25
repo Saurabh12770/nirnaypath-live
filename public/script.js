@@ -26,13 +26,24 @@ let acInstalled = false;
 /* ── FORENSIC PATCH: one-time guard for module-level fullscreenchange ── */
 let _fsListenersInstalled = false;
 
-let testState = {
+let _legacyTestState = {
     exam: 'upsc', subject: 'history', testName: '',
     answers: {}, marked: [], visited: [],
     timeLeft: 90 * 60, currentIdx: 0,
     isActive: false, selectedQuestions: [],
     mode: 'full', modeValue: null // 'full', 'drill', 'section'
 };
+
+Object.defineProperty(window, 'testState', {
+    get: () => {
+        if (window.AppState) return AppState._state.test;
+        return _legacyTestState;
+    },
+    set: (val) => {
+        if (window.AppState) AppState.dispatch('test', val);
+        else _legacyTestState = val;
+    }
+});
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    2. CONSTANTS
@@ -258,6 +269,10 @@ function cleanupActiveView() {
 
 function showView(id) {
     if (window.logDiagnostic) window.logDiagnostic('showView');
+
+    if (window.AsyncManager) AsyncManager.cancelAll();
+    if (window.AppState) AppState.dispatch('ui', { currentView: id });
+
     // ── FORENSIC FIX: Always cleanup before switching views
     cleanupActiveView();
 
@@ -838,133 +853,192 @@ function launchExam() {
    15. RENDER QUESTION
    ============================================================ */
 function renderQuestion(dir = 'next') {
-    const qData = testState.selectedQuestions[testState.currentIdx];
+    // 1. Get frozen snapshot
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    const qData = stateSnapshot.selectedQuestions[stateSnapshot.currentIdx];
     if (!qData) return;
 
-    /* Slide animation */
-    slideIn(dir);
+    // Mutate state deterministically
+    const visited = new Set(testState.visited);
+    visited.add(testState.currentIdx);
+    testState.visited = Array.from(visited);
 
-    /* Mark visited */
-    if (!testState.visited.includes(testState.currentIdx)) testState.visited.push(testState.currentIdx);
+    // 2. Build ViewModel
+    const viewModel = Object.freeze({
+        dir,
+        qNumber: stateSnapshot.currentIdx + 1,
+        qText: L.q(qData) || qData.question || '(Question text unavailable)',
+        opts: L.opt(qData) || qData.options || [],
+        savedAns: stateSnapshot.answers[stateSnapshot.currentIdx]
+    });
 
-    /* Q number */
-    setEl('q-no', testState.currentIdx + 1);
+    // 3. Render Atomic
+    const execDOM = () => {
+        slideIn(viewModel.dir);
+        setEl('q-no', viewModel.qNumber);
+        setEl('q-text', viewModel.qText);
 
-    /* Question text */
-    const qText = L.q(qData) || qData.question || '(Question text unavailable)';
-    setEl('q-text', qText);
+        const optContainer = document.getElementById('options-container');
+        if (!optContainer) return;
+        optContainer.innerHTML = '';
 
-    /* Options */
-    const opts = L.opt(qData) || qData.options || [];
-    const optContainer = document.getElementById('options-container');
-    if (!optContainer) return;
-    optContainer.innerHTML = '';
+        if (Array.isArray(viewModel.opts) && viewModel.opts.length) {
+            viewModel.opts.forEach((text, idx) => {
+                const row = document.createElement('div');
+                row.className = 'option-row';
+                if (viewModel.savedAns === idx) row.classList.add('selected');
 
-    if (Array.isArray(opts) && opts.length) {
-        opts.forEach((text, idx) => {
-            const row = document.createElement('div');
-            row.className = 'option-row';
-            const saved = testState.answers[testState.currentIdx];
-            if (saved === idx) row.classList.add('selected');
+                const radio = document.createElement('input');
+                radio.type = 'radio'; radio.name = 'q_opt'; radio.value = idx;
+                radio.id = `opt_${idx}`;
+                if (viewModel.savedAns === idx) radio.checked = true;
 
-            const radio = document.createElement('input');
-            radio.type = 'radio'; radio.name = 'q_opt'; radio.value = idx;
-            radio.id = `opt_${idx}`;
-            if (saved === idx) radio.checked = true;
+                const label = document.createElement('label');
+                label.htmlFor = `opt_${idx}`;
+                label.textContent = text;
 
-            const label = document.createElement('label');
-            label.htmlFor = `opt_${idx}`;
-            label.textContent = text;
-
-            row.appendChild(radio);
-            row.appendChild(label);
-            row.addEventListener('click', () => {
-                document.querySelectorAll('.option-row').forEach(r => r.classList.remove('selected'));
-                row.classList.add('selected');
-                radio.checked = true;
+                row.appendChild(radio);
+                row.appendChild(label);
+                row.addEventListener('click', () => {
+                    document.querySelectorAll('.option-row').forEach(r => r.classList.remove('selected'));
+                    row.classList.add('selected');
+                    radio.checked = true;
+                });
+                optContainer.appendChild(row);
             });
-            optContainer.appendChild(row);
-        });
-    } else {
-        optContainer.innerHTML = '<p style="color:var(--danger);padding:12px">Options could not be loaded for this question.</p>';
-    }
+        } else {
+            optContainer.innerHTML = '<p style="color:var(--danger);padding:12px">Options could not be loaded for this question.</p>';
+        }
 
-    updateProgressBar();
-    updatePaletteClasses();
-    updateStats();
+        updateProgressBar();
+        updatePaletteClasses();
+        updateStats();
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 /* ============================================================ 
    16. PROGRESS BAR
    ============================================================ */
 function updateProgressBar() {
-    const total = testState.selectedQuestions.length;
-    const answered = Object.keys(testState.answers).length;
-    const pct = total ? ((answered / total) * 100) : 0;
-    const fill = document.getElementById('progress-fill');
-    if (fill) fill.style.width = `${pct}%`;
-    setEl('progress-text', answered);
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    const total = stateSnapshot.selectedQuestions.length;
+    const answered = Object.keys(stateSnapshot.answers).length;
+    
+    const viewModel = Object.freeze({
+        total,
+        answered,
+        pct: total ? ((answered / total) * 100) : 0
+    });
+
+    const execDOM = () => {
+        const fill = document.getElementById('progress-fill');
+        if (fill) fill.style.width = `${viewModel.pct}%`;
+        setEl('progress-text', viewModel.answered);
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 /* ============================================================ 
    17. PALETTE
    ============================================================ */
 function renderPalette() {
-    const grid = document.getElementById('palette-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    testState.selectedQuestions.forEach((_, idx) => {
-        const btn = document.createElement('button');
-        btn.id = `pal-${idx}`;
-        btn.className = 'p-btn';
-        btn.textContent = idx + 1;
-        btn.title = `Go to Q${idx + 1}`;
-        btn.addEventListener('click', () => {
-            saveCurrentAnswer();
-            const dir = idx > testState.currentIdx ? 'next' : 'prev';
-            testState.currentIdx = idx;
-            renderQuestion(dir);
-            saveProgress();
-        });
-        grid.appendChild(btn);
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    const viewModel = Object.freeze({
+        questionsCount: stateSnapshot.selectedQuestions.length,
+        currentIdx: stateSnapshot.currentIdx
     });
-    updatePaletteClasses();
+
+    const execDOM = () => {
+        const grid = document.getElementById('palette-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        for (let idx = 0; idx < viewModel.questionsCount; idx++) {
+            const btn = document.createElement('button');
+            btn.id = `pal-${idx}`;
+            btn.className = 'p-btn';
+            btn.textContent = idx + 1;
+            btn.title = `Go to Q${idx + 1}`;
+            btn.addEventListener('click', () => {
+                saveCurrentAnswer();
+                const currentIdx = window.AppState ? AppState._state.test.currentIdx : testState.currentIdx;
+                const dir = idx > currentIdx ? 'next' : 'prev';
+                testState.currentIdx = idx;
+                renderQuestion(dir);
+                saveProgress();
+            });
+            grid.appendChild(btn);
+        }
+        updatePaletteClasses();
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 function updatePaletteClasses() {
-    testState.selectedQuestions.forEach((_, idx) => {
-        const btn = document.getElementById(`pal-${idx}`);
-        if (!btn) return;
-        const visited = testState.visited.includes(idx);
-        const answered = testState.answers[idx] !== undefined;
-        const marked = testState.marked.includes(idx);
-        btn.className = 'p-btn';
-        btn.innerHTML = idx + 1;
-
-        if (!visited) btn.classList.add('not-visited');
-        else if (answered && marked) { btn.classList.add('answered-marked'); btn.innerHTML = `${idx + 1}<div class="green-dot"></div>`; }
-        else if (answered) btn.classList.add('answered');
-        else if (marked) btn.classList.add('marked');
-        else btn.classList.add('not-answered');
-        if (idx === testState.currentIdx) btn.classList.add('current');
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    const viewModel = Object.freeze({
+        questionsCount: stateSnapshot.selectedQuestions.length,
+        visited: stateSnapshot.visited || [],
+        answers: stateSnapshot.answers || {},
+        marked: stateSnapshot.marked || [],
+        currentIdx: stateSnapshot.currentIdx
     });
+
+    const execDOM = () => {
+        for (let idx = 0; idx < viewModel.questionsCount; idx++) {
+            const btn = document.getElementById(`pal-${idx}`);
+            if (!btn) continue;
+            
+            const visited = viewModel.visited.includes(idx);
+            const answered = viewModel.answers[idx] !== undefined;
+            const marked = viewModel.marked.includes(idx);
+            
+            btn.className = 'p-btn';
+            btn.innerHTML = idx + 1;
+
+            if (!visited) btn.classList.add('not-visited');
+            else if (answered && marked) { btn.classList.add('answered-marked'); btn.innerHTML = `${idx + 1}<div class="green-dot"></div>`; }
+            else if (answered) btn.classList.add('answered');
+            else if (marked) btn.classList.add('marked');
+            else btn.classList.add('not-answered');
+            if (idx === viewModel.currentIdx) btn.classList.add('current');
+        }
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 function updateStats() {
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
     let answered = 0, notAnswered = 0, marked = 0, ansMarked = 0, notVisited = 0;
-    testState.selectedQuestions.forEach((_, i) => {
-        if (!testState.visited.includes(i)) notVisited++;
-        else if (testState.answers[i] !== undefined) {
-            if (testState.marked.includes(i)) ansMarked++; else answered++;
+    
+    stateSnapshot.selectedQuestions.forEach((_, i) => {
+        const isVisited = stateSnapshot.visited && stateSnapshot.visited.includes(i);
+        const hasAnswer = stateSnapshot.answers && stateSnapshot.answers[i] !== undefined;
+        const isMarked = stateSnapshot.marked && stateSnapshot.marked.includes(i);
+
+        if (!isVisited) notVisited++;
+        else if (hasAnswer) {
+            if (isMarked) ansMarked++; else answered++;
         } else {
-            if (testState.marked.includes(i)) marked++; else notAnswered++;
+            if (isMarked) marked++; else notAnswered++;
         }
     });
-    setEl('c-answered', answered);
-    setEl('c-not-answered', notAnswered);
-    setEl('c-marked', marked);
-    setEl('c-answered-marked', ansMarked);
-    setEl('c-not-visited', notVisited);
+
+    const viewModel = Object.freeze({ answered, notAnswered, marked, ansMarked, notVisited });
+
+    const execDOM = () => {
+        setEl('c-answered', viewModel.answered);
+        setEl('c-not-answered', viewModel.notAnswered);
+        setEl('c-marked', viewModel.marked);
+        setEl('c-answered-marked', viewModel.ansMarked);
+        setEl('c-not-visited', viewModel.notVisited);
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 function saveCurrentAnswer() {
@@ -1059,7 +1133,11 @@ function startTimer() {
     clearInterval(timerInterval);
     updateTimerDisplay();
     timerInterval = setInterval(() => {
-        if (testState.timeLeft <= 0) { clearInterval(timerInterval); submitTest(); return; }
+        if (testState.timeLeft <= 0) { 
+            clearInterval(timerInterval); 
+            submitTest(); 
+            return; 
+        }
         testState.timeLeft--;
         updateTimerDisplay();
         const el = document.getElementById('countdown');
@@ -1069,15 +1147,29 @@ function startTimer() {
 }
 
 function updateTimerDisplay() {
-    const m = Math.floor(testState.timeLeft / 60).toString().padStart(2, '0');
-    const s = (testState.timeLeft % 60).toString().padStart(2, '0');
-    setEl('countdown', `${m}:${s}`);
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    const viewModel = Object.freeze({
+        timeLeft: stateSnapshot.timeLeft
+    });
+
+    const execDOM = () => {
+        const m = Math.floor(viewModel.timeLeft / 60).toString().padStart(2, '0');
+        const s = (viewModel.timeLeft % 60).toString().padStart(2, '0');
+        setEl('countdown', `${m}:${s}`);
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 /* ============================================================ 
    20. SUBMIT & RESULT
    ============================================================ */
 function submitTest() {
+    if (window.AppState) {
+        if (AppState.getState().test.status === 'submitting') return; // Prevent double submission
+        AppState.dispatch('test', { status: 'submitting' });
+    }
+
     // ── STATE MACHINE: TEST_ACTIVE → RESULT_SCREEN
     UIStateMachine.transition('RESULT_SCREEN', 'submitTest');
 

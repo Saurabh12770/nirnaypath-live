@@ -9530,3 +9530,65 @@ footer,
     position: relative;
     z-index: 1;
 }
+
+/* ======================================================== */
+/* STEP 6: GLOBAL LAYOUT CONTAINMENT FIX                    */
+/* ======================================================== */
+
+/* Step 2 — SAFE BASE CSS */
+.app-shell {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-content {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+/* Step 3 — ISOLATE PAGE LAYOUTS */
+.admin-container {
+    width: 100%;
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.dashboard-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.about-container {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Step 4 — FIX OVERLAY STACKING */
+.chatbot-container {
+    z-index: 9999;
+}
+
+.admin-sidebar {
+    z-index: 1000;
+}
+
+.modal, .overlay {
+    z-index: 2000;
+}
+
+/* Step 5 — FIX CARD CUTTING ISSUE */
+.card, .stat-card, .glass-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}

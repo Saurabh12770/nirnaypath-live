@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/js/lifecycle.js"></script>
+    <script src="/js/uiState.js"></script>
+    <script src="/js/renderController.js"></script>
+
+    <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NirnayPath - Notification Center</title>
@@ -13,6 +18,8 @@
     </style>
 </head>
 <body>
+<div class="app-shell">
+    <div class="app-content">
     <h1>Notification Center</h1>
     <div id="notifications">
         <!-- JS dynamically populates this via SSE/WebSockets -->
@@ -21,5 +28,13 @@
         // Mock connection to NotificationCenterService
         console.log("Listening for real-time notifications...");
     </script>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
+
+

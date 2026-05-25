@@ -1,4 +1,4 @@
-/* push.js - Handles push notification subscription */
+﻿/* push.js - Handles push notification subscription */
 
 const PushManager = {
     publicVapidKey: 'BNUaS5vSyhaHFhm2k0dXnO1sS3Y-WfWbN7PjrxmaNdtr-gwGCbT64DcgYgBhIKxgIi5c3ySUheGlcJTyhpQ9K5I',
@@ -98,7 +98,7 @@ const PushManager = {
 };
 
 // Initialize after Auth is available
-document.addEventListener('DOMContentLoaded', () => {
+AppLifecycle.register(() => {
     // Small delay to ensure Auth is initialized
     setTimeout(() => {
         if (Auth.isLoggedIn()) {
@@ -106,3 +106,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 });
+

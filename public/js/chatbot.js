@@ -24,11 +24,11 @@ const Chatbot = {
                 </div>
                 <div class="chatbot-messages" id="chatMessages">
                     <div class="message bot">
-                        नमस्ते! मैं Nirnay Help Center हूँ। आपकी परीक्षा की तैयारी में कैसे मदद कर सकता हूँ?<br><br>
+                        à¤¨à¤®à¤¸à¥à¤¤à¥‡! à¤®à¥ˆà¤‚ Nirnay Help Center à¤¹à¥‚à¤à¥¤ à¤†à¤ªà¤•à¥€ à¤ªà¤°à¥€à¤•à¥à¤·à¤¾ à¤•à¥€ à¤¤à¥ˆà¤¯à¤¾à¤°à¥€ à¤®à¥‡à¤‚ à¤•à¥ˆà¤¸à¥‡ à¤®à¤¦à¤¦ à¤•à¤° à¤¸à¤•à¤¤à¤¾ à¤¹à¥‚à¤?<br><br>
                         (Hello! I am Nirnay Help Center. How can I assist you with your exam preparation?)
                     </div>
                 </div>
-                <div id="fallbackNotice" class="fallback-notice hidden">AI key not set – basic responses enabled</div>
+                <div id="fallbackNotice" class="fallback-notice hidden">AI key not set â€“ basic responses enabled</div>
                 <div id="typingIndicator" class="typing hidden" style="padding: 0 20px;">Nirnay Help Center is typing...</div>
                 <form class="chatbot-input-area" id="chatForm">
                     <input type="text" id="chatInput" placeholder="Type your doubt here..." autocomplete="off">
@@ -36,7 +36,9 @@ const Chatbot = {
                 </form>
             </div>
         `;
-        document.body.appendChild(container);
+        const execDOM = () => { document.body.appendChild(container); };
+        if (window.RenderController) RenderController.register(execDOM);
+        else execDOM();
     },
 
     setupEventListeners() {
@@ -46,6 +48,7 @@ const Chatbot = {
         const form = document.getElementById('chatForm');
 
         toggle.onclick = () => {
+            if (window.UIState && !UIState.ready) return;
             this.isOpen = !this.isOpen;
             window.classList.toggle('active', this.isOpen);
             if (this.isOpen) {
@@ -57,11 +60,16 @@ const Chatbot = {
         };
 
         close.onclick = () => {
+            if (window.UIState && !UIState.ready) return;
             this.isOpen = false;
             window.classList.remove('active');
         };
 
         form.onsubmit = async (e) => {
+            if (window.UIState && !UIState.ready) {
+                e.preventDefault();
+                return;
+            }
             e.preventDefault();
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
@@ -83,9 +91,13 @@ const Chatbot = {
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
             .replace(/\n/g, '<br>');
             
-        div.innerHTML = formattedText;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
+        const execDOM = () => {
+            div.innerHTML = formattedText;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        };
+        if (window.RenderController) RenderController.register(execDOM);
+        else execDOM();
     },
 
     async sendMessage(message) {
@@ -115,7 +127,7 @@ const Chatbot = {
                     fallbackNotice.classList.add('hidden');
                 }
             } else {
-                this.addMessage('bot', `⚠️ ${data.error || 'Something went wrong.'}`);
+                this.addMessage('bot', `âš ï¸  ${data.error || 'Something went wrong.'}`);
             }
         } catch (error) {
             indicator.classList.add('hidden');
@@ -146,7 +158,7 @@ const Chatbot = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+AppLifecycle.register(() => {
     // PAGE ISOLATION GUARD: Do NOT run chatbot on admin or test pages.
     // These pages have their own layouts and the chatbot widget causes
     // visual pollution (floating background, z-index conflicts).
@@ -158,9 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const init = () => {
+        if (window.UIState) UIState.onReady(() => Chatbot.init());
+        else Chatbot.init();
+    };
+
     if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => Chatbot.init());
+        window.requestIdleCallback(init);
     } else {
-        setTimeout(() => Chatbot.init(), 200);
-    }
-});
+

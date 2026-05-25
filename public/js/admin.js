@@ -101,7 +101,7 @@ if (window.__adminScriptLoaded) {
     const AdminPanel = {
         async init() {
             // NOTE: Do NOT gate on Auth.isLoggedIn() here.
-            // Auth.init() is async — its checkAuthStatus() fetch may not have
+            // Auth.init() is async Ã¢â‚¬â€ its checkAuthStatus() fetch may not have
             // completed yet when initAdminModule() fires on DOMContentLoaded.
             // The /api/user/me call below is the single source of truth for auth.
 
@@ -131,18 +131,22 @@ if (window.__adminScriptLoaded) {
                 id = 'analytics';
             }
 
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
-            const section = document.getElementById(`section-${id}`);
-            if (section) section.classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const navItem = document.getElementById(`nav-${id}`);
-            if (navItem) navItem.classList.add('active');
-            
-            const titleEl = document.getElementById('sectionTitle');
-            if (titleEl) {
-                titleEl.textContent = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            }
+            const execDOM = () => {
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+                const section = document.getElementById(`section-${id}`);
+                if (section) section.classList.remove('hidden');
+                
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                const navItem = document.getElementById(`nav-${id}`);
+                if (navItem) navItem.classList.add('active');
+                
+                const titleEl = document.getElementById('sectionTitle');
+                if (titleEl) {
+                    titleEl.textContent = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                }
+            };
+            if (window.RenderController) RenderController.commit(execDOM);
+            else execDOM();
             
             if (id === 'users') this.loadUsers();
             if (id === 'payments') this.loadPayments();
@@ -156,6 +160,7 @@ if (window.__adminScriptLoaded) {
             try {
                 const data = await fetchWithOverlay('/api/telemetry/overview', { signal });
                 
+                const execDOM = () => {
                 const grid = document.getElementById('telemetryStatsGrid');
                 if (grid) {
                     grid.innerHTML = `
@@ -237,6 +242,9 @@ if (window.__adminScriptLoaded) {
                         });
                     }
                 }
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
 
             } catch (err) {
                 if (err.name === 'AbortError') return;
@@ -265,6 +273,7 @@ if (window.__adminScriptLoaded) {
                     activeUsers: rawData?.activeUsers || 0
                 };
 
+                const execDOM = () => {
                 const grid = document.getElementById('statsGrid');
                 if (grid) {
                     grid.innerHTML = `
@@ -300,17 +309,21 @@ if (window.__adminScriptLoaded) {
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
-                            <h3>₹${data.revenue}</h3>
+                            <h3>Ã¢â€šÂ¹${data.revenue}</h3>
                             <p>Revenue</p>
                             <span class="stat-trend positive"><i class="fas fa-arrow-up"></i> +12% vs last week</span>
                         </div>
                     `;
                 }
                 this.renderCharts(data);
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 console.error('Failed to load stats:', err);
                 // Show visible error in statsGrid so admins know why it is empty
+                const execError = () => {
                 const grid = document.getElementById('statsGrid');
                 if (grid && grid.innerHTML.trim() === '') {
                     grid.innerHTML = `<div class="stat-card" style="grid-column:1/-1;border-left:4px solid var(--admin-danger);">
@@ -319,6 +332,9 @@ if (window.__adminScriptLoaded) {
                         <p style="text-transform:none;font-size:0.85rem;">API error: ${err.message || 'Could not reach /api/admin/stats'}. Check server logs.</p>
                     </div>`;
                 }
+                };
+                if (window.RenderController) RenderController.commit(execError);
+                else execError();
             }
         },
 
@@ -427,6 +443,7 @@ if (window.__adminScriptLoaded) {
             try {
                 const subjects = await fetchWithOverlay('/api/admin/subjects', { signal });
                 if (!Array.isArray(subjects)) return;
+                const execDOM = () => {
                 const select = document.getElementById('subjectSelect');
                 if (!select) return;
                 select.innerHTML = '<option value="">Select a subject...</option>'; // Reset
@@ -436,6 +453,9 @@ if (window.__adminScriptLoaded) {
                     opt.textContent = s.toUpperCase();
                     select.appendChild(opt);
                 });
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 console.error('Failed to load subjects:', err);
@@ -451,9 +471,13 @@ if (window.__adminScriptLoaded) {
                 const sub = select ? select.value : '';
                 if (!sub) return alert('Please select a subject first.');
                 
-                tbody.innerHTML = '<tr><td colspan="4"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>';
+                const execLoading = () => { tbody.innerHTML = '<tr><td colspan="4"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>'; };
+                if (window.RenderController) RenderController.commit(execLoading);
+                else execLoading();
+                
                 const data = await fetchWithOverlay(`/api/admin/questions/${sub}?limit=100`, { signal });
                 
+                const execDOM = () => {
                 tbody.innerHTML = '';
                 if (!data || !Array.isArray(data.questions) || data.questions.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4"><div class="table-empty">No questions found for this subject.</div></td></tr>';
@@ -471,9 +495,14 @@ if (window.__adminScriptLoaded) {
                     </tr>
                 `).join('');
                 tbody.innerHTML = rows;
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                tbody.innerHTML = '<tr><td colspan="4"><div class="table-error">Failed to load questions: ' + err.message + '</div></td></tr>';
+                const execError = () => { tbody.innerHTML = '<tr><td colspan="4"><div class="table-error">Failed to load questions: ' + err.message + '</div></td></tr>'; };
+                if (window.RenderController) RenderController.commit(execError);
+                else execError();
             }
         },
 
@@ -486,11 +515,15 @@ if (window.__adminScriptLoaded) {
             const signal = startFetch('loadUsers');
             const tbody = document.getElementById('usersTableBody');
             if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="5"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>';
+            const execLoading = () => { tbody.innerHTML = '<tr><td colspan="5"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>'; };
+            if (window.RenderController) RenderController.commit(execLoading);
+            else execLoading();
+            
             try {
                 const url = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
                 const data = await fetchWithOverlay(url, { signal });
                 
+                const execDOM = () => {
                 tbody.innerHTML = '';
                 if (!data || !Array.isArray(data.users) || data.users.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5"><div class="table-empty">No users found.</div></td></tr>';
@@ -510,9 +543,14 @@ if (window.__adminScriptLoaded) {
                     </tr>
                 `).join('');
                 tbody.innerHTML = rows;
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                tbody.innerHTML = '<tr><td colspan="5"><div class="table-error">Failed to load users: ' + err.message + '</div></td></tr>';
+                const execError = () => { tbody.innerHTML = '<tr><td colspan="5"><div class="table-error">Failed to load users: ' + err.message + '</div></td></tr>'; };
+                if (window.RenderController) RenderController.commit(execError);
+                else execError();
             }
         },
 
@@ -527,16 +565,20 @@ if (window.__adminScriptLoaded) {
             const signal = startFetch('loadPayments');
             const tbody = document.getElementById('paymentsTableBody');
             if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="5"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>';
+            const execLoading = () => { tbody.innerHTML = '<tr><td colspan="5"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>'; };
+            if (window.RenderController) RenderController.commit(execLoading);
+            else execLoading();
+            
             try {
                 const data = await fetchWithOverlay('/api/admin/payments', { signal });
                 
+                const execDOM = () => {
                 tbody.innerHTML = '';
                 let revenue = 0;
                 if (!Array.isArray(data) || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5"><div class="table-empty">No payment records yet.</div></td></tr>';
                     const revEl = document.getElementById('totalRevenue');
-                    if (revEl) revEl.textContent = '₹0';
+                    if (revEl) revEl.textContent = 'Ã¢â€šÂ¹0';
                     return;
                 }
                 
@@ -546,7 +588,7 @@ if (window.__adminScriptLoaded) {
                         <tr>
                             <td>${escapeHTML(p.userId?.name || 'Unknown')}</td>
                             <td>${escapeHTML(p.planId || '-')}</td>
-                            <td>₹${p.amount || 0}</td>
+                            <td>Ã¢â€šÂ¹${p.amount || 0}</td>
                             <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
                             <td><small>${escapeHTML(p.razorpay_payment_id || '-')}</small></td>
                         </tr>
@@ -555,10 +597,15 @@ if (window.__adminScriptLoaded) {
                 
                 tbody.innerHTML = rows;
                 const revEl = document.getElementById('totalRevenue');
-                if (revEl) revEl.textContent = '₹' + revenue;
+                if (revEl) revEl.textContent = 'Ã¢â€šÂ¹' + revenue;
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                tbody.innerHTML = '<tr><td colspan="5"><div class="table-error">Failed to load payments: ' + err.message + '</div></td></tr>';
+                const execError = () => { tbody.innerHTML = '<tr><td colspan="5"><div class="table-error">Failed to load payments: ' + err.message + '</div></td></tr>'; };
+                if (window.RenderController) RenderController.commit(execError);
+                else execError();
             }
         },
 
@@ -636,7 +683,7 @@ if (window.__adminScriptLoaded) {
 window.addEventListener('unhandledrejection', hideSpinner);
 window.addEventListener('error', hideSpinner);
 
-    // ════════ ADMIN LIVE SESSIONS ════════
+    // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â ADMIN LIVE SESSIONS Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
     const AdminLive = {
         async createSession(e) {
             if (e) e.preventDefault();
@@ -655,11 +702,11 @@ window.addEventListener('error', hideSpinner);
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                alert(`✅ Session created with ${res.questions.length} questions!`);
+                alert(`Ã¢Å“â€¦ Session created with ${res.questions.length} questions!`);
                 document.getElementById('createLiveSessionForm').reset();
                 this.loadSessions();
             } catch (err) {
-                alert('❌ Error: ' + (err.message || 'Failed to create session'));
+                alert('Ã¢ÂÅ’ Error: ' + (err.message || 'Failed to create session'));
             } finally {
                 hideSpinner();
             }
@@ -669,9 +716,14 @@ window.addEventListener('error', hideSpinner);
             const signal = startFetch('loadSessions');
             const tbody = document.getElementById('liveSessionsTableBody');
             if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="7"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>';
+            const execLoading = () => { tbody.innerHTML = '<tr><td colspan="7"><div class="table-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div></td></tr>'; };
+            if (window.RenderController) RenderController.commit(execLoading);
+            else execLoading();
+            
             try {
                 const sessions = await fetchWithOverlay('/api/admin/live-sessions', { signal });
+                
+                const execDOM = () => {
                 if (!Array.isArray(sessions) || !sessions.length) {
                     tbody.innerHTML = '<tr><td colspan="7"><div class="table-empty">No sessions found.</div></td></tr>';
                     return;
@@ -692,9 +744,14 @@ window.addEventListener('error', hideSpinner);
                         </td>
                     </tr>
                 `).join('');
+                };
+                if (window.RenderController) RenderController.commit(execDOM);
+                else execDOM();
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                tbody.innerHTML = '<tr><td colspan="7"><div class="table-error">Failed to load sessions: ' + err.message + '</div></td></tr>';
+                const execError = () => { tbody.innerHTML = '<tr><td colspan="7"><div class="table-error">Failed to load sessions: ' + err.message + '</div></td></tr>'; };
+                if (window.RenderController) RenderController.commit(execError);
+                else execError();
             }
         },
 
@@ -811,15 +868,27 @@ window.addEventListener('error', hideSpinner);
         }
 
         // Initialize panel logic
-        AdminPanel.init().catch(err => {
-            console.error("Admin init error:", err);
-            hideSpinner();
-        });
+        if (window.UIState) {
+            RenderController.commit(() => {
+                AdminPanel.init().catch(err => {
+                    console.error("Admin init error:", err);
+                    hideSpinner();
+                });
+            });
+        } else {
+            AdminPanel.init().catch(err => {
+                console.error("Admin init error:", err);
+                hideSpinner();
+            });
+        }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAdminModule);
+        AppLifecycle.register(initAdminModule);
     } else {
         initAdminModule();
     }
 }
+
+
+

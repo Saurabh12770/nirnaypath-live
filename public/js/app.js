@@ -1,4 +1,4 @@
-/* app.js - PWA Registration & Install logic */
+﻿/* app.js - PWA Registration & Install logic */
 
 let deferredPrompt;
 
@@ -154,4 +154,5 @@ const PaymentManager = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => PWA.init());
+AppLifecycle.register(() => PWA.init());
+

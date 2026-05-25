@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NirnayPath Live Test Series System
  */
 
@@ -49,7 +49,7 @@ const LiveTests = {
         
         return `
             <div class="live-test-card np-card hover-lift ${isLive ? 'is-live' : ''}" data-id="${session._id}">
-                <div class="live-badge">${isLive ? '● LIVE NOW' : 'UPCOMING'}</div>
+                <div class="live-badge">${isLive ? 'â— LIVE NOW' : 'UPCOMING'}</div>
                 <div class="live-card-header">
                     <span class="live-exam-tag">${session.exam.toUpperCase()}</span>
                     <span class="live-duration"><i class="far fa-clock"></i> ${session.duration}m</span>
@@ -90,7 +90,7 @@ const LiveTests = {
             });
             if (response.ok) {
                 const btn = document.getElementById(`reg-${sessionId}`);
-                btn.textContent = 'Registered ✅';
+                btn.textContent = 'Registered âœ…';
                 btn.disabled = true;
                 btn.classList.add('success-state');
                 window.showToast('Registration successful!', 'var(--success)');
@@ -157,4 +157,5 @@ const LiveTests = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => LiveTests.init());
+AppLifecycle.register(() => LiveTests.init());
+

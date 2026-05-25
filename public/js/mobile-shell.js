@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Phase 16: Mobile App Shell Logic
  * Handles offline detection, heartbeat, and low-bandwidth optimizations.
  */
-document.addEventListener('DOMContentLoaded', () => {
+AppLifecycle.register(() => {
     const offlineBanner = document.getElementById('offlineBanner');
     
     function updateOnlineStatus() {
@@ -34,3 +34,4 @@ function syncOfflineData() {
     console.log('Syncing offline data...');
     // Implementation for syncing cached actions
 }
+

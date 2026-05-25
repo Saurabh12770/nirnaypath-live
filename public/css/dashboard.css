@@ -267,3 +267,49 @@
     .intel-dashboard { padding: 15px; }
     .stats-intel-grid { grid-template-columns: 1fr; }
 }
+
+/* -- DASHBOARD LAYOUT & CARD OVERFLOW STABILITY FIX -- */
+
+/* FIX 1 — GRID SAFETY (CRITICAL) */
+.intel-top-row,
+.intel-mid-row,
+.intel-bottom-row,
+.dashboard-grid,
+.admin-grid {
+    min-width: 0;
+}
+
+/* FIX 2 — CONTAINER SAFETY */
+.chart-container,
+.card,
+.glass-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* FIX 3 — SIDEBAR LAYOUT FIX */
+.dashboard-container,
+.admin-container {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+/* FIX 4 — MAIN CONTENT SAFETY */
+main {
+    min-width: 0;
+    flex: 1;
+    overflow-x: hidden;
+}
+
+/* FIX 5 — MOBILE RESPONSIVE FIX */
+@media (max-width: 768px) {
+    .dashboard-container,
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+}

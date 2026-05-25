@@ -5,37 +5,48 @@
 
 const Dashboard = {
     async show() {
-        if (!Auth.isLoggedIn()) {
-            document.getElementById('loginModal').style.display = 'flex';
-            return;
-        }
+        return new Promise((resolve) => {
+            const fetchAndRender = async () => {
+                if (!Auth.isLoggedIn()) {
+                    document.getElementById('loginModal').style.display = 'flex';
+                    resolve();
+                    return;
+                }
 
-        // Use the main view manager
-        if (typeof showView === 'function') {
-            showView('userDashboard');
-        } else {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('user-dashboard').classList.add('active');
-        }
-        
-        // Scroll to top
-        window.scrollTo(0, 0);
+                const execViewToggle = () => {
+                    if (typeof showView === 'function') {
+                        showView('userDashboard');
+                    } else {
+                        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+                        document.getElementById('user-dashboard').classList.add('active');
+                    }
+                    window.scrollTo(0, 0);
+                };
 
-        await this.loadData();
-        if (window.Intelligence) {
-            await window.Intelligence.init();
-        }
+                if (window.RenderController) RenderController.register(execViewToggle);
+                else execViewToggle();
+
+                await this.loadData();
+                if (window.Intelligence) {
+                    await window.Intelligence.init();
+                }
+                resolve();
+            };
+
+            if (window.RenderController) RenderController.register(fetchAndRender);
+            else fetchAndRender();
+        });
     },
 
     async loadData() {
         try {
-            // Load Profile and Recent Tests
-            const profileRes = await Auth.fetchWithAuth('/api/user/me');
-            const profileData = await profileRes.json();
-
-            // Load Stats
-            const statsRes = await Auth.fetchWithAuth('/api/user/stats');
-            const statsData = await statsRes.json();
+            const signal = window.AsyncManager ? AsyncManager.getSignal('dashboard_load') : undefined;
+            // Fetch all required data concurrently
+            const [profileRes, statsRes, lbRes] = await Promise.all([
+                Auth.fetchWithAuth('/api/user/me', { signal }),
+                Auth.fetchWithAuth('/api/user/stats', { signal }),
+                Auth.fetchWithAuth('/api/leaderboard/upsc', { signal })
+            ]);
 
             if (profileRes.status === 401 || statsRes.status === 401) {
                 Auth.logout();
@@ -43,23 +54,61 @@ const Dashboard = {
             }
 
             if (profileRes.ok && statsRes.ok) {
-                this.profileData = profileData;
-                this.statsData = statsData;
-                this.renderDashboard(profileData, statsData);
-                this.loadLeaderboard('upsc'); // Default leaderboard
+                const profileData = await profileRes.json();
+                const statsData = await statsRes.json();
+                let lbData = [];
+                if (lbRes && lbRes.ok) lbData = await lbRes.json();
+
+                if (window.AppState) {
+                    AppState.dispatch('dashboard', {
+                        profile: profileData,
+                        stats: statsData,
+                        leaderboard: lbData
+                    });
+                } else {
+                    this.profileData = profileData;
+                    this.statsData = statsData;
+                }
+                
+                const currentState = window.AppState ? AppState.getState().dashboard : { profile: profileData, stats: statsData, leaderboard: lbData };
+                const viewModel = this.buildDashboardViewModel(currentState.profile, currentState.stats, currentState.leaderboard);
+                
+                if (window.RenderController) {
+                    RenderController.commit(() => this.renderAtomic(viewModel));
+                } else {
+                    this.renderAtomic(viewModel);
+                }
             } else {
                 this.showToast('Failed to load performance data');
             }
         } catch (error) {
+            if (error.name === 'AbortError') return;
             console.error('Error loading dashboard data:', error);
         }
     },
 
+    buildDashboardViewModel(profile, stats, lbData) {
+        return {
+            user: profile.user,
+            badges: profile.user.badges || [],
+            stats: stats,
+            recentTests: profile.recentTests || [],
+            leaderboard: lbData
+        };
+    },
+
+    renderAtomic(vm) {
+        this.renderDashboard(vm, vm.stats);
+        if (vm.leaderboard) {
+            this.renderLeaderboard(vm.leaderboard);
+        }
+    },
+
     BADGE_METADATA: {
-        'streak7': { name: '7-Day Warrior', desc: 'Maintain a 7-day test streak', icon: '🔥' },
-        'test30': { name: 'Prolific Learner', desc: 'Complete 30 mock tests', icon: '📚' },
-        'perfect100': { name: 'Century Club', desc: 'Achieve 100% accuracy in a test', icon: '🎯' },
-        'test100': { name: 'Nirnay Path Hero', description: 'Complete 100 mock tests', icon: '🏆' }
+        'streak7': { name: '7-Day Warrior', desc: 'Maintain a 7-day test streak', icon: 'ðŸ”¥' },
+        'test30': { name: 'Prolific Learner', desc: 'Complete 30 mock tests', icon: 'ðŸ“š' },
+        'perfect100': { name: 'Century Club', desc: 'Achieve 100% accuracy in a test', icon: 'ðŸŽ¯' },
+        'test100': { name: 'Nirnay Path Hero', description: 'Complete 100 mock tests', icon: 'ðŸ†' }
     },
 
     renderDashboard(profile, stats) {
@@ -174,42 +223,66 @@ const Dashboard = {
 
     async viewResult(id) {
         try {
-            let profile = this.profileData;
-            let stats = this.statsData;
+            const signal = window.AsyncManager ? AsyncManager.getSignal('dashboard_view_result') : undefined;
+            let currentState = window.AppState ? AppState.getState().dashboard : { profile: this.profileData, stats: this.statsData };
+            
+            let profile = currentState.profile;
+            let stats = currentState.stats;
             
             if (!profile || !stats) {
-                const res = await Auth.fetchWithAuth(`/api/user/stats`);
+                const res = await Auth.fetchWithAuth(`/api/user/stats`, { signal });
                 stats = await res.json();
-                const profileRes = await Auth.fetchWithAuth(`/api/user/me`);
+                const profileRes = await Auth.fetchWithAuth(`/api/user/me`, { signal });
                 profile = await profileRes.json();
-                this.profileData = profile;
-                this.statsData = stats;
+                
+                if (window.AppState) {
+                    AppState.dispatch('dashboard', { profile, stats });
+                } else {
+                    this.profileData = profile;
+                    this.statsData = stats;
+                }
             }
             
             const test = profile.recentTests.find(t => t._id === id);
             if (!test) return this.showToast('Test record not found');
 
-            document.getElementById('review-test-meta').textContent = `Subject: ${test.subject} | Date: ${new Date(test.createdAt).toLocaleDateString()}`;
-            document.getElementById('rev-score').textContent = `${test.score}/${test.totalQuestions}`;
-            document.getElementById('rev-acc').textContent = `${test.accuracy}%`;
-            document.getElementById('rev-correct').textContent = test.correct || 0;
-            document.getElementById('rev-wrong').textContent = test.incorrect || 0;
-            
-            const insights = document.getElementById('review-insights-list');
-            insights.innerHTML = '';
-            if (test.accuracy >= 80) {
-                insights.innerHTML += '<li>Exceptional accuracy! You have a strong grasp of this subject.</li>';
-                insights.innerHTML += '<li>Tip: Try increasing your speed to gain a competitive edge.</li>';
-            } else if (test.accuracy >= 50) {
-                insights.innerHTML += '<li>Stable performance. Consistency is key to improvement.</li>';
-                insights.innerHTML += '<li>Tip: Review your incorrect answers to identify specific weak topics.</li>';
-            } else {
-                insights.innerHTML += '<li>Requires focus. Re-read the fundamental concepts of this subject.</li>';
-                insights.innerHTML += '<li>Tip: Practice 10-15 questions daily in this category to build confidence.</li>';
-            }
+            const viewModel = {
+                subject: test.subject,
+                date: new Date(test.createdAt).toLocaleDateString(),
+                score: test.score,
+                total: test.totalQuestions,
+                accuracy: test.accuracy,
+                correct: test.correct || 0,
+                wrong: test.incorrect || 0
+            };
 
-            document.getElementById('reviewModal').style.display = 'flex';
+            const execRender = () => {
+                document.getElementById('review-test-meta').textContent = `Subject: ${viewModel.subject} | Date: ${viewModel.date}`;
+                document.getElementById('rev-score').textContent = `${viewModel.score}/${viewModel.total}`;
+                document.getElementById('rev-acc').textContent = `${viewModel.accuracy}%`;
+                document.getElementById('rev-correct').textContent = viewModel.correct;
+                document.getElementById('rev-wrong').textContent = viewModel.wrong;
+                
+                const insights = document.getElementById('review-insights-list');
+                insights.innerHTML = '';
+                if (viewModel.accuracy >= 80) {
+                    insights.innerHTML += '<li>Exceptional accuracy! You have a strong grasp of this subject.</li>';
+                    insights.innerHTML += '<li>Tip: Try increasing your speed to gain a competitive edge.</li>';
+                } else if (viewModel.accuracy >= 50) {
+                    insights.innerHTML += '<li>Stable performance. Consistency is key to improvement.</li>';
+                    insights.innerHTML += '<li>Tip: Review your incorrect answers to identify specific weak topics.</li>';
+                } else {
+                    insights.innerHTML += '<li>Requires focus. Re-read the fundamental concepts of this subject.</li>';
+                    insights.innerHTML += '<li>Tip: Practice 10-15 questions daily in this category to build confidence.</li>';
+                }
+
+                document.getElementById('reviewModal').style.display = 'flex';
+            };
+
+            if (window.RenderController) RenderController.commit(execRender);
+            else execRender();
         } catch (e) {
+            if (e.name === 'AbortError') return;
             console.error(e);
             this.showToast('Could not load test report');
         }
@@ -217,12 +290,18 @@ const Dashboard = {
 
     async loadLeaderboard(exam) {
         try {
-            const res = await Auth.fetchWithAuth(`/api/leaderboard/${exam}`);
+            const signal = window.AsyncManager ? AsyncManager.getSignal('dashboard_leaderboard') : undefined;
+            const res = await Auth.fetchWithAuth(`/api/leaderboard/${exam}`, { signal });
             const data = await res.json();
             if (res.ok) {
-                this.renderLeaderboard(data);
+                if (window.AppState) AppState.dispatch('dashboard', { leaderboard: data });
+                const currentState = window.AppState ? AppState.getState().dashboard : { leaderboard: data };
+                const execRender = () => this.renderLeaderboard(currentState.leaderboard);
+                if (window.RenderController) RenderController.commit(execRender);
+                else execRender();
             }
         } catch (error) {
+            if (error.name === 'AbortError') return;
             console.error('Error loading leaderboard:', error);
         }
     },
@@ -259,3 +338,5 @@ const Dashboard = {
         }
     }
 };
+
+

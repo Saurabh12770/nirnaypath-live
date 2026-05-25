@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/js/lifecycle.js"></script>
+    <script src="/js/uiState.js"></script>
+    <script src="/js/renderController.js"></script>
+    <script src="/js/appState.js"></script>
+    <script src="/js/asyncManager.js"></script>
+
+    <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Secure CBT Terminal | NirnayPath</title>
@@ -30,6 +37,8 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="cbt-body">
+<div class="app-shell">
+    <div class="app-content">
     <!-- 0. System Verification Engine -->
     <div id="system-check-screen" class="cbt-screen active">
         <div class="cbt-header-basic">
@@ -229,5 +238,13 @@
     <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js"></script>
     <script src="/js/test.js"></script>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
+
+

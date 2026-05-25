@@ -602,13 +602,15 @@ function showSubmitConfirmation() {
     // exits that happen while this confirmation dialog is visible.
     _isSubmitInProgress = true;
 
+    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+
     let ans = 0, notAns = 0, mark = 0, ansMark = 0, notVis = 0;
-    const total = testState.selectedQuestions.length;
+    const total = stateSnapshot.selectedQuestions.length;
     
     for (let i=0; i<total; i++) {
-        const visited = testState.visited.includes(i);
-        const answered = testState.answers[i] !== undefined;
-        const marked = testState.marked.includes(i);
+        const visited = stateSnapshot.visited && stateSnapshot.visited.includes(i);
+        const answered = stateSnapshot.answers && stateSnapshot.answers[i] !== undefined;
+        const marked = stateSnapshot.marked && stateSnapshot.marked.includes(i);
         if (!visited) notVis++;
         else if (answered && marked) ansMark++;
         else if (answered) ans++;
@@ -616,13 +618,19 @@ function showSubmitConfirmation() {
         else notAns++;
     }
     
-    document.getElementById('s-ans').textContent = ans;
-    document.getElementById('s-not-ans').textContent = notAns;
-    document.getElementById('s-mark').textContent = mark;
-    document.getElementById('s-ans-mark').textContent = ansMark;
-    document.getElementById('s-not-vis').textContent = notVis;
-    
-    document.getElementById('submit-confirm-overlay').classList.add('active');
+    const viewModel = Object.freeze({ ans, notAns, mark, ansMark, notVis });
+
+    const execDOM = () => {
+        document.getElementById('s-ans').textContent = viewModel.ans;
+        document.getElementById('s-not-ans').textContent = viewModel.notAns;
+        document.getElementById('s-mark').textContent = viewModel.mark;
+        document.getElementById('s-ans-mark').textContent = viewModel.ansMark;
+        document.getElementById('s-not-vis').textContent = viewModel.notVis;
+        
+        document.getElementById('submit-confirm-overlay').classList.add('active');
+    };
+    if (window.RenderController) RenderController.commit(execDOM);
+    else execDOM();
 }
 
 async function executeSubmitFlow(isForced) {

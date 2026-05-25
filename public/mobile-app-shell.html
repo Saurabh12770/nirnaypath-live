@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/js/lifecycle.js"></script>
+    <script src="/js/uiState.js"></script>
+    <script src="/js/renderController.js"></script>
+
+    <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2c3e50">
@@ -17,6 +22,8 @@
     </style>
 </head>
 <body>
+<div class="app-shell">
+    <div class="app-content">
     <div id="offlineBanner" class="offline-banner">You are currently offline. Changes will sync when reconnected.</div>
     <header>NirnayPath</header>
     <main id="appContent">
@@ -35,5 +42,13 @@
         <div class="nav-item">Profile</div>
     </div>
     <script src="/js/mobile-shell.js"></script>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
+
+

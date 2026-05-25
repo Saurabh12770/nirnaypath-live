@@ -7,38 +7,82 @@ const Intelligence = {
     charts: {},
     
     async init() {
-        console.log('[Intelligence] Awakening engine...');
-        this.showLoading();
-        
-        try {
-            const [overview, topics, trends, readiness] = await Promise.all([
-                this.fetchData('/api/analytics/overview'),
-                this.fetchData('/api/analytics/topics'),
-                this.fetchData('/api/analytics/trends'),
-                this.fetchData('/api/analytics/readiness')
-            ]);
+        return new Promise((resolve) => {
+            const fetchAndRender = async () => {
+                console.log('[Intelligence] Awakening engine...');
+                
+                try {
+                    // Fetch concurrently OUTSIDE the render block
+                    const [overview, topics, trends, readiness] = await Promise.all([
+                        this.fetchData('/api/analytics/overview'),
+                        this.fetchData('/api/analytics/topics'),
+                        this.fetchData('/api/analytics/trends'),
+                        this.fetchData('/api/analytics/readiness')
+                    ]);
+                    
+                    const leaderboardData = await this.fetchData('/api/leaderboard/global').catch(e => null);
 
-            this.renderProfile(overview);
-            this.renderGamification(overview);
-            this.renderStats(overview);
-            this.renderReadiness(readiness);
-            this.renderTrends(trends);
-            this.renderMastery(topics);
-            this.renderRecommendations(topics);
-            this.renderHeatmap(trends);
-            await this.renderGlobalLeaderboard();
-            
-            console.log('[Intelligence] Engine online.');
-        } catch (error) {
-            console.error('[Intelligence] Engine failure:', error);
-            window.showToast('Failed to sync intelligence data', 'var(--danger)');
-        }
+                    const executeDOM = () => {
+                        this.showLoading();
+                        
+                        // Graceful degradation: only render what we have
+                        if (overview) {
+                            this.renderProfile(overview);
+                            this.renderGamification(overview);
+                            this.renderStats(overview);
+                        } else {
+                            console.warn('[Intelligence] Overview data unavailable.');
+                        }
+
+                        if (readiness) this.renderReadiness(readiness);
+                        if (trends) {
+                            this.renderTrends(trends);
+                            this.renderHeatmap(trends);
+                        }
+                        if (topics) {
+                            this.renderMastery(topics);
+                            this.renderRecommendations(topics);
+                        }
+
+                        console.log('[Intelligence] Engine online. Partial/Full sync complete.');
+                        
+                        const dashboardEl = document.querySelector('.intel-dashboard');
+                        if (dashboardEl) dashboardEl.style.opacity = '1';
+                    };
+
+                    if (window.RenderController) {
+                        RenderController.commit(executeDOM);
+                    } else {
+                        executeDOM();
+                    }
+                    
+                } catch (error) {
+                    console.error('[Intelligence] Engine fatal failure:', error);
+                    window.showToast('System error syncing intelligence data', 'var(--danger)');
+                }
+                resolve();
+            };
+
+            if (window.RenderController) {
+                RenderController.commit(fetchAndRender);
+            } else {
+                fetchAndRender();
+            }
+        });
     },
 
     async fetchData(url) {
-        const res = await Auth.fetchWithAuth(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
+        try {
+            const res = await Auth.fetchWithAuth(url);
+            if (!res.ok) {
+                console.warn(`[Intelligence] API returned ${res.status} for ${url}. May require premium.`);
+                return null;
+            }
+            return res.json();
+        } catch (err) {
+            console.error(`[Intelligence] Network error for ${url}:`, err);
+            return null;
+        }
     },
 
     showLoading() {
@@ -260,3 +304,5 @@ const Intelligence = {
 };
 
 window.Intelligence = Intelligence;
+
+

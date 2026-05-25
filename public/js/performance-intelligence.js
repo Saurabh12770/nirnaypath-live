@@ -1,5 +1,5 @@
-// public/js/performance-intelligence.js
-document.addEventListener('DOMContentLoaded', () => {
+﻿// public/js/performance-intelligence.js
+AppLifecycle.register(() => {
     const mockData = {
         confidenceScore: 88,
         confidenceExplain: "Your accuracy improved steadily over time, showing strong fundamental understanding.",
@@ -25,3 +25,4 @@ document.addEventListener('DOMContentLoaded', () => {
         ${createCard('Topic Mastery', mockData.topicMastery, mockData.topicExplain)}
     `;
 });
+
