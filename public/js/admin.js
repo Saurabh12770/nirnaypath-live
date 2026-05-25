@@ -100,10 +100,10 @@ if (window.__adminScriptLoaded) {
 
     const AdminPanel = {
         async init() {
-            if (!Auth.isLoggedIn()) {
-                location.href = '/';
-                return;
-            }
+            // NOTE: Do NOT gate on Auth.isLoggedIn() here.
+            // Auth.init() is async — its checkAuthStatus() fetch may not have
+            // completed yet when initAdminModule() fires on DOMContentLoaded.
+            // The /api/user/me call below is the single source of truth for auth.
 
             // Verify admin role via profile with overlay
             const data = await fetchWithOverlay('/api/user/me');
@@ -242,7 +242,7 @@ if (window.__adminScriptLoaded) {
                 if (err.name === 'AbortError') return;
                 console.error('Failed to load telemetry:', err);
             }
-        }
+        },
 
         async loadStats() {
             const signal = startFetch('loadStats');
@@ -310,6 +310,15 @@ if (window.__adminScriptLoaded) {
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 console.error('Failed to load stats:', err);
+                // Show visible error in statsGrid so admins know why it is empty
+                const grid = document.getElementById('statsGrid');
+                if (grid && grid.innerHTML.trim() === '') {
+                    grid.innerHTML = `<div class="stat-card" style="grid-column:1/-1;border-left:4px solid var(--admin-danger);">
+                        <div class="stat-icon" style="background:rgba(239,68,68,0.1);color:#ef4444;"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h3 style="font-size:1rem;color:#ef4444;">Stats Unavailable</h3>
+                        <p style="text-transform:none;font-size:0.85rem;">API error: ${err.message || 'Could not reach /api/admin/stats'}. Check server logs.</p>
+                    </div>`;
+                }
             }
         },
 

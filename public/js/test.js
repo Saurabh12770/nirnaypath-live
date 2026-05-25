@@ -20,6 +20,17 @@ let _cbtStarted        = false;  // prevents startCBT running twice
 let _cbtControlsBound  = false;  // prevents bindCBTControls duplicating handlers
 let _antiCheatInstalled = false; // prevents initAntiCheat duplicating listeners
 
+/* ── Submit Flow Guards ─────────────────────────────────────────────── */
+// Set TRUE when submit confirmation dialog is open OR executeSubmitFlow has begun.
+// _onFsChange checks this before showing the violation overlay — a fullscreen exit
+// that happens while the candidate is confirming submit must NOT be treated as a
+// violation (e.g., user presses Escape while submit-confirm-overlay is visible).
+let _isSubmitInProgress = false;
+
+// Prevents executeSubmitFlow from running concurrently when setInterval fires
+// multiple times after timeLeft <= 0 before clearInterval executes.
+let _submitExecuting = false;
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load State from LocalStorage
     const rawState = localStorage.getItem('mockTestState');
@@ -231,6 +242,12 @@ function initAntiCheat() {
     // Fullscreen Exit (30 pts)
     const _onFsChange = () => {
         if (!testState || !testState.isActive) return;
+        // FIX A: Do NOT show violation overlay when submit flow is in progress.
+        // Pressing Escape during the submit confirmation dialog exits fullscreen
+        // but must not be treated as a cheating violation — the candidate is
+        // actively trying to submit. Without this guard the violation-overlay
+        // appears on top of the submit dialog, trapping the candidate.
+        if (_isSubmitInProgress) return;
         if (!document.fullscreenElement) {
             increaseRiskScore(30, 'fullscreen_exit');
             document.getElementById('violation-overlay').classList.add('active');
@@ -547,6 +564,9 @@ function bindCBTControls() {
     document.getElementById('btn-cancel-submit').addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        // FIX A: If the candidate cancels the submit, reset the in-progress flag
+        // so fullscreen enforcement resumes normally.
+        _isSubmitInProgress = false;
         document.getElementById('submit-confirm-overlay').classList.remove('active');
     });
     document.getElementById('btn-confirm-submit').addEventListener('click', (e) => {
@@ -578,6 +598,10 @@ function advanceQuestion() {
 }
 
 function showSubmitConfirmation() {
+    // FIX A: Mark submit as in-progress so _onFsChange ignores fullscreen
+    // exits that happen while this confirmation dialog is visible.
+    _isSubmitInProgress = true;
+
     let ans = 0, notAns = 0, mark = 0, ansMark = 0, notVis = 0;
     const total = testState.selectedQuestions.length;
     
@@ -602,6 +626,13 @@ function showSubmitConfirmation() {
 }
 
 async function executeSubmitFlow(isForced) {
+    // FIX B: Idempotency guard — prevents concurrent executions when
+    // setInterval fires localTimerTick multiple times after timeLeft <= 0
+    // before clearInterval on line below executes (async boundary gap).
+    if (_submitExecuting) return;
+    _submitExecuting = true;
+    _isSubmitInProgress = true; // ensure flag is set for forced/timer submits too
+
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
     testState.isActive = false;
@@ -666,9 +697,13 @@ async function executeSubmitFlow(isForced) {
         });
         
         localStorage.removeItem('mockTestState');
+        // FIX C: Await exitFullscreen so fullscreenchange fires and resolves
+        // BEFORE we show the terminated-overlay. Without await, the browser
+        // fires fullscreenchange asynchronously — if _onFsChange runs after
+        // terminated-overlay appears, it could race with it.
         if (document.fullscreenElement || document.webkitFullscreenElement) {
             try {
-                (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
+                await (document.exitFullscreen || document.webkitExitFullscreen || (() => Promise.resolve())).call(document);
             } catch (fsErr) {
                 console.warn("Error exiting fullscreen:", fsErr);
             }

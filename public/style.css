@@ -1,9 +1,9 @@
-/* ============================================================
+﻿/* ============================================================
    NirnayPath - Global Design System
    Font: Poppins / Inter | Colors: Indigo #4F46E5, Orange #F97316
    ============================================================ */
 
-/* ── 1. DESIGN TOKENS ── */
+/* â”€â”€ 1. DESIGN TOKENS â”€â”€ */
 :root {
     --trans-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --trans-smooth: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -116,7 +116,7 @@
     --r-pill: 9999px;
 }
 
-/* ── DARK MODE ── */
+/* â”€â”€ DARK MODE â”€â”€ */
 [data-theme="dark"] {
     /* Enhanced dark mode colors - vibrant but balanced */
     --primary: #60A5FA; /* Brighter blue for better visibility */
@@ -192,7 +192,7 @@
     --gradient-surface: linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #1E1B4B 100%);
 }
 
-/* ── DARK MODE CARD OVERRIDES ── */
+/* â”€â”€ DARK MODE CARD OVERRIDES â”€â”€ */
 [data-theme="dark"] .card,
 [data-theme="dark"] .feature-card,
 [data-theme="dark"] .exam-card,
@@ -238,7 +238,7 @@
     color: var(--text-main) !important;
 }
 
-/* -- 2. FORENSIC RESET & BASE (PHASE 1.1) ── */
+/* -- 2. FORENSIC RESET & BASE (PHASE 1.1) â”€â”€ */
 *,
 *::before,
 *::after {
@@ -255,7 +255,7 @@ html {
 }
 
 body {
-    overflow-x: clip;
+    overflow-x: hidden;
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -315,7 +315,7 @@ img {
     max-width: 100%;
 }
 
-/* ── 3. TYPOGRAPHY ── */
+/* â”€â”€ 3. TYPOGRAPHY â”€â”€ */
 h1,
 h2,
 h3,
@@ -345,7 +345,7 @@ h6 {
     text-align: center;
 }
 
-/* ── ENHANCED TYPOGRAPHY FOR FINAL UI POLISH ── */
+/* â”€â”€ ENHANCED TYPOGRAPHY FOR FINAL UI POLISH â”€â”€ */
 /* Improved heading hierarchy with better spacing and letter spacing */
 h1 {
     font-size: clamp(2.2rem, 5vw, 3.5rem);
@@ -492,7 +492,7 @@ section {
     box-shadow: var(--shadow-md);
 }
 
-/* ── 4. LAYOUT UTILITIES ── */
+/* â”€â”€ 4. LAYOUT UTILITIES â”€â”€ */
 .container {
     max-width: 1280px;
     margin: 0 auto;
@@ -544,7 +544,7 @@ section {
     margin-top: 2rem;
 }
 
-/* ── 5. ANIMATIONS ── */
+/* â”€â”€ 5. ANIMATIONS â”€â”€ */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -655,7 +655,7 @@ section {
     }
 }
 
-/* ── ENHANCED ANIMATIONS FOR FINAL UI POLISH ── */
+/* â”€â”€ ENHANCED ANIMATIONS FOR FINAL UI POLISH â”€â”€ */
 @keyframes gentle-bounce {
     0%, 100% {
         transform: translateY(0);
@@ -842,7 +842,7 @@ section {
 }
 
 
-/* ── 6. SCROLL REVEAL ── */
+/* â”€â”€ 6. SCROLL REVEAL â”€â”€ */
 .reveal {
     opacity: 0;
     transform: translateY(28px);
@@ -855,7 +855,7 @@ section {
     transform: translateY(0);
 }
 
-/* ── 7. BADGE ── */
+/* â”€â”€ 7. BADGE â”€â”€ */
 .badge {
     display: inline-block;
     padding: 4px 14px;
@@ -868,7 +868,7 @@ section {
     color: var(--bg-secondary);
 }
 
-/* ── 8. COMMON BUTTONS ── */
+/* â”€â”€ 8. COMMON BUTTONS â”€â”€ */
 .btn-primary-lg,
 .btn-secondary-lg {
     display: inline-flex;
@@ -946,7 +946,7 @@ section {
     transform: translateY(-2px);
 }
 
-/* ── 9. FORMS ── */
+/* â”€â”€ 9. FORMS â”€â”€ */
 input,
 select,
 textarea {
@@ -969,7 +969,7 @@ textarea:focus {
     box-shadow: var(--shadow-md);
 }
 
-/* -- 10. PERSISTENT UI (Phase 1.4) ── */
+/* -- 10. PERSISTENT UI (Phase 1.4) â”€â”€ */
 .back-to-top {
     position: fixed !important;
     bottom: 30px !important;
@@ -989,12 +989,7 @@ textarea:focus {
     transition: all var(--trans-smooth);
 }
 
-#chatbot-toggle, .chatbot-toggle {
-    position: fixed !important;
-    bottom: 30px !important;
-    right: 30px !important;
-    z-index: 9999 !important;
-}
+
 
 .back-to-top.visible {
     opacity: 1;
@@ -1005,7 +1000,7 @@ textarea:focus {
     transform: translateY(-4px) scale(1.1);
 }
 
-/* ── 11. CURSOR (typing) ── */
+/* â”€â”€ 11. CURSOR (typing) â”€â”€ */
 .cursor {
     display: inline-block;
     width: 3px;
@@ -1024,9 +1019,9 @@ textarea:focus {
     font-weight: 800;
 }
 
-/* ──
+/* â”€â”€
    HEADER - Enhanced Glass Effect
-── */
+â”€â”€ */
 header.sticky-header {
     position: sticky;
     top: 0;
@@ -1471,9 +1466,9 @@ nav {
     border-radius: var(--r-pill);
 }
 
-/* ──
+/* â”€â”€
    EXAM RIBBON
-── */
+â”€â”€ */
 .exam-ribbon {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
@@ -1544,7 +1539,7 @@ body.test-mode main {
     max-width: 100%;
 }
 
-/* ── VIEW SWITCHING ── */
+/* â”€â”€ VIEW SWITCHING â”€â”€ */
 .view-section {
     display: none;
 }
@@ -1554,9 +1549,9 @@ body.test-mode main {
     animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* ──
+/* â”€â”€
    HERO SECTION - Premium Gradient & Animation
-── */
+â”€â”€ */
 .hero {
     height: 100vh;
     min-height: 100vh;
@@ -1770,9 +1765,9 @@ body.test-mode main {
     animation-delay: 1.6s;
 }
 
-/* ──
+/* â”€â”€
    STATS COUNTER SECTION
-── */
+â”€â”€ */
 .stats-counter-section {
     padding: var(--sp-5) var(--sp-3);
     background: var(--card-bg);
@@ -1826,9 +1821,9 @@ body.test-mode main {
     font-weight: 500;
 }
 
-/* ──
+/* â”€â”€
    EXPERT PREPARATION TIPS SECTION
-   ── */
+   â”€â”€ */
 .expert-tips-section {
     padding: 80px 0;
     background: linear-gradient(135deg, rgba(79, 70, 229, 0.03) 0%, rgba(249, 115, 22, 0.02) 100%);
@@ -1908,9 +1903,9 @@ body.test-mode main {
 .tip-card:nth-child(7) .tip-icon { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
 .tip-card:nth-child(8) .tip-icon { background: linear-gradient(135deg, #14B8A6, #2DD4BF); }
 
-/* ──
+/* â”€â”€
    FEATURES SECTION
-   ── */
+   â”€â”€ */
 
 
 .feature-grid-8 {
@@ -2091,9 +2086,9 @@ body.test-mode main {
 .feature-card:nth-child(7) { border-top-color: var(--teal); }
 .feature-card:nth-child(8) { border-top-color: var(--warning); }
 
-/* ──
+/* â”€â”€
    HOW IT WORKS
-── */
+â”€â”€ */
 
 
 .steps-grid {
@@ -2144,9 +2139,9 @@ body.test-mode main {
     color: var(--text-secondary);
 }
 
-/* ──
+/* â”€â”€
    SUBJECT GRID
-── */
+â”€â”€ */
 .subject-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
@@ -2205,9 +2200,9 @@ body.test-mode main {
     font-weight: 800;
 }
 
-/* ──
+/* â”€â”€
    TEST SELECTION
-── */
+â”€â”€ */
 .test-selection {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -2512,9 +2507,9 @@ body.test-mode main {
     font-family: inherit;
 }
 
-/* ──
+/* â”€â”€
    TRENDING SECTION
-── */
+â”€â”€ */
 .trending-section {
     padding: var(--sp-6) 0;
 }
@@ -2659,9 +2654,9 @@ body.test-mode main {
     color: white;
 }
 
-/* ──
+/* â”€â”€
    POPULAR EXAMS
-   ── */
+   â”€â”€ */
 .popular-exams {
     padding: var(--sp-6) 0;
 }
@@ -2741,9 +2736,9 @@ body.test-mode main {
     font-size: 0.9rem;
 }
 
-/* ──
+/* â”€â”€
    WHY CHOOSE US
-   ── */
+   â”€â”€ */
 .why-us-section {
     padding: var(--sp-8) 0;
 }
@@ -2815,9 +2810,9 @@ body.test-mode main {
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
-/* ──
+/* â”€â”€
    TESTIMONIALS
-   ── */
+   â”€â”€ */
 .testimonials-section {
     padding: var(--sp-8) 0;
 }
@@ -2869,9 +2864,9 @@ body.test-mode main {
     font-weight: 600;
 }
 
-/* ──
+/* â”€â”€
    MOTIVATIONAL QUOTES SECTION - REDESIGNED
-   ── */
+   â”€â”€ */
 .motivational-quotes-section {
     padding: var(--sp-10) 0;
     background: linear-gradient(135deg,
@@ -3008,7 +3003,7 @@ body.test-mode main {
 }
 
 .quote-text::before {
-    content: "ÃƒÂ¢Ã…â€œÂ¨";
+    content: "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ã‚Â¨";
     position: absolute;
     left: -20px;
     top: -10px;
@@ -3017,7 +3012,7 @@ body.test-mode main {
 }
 
 .quote-text::after {
-    content: "ÃƒÂ¢Ã…â€œÂ¨";
+    content: "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ã‚Â¨";
     position: absolute;
     right: -20px;
     bottom: -10px;
@@ -3220,9 +3215,9 @@ body.test-mode main {
     }
 }
 
-/* ──
+/* â”€â”€
    CTA SECTION
-   ── */
+   â”€â”€ */
 .cta-section {
     padding: var(--sp-8) 0;
 }
@@ -3295,9 +3290,9 @@ body.test-mode main {
     }
 }
 
-/* ──
+/* â”€â”€
    EXISTING SECTIONS
-   ── */
+   â”€â”€ */
 
 
 .update-card {
@@ -3366,9 +3361,9 @@ body.test-mode main {
     color: var(--text-secondary);
 }
 
-/* ──
+/* â”€â”€
    TIPS SLIDER
-── */
+â”€â”€ */
 
 
 .tips-slider-container {
@@ -3404,9 +3399,9 @@ body.test-mode main {
     box-shadow: var(--shadow-hover);
 }
 
-/* ──
+/* â”€â”€
    FAQ SECTION
-── */
+â”€â”€ */
 
 
 .faq-container {
@@ -3465,9 +3460,9 @@ body.test-mode main {
     padding-bottom: var(--sp-3);
 }
 
-/* ──
+/* â”€â”€
    UPDATES SECTION
-── */
+â”€â”€ */
 
 
 .updates-grid {
@@ -3477,9 +3472,9 @@ body.test-mode main {
     margin-top: var(--sp-4);
 }
 
-/* ──
+/* â”€â”€
    LOADING SCREEN
-── */
+â”€â”€ */
 .loader-container {
     display: flex;
     flex-direction: column;
@@ -3509,9 +3504,9 @@ body.test-mode main {
     font-size: 0.95rem;
 }
 
-/* ──
-   ──  EXAM ENGINE - TCS iON STANDARD  ──
-── */
+/* â”€â”€
+   â”€â”€  EXAM ENGINE - TCS iON STANDARD  â”€â”€
+â”€â”€ */
 #exam-engine {
     display: flex;
     flex-direction: column;
@@ -3524,7 +3519,7 @@ body.test-mode main {
     background: #0D1520;
 }
 
-/* ── TOP BAR ── */
+/* â”€â”€ TOP BAR â”€â”€ */
 .exam-header {
     background: #1B3A6B;
     color: var(--bg-secondary);
@@ -3642,7 +3637,7 @@ body.test-mode main {
     box-shadow: var(--shadow-hover);
 }
 
-/* ── EXAM BODY ── */
+/* â”€â”€ EXAM BODY â”€â”€ */
 .exam-body {
     display: flex;
     align-items: flex-start;
@@ -3651,7 +3646,7 @@ body.test-mode main {
     overflow: hidden;
 }
 
-/* ── LEFT: QUESTION PANEL ── */
+/* â”€â”€ LEFT: QUESTION PANEL â”€â”€ */
 .question-panel {
     flex: 1;
     display: flex;
@@ -3809,7 +3804,7 @@ body.test-mode main {
     flex: 1;
 }
 
-/* ── ACTION BUTTONS ── */
+/* â”€â”€ ACTION BUTTONS â”€â”€ */
 .action-buttons {
     display: flex;
     align-items: center;
@@ -3910,7 +3905,7 @@ body.test-mode main {
     border-color: #3D5470;
 }
 
-/* ── RIGHT: PALETTE PANEL ── */
+/* â”€â”€ RIGHT: PALETTE PANEL â”€â”€ */
 .palette-panel {
     width: 300px;
     flex-shrink: 0;
@@ -4169,7 +4164,7 @@ body.test-mode main {
     box-shadow: var(--shadow-hover);
 }
 
-/* ── EXAM RESPONSIVE ── */
+/* â”€â”€ EXAM RESPONSIVE â”€â”€ */
 @media (max-width: 900px) {
     .exam-body {
         flex-direction: column;
@@ -4291,9 +4286,9 @@ body.test-mode main {
     }
 }
 
-/* ──
+/* â”€â”€
    RESULT SCREEN
-── */
+â”€â”€ */
 .result-container {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -4406,9 +4401,9 @@ body.test-mode main {
     border-radius: var(--r-sm);
 }
 
-/* ──
+/* â”€â”€
    MODALS
-── */
+â”€â”€ */
 .modal {
     display: none;
     position: fixed;
@@ -4966,9 +4961,9 @@ body.test-mode main {
     color: var(--text-secondary);
 }
 
-/* ──
+/* â”€â”€
    FOOTER
-── */
+â”€â”€ */
 footer {
     background: #0F172A;
     color: var(--bg-secondary);
@@ -5274,7 +5269,7 @@ footer {
     color: #a5b4fc;
 }
 
-/* ── ABOUT PAGE HERO ── */
+/* â”€â”€ ABOUT PAGE HERO â”€â”€ */
 .page-header {
     padding: 120px 0 60px;
     background: linear-gradient(135deg, var(--bg-secondary), var(--bg-main));
@@ -5306,7 +5301,7 @@ footer {
     margin: 0 auto;
 }
 
-/* ── CTA BANNER (about page) ── */
+/* â”€â”€ CTA BANNER (about page) â”€â”€ */
 .cta-banner {
     background: var(--gradient);
     color: var(--bg-secondary);
@@ -5327,9 +5322,9 @@ footer {
     margin-bottom: var(--sp-3);
 }
 
-/* ──
+/* â”€â”€
    RESPONSIVE - GLOBAL
-── */
+â”€â”€ */
 @media (max-width: 1100px) {
     .footer-content {
         grid-template-columns: 1.5fr 1fr 1fr;
@@ -5362,7 +5357,7 @@ footer {
 @media (max-width: 768px) {
 
     nav .nav-link span,
-    nav .nav-link .text {/* ── MOBILE HEADER & HAMBURGER ── */
+    nav .nav-link .text {/* â”€â”€ MOBILE HEADER & HAMBURGER â”€â”€ */
         display: none;
     }
 
@@ -5437,16 +5432,16 @@ footer {
     }
 }
 
-/* ── FOCUS ACCESSIBILITY ── */
+/* â”€â”€ FOCUS ACCESSIBILITY â”€â”€ */
 :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 3px;
     border-radius: 4px;
 }
 
-/* ──
+/* â”€â”€
    TRENDING TEST CARDS
-── */
+â”€â”€ */
 .trending-section {
     padding: 70px var(--sp-4);
     max-width: 1280px;
@@ -5604,9 +5599,9 @@ footer {
     box-shadow: var(--shadow-hover);
 }
 
-/* ──
+/* â”€â”€
    SUBJECT SELECTION AREA
-── */
+â”€â”€ */
 #subject-selection-area {
     max-width: 1280px;
     margin: 0 auto;
@@ -5630,9 +5625,9 @@ footer {
     }
 }
 
-/* ──
-   RESULT SCREEN ── TCS iON STYLE
-── */
+/* â”€â”€
+   RESULT SCREEN â”€â”€ TCS iON STYLE
+â”€â”€ */
 #result-screen {
     min-height: 100vh;
     background: var(--bg-main);
@@ -5955,9 +5950,9 @@ footer {
     }
 }
 
-/* ──
-   ABOUT PAGE ── PLATFORM FEATURES GRID
-── */
+/* â”€â”€
+   ABOUT PAGE â”€â”€ PLATFORM FEATURES GRID
+â”€â”€ */
 .about-platform-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
@@ -6039,9 +6034,9 @@ footer {
     width: fit-content;
 }
 
-/* ──
-   ABOUT PAGE ── CTA BANNER
-── */
+/* â”€â”€
+   ABOUT PAGE â”€â”€ CTA BANNER
+â”€â”€ */
 .cta-banner {
     background: var(--gradient);
     color: var(--bg-secondary);
@@ -6077,18 +6072,18 @@ footer {
     background: rgba(255, 255, 255, .15);
 }
 
-/* ──
-   ABOUT PAGE ── STATS IN COUNTER SECTION BG
-── */
+/* â”€â”€
+   ABOUT PAGE â”€â”€ STATS IN COUNTER SECTION BG
+â”€â”€ */
 .stats-grid-4 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
     gap: 24px;
 }
 
-/* ──
+/* â”€â”€
    DIFFICULTY BADGES (test cards)
-── */
+â”€â”€ */
 .difficulty-easy {
     background: rgba(16, 185, 129, .12);
     color: #059669;
@@ -6116,9 +6111,9 @@ footer {
     font-weight: 700;
 }
 
-/* ──
-   EXAM ENGINE ── timer warning pulse
-── */
+/* â”€â”€
+   EXAM ENGINE â”€â”€ timer warning pulse
+â”€â”€ */
 .timer-val.warning {
     color: #EF4444 !important;
     animation: timerPulse 0.8s ease infinite alternate;
@@ -6134,9 +6129,9 @@ footer {
     }
 }
 
-/* ──
-   MOBILE ── Trending grid single column
-── */
+/* â”€â”€
+   MOBILE â”€â”€ Trending grid single column
+â”€â”€ */
 @media (max-width: 640px) {
     /* Consolidated */
 
@@ -6149,7 +6144,7 @@ footer {
     }
 }
 
-/* ──
+/* â”€â”€
    CONTACT SECTION STYLES
    ============================================================ */
 .contact-info-card,
@@ -7837,7 +7832,7 @@ img.loaded {
     text-transform: uppercase;
     font-weight: 800;
 }
-/* -- 30. SECTIONAL MOCK TESTS BANNER ── */
+/* -- 30. SECTIONAL MOCK TESTS BANNER â”€â”€ */
 .sectional-entry-banner {
     position: relative;
     background: var(--gradient-primary);
@@ -7889,9 +7884,9 @@ img.loaded {
     margin-right: auto;
 }
 
-/* -- 31. GLOBAL MOBILE FIXES ── */
+/* -- 31. GLOBAL MOBILE FIXES â”€â”€ */
 html, body {
-    overflow-x: clip;
+    overflow-x: hidden;
     max-width: 100%;
 }
 @media (max-width: 768px) {
@@ -7943,7 +7938,7 @@ html, body {
     }
 }
 
-/* -- 32. MOBILE HEADER & HAMBURGER MENU ── */
+/* -- 32. MOBILE HEADER & HAMBURGER MENU â”€â”€ */
 @media (max-width: 768px) {
     .sticky-header {
         flex-wrap: nowrap;
@@ -7999,7 +7994,7 @@ html, body {
     }
 }
 
-/* -- 33. TYPOGRAPHY & OVERFLOW POLISH ── */
+/* -- 33. TYPOGRAPHY & OVERFLOW POLISH â”€â”€ */
 h1, .hero-title { font-size: clamp(2rem, 5vw, 3.5rem) !important; }
 h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
 
@@ -8038,7 +8033,7 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     }
 }
 
-/* -- 34. PREMIUM UI COMPONENTS (REDESIGN 2026) ── */
+/* -- 34. PREMIUM UI COMPONENTS (REDESIGN 2026) â”€â”€ */
 
 /* Hero Enhancements */
 .hero-badge {
@@ -8538,7 +8533,7 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     }
 }
 
-/* -- 35. FINAL PRODUCTION FIXES ── */
+/* -- 35. FINAL PRODUCTION FIXES â”€â”€ */
 
 /* Fix: Back-to-Top Button */
 .back-to-top {
@@ -8555,7 +8550,7 @@ body[data-theme="dark"] {
     color: #f1f5f9 !important;
 }
 
-/* -- 34. PREMIUM CARD SYSTEM (PHASE 2) ── */
+/* -- 34. PREMIUM CARD SYSTEM (PHASE 2) â”€â”€ */
 .np-card {
   border-top: 4px solid var(--card-accent, #4F46E5);
   box-shadow: var(--shadow-md);
@@ -8573,7 +8568,7 @@ body[data-theme="dark"] {
   box-shadow: var(--shadow-hover);
 }
 
-/* -- 35. DARK MODE FORENSIC REPAIR (PHASE 2 / 3) ── */
+/* -- 35. DARK MODE FORENSIC REPAIR (PHASE 2 / 3) â”€â”€ */
 [data-theme="dark"] .np-card,
 [data-theme="dark"] [class*="card"],
 [data-theme="dark"] .premium-card,
@@ -8656,11 +8651,11 @@ body[data-theme="dark"] {
     to { opacity: 1; }
 }
 
-/* ──
+/* â”€â”€
    36. FINAL PRODUCTION STABILITY (FORCE OVERRIDES)
    Note: High-priority layout fixes are now in index.html/about.html
    to ensure they win the cascade against legacy 19k line CSS.
-   ── */
+   â”€â”€ */
 @media (max-width: 768px) {
   .exam-ribbon { 
     top: 60px !important; /* Matches mobile header height to prevent overlap */
@@ -8677,8 +8672,8 @@ body[data-theme="dark"] {
    Covers: Mobile Menu, Infinite Slider, Hero Visibility, 2-col Grid
    ================================================================ */
 
-/* ── MOBILE HEADER & HAMBURGER ── */
-/* ── NEW MOBILE MENU SYSTEM (RIGHT SLIDE-IN) ── */
+/* â”€â”€ MOBILE HEADER & HAMBURGER â”€â”€ */
+/* â”€â”€ NEW MOBILE MENU SYSTEM (RIGHT SLIDE-IN) â”€â”€ */
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;
@@ -8841,6 +8836,8 @@ body[data-theme="dark"] {
         height: 36px !important;
         font-size: 0.9rem !important;
         flex-shrink: 0 !important;
+        display: flex !important;
+        z-index: 100 !important;
     }
 }
 
@@ -8855,7 +8852,7 @@ body[data-theme="dark"] {
     border-left: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ── HERO SECTION -- BUTTONS ALWAYS VISIBLE ── */
+/* â”€â”€ HERO SECTION -- BUTTONS ALWAYS VISIBLE â”€â”€ */
 .hero-new-actions {
     position: relative !important;
     z-index: 10 !important;
@@ -8893,7 +8890,7 @@ body[data-theme="dark"] {
     text-decoration: none !important;
 }
 
-/* ── PROBLEM 1: Sectional Mock Tests Dark Mode ── */
+/* â”€â”€ PROBLEM 1: Sectional Mock Tests Dark Mode â”€â”€ */
 [data-theme="dark"] .sectional-entry-banner {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
     color: #f1f5f9 !important;
@@ -8905,7 +8902,7 @@ body[data-theme="dark"] {
     color: #f1f5f9 !important;
 }
 
-/* ── Phase 4: Compact card heights on mobile ── */
+/* â”€â”€ Phase 4: Compact card heights on mobile â”€â”€ */
 @media (max-width: 768px) {
     .feature-card, .category-card, .why-card, .tip-card, 
     .quote-card, .testimonial-card, .update-card, .mission-box, 
@@ -8976,7 +8973,7 @@ body[data-theme="dark"] {
     }
 }
 
-/* ── PREMIUM CARD DESIGN SYSTEM (MULTI-COLOR) ── */
+/* â”€â”€ PREMIUM CARD DESIGN SYSTEM (MULTI-COLOR) â”€â”€ */
 .np-card, .feature-card, .exam-card, .subject-card, .testimonial-card, .update-card, .category-card, .why-card, .section-card, .topic-chip {
     border-top: 4px solid var(--primary);
     transition: all var(--trans-smooth);
@@ -9175,7 +9172,7 @@ body[data-theme="dark"] {
     }
 }
 
-/* ── PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE ── */
+/* â”€â”€ PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE â”€â”€ */
 .testimonial-card {
     width: 280px !important;
     min-width: 280px !important;
@@ -9208,7 +9205,7 @@ body[data-theme="dark"] {
     font-size: 0.8rem !important;
 }
 
-/* ── PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW ── */
+/* â”€â”€ PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW â”€â”€ */
 .trend-start-btn {
     white-space: nowrap !important;
     padding: 12px 20px !important;
@@ -9221,7 +9218,7 @@ body[data-theme="dark"] {
     overflow: visible !important;
 }
 
-/* ── PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM ── */
+/* â”€â”€ PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM â”€â”€ */
 .card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .info-card, .mission-card, .about-stat-card {
     border-top: 3px solid var(--primary) !important;
     box-shadow: var(--shadow-md);
@@ -9269,7 +9266,7 @@ body[data-theme="dark"] {
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
 }
 
-/* ── PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE ── */
+/* â”€â”€ PROBLEM 2: STUDENT SUCCESS VOICES RATIO & SIZE â”€â”€ */
 .testimonial-card {
     width: 280px !important;
     min-width: 280px !important;
@@ -9296,7 +9293,7 @@ body[data-theme="dark"] {
     color: var(--primary) !important;
 }
 
-/* ── PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW ── */
+/* â”€â”€ PROBLEM 4: TRENDING BUTTON CONTENT UNDERFLOW â”€â”€ */
 .trend-start-btn {
     white-space: normal !important;
     padding: 12px 20px !important;
@@ -9319,7 +9316,7 @@ body[data-theme="dark"] {
     box-shadow: var(--shadow-hover);
 }
 
-/* ── PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM ── */
+/* â”€â”€ PROBLEM 5: MULTI-COLOR CARD DESIGN SYSTEM â”€â”€ */
 /* Base styles for all card types */
 .card, .feature-card, .category-card, .why-card, .trend-card, .tip-card, .quote-card, .testimonial-card, .update-card, .mission-box, .contact-card, .mentor-card, .exam-card, .subject-card, .step-card, .stats-card, .faq-item, .about-platform-card, .glass-card, .premium-card, .np-card, .about-stat-card {
     border-top: 3px solid var(--primary);
@@ -9381,7 +9378,7 @@ body[data-theme="dark"] {
     color: #CBD5E1;
 }
 
-/* ── ENHANCED RATIO & COMMUNITY LAYOUT ── */
+/* â”€â”€ ENHANCED RATIO & COMMUNITY LAYOUT â”€â”€ */
 .ratio-3-4 {
     width: 280px;
     max-width: 90vw;
@@ -9514,4 +9511,22 @@ body[data-theme="dark"] {
 /* Force standard system emoji rendering for all fallbacks during FontAwesome load */
 body:not(.fa-loaded) [class*="fa-"]::before {
     font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+}
+
+/* -- STACKING CONTEXT FIX (PATCH B REVISED) -- */
+header,
+main,
+footer,
+.page-container,
+.dashboard-container,
+.about-container,
+.admin-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* -- CBT SCREEN STACKING FIX -- */
+.cbt-screen {
+    position: relative;
+    z-index: 1;
 }

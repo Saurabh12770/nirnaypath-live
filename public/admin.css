@@ -32,10 +32,12 @@
 body {
     background-color: #f4f7fa;
     display: flex;
+    flex-direction: row; /* CRITICAL: Override style.css which sets column — admin layout is sidebar+main side-by-side */
     min-height: 100vh;
     font-family: 'Inter', sans-serif;
     margin: 0;
     color: var(--admin-text-main);
+    overflow-x: hidden; /* Prevent horizontal scroll from fixed sidebar */
 }
 
 /* Sidebar */
@@ -99,12 +101,31 @@ body {
 }
 
 /* Main Content */
+/* Reset global main overrides from style.css (max-width, margin:auto, position, z-index) */
+main {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important; /* style.css sets position:relative — causes stacking context issues with fixed sidebar */
+    z-index: auto !important;   /* style.css sets z-index:1 — unnecessary on admin main */
+}
+
 .main-content {
     margin-left: var(--admin-sidebar-width);
     flex: 1;
     padding: var(--space-lg);
     min-width: 0; /* Prevent flex children from overflowing */
     transition: all 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Cancel style.css global p { margin-bottom: 1.25rem } inside admin cards.
+   That global rule inflates stat-card height by ~20px per <p> tag,
+   causing the bottom content to be clipped when cards have fixed-height containers. */
+.stat-card p,
+.admin-card p {
+    margin-bottom: 0;
+    line-height: 1.4;
 }
 
 .content-header {

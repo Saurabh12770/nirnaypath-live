@@ -22,20 +22,33 @@
     <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js?v=3.0.0"></script>
     <style>
-        /* Premium About Page Hero Styles */
+        /* ── ABOUT PAGE HERO FIXES ── */
+
+        /* FIX 1 — overflow:hidden was clipping the translateY(24px) offset images.
+           Changed to overflow:clip which blocks horizontal scroll without clipping
+           transformed children in the block direction (vertical).
+           Also cancels style.css section { margin-bottom: 4rem } which created
+           excessive gap between hero and the founder section below. */
         .about-hero {
             padding: 8rem 0 4rem;
             position: relative;
-            overflow: hidden;
+            overflow: clip;         /* was: overflow:hidden — was cutting bottom 24px of .item-offset images */
+            overflow-clip-margin: 40px; /* allow 40px of overhang before clipping (covers the 24px offset) */
+            margin-bottom: 0;       /* cancels style.css section { margin-bottom: var(--sp-8) } = 4rem gap */
         }
+
+        /* Gallery grid — removed redundant padding:0 1rem that was double-stacking
+           with .container's existing padding:0 1.5rem, making images narrower than designed. */
         .about-gallery {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
             max-width: 1100px;
-            margin: 4rem auto;
-            padding: 0 1rem;
+            margin: 3rem auto 0;    /* was: 4rem auto — reduced top margin, bottom=0 (padding handles it) */
+            padding-bottom: 2.5rem; /* gives offset items room to visually overhang without clipping */
         }
+
+        /* Gallery image items */
         .gallery-item {
             position: relative;
             border-radius: 16px;
@@ -44,29 +57,44 @@
             height: 280px;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
         }
+
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block; /* prevents inline baseline gap under images */
             transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
+
         .gallery-item:hover {
             transform: translateY(-8px) scale(1.03);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
             z-index: 10;
         }
+
         .gallery-item:hover img {
             transform: scale(1.08);
         }
+
+        /* Staggered offset for alternating items — creates the masonry-like effect */
         .item-offset {
             transform: translateY(24px);
         }
+
         .item-offset:hover {
             transform: translateY(16px) scale(1.03);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
         }
-        
-        /* Responsive Breakpoints */
+
+        /* FIX 2 — Cancel style.css's global np-card border-top:3px !important cycling colors.
+           The .about-stat-card.glass-card.np-card stat cards should use the clean glass-card
+           border, not the multi-color card system that's designed for index.html feature cards. */
+        .about-stat-card.np-card,
+        .about-stat-card.glass-card {
+            border-top: 1px solid var(--border-color) !important; /* override np-card 3px colored top */
+        }
+
+        /* ── RESPONSIVE BREAKPOINTS ── */
         @media (max-width: 991px) {
             .about-gallery {
                 grid-template-columns: repeat(2, 1fr);
@@ -75,6 +103,7 @@
             .gallery-item {
                 height: 220px;
             }
+            /* Disable vertical offset on tablet — avoids clipping in 2-col layout */
             .item-offset {
                 transform: none;
             }
@@ -82,14 +111,16 @@
                 transform: translateY(-8px) scale(1.02);
             }
         }
+
         @media (max-width: 576px) {
             .about-gallery {
                 grid-template-columns: 1fr;
                 gap: 1rem;
-                margin: 2.5rem auto;
+                margin-top: 2rem;
+                padding-bottom: 1rem;
             }
             .gallery-item {
-                height: 180px;
+                height: 200px; /* was 180px — slightly taller on mobile for better image visibility */
             }
             .about-hero {
                 padding: 5rem 0 2rem;
@@ -99,6 +130,7 @@
             }
         }
     </style>
+
 </head>
 <body>
     <!-- Navigation -->
@@ -540,8 +572,6 @@
             </div>
         </div>
     </div>
-
-    <div id="panelOverlay" class="panel-overlay"></div>
 
     <script src="/js/auth.js?v=3.0.0"></script>
     <script src="/js/app.js?v=3.0.0"></script>

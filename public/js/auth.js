@@ -138,7 +138,8 @@ const Auth = {
             if (response.ok) {
                 this.saveSession(data.user);
                 this.updateUI(true, data.user);
-                document.getElementById('loginModal').style.display = 'none';
+                const loginModalEl = document.getElementById('loginModal');
+                if (loginModalEl) loginModalEl.style.display = 'none'; // Guard: loginModal absent on about/admin pages
                 this.showToast('Welcome back, ' + data.user.name);
             } else {
                 alert(data.error || 'Login failed');
@@ -161,7 +162,8 @@ const Auth = {
             if (response.ok) {
                 this.saveSession(data.user);
                 this.updateUI(true, data.user);
-                document.getElementById('loginModal').style.display = 'none';
+                const loginModalEl = document.getElementById('loginModal');
+                if (loginModalEl) loginModalEl.style.display = 'none'; // Guard: loginModal absent on about/admin pages
                 this.showToast('Account created successfully!');
             } else {
                 alert(data.error || 'Signup failed');

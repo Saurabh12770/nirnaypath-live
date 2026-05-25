@@ -147,6 +147,17 @@ const Chatbot = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // PAGE ISOLATION GUARD: Do NOT run chatbot on admin or test pages.
+    // These pages have their own layouts and the chatbot widget causes
+    // visual pollution (floating background, z-index conflicts).
+    const path = window.location.pathname;
+    const isAdminPage = path.includes('/admin') || path.endsWith('admin.html');
+    const isTestPage  = path.includes('/test')  || path.endsWith('test.html');
+    if (isAdminPage || isTestPage) {
+        console.info('[Chatbot] Skipped on admin/test page.');
+        return;
+    }
+
     if ('requestIdleCallback' in window) {
         window.requestIdleCallback(() => Chatbot.init());
     } else {
