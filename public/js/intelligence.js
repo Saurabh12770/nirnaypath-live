@@ -87,7 +87,8 @@ const Intelligence = {
 
     showLoading() {
         // Simple opacity fade for smooth transition
-        document.querySelector('.intel-dashboard').style.opacity = '0.7';
+        const dashEl = document.querySelector('.intel-dashboard');
+        if (dashEl) dashEl.style.opacity = '0.7';
     },
 
     renderProfile(overview) {
@@ -95,7 +96,7 @@ const Intelligence = {
         document.getElementById('dash-avg-accuracy').textContent = Math.round(overview.avgAccuracy || 0) + '%';
         document.getElementById('dash-avg-time').textContent = Math.round(overview.avgTimePerTest || 0) + 's';
         
-        const user = JSON.parse(localStorage.getItem('nirnaypath_user_data') || '{}');
+        const user = JSON.parse(localStorage.getItem('np_user_data') || '{}');
         if (user.name) {
             document.getElementById('dash-user-name').textContent = user.name;
             document.getElementById('dash-user-email').textContent = user.email;

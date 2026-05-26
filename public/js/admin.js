@@ -218,14 +218,26 @@ if (window.__adminScriptLoaded) {
                     }
                 }
 
+                // Destroy memory chart unconditionally if it exists
+                if (chartInstances.memoryChart) {
+                    try {
+                        chartInstances.memoryChart.destroy();
+                    } catch (e) {}
+                    delete chartInstances.memoryChart;
+                }
+
+                // Clone and replace memoryTrendChart canvas to purge active listeners/contexts
+                let memoryCanvas = document.getElementById('memoryTrendChart');
+                if (memoryCanvas) {
+                    const clone = memoryCanvas.cloneNode(true);
+                    memoryCanvas.replaceWith(clone);
+                    memoryCanvas = clone;
+                }
+
                 // Render memory chart if data exists
                 if (data.memoryTrend && data.memoryTrend.length > 0 && typeof Chart !== 'undefined') {
-                    const ctx = document.getElementById('memoryTrendChart');
-                    if (ctx) {
-                        if (chartInstances.memoryChart) {
-                            try { chartInstances.memoryChart.destroy(); } catch(e){}
-                        }
-                        chartInstances.memoryChart = new Chart(ctx, {
+                    if (memoryCanvas) {
+                        chartInstances.memoryChart = new Chart(memoryCanvas, {
                             type: 'line',
                             data: {
                                 labels: data.memoryTrend.map(m => new Date(m.timestamp).toLocaleTimeString()),

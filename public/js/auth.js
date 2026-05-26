@@ -276,14 +276,31 @@ const Auth = {
         this.updateUI(false);
         return false;
     },
-
     updateUI(isLoggedIn, user = null) {
-        if (window.AppState) {
-            AppState.dispatch('auth', { user: isLoggedIn ? user : null, loaded: true });
-        } else if (window.AuthStore) {
-            if (isLoggedIn && user) AuthStore.setUser(user);
-            else AuthStore.clear();
+        try {
+            if (window.AppState) {
+                AppState.dispatch(
+                    'auth',
+                    {
+                        user: isLoggedIn ? user : null,
+                        loaded: true
+                    }
+                );
+            }
+        } catch(e){
+            console.error(
+                'AppState sync failed:',
+                e
+            );
         }
+
+        if (window.AuthStore){
+            if(isLoggedIn && user)
+                AuthStore.setUser(user);
+            else
+                AuthStore.clear();
+        }
+
 
         const loginBtn = document.getElementById('loginBtn');
         const mobileLoginBtn = document.getElementById('mobileLoginBtn');
