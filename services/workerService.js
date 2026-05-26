@@ -40,4 +40,6 @@ const shutdownWorkers = async () => {
     logger.info('[WORKER] All workers stopped.');
 };
 
-module.exports = { initWorkers, shutdownWorkers };
+const isInitialized = () => _initialized;
+
+module.exports = { initWorkers, shutdownWorkers, isInitialized };

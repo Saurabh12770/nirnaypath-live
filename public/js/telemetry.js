@@ -81,7 +81,7 @@
         const start = Date.now();
         const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || 'unknown';
         // Prevent infinite self-tracking loops on telemetry reports
-        if (url.includes('/api/telemetry/report')) {
+        if (url.includes('/telemetry/')) {
             return originalFetch.apply(this, args);
         }
         try {

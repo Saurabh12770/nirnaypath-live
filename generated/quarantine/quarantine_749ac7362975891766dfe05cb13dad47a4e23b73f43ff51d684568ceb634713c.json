@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-05-26T16:43:54.787Z",
+  "rejectionReason": "Manual audit rejection",
+  "fingerprint": "749ac7362975891766dfe05cb13dad47a4e23b73f43ff51d684568ceb634713c",
+  "question": {
+    "id": "bad-q"
+  }
+}

@@ -63,8 +63,34 @@ class OperationsTelemetryService {
     }
 
     async getMongoLag() {
-        // In a real environment, query replSetGetStatus
-        return { lagMs: Math.floor(Math.random() * 5) };
+        // HS-3 FIX: Use real MongoDB latency/lag diagnostics when available instead of fake random telemetry.
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return { lagMs: 0, status: 'offline' };
+        }
+        try {
+            const start = Date.now();
+            await mongoose.connection.db.admin().ping();
+            const latency = Date.now() - start;
+            // Attempt to fetch actual replication status if running as a replSet
+            let replLag = 0;
+            try {
+                const replStatus = await mongoose.connection.db.admin().command({ replSetGetStatus: 1 });
+                if (replStatus && replStatus.members) {
+                    const primary = replStatus.members.find(m => m.state === 1);
+                    const selfMember = replStatus.members.find(m => m.self);
+                    if (primary && selfMember && selfMember.state !== 1 && primary.optimeDate && selfMember.optimeDate) {
+                        replLag = Math.max(0, new Date(primary.optimeDate).getTime() - new Date(selfMember.optimeDate).getTime());
+                    }
+                }
+            } catch (e) {
+                // Not in a replica set or no permission to run replSetGetStatus — fall back to ping latency
+            }
+            return { lagMs: replLag, pingMs: latency };
+        } catch (err) {
+            logger.error(`[OPERATIONS] Error measuring Mongo lag: ${err.message}`);
+            return { lagMs: 0, error: err.message };
+        }
     }
 
     async getEventLoopLag() {

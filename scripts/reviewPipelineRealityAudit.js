@@ -39,7 +39,7 @@ async function runAudit() {
 
     // 1. Create a mock batch in the queue
     const batchId = 'batch_123';
-    ReviewQueueService.enqueueForReview({
+    await ReviewQueueService.enqueueForReview({
         metadata: { generationId: batchId, subject: mockSubject, topic: 'Test' },
         questions: [
             {
@@ -60,7 +60,7 @@ async function runAudit() {
 
     try {
         console.log('\n--- TEST 1: Pending queue loads correctly ---');
-        const stats = ReviewQueueService.auditReviewQueue();
+        const stats = await ReviewQueueService.auditReviewQueue();
         assert(stats.pendingBatches === 1, "Queue successfully loaded pending batch.");
     } catch(e) { assert(false, `Test 1 Failed: ${e.message}`); }
 
@@ -91,7 +91,7 @@ async function runAudit() {
     try {
         console.log('\n--- TEST 3: Corrupt batch rejected ---');
         const badBatchId = 'batch_456';
-        ReviewQueueService.enqueueForReview({
+        await ReviewQueueService.enqueueForReview({
             metadata: { generationId: badBatchId, subject: mockSubject, topic: 'Test' },
             questions: [
                 {

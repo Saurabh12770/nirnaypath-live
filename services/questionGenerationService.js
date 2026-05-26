@@ -200,7 +200,7 @@ class QuestionGenerationService {
     /**
      * Generate multiple questions safely into the review queue
      */
-    static generateQuestionBatch(subject, topic, count) {
+    static async generateQuestionBatch(subject, topic, count) {
         const generationId = crypto.randomUUID();
         this.trace('BATCH_START', { generationId, subject, topic, count });
         
@@ -221,9 +221,15 @@ class QuestionGenerationService {
         const dataDir = path.join(__dirname, '../data');
         const masterFile = path.join(dataDir, `${subject.toLowerCase()}.json`);
         let existingBank = [];
-        if (fs.existsSync(masterFile)) {
-            const rawData = JSON.parse(fs.readFileSync(masterFile, 'utf8'));
-            existingBank = Array.isArray(rawData) ? rawData : (rawData.questions || []);
+        try {
+            const fileExists = await fs.promises.access(masterFile).then(() => true).catch(() => false);
+            if (fileExists) {
+                const rawData = await fs.promises.readFile(masterFile, 'utf8');
+                const parsed = JSON.parse(rawData);
+                existingBank = Array.isArray(parsed) ? parsed : (parsed.questions || []);
+            }
+        } catch (readErr) {
+            console.error('[GenerationEngine] Master file read error:', readErr.message);
         }
 
         // 2. Generation Loop
@@ -257,7 +263,7 @@ class QuestionGenerationService {
             if (duplicateCheck.duplicate) {
                 duplicateCount++;
                 quarantined++;
-                ReviewQueueService.moveToQuarantine(question, `Semantic Duplicate: ${duplicateCheck.reasons.join(', ')}`);
+                await ReviewQueueService.moveToQuarantine(question, `Semantic Duplicate: ${duplicateCheck.reasons.join(', ')}`);
                 warnings.push(`Question quarantined due to duplication: ${duplicateCheck.reasons.join(', ')}`);
                 continue;
             }
@@ -269,10 +275,10 @@ class QuestionGenerationService {
         const diversityCheck = SemanticFirewallService.enforceQuestionDiversity(generatedQuestions);
         if (!diversityCheck.passed) {
             // Entire batch fails diversity -> quarantine all remaining
-            generatedQuestions.forEach(q => {
+            for (const q of generatedQuestions) {
                 quarantined++;
-                ReviewQueueService.moveToQuarantine(q, `Batch failed diversity check: ${diversityCheck.warnings.join(', ')}`);
-            });
+                await ReviewQueueService.moveToQuarantine(q, `Batch failed diversity check: ${diversityCheck.warnings.join(', ')}`);
+            }
             
             this.traceFirewall({
                 generationId,
@@ -293,7 +299,7 @@ class QuestionGenerationService {
 
         // 5. Write to Review Queue Service
         if (generatedQuestions.length > 0) {
-            ReviewQueueService.enqueueForReview({
+            await ReviewQueueService.enqueueForReview({
                 metadata: {
                     generationId,
                     subject,

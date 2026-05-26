@@ -15,6 +15,7 @@
 
 const { AsyncLocalStorage } = require('async_hooks');
 const crypto = require('crypto');
+const { recordRequest } = require('../utils/telemetryStore');
 
 // Global AsyncLocalStorage context
 const traceContext = new AsyncLocalStorage();
@@ -39,6 +40,16 @@ function requestTracer(req, res, next) {
     };
 
     traceContext.run(context, () => {
+        // Auto-record every completed request into the shared telemetry store
+        res.on('finish', () => {
+            const durationMs = Date.now() - context.startTime;
+            recordRequest({
+                url:        req.path,
+                method:     req.method,
+                status:     res.statusCode,
+                durationMs
+            });
+        });
         next();
     });
 }

@@ -6,7 +6,6 @@ const Chatbot = {
 
     init() {
         this.injectHTML();
-        this.setupEventListeners();
     },
 
     injectHTML() {
@@ -36,7 +35,10 @@ const Chatbot = {
                 </form>
             </div>
         `;
-        const execDOM = () => { document.body.appendChild(container); };
+        const execDOM = () => { 
+            document.body.appendChild(container); 
+            this.setupEventListeners();
+        };
         if (window.RenderController) RenderController.register(execDOM);
         else execDOM();
     },
@@ -44,13 +46,18 @@ const Chatbot = {
     setupEventListeners() {
         const toggle = document.getElementById('chatbotToggle');
         const close = document.getElementById('closeChat');
-        const window = document.getElementById('chatbotWindow');
+        const chatWindow = document.getElementById('chatbotWindow');
         const form = document.getElementById('chatForm');
 
+        if (!toggle || !close || !chatWindow || !form) {
+            console.error('[Chatbot] Required elements not found in DOM.');
+            return;
+        }
+
         toggle.onclick = () => {
-            if (window.UIState && !UIState.ready) return;
+            if (window.UIState && !window.UIState.ready) return;
             this.isOpen = !this.isOpen;
-            window.classList.toggle('active', this.isOpen);
+            chatWindow.classList.toggle('active', this.isOpen);
             if (this.isOpen) {
                 document.getElementById('chatInput').focus();
                 if (Auth.isLoggedIn()) {
@@ -60,13 +67,13 @@ const Chatbot = {
         };
 
         close.onclick = () => {
-            if (window.UIState && !UIState.ready) return;
+            if (window.UIState && !window.UIState.ready) return;
             this.isOpen = false;
-            window.classList.remove('active');
+            chatWindow.classList.remove('active');
         };
 
         form.onsubmit = async (e) => {
-            if (window.UIState && !UIState.ready) {
+            if (window.UIState && !window.UIState.ready) {
                 e.preventDefault();
                 return;
             }

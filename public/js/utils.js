@@ -1,6 +1,12 @@
-/**
- * NirnayPath Global Utilities & UI Stabilization
- */
+if (!window.showToast) {
+    window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
+        const t = document.createElement('div');
+        t.style.cssText = `position:fixed;bottom:90px;right:20px;z-index:9999;background:${bg};color:${color};padding:14px 22px;border-radius:10px;font-weight:700;font-size:.87rem;box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:340px;font-family:Poppins,sans-serif;border:2px solid ${color};animation:toastIn .35s ease;`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4500);
+    };
+}
 
 window.NirnayPath = {
     /**

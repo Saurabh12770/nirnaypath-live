@@ -262,7 +262,10 @@ const Auth = {
 
     async checkAuthStatus() {
         try {
-            const response = await fetch('/api/auth/me');
+            const token = this.getToken();
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch('/api/user/me', { headers });
             if (response.ok) {
                 const data = await response.json();
                 this.saveSession(data.user);

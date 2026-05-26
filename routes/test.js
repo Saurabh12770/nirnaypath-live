@@ -512,8 +512,13 @@ router.post('/violation', auth, async (req, res) => {
  * Enterprise unified endpoint handling Telemetry, Integrity Validation, Clock Sync, and Autosave.
  */
 router.post('/heartbeat', auth, async (req, res) => {
-    const { sessionId, clientState, metrics, answers, markedForReview } = req.body;
-    if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
+    const { sessionId, clientState, metrics, answers, markedForReview } = req.body || {};
+    if (!sessionId || typeof sessionId !== 'string') {
+        return res.status(400).json({ error: 'sessionId required and must be a string' });
+    }
+    if (!req.user || !req.user._id) {
+        return res.status(401).json({ error: 'Unauthorized: missing user identifier' });
+    }
 
     try {
         const session = await TestSession.findOne({ sessionId, userId: req.user._id });
@@ -525,8 +530,10 @@ router.post('/heartbeat', auth, async (req, res) => {
 
         // 1. Authoritative Clock Sync
         const now = new Date();
-        const elapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
-        let timeLeft = session.timeLimit - elapsedSeconds;
+        const startTime = session.startTime instanceof Date ? session.startTime : new Date(session.startTime || session.createdAt || now);
+        const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+        const timeLimit = typeof session.timeLimit === 'number' ? session.timeLimit : 0;
+        let timeLeft = timeLimit - elapsedSeconds;
         
         let isExpired = false;
         if (timeLeft <= 0) {
@@ -536,18 +543,23 @@ router.post('/heartbeat', auth, async (req, res) => {
         }
 
         // 2. Autosave State Merger
-        if (answers) {
+        if (answers && typeof answers === 'object' && !Array.isArray(answers)) {
+            if (!session.answers || typeof session.answers.set !== 'function') {
+                session.answers = new Map();
+            }
             for (const [key, val] of Object.entries(answers)) {
-                session.answers.set(key, val);
+                if (key !== undefined) {
+                    session.answers.set(String(key), val);
+                }
             }
         }
         if (markedForReview && Array.isArray(markedForReview)) {
-            session.markedForReview = markedForReview;
+            session.markedForReview = markedForReview.map(item => Number(item)).filter(item => !isNaN(item));
         }
 
         // 3. Telemetry & Integrity Injection (Phase 10B)
         // If client sends riskScore >= 100, enforce server lock immediately.
-        if (metrics && metrics.riskScore >= 100) {
+        if (metrics && typeof metrics === 'object' && typeof metrics.riskScore === 'number' && metrics.riskScore >= 100) {
              session.status = 'terminated';
              session.locked = true;
              session.terminatedReason = 'integrity_failure_heartbeat';
@@ -564,7 +576,7 @@ router.post('/heartbeat', auth, async (req, res) => {
             status: session.status
         });
     } catch (error) {
-        console.error('[HEARTBEAT] Error:', error.message);
+        console.error('[HEARTBEAT] Error details:', error);
         res.status(500).json({ error: 'Heartbeat failed' });
     }
 });

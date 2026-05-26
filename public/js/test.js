@@ -475,7 +475,7 @@ function renderQuestion() {
     }
 
     // Trigger MathJax Reparse
-    if (window.MathJax) {
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
         window.MathJax.typesetPromise([document.getElementById('q-text-content'), document.getElementById('q-options-container')]).catch(err=>console.warn(err));
     }
 }
@@ -615,7 +615,17 @@ function showSubmitConfirmation() {
     // exits that happen while this confirmation dialog is visible.
     _isSubmitInProgress = true;
 
-    const stateSnapshot = window.AppState ? AppState.getState().test : testState;
+    // FIX B: Guard AppState access — AppState.getState() may return null or an
+    // object without a .test property (e.g. during first-load race conditions).
+    // Falling back to the module-level testState ensures we never throw here and
+    // silently prevent the overlay from appearing.
+    let stateSnapshot = testState;
+    try {
+        if (window.AppState && typeof AppState.getState === 'function') {
+            const s = AppState.getState();
+            if (s && s.test) stateSnapshot = s.test;
+        }
+    } catch (e) { /* fall through to testState */ }
 
     let ans = 0, notAns = 0, mark = 0, ansMark = 0, notVis = 0;
     const total = stateSnapshot.selectedQuestions.length;
@@ -633,6 +643,12 @@ function showSubmitConfirmation() {
     
     const viewModel = Object.freeze({ ans, notAns, mark, ansMark, notVis });
 
+    // FIX C: Always call execDOM() directly. RenderController.commit() wraps the
+    // call inside requestAnimationFrame(), which is throttled to 0–1 fps when the
+    // tab is backgrounded or in headless mode. This can make the overlay never
+    // appear during automated testing AND in mobile browsers running in the
+    // background. Direct synchronous DOM manipulation is safe here because this
+    // is a simple classList/textContent update with no layout-dependent reads.
     const execDOM = () => {
         document.getElementById('s-ans').textContent = viewModel.ans;
         document.getElementById('s-not-ans').textContent = viewModel.notAns;
@@ -642,8 +658,7 @@ function showSubmitConfirmation() {
         
         document.getElementById('submit-confirm-overlay').classList.add('active');
     };
-    if (window.RenderController) RenderController.commit(execDOM);
-    else execDOM();
+    execDOM();
 }
 
 async function executeSubmitFlow(isForced) {

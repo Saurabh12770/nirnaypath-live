@@ -9,6 +9,10 @@ const RealTime = {
 
     init() {
         if (!Auth.isLoggedIn()) return;
+        if (typeof io === 'undefined') {
+            console.warn('[RealTime] socket.io not available, skipping connection.');
+            return;
+        }
 
         console.log('[RealTime] Connecting to engine...');
         const token = Auth.getToken();
@@ -114,7 +118,7 @@ const RealTime = {
     }
 };
 
-// Initialize if logged in
-if (Auth.isLoggedIn()) {
+// Initialize if logged in AND socket.io client is available
+if (typeof io !== 'undefined' && Auth.isLoggedIn()) {
     RealTime.init();
 }

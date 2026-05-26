@@ -40,6 +40,8 @@ const growthRoutes = require('./routes/growth');
 const seoRoutes = require('./routes/seo');
 const engagementRoutes = require('./routes/engagement');
 const adminIntelligenceRoutes = require('./routes/adminIntelligence');
+const telemetryRoutes = require('./routes/telemetry');
+const { recordError } = require('./utils/telemetryStore');
 const auth = require('./middleware/auth');
 const adminAuth = require('./middleware/adminAuth');
 const { requestTracer } = require('./middleware/requestTracing');
@@ -97,7 +99,8 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+            scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
             connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://ui-avatars.com", "https://lumberjack.razorpay.com"],
@@ -111,8 +114,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://nirnaypath-live-production.up.railway.app' 
+  // M-1 FIX: Read allowed origins from env so custom domains and staging work
+  // without code changes. Set ALLOWED_ORIGINS as a comma-separated list in Railway config.
+  // Example: https://nirnaypath.com,https://staging.nirnaypath.com
+  origin: process.env.NODE_ENV === 'production'
+    ? (process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+        : 'https://nirnaypath-live-production.up.railway.app')
     : ['http://localhost:3000', 'http://localhost:8080'],
   credentials: true
 }));
@@ -238,6 +246,8 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/growth', growthRoutes);
 app.use('/api/engagement', engagementRoutes);
 app.use('/api/admin/intelligence', adminIntelligenceRoutes);
+app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/v1/telemetry', telemetryRoutes);
 app.use('/', seoRoutes);
 app.use('/api', apiRoutes);
 app.get('/admin', auth, adminAuth, (req, res) => {
@@ -263,11 +273,19 @@ app.use((err, req, res, next) => {
         method: req.method,
         ip: req.ip
     });
+    // Feed into telemetry store so /api/telemetry/overview reflects real errors
+    recordError({ message: err.message, stack: err.stack, url: req.url, method: req.method });
     res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // Create HTTP Server
 const server = http.createServer(app);
+
+// CB-2 FIX: Prevent port-lock after Railway/Render proxy closes keep-alive connections.
+// keepAliveTimeout must exceed the upstream proxy idle timeout (typically 60s).
+// headersTimeout must be slightly greater than keepAliveTimeout.
+server.keepAliveTimeout = 65000;
+server.headersTimeout   = 66000;
 
 // Initialize WebSocket Engine
 socketService.init(server);
@@ -311,22 +329,29 @@ server.listen(PORT, '0.0.0.0', () => {
     }
 });
 
-process.on('SIGTERM', async () => {
-    console.log('[SHUTDOWN] SIGTERM received. Graceful shutdown initiated.');
-    await shutdownWorkers();
+// CB-1 FIX: Graceful shutdown with hard timeout.
+// If shutdownWorkers() hangs (e.g. BullMQ/Redis stall), the 5s race forces continuation
+// so server.close() is always reached and the TCP port is always released.
+async function gracefulShutdown(signal) {
+    console.log(`[SHUTDOWN] ${signal} received. Graceful shutdown initiated.`);
+    const shutdownTimeout = new Promise(resolve => setTimeout(resolve, 5000));
+    try {
+        await Promise.race([shutdownWorkers(), shutdownTimeout]);
+    } catch (err) {
+        console.error('[SHUTDOWN] Worker shutdown error (non-fatal):', err.message);
+    }
     server.close(() => {
-        console.log('[SHUTDOWN] HTTP server closed.');
+        console.log('[SHUTDOWN] HTTP server closed. Exiting cleanly.');
         process.exit(0);
     });
-});
+    // Hard kill if server.close() itself hangs (e.g. persistent WebSocket connections)
+    setTimeout(() => {
+        console.error('[SHUTDOWN] Forced exit after hard timeout.');
+        process.exit(1);
+    }, 8000).unref();
+}
 
-process.on('SIGINT', async () => {
-    console.log('[SHUTDOWN] SIGINT received. Graceful shutdown initiated.');
-    await shutdownWorkers();
-    server.close(() => {
-        console.log('[SHUTDOWN] HTTP server closed.');
-        process.exit(0);
-    });
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
 
 module.exports = app;

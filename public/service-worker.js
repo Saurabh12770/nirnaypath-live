@@ -78,6 +78,21 @@ self.addEventListener('fetch', event => {
     // Skip chrome-extension and non-http(s) protocols
     if (url.protocol.startsWith('chrome') || !url.protocol.startsWith('http')) return;
 
+    // ── EXTERNAL CDN BYPASS ──────────────────────────────────────────────
+    // Do not cache or intercept requests to external CDNs. Intercepting them
+    // can lead to CORS/ORB issues or stale CDN assets.
+    const externalCDNs = [
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+        'cdnjs.cloudflare.com',
+        'jsdelivr.net',
+        'cdn.jsdelivr.net'
+    ];
+    const isExternalCDN = externalCDNs.some(cdn => url.hostname === cdn || url.hostname.endsWith('.' + cdn));
+    if (isExternalCDN) {
+        return;
+    }
+
     // ── EXPLICIT TELEMETRY BYPASS ─────────────────────────────────────────
     // Telemetry reports must always reach the server fresh — never serve
     // from cache and never queue them through the SW fetch pipeline.

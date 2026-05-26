@@ -193,6 +193,9 @@ const sendEmail = async (typeOrTo, payloadOrType, context) => {
                 break;
 
             case 'PAYMENT_SUCCESS':
+                // M-2 FIX: Razorpay amount is in paise (1 INR = 100 paise).
+                // Divide by 100 before displaying so email shows "INR 499.00" not "INR 49900".
+                const displayAmount = (Number(payload.amount) / 100).toFixed(2);
                 subject = 'Payment Successful - Welcome to NirnayPath Pro!';
                 html = `
                     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #334155; line-height: 1.6;">
@@ -202,7 +205,7 @@ const sendEmail = async (typeOrTo, payloadOrType, context) => {
                         </div>
                         <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                             <h2 style="color: #10b981; margin-top: 0; text-align: center;">Payment Successful!</h2>
-                            <p>Hi ${user.name}, your payment of <b>INR ${payload.amount}</b> for the <b>${payload.planName || 'Pro'}</b> plan was successfully processed.</p>
+                            <p>Hi ${user.name}, your payment of <b>INR ${displayAmount}</b> for the <b>${payload.planName || 'Pro'}</b> plan was successfully processed.</p>
                             <p>Your subscription is now active until <b>${payload.expiryDate || 'N/A'}</b>.</p>
                             <div style="text-align: center; margin: 35px 0;">
                                 <a href="${process.env.BASE_URL || 'http://nirnaypath.com'}/dashboard" style="background-color: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Go to Dashboard</a>

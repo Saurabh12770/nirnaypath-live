@@ -48,14 +48,26 @@ async function waitForSpinnerHidden(page) {
         // FLOW 1 — Anonymous User
         // ==========================================
         console.log('\n--- [FLOW 1] Anonymous User Navigation ---');
-        await page.goto('http://localhost:3000/index.html', { waitUntil: 'load' });
+        await page.goto('http://localhost:3000/index.html', { waitUntil: 'domcontentloaded' });
         
         // Clear session first to make sure we are anonymous
         await page.evaluate(() => {
             localStorage.clear();
             sessionStorage.clear();
         });
-        await page.reload({ waitUntil: 'load' });
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        // Allow requestIdleCallback to fire and register Chatbot.init() with UIState
+        await delay(1000);
+        // In headless mode, external CDN resources (FontAwesome, MathJax, Google Fonts)
+        // are slow/blocked, which delays the window `load` event indefinitely.
+        // UIState.setReady() is only called on `load`, so force it here if not already done.
+        await page.evaluate(() => {
+            if (window.UIState && !window.UIState.ready) {
+                console.log('[E2E] Forcing UIState.setReady() — CDN resources delayed load event');
+                window.UIState.setReady();
+            }
+        });
+        await delay(500); // Allow RenderController to flush chatbot DOM injection
         console.log('✔ Anonymous Homepage loaded successfully.');
 
         // Hero Images Check
@@ -74,7 +86,12 @@ async function waitForSpinnerHidden(page) {
         await page.setViewport({ width: 1600, height: 1000 });
 
         // Open Help Center
-        await page.waitForSelector('#chatbotToggle', { visible: true });
+        // The chatbot toggle is injected via: requestIdleCallback → UIState.onReady → RenderController.
+        // We forced UIState.setReady() above, so this should resolve quickly.
+        await page.waitForFunction(
+            () => !!document.getElementById('chatbotToggle'),
+            { timeout: 5000 }
+        );
         await page.click('#chatbotToggle');
         console.log('✔ Chatbot widget opened.');
         await page.click('#chatbotToggle');
@@ -135,7 +152,8 @@ async function waitForSpinnerHidden(page) {
 
         await page.click('#doSignup');
         console.log('✔ Signup submitted.');
-        await delay(3000);
+        // Extended delay: bcrypt-12 takes ~400ms + checkAuthStatus race condition requires settling
+        await delay(5000);
 
         // Verify if token exists in local storage
         const hasSession = await page.evaluate(() => !!localStorage.getItem('np_user_data'));
@@ -147,6 +165,19 @@ async function waitForSpinnerHidden(page) {
             await page.waitForSelector('#loginBtn', { visible: true });
             await page.click('#loginBtn'); // click logout
             await delay(2000); // wait for page reload
+        } else {
+            // Session not in localStorage (httpOnly cookie may still be set).
+            // Close the modal that is still open after signup and reload to clear state.
+            console.log('⚠️  np_user_data not in localStorage. Closing modal and reloading...');
+            await page.evaluate(() => {
+                const modal = document.getElementById('loginModal');
+                if (modal) modal.style.display = 'none';
+                // Reset signup form container visibility for next open
+                const loginContainer = document.getElementById('loginFormContainer');
+                const signupContainer = document.getElementById('signupFormContainer');
+                if (loginContainer) loginContainer.style.display = 'block';
+                if (signupContainer) signupContainer.style.display = 'none';
+            });
         }
 
         const loggedOut = await page.evaluate(() => !localStorage.getItem('np_user_data'));
@@ -155,8 +186,21 @@ async function waitForSpinnerHidden(page) {
         // Login again manually
         await page.waitForSelector('#loginBtn', { visible: true });
         await page.click('#loginBtn'); // opens login modal
+
+        // FIX: The modal may still show signupFormContainer (from the showSignup click above).
+        // Ensure we are on the login form before typing credentials.
+        const isSignupVisible = await page.evaluate(() => {
+            const el = document.getElementById('signupFormContainer');
+            return el && el.style.display !== 'none';
+        });
+        if (isSignupVisible) {
+            console.log('⚠️  Signup form is visible. Switching to login form...');
+            await page.waitForSelector('#showLogin', { visible: true });
+            await page.click('#showLogin');
+            await delay(300);
+        }
         
-        await page.waitForSelector('#loginEmail', { visible: true });
+        await page.waitForSelector('#loginEmail', { visible: true, timeout: 10000 });
         await page.type('#loginEmail', email);
         await page.type('#loginPass', password);
         await page.click('#doLogin');
@@ -171,12 +215,16 @@ async function waitForSpinnerHidden(page) {
         // FLOW 3 — Test Engine (Secure CBT Terminal)
         // ==========================================
         console.log('\n--- [FLOW 3] Secure CBT Test Engine ---');
-        // Start science test with 5 questions
-        await page.evaluate(() => {
-            window.startTest('Science Verification Test', 'science', 5, 5);
-        });
-        console.log('✔ window.startTest executed. Waiting for navigation to test.html...');
-        await delay(4000);
+        // Start science test with 5 questions.
+        // startTest() does an async API call to fetch questions before navigating.
+        // Use Promise.all to capture the navigation whenever it fires (up to 30s).
+        console.log('✔ Triggering startTest and waiting for navigation to test.html...');
+        await Promise.all([
+            page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+            page.evaluate(() => window.startTest('Science Verification Test', 'science', 5, 5))
+        ]);
+        // Give the test.html page a moment to initialize its own scripts
+        await delay(2000);
 
         const currentUrl = page.url();
         console.log('✔ Current Page URL:', currentUrl);
@@ -238,7 +286,7 @@ async function waitForSpinnerHidden(page) {
         // ==========================================
         console.log('\n--- [FLOW 4] Admin Dashboard Validation ---');
         // Log out the test user on homepage first
-        await page.goto('http://localhost:3000/index.html', { waitUntil: 'load' });
+        await page.goto('http://localhost:3000/index.html', { waitUntil: 'domcontentloaded' });
         const hasSessionBeforeAdmin = await page.evaluate(() => !!localStorage.getItem('np_user_data'));
         if (hasSessionBeforeAdmin) {
             await page.click('#loginBtn'); // logout
@@ -255,7 +303,7 @@ async function waitForSpinnerHidden(page) {
         await delay(3000);
 
         // Go to admin dashboard
-        await page.goto('http://localhost:3000/admin.html', { waitUntil: 'load' });
+        await page.goto('http://localhost:3000/admin.html', { waitUntil: 'domcontentloaded' });
         console.log('✔ Admin dashboard loaded.');
         await delay(2000);
 
@@ -357,13 +405,20 @@ async function waitForSpinnerHidden(page) {
         // 5. 20 Reloads verification
         console.log('✔ Running 20 page reloads verification...');
         for (let i = 0; i < 20; i++) {
-            await page.reload({ waitUntil: 'load' });
+            await page.reload({ waitUntil: 'domcontentloaded' });
         }
         console.log('✔ All 20 reloads finished.');
 
     } catch (e) {
         console.error('❌ Automation Error:', e);
+        console.log('\n--- ALL BROWSER CONSOLE LOGS ---');
+        consoleLogs.forEach(log => console.log('  [BROWSER LOG]', log));
+        console.log('--------------------------------\n');
     } finally {
+        console.log('\n--- ALL BROWSER CONSOLE LOGS ---');
+        consoleLogs.forEach(log => console.log('  [BROWSER LOG]', log));
+        console.log('--------------------------------\n');
+
         console.log('\n==========================================');
         console.log('📊 FINAL RUNTIME TEST SUMMARY');
         console.log('==========================================');

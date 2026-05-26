@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "generationId": "b71fa54e-b8bd-467c-bb38-334a7c85c6d6",
+    "subject": "physics",
+    "createdAt": "2026-05-26T16:43:54.781Z",
+    "questionCount": 3,
+    "qualityMetrics": {
+      "answerCounts": {
+        "0": 2,
+        "1": 1,
+        "2": 0,
+        "3": 0
+      },
+      "topicCounts": {
+        "mechanics": 3
+      }
+    }
+  },
+  "questions": [
+    {
+      "id": "PHY-MECH-EAS-1387E5",
+      "subject": "physics",
+      "topic": "Mechanics",
+      "subtopic": "General",
+      "difficulty": "EASY",
+      "examLevel": "UPSC",
+      "question_en": "Which of the following best describes the principle of Photosynthesis?",
+      "question_hi": "निम्नलिखित में से कौन प्रकाश संश्लेषण के सिद्धांत का सबसे अच्छा वर्णन करता है?",
+      "options_en": [
+        "It is the fundamental basis of Photosynthesis mechanics.",
+        "It states that energy is conserved in Photosynthesis.",
+        "It defines the core properties of Photosynthesis.",
+        "It is an outdated theory regarding Photosynthesis."
+      ],
+      "options_hi": [
+        "यह प्रकाश संश्लेषण यांत्रिकी का मूल आधार है।",
+        "यह बताता है कि प्रकाश संश्लेषण में ऊर्जा संरक्षित है।",
+        "यह प्रकाश संश्लेषण के मुख्य गुणों को परिभाषित करता है।",
+        "यह प्रकाश संश्लेषण के संबंध में एक पुराना सिद्धांत है।"
+      ],
+      "correctAnswer": 0,
+      "explanation_en": "The principle of Photosynthesis is considered the fundamental basis of its respective mechanics, establishing the groundwork for further physical laws.",
+      "explanation_hi": "प्रकाश संश्लेषण के सिद्धांत को इसके संबंधित यांत्रिकी का मूल आधार माना जाता है, जो आगे के भौतिक नियमों के लिए आधार स्थापित करता है।",
+      "source": "system_generated",
+      "generatedBy": "QuestionGenerationEngine",
+      "generatedAt": "2026-05-26T16:43:54.774Z",
+      "createdAt": "2026-05-26T16:43:54.775Z"
+    },
+    {
+      "id": "PHY-MECH-EAS-EB598D",
+      "subject": "physics",
+      "topic": "Mechanics",
+      "subtopic": "General",
+      "difficulty": "EASY",
+      "examLevel": "UPSC",
+      "question_en": "Which of the following best describes the principle of Newton's First Law?",
+      "question_hi": "निम्नलिखित में से कौन न्यूटन का पहला नियम के सिद्धांत का सबसे अच्छा वर्णन करता है?",
+      "options_en": [
+        "It states that energy is conserved in Newton's First Law.",
+        "It is the fundamental basis of Newton's First Law mechanics.",
+        "It defines the core properties of Newton's First Law.",
+        "It is an outdated theory regarding Newton's First Law."
+      ],
+      "options_hi": [
+        "यह बताता है कि न्यूटन का पहला नियम में ऊर्जा संरक्षित है।",
+        "यह न्यूटन का पहला नियम यांत्रिकी का मूल आधार है।",
+        "यह न्यूटन का पहला नियम के मुख्य गुणों को परिभाषित करता है।",
+        "यह न्यूटन का पहला नियम के संबंध में एक पुराना सिद्धांत है।"
+      ],
+      "correctAnswer": 1,
+      "explanation_en": "The principle of Newton's First Law is considered the fundamental basis of its respective mechanics, establishing the groundwork for further physical laws.",
+      "explanation_hi": "न्यूटन का पहला नियम के सिद्धांत को इसके संबंधित यांत्रिकी का मूल आधार माना जाता है, जो आगे के भौतिक नियमों के लिए आधार स्थापित करता है।",
+      "source": "system_generated",
+      "generatedBy": "QuestionGenerationEngine",
+      "generatedAt": "2026-05-26T16:43:54.778Z",
+      "createdAt": "2026-05-26T16:43:54.778Z"
+    },
+    {
+      "id": "PHY-MECH-EAS-E43864",
+      "subject": "physics",
+      "topic": "Mechanics",
+      "subtopic": "General",
+      "difficulty": "EASY",
+      "examLevel": "UPSC",
+      "question_en": "Which of the following best describes the principle of Fundamental Rights?",
+      "question_hi": "निम्नलिखित में से कौन मौलिक अधिकार के सिद्धांत का सबसे अच्छा वर्णन करता है?",
+      "options_en": [
+        "It is the fundamental basis of Fundamental Rights mechanics.",
+        "It states that energy is conserved in Fundamental Rights.",
+        "It defines the core properties of Fundamental Rights.",
+        "It is an outdated theory regarding Fundamental Rights."
+      ],
+      "options_hi": [
+        "यह मौलिक अधिकार यांत्रिकी का मूल आधार है।",
+        "यह बताता है कि मौलिक अधिकार में ऊर्जा संरक्षित है।",
+        "यह मौलिक अधिकार के मुख्य गुणों को परिभाषित करता है।",
+        "यह मौलिक अधिकार के संबंध में एक पुराना सिद्धांत है।"
+      ],
+      "correctAnswer": 0,
+      "explanation_en": "The principle of Fundamental Rights is considered the fundamental basis of its respective mechanics, establishing the groundwork for further physical laws.",
+      "explanation_hi": "मौलिक अधिकार के सिद्धांत को इसके संबंधित यांत्रिकी का मूल आधार माना जाता है, जो आगे के भौतिक नियमों के लिए आधार स्थापित करता है।",
+      "source": "system_generated",
+      "generatedBy": "QuestionGenerationEngine",
+      "generatedAt": "2026-05-26T16:43:54.780Z",
+      "createdAt": "2026-05-26T16:43:54.780Z"
+    }
+  ]
+}

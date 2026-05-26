@@ -80,11 +80,11 @@ async function runAudit() {
     try {
         console.log('\n--- TEST 4: Generation Pipeline Quarantine ---');
         // Force generate batch (Max 4 concepts available in mock, so use 3 to avoid repeated stems)
-        const result = QuestionGenerationService.generateQuestionBatch('physics', 'Mechanics', 3);
+        const result = await QuestionGenerationService.generateQuestionBatch('physics', 'Mechanics', 3);
         assert(result.success === true, `Generation batch created. Error: ${result.error || result.warnings?.join(', ')}`);
         
         // Let's manually trigger a quarantine
-        ReviewQueueService.moveToQuarantine({ id: 'bad-q' }, "Manual audit rejection");
+        await ReviewQueueService.moveToQuarantine({ id: 'bad-q' }, "Manual audit rejection");
         const quarantinedFiles = fs.readdirSync(quarantineDir);
         assert(quarantinedFiles.length >= 1, "Quarantine pipeline safely wrote file to disk.");
     } catch(e) { assert(false, `Test 4 Failed: ${e.message}`); }
