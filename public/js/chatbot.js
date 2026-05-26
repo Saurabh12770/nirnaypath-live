@@ -178,4 +178,6 @@ AppLifecycle.register(() => {
     if ('requestIdleCallback' in window) {
         window.requestIdleCallback(init);
     } else {
-
+        setTimeout(init, 200);
+    }
+});

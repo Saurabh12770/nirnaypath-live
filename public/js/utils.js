@@ -7,6 +7,28 @@ window.NirnayPath = {
      * Centered Safe Fetch Wrapper
      */
     async safeFetch(url, options = {}, timeout = 15000) {
+        const method = (options.method || 'GET').toUpperCase();
+        if (method === 'GET') {
+            if (!window.NirnayPath._inFlight) {
+                window.NirnayPath._inFlight = new Map();
+            }
+            if (window.NirnayPath._inFlight.has(url)) {
+                return window.NirnayPath._inFlight.get(url);
+            }
+            const promise = (async () => {
+                try {
+                    return await window.NirnayPath._executeFetch(url, options, timeout);
+                } finally {
+                    window.NirnayPath._inFlight.delete(url);
+                }
+            })();
+            window.NirnayPath._inFlight.set(url, promise);
+            return promise;
+        }
+        return window.NirnayPath._executeFetch(url, options, timeout);
+    },
+
+    async _executeFetch(url, options = {}, timeout = 15000) {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
 

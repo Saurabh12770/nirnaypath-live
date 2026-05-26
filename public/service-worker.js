@@ -69,12 +69,27 @@ self.addEventListener('fetch', event => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // Skip non-GET requests and chrome-extension requests
-    if (request.method !== 'GET' || url.protocol.startsWith('chrome')) return;
+    // ── NETWORK STABILIZATION GUARD ──────────────────────────────────────
+    // NEVER intercept mutation requests (POST, PUT, DELETE, PATCH).
+    // Intercepting them would corrupt idempotency guarantees on heartbeat,
+    // test submission, telemetry, push subscription, and payment endpoints.
+    if (request.method !== 'GET') return;
+
+    // Skip chrome-extension and non-http(s) protocols
+    if (url.protocol.startsWith('chrome') || !url.protocol.startsWith('http')) return;
+
+    // ── EXPLICIT TELEMETRY BYPASS ─────────────────────────────────────────
+    // Telemetry reports must always reach the server fresh — never serve
+    // from cache and never queue them through the SW fetch pipeline.
+    // (They are POST requests so the guard above already covers this, but
+    // this named bypass makes the intent explicit for future maintainers.)
+    if (url.pathname.startsWith('/api/telemetry/')) {
+        return;
+    }
 
     // Learning sync endpoint — always network, never cache
     if (url.pathname === '/api/learning/sync') {
-        return; // Let it pass through directly
+        return;
     }
 
     // Network-first for eligible API routes

@@ -46,7 +46,19 @@ class SocketService {
 
     setupMiddleware() {
         this.io.use((socket, next) => {
-            const token = socket.handshake.auth.token || socket.handshake.query.token;
+            let token = socket.handshake.auth.token || socket.handshake.query.token;
+            
+            // Extract from cookie if not explicitly sent in auth/query payload (for HttpOnly cookies)
+            if (!token && socket.handshake.headers.cookie) {
+                socket.handshake.headers.cookie.split(';').forEach(cookie => {
+                    let [name, ...rest] = cookie.split('=');
+                    name = name.trim();
+                    if (name === 'token') {
+                        token = decodeURIComponent(rest.join('=').trim());
+                    }
+                });
+            }
+
             if (!token) return next(new Error('Authentication required'));
             try {
                 socket.user = jwt.verify(token, process.env.JWT_SECRET);

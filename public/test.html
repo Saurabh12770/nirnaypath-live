@@ -237,6 +237,15 @@
 
     <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js"></script>
+    <!-- AUTH-GLOBAL-02 FIX: auth.js must be loaded before test.js.
+         Auth.getToken() is called in forceServerSync, heartbeatPing,
+         increaseRiskScore and executeSubmitFlow. Without this script,
+         every call throws ReferenceError: Auth is not defined, which is
+         silently swallowed by try/catch — meaning zero API calls ever
+         reach the server (no heartbeat, no sync, no submit, no anti-cheat). -->
+    <script src="/js/auth.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/realtime.js"></script>
     <script src="/js/test.js"></script>
     </div>
 </div>

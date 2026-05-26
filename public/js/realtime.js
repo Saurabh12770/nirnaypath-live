@@ -8,14 +8,17 @@ const RealTime = {
     examActive: false,
 
     init() {
-        const token = Auth.getToken();
-        if (!token) return;
+        if (!Auth.isLoggedIn()) return;
 
         console.log('[RealTime] Connecting to engine...');
-        this.socket = io({
-            auth: { token },
+        const token = Auth.getToken();
+        const config = {
             transports: ['websocket']
-        });
+        };
+        if (token) {
+            config.auth = { token };
+        }
+        this.socket = io(config);
 
         this.setupListeners();
         this.startHeartbeat();
@@ -111,7 +114,7 @@ const RealTime = {
     }
 };
 
-// Initialize if token exists
-if (Auth.getToken()) {
+// Initialize if logged in
+if (Auth.isLoggedIn()) {
     RealTime.init();
 }

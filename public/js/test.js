@@ -186,18 +186,24 @@ async function forceFullscreen() {
 }
 
 let _cbtStartLock = false;
-function startCBT(isResume = false) {
+// CBT-TIMER-01 FIX: async so we can await forceServerSync() before
+// starting the interval. Callers do not await startCBT(), which is fine —
+// _cbtStartLock stays true throughout, preventing re-entry during the await.
+async function startCBT(isResume = false) {
     if (_cbtStartLock) return;
     _cbtStartLock = true;
 
     if (window.logDiagnostic) window.logDiagnostic('startCBT');
-    // ── FORENSIC FIX: Idempotency guard — prevent double-start in any code path
     if (_cbtStarted) {
         console.warn('[CBT] startCBT() called again — ignoring duplicate invocation.');
         _cbtStartLock = false;
         return;
     }
     _cbtStarted = true;
+
+    if (window.RealTime) {
+        RealTime.setExamActive(true, testState.sessionId);
+    }
 
     // Persist session-ID handshake so genuine resume is distinguishable
     sessionStorage.setItem('cbt-active', 'true');
@@ -216,10 +222,17 @@ function startCBT(isResume = false) {
     initAntiCheat();
     bindCBTControls();
 
-    // Initial sync and start timers — clear any stale ones first
+    // CBT-TIMER-01 FIX: await the server sync BEFORE starting the interval.
+    // Without await, the timer begins on the client's stale timeLeft while
+    // the server correction is still in-flight — causing the clock to show
+    // the wrong value and potentially firing submit before time is confirmed.
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
-    forceServerSync();
+    await forceServerSync();
+    if (!testState || !testState.isActive) {
+        _cbtStartLock = false;
+        return;
+    }
     timerInterval = setInterval(localTimerTick, 1000);
     heartbeatInterval = setInterval(heartbeatPing, 10000);
     
@@ -644,6 +657,11 @@ async function executeSubmitFlow(isForced) {
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
     testState.isActive = false;
+    
+    if (window.RealTime) {
+        RealTime.setExamActive(false);
+    }
+
     // ── FORENSIC FIX: Remove BOTH session keys on normal submit
     sessionStorage.removeItem('cbt-active');
     sessionStorage.removeItem('cbt-active-session');
@@ -732,6 +750,7 @@ async function executeSubmitFlow(isForced) {
             }
         }
     } catch (err) {
+        _submitExecuting = false;
         console.error("Submit failed", err);
         alert("Network error during submission. Results are saved locally and will sync when connection restores.");
     }

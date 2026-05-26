@@ -14,13 +14,35 @@
         }
     } catch(e){}
 
+    let lastFlushTime = 0;
+    let flushTimeout = null;
+
     function track(type, payload) {
         if (isShuttingDown && type !== 'session_end') return;
         queue.push({ type, timestamp: Date.now(), ...payload });
-        if (queue.length >= 50) flush(); 
+        if (queue.length >= 50) throttleFlush(); 
+    }
+
+    function throttleFlush() {
+        const now = Date.now();
+        if (now - lastFlushTime < 10000) {
+            if (!flushTimeout) {
+                flushTimeout = setTimeout(() => {
+                    flushTimeout = null;
+                    flush();
+                }, 10000 - (now - lastFlushTime));
+            }
+            return;
+        }
+        flush();
     }
 
     function flush() {
+        lastFlushTime = Date.now();
+        if (flushTimeout) {
+            clearTimeout(flushTimeout);
+            flushTimeout = null;
+        }
         if (queue.length === 0) return;
         const payload = {
             events: queue.splice(0, queue.length),
@@ -58,6 +80,10 @@
     window.fetch = async function(...args) {
         const start = Date.now();
         const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || 'unknown';
+        // Prevent infinite self-tracking loops on telemetry reports
+        if (url.includes('/api/telemetry/report')) {
+            return originalFetch.apply(this, args);
+        }
         try {
             const response = await originalFetch.apply(this, args);
             const duration = Date.now() - start;
@@ -114,7 +140,7 @@
     });
 
     // Periodic flush
-    setInterval(flush, 5000); // 5 seconds for responsive dashboard updates
+    setInterval(throttleFlush, 15000); // Max 1 request per 15 seconds
 
     // Page hide/unload
     window.addEventListener('visibilitychange', () => {

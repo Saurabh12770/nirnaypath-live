@@ -123,6 +123,9 @@ router.post('/submit', auth, async (req, res) => {
             return res.status(400).json({ error: 'Session ID is required for submission.' });
         }
 
+        let sessionUpdated = false;
+        let resultSaved = false;
+
         // Perform the atomic status update from 'active' to 'submitted' first to block duplicate requests
         const session = await TestSession.findOneAndUpdate(
             { sessionId, userId: req.user._id, status: 'active' },
@@ -131,9 +134,20 @@ router.post('/submit', auth, async (req, res) => {
         );
         
         if (!session) {
+            const existingResult = await TestResult.findOne({ sessionId, userId: req.user._id });
+            if (existingResult) {
+                return res.status(200).json({ 
+                    message: 'Test result saved successfully', 
+                    resultId: existingResult._id,
+                    streak: req.user.streakCount || 0,
+                    newBadges: []
+                });
+            }
             console.log(`[Submit][403] Session not found or not active: sid=${sessionId}, uid=${req.user._id}`);
             return res.status(403).json({ error: 'Invalid, already submitted, or unauthorized test session.' });
         }
+
+        sessionUpdated = true;
 
         // --- IMMEDIATELY NORMALIZE INTO STANDARD INTERNAL STRUCTURE ---
         let normalizedAnswers = [];
@@ -271,6 +285,7 @@ router.post('/submit', auth, async (req, res) => {
 
         try {
             await testResult.save();
+            resultSaved = true;
         } catch (saveErr) {
             if (saveErr.code === 11000) {
                 return res.status(409).json({ error: 'Result already exists for this session.' });
@@ -387,6 +402,16 @@ router.post('/submit', auth, async (req, res) => {
             newBadges: earnedBadges
         });
     } catch (error) {
+        if (sessionUpdated && !resultSaved) {
+            try {
+                await TestSession.updateOne(
+                    { sessionId, userId: req.user._id },
+                    { $set: { status: 'active' } }
+                );
+            } catch (rollbackErr) {
+                console.error('[SubmitRollback] Failed to rollback session status:', rollbackErr.message);
+            }
+        }
         console.error('Submission error:', error);
         res.status(500).json({ error: error.message });
     }
