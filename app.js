@@ -1,9 +1,14 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
+const { validateEnv } = require('./services/envValidationService');
+validateEnv();
+
 const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const morgan = require('morgan');
-const dotenv = require('dotenv');
 const path = require('path');
 const mongoose = require('mongoose');
 const { registerGlobalQueryLogger } = require('./services/slowQueryLogger');
@@ -13,9 +18,6 @@ const http = require('http');
 const context = require('./utils/context');
 const socketService = require('./services/socketService');
 const CrashReportingService = require('./services/crashReportingService');
-
-
-dotenv.config();
 
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');

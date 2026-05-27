@@ -36,6 +36,9 @@ questionSchema.index({ examId: 1, subjectId: 1, topicId: 1 });
 questionSchema.index({ subjectId: 1, difficulty: 1 });
 questionSchema.index({ reviewRequired: 1, qualityScore: 1 });
 questionSchema.index({ subjectId: 1, qualityScore: -1 });
+// Perf: index-covered distinct('topicId') for /api/subject/:subject/topics
+questionSchema.index({ subjectId: 1, topicId: 1 });
+questionSchema.index({ subject:   1, topicId: 1 }); // legacy field fallback
 
 const Question = mongoose.model('Question', questionSchema);
 

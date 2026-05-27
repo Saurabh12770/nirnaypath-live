@@ -34,9 +34,13 @@ class CrashReportingService {
                 // Graceful dynamic require to prevent crash if @sentry/node is not installed
                 const Sentry = require('@sentry/node');
                 
+                const release = process.env.SENTRY_RELEASE || process.env.npm_package_version || '1.0.0';
+                const environment = process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'production';
+
                 Sentry.init({
                     dsn: dsn,
-                    environment: process.env.NODE_ENV || 'development',
+                    release: release,
+                    environment: environment,
                     // HS-4 FIX: Never sample 100% in production — billing risk + latency overhead.
                     // Set SENTRY_TRACES_RATE env var to override (e.g. 0.05 for 5%).
                     tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_RATE || '0.1'),
@@ -44,7 +48,10 @@ class CrashReportingService {
                 
                 sentryClient = Sentry;
                 isSentryEnabled = true;
-                logger.info('[SENTRY] Initialized successfully in production environment.');
+                logger.info(`[SENTRY] Initialized successfully in production environment. Release: ${release}, Env: ${environment}`);
+
+                // Startup verification message
+                Sentry.captureMessage('[BOOT] NirnayPath Platform v1.0.0 Online', 'info');
 
                 if (app) {
                     // Sentry Request Handler must be the first middleware
@@ -181,6 +188,13 @@ class CrashReportingService {
         });
 
         logger.info('[CRASH] Global SRE uncaughtException and unhandledRejection hooks activated.');
+    }
+
+    /**
+     * Check if Sentry error reporting is active in production
+     */
+    static isSentryActive() {
+        return isSentryEnabled;
     }
 }
 

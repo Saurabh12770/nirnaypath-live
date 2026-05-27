@@ -1,5 +1,6 @@
-if (!window.showToast) {
+if (!window.showToast || window.showToast.isFallback) {
     window.showToast = function(msg, bg = '#1F2937', color = '#FCD34D') {
+        document.getElementById('np-fallback-toast')?.remove();
         const t = document.createElement('div');
         t.style.cssText = `position:fixed;bottom:90px;right:20px;z-index:9999;background:${bg};color:${color};padding:14px 22px;border-radius:10px;font-weight:700;font-size:.87rem;box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:340px;font-family:Poppins,sans-serif;border:2px solid ${color};animation:toastIn .35s ease;`;
         t.textContent = msg;
@@ -105,6 +106,9 @@ window.NirnayPath = {
         
         // 5. Language Active State (if toggle exists)
         this.syncLanguageUI();
+        
+        // 6. Global animation initialization (fixes about.html visibility)
+        this.initScrollAnimations();
     },
 
     initTheme() {
@@ -172,6 +176,24 @@ window.NirnayPath = {
                 }
             };
         });
+    },
+
+    initScrollAnimations() {
+        if (window.__scrollAnimationsInitialized) return;
+        window.__scrollAnimationsInitialized = true;
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('active');
+                        observer.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        } else {
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+        }
     }
 };
 

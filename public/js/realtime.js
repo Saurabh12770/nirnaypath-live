@@ -118,7 +118,22 @@ const RealTime = {
     }
 };
 
-// Initialize if logged in AND socket.io client is available
-if (typeof io !== 'undefined' && Auth.isLoggedIn()) {
-    RealTime.init();
-}
+// Initialize inside AppLifecycle with retry/timeout for socket.io availability
+AppLifecycle.register(() => {
+    let attempts = 0;
+    const maxAttempts = 30; // 3 seconds timeout (30 * 100ms)
+    
+    const tryInitRealtime = () => {
+        if (typeof io !== 'undefined') {
+            if (Auth.isLoggedIn()) {
+                RealTime.init();
+            }
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(tryInitRealtime, 100);
+        } else {
+            console.warn('[RealTime] socket.io client failed to load within 3s. Operating in standalone mode.');
+        }
+    };
+    tryInitRealtime();
+});

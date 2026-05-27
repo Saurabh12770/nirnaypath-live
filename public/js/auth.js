@@ -265,18 +265,24 @@ const Auth = {
             const token = this.getToken();
             const headers = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
-            const response = await fetch('/api/user/me', { headers });
+            const response = await fetch('/api/user/me', { 
+                headers,
+                credentials: 'include'
+            });
             if (response.ok) {
                 const data = await response.json();
                 this.saveSession(data.user);
                 this.updateUI(true, data.user);
                 return true;
+            } else if (response.status === 401) {
+                // Graceful 401 return — clear session and update UI safely
+                localStorage.removeItem(this.userKey);
+                this.updateUI(false);
+                return false;
             }
         } catch (e) {
-            console.error('Auth status check failed:', e);
+            console.warn('Auth status check skipped or offline:', e.message);
         }
-        localStorage.removeItem(this.userKey);
-        this.updateUI(false);
         return false;
     },
     updateUI(isLoggedIn, user = null) {

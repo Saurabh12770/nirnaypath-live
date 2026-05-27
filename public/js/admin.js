@@ -30,15 +30,6 @@ if (window.__adminScriptLoaded) {
             .replace(/'/g, '&#039;');
     }
 
-    // 2.1 Mandatory Spinner Timeout
-    setTimeout(() => {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-            overlay.style.display = 'none';
-        }
-        console.warn('Loading overlay hidden by timeout.');
-    }, 8000);
 
     // Global spinner functions to handle overlaps
     let spinnerCount = 0;
@@ -99,30 +90,39 @@ if (window.__adminScriptLoaded) {
     }
 
     const AdminPanel = {
+        _bootComplete: false,
         async init() {
-            // NOTE: Do NOT gate on Auth.isLoggedIn() here.
-            // Auth.init() is async Ã¢â‚¬â€ its checkAuthStatus() fetch may not have
-            // completed yet when initAdminModule() fires on DOMContentLoaded.
-            // The /api/user/me call below is the single source of truth for auth.
+            showSpinner();
+            try {
+                // Verify admin role via profile with overlay
+                const data = await fetchWithOverlay('/api/user/me');
+                if (!data || !data.user || data.user.role !== 'admin') {
+                    alert('Unauthorized. Admin access only.');
+                    location.href = '/';
+                    return;
+                }
+                document.getElementById('adminName').textContent = data.user.name || 'Admin';
 
-            // Verify admin role via profile with overlay
-            const data = await fetchWithOverlay('/api/user/me');
-            if (!data || !data.user || data.user.role !== 'admin') {
-                alert('Unauthorized. Admin access only.');
+                // Load all initial startup data concurrently (stats, users, payments, and subjects)
+                await Promise.all([
+                    this.loadSubjects(),
+                    this.loadStats(),
+                    this.loadUsers(),
+                    this.loadPayments()
+                ]);
+
+                this._bootComplete = true;
+
+                // Show the active section based on the current URL hash
+                const initialSection = window.location.hash.slice(1) || 'analytics';
+                this.showSection(initialSection);
+            } catch (err) {
+                console.error("Admin dashboard initialization failed:", err);
+                alert('Unauthorized or session expired. Admin access only.');
                 location.href = '/';
-                return;
+            } finally {
+                hideSpinner();
             }
-            document.getElementById('adminName').textContent = data.user.name || 'Admin';
-
-            // Ensure initial sections load properly based on current hash to avoid double concurrent stats fetch
-            const initialSection = window.location.hash.slice(1) || 'analytics';
-            const initPromises = [this.loadSubjects()];
-            if (initialSection !== 'analytics') {
-                initPromises.push(this.loadStats());
-            }
-
-            await Promise.allSettled(initPromises);
-            this.showSection(initialSection);
         },
 
         showSection(id) {
@@ -148,11 +148,18 @@ if (window.__adminScriptLoaded) {
             if (window.RenderController) RenderController.commit(execDOM);
             else execDOM();
             
-            if (id === 'users') this.loadUsers();
-            if (id === 'payments') this.loadPayments();
-            if (id === 'analytics') this.loadStats();
-            if (id === 'live-sessions') AdminLive.loadSessions();
-            if (id === 'telemetry') this.loadTelemetry();
+            // Only trigger loads if they aren't preloaded during initial boot, or if user explicitly navigates
+            if (this._bootComplete) {
+                if (id === 'users') this.loadUsers();
+                if (id === 'payments') this.loadPayments();
+                if (id === 'analytics') this.loadStats();
+                if (id === 'live-sessions') AdminLive.loadSessions();
+                if (id === 'telemetry') this.loadTelemetry();
+            } else {
+                // If it's the initial boot section, and it wasn't in the Promise.all, load it here
+                if (id === 'live-sessions') AdminLive.loadSessions();
+                if (id === 'telemetry') this.loadTelemetry();
+            }
         },
 
         async loadTelemetry() {

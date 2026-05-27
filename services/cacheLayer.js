@@ -75,7 +75,11 @@ class CacheLayer {
 
         // Return deep-cloned + frozen — ZERO reference leakage
         try {
-            const clone = JSON.parse(JSON.stringify(entry.value));
+            const val = entry.value;
+            if (Array.isArray(val) && val.length <= 500 && val.every(i => typeof i === 'string' || typeof i === 'number' || typeof i === 'boolean' || i === null)) {
+                return this.deepFreeze(val);
+            }
+            const clone = JSON.parse(JSON.stringify(val));
             return this.deepFreeze(clone);
         } catch (e) {
             console.error('[CacheLayer] Read serialization error:', e.message);

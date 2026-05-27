@@ -159685,6 +159685,62 @@
     "__v": 0
   },
   {
+    "_id": "6a15da95e432a90565e9b12d",
+    "subjectId": "history",
+    "subject": "history",
+    "question_en": "Automated QA Test Question?",
+    "question_hi": "क्या यह स्वचालित परीक्षण प्रश्न है?",
+    "options": [],
+    "options_en": [
+      "Yes",
+      "No",
+      "Maybe",
+      "None"
+    ],
+    "options_hi": [],
+    "correctAnswer": 0,
+    "difficulty": "MEDIUM",
+    "explanation_en": "Explanation en",
+    "explanation_hi": "Explanation hi",
+    "qualityScore": 75,
+    "qualityFlags": [
+      "WEAK_EXPLANATION",
+      "MISSING_SUBJECT"
+    ],
+    "reviewRequired": true,
+    "createdAt": "2026-05-26T17:38:29.016Z",
+    "topic": "QA Validation",
+    "__v": 0
+  },
+  {
+    "_id": "6a15e47241801fba15a272e0",
+    "subjectId": "history",
+    "subject": "history",
+    "question_en": "Automated QA Test Question?",
+    "question_hi": "क्या यह स्वचालित परीक्षण प्रश्न है?",
+    "options": [],
+    "options_en": [
+      "Yes",
+      "No",
+      "Maybe",
+      "None"
+    ],
+    "options_hi": [],
+    "correctAnswer": 0,
+    "difficulty": "MEDIUM",
+    "explanation_en": "Explanation en",
+    "explanation_hi": "Explanation hi",
+    "qualityScore": 75,
+    "qualityFlags": [
+      "WEAK_EXPLANATION",
+      "MISSING_SUBJECT"
+    ],
+    "reviewRequired": true,
+    "createdAt": "2026-05-26T18:20:34.706Z",
+    "topic": "QA Validation",
+    "__v": 0
+  },
+  {
     "_id": "69f21fc44db6b8a79431bb10",
     "examId": "upsc",
     "subjectId": "history",

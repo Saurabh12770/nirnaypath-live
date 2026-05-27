@@ -1,6 +1,5 @@
 const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/redis-adapter');
-const Redis = require('ioredis');
 const jwt = require('jsonwebtoken');
 const notificationService = require('./notificationService');
 
@@ -19,18 +18,14 @@ class SocketService {
         });
 
         // Redis Adapter — optional, falls back to single-instance mode gracefully
-        if (process.env.REDIS_URL && process.env.ENABLE_REDIS !== 'false') {
+        const { getRedisClient, isRedisAvailable } = require('./redisService');
+        if (isRedisAvailable()) {
             try {
-                const opts = {
-                    maxRetriesPerRequest: null,
-                    retryStrategy: (t) => t > 5 ? null : Math.min(t * 500, 3000),
-                };
-                this.pubClient = new Redis(process.env.REDIS_URL, opts);
+                this.pubClient = getRedisClient();
                 this.subClient = this.pubClient.duplicate();
-                this.pubClient.on('error', (e) => console.error('[Socket] Pub error:', e.message));
                 this.subClient.on('error', (e) => console.error('[Socket] Sub error:', e.message));
                 this.io.adapter(createAdapter(this.pubClient, this.subClient));
-                console.log('[Socket] Redis Adapter enabled (multi-instance mode).');
+                console.log('[Socket] Redis Adapter enabled (multi-instance mode using shared singleton).');
             } catch (err) {
                 console.error('[Socket] Redis Adapter failed, using single-instance:', err.message);
             }

@@ -6,6 +6,7 @@ const logger = require('../utils/logger');
 const { recordMetric } = require('../services/emailMetrics');
 
 let _transporter = null;
+let smtpActive = false;
 
 const getTransporter = () => {
     if (_transporter) return _transporter;
@@ -18,6 +19,38 @@ const getTransporter = () => {
     });
     return _transporter;
 };
+
+const verifyTransporter = async () => {
+    if (!process.env.EMAIL_HOST) {
+        logger.warn('[SMTP] EMAIL_HOST not set. SMTP is DEGRADED.');
+        smtpActive = false;
+        return;
+    }
+    const transport = getTransporter();
+    if (!transport) {
+        logger.warn('[SMTP] Transporter initialization failed. SMTP is DEGRADED.');
+        smtpActive = false;
+        return;
+    }
+    try {
+        await new Promise((resolve, reject) => {
+            transport.verify((error, success) => {
+                if (error) reject(error);
+                else resolve(success);
+            });
+        });
+        logger.info('[SMTP] Connection verified successfully. SMTP is ACTIVE.');
+        smtpActive = true;
+    } catch (err) {
+        logger.error('[SMTP] Connection verification failed. SMTP is DEGRADED.', { error: err.message });
+        smtpActive = false;
+    }
+};
+
+// Trigger verification on boot/module load
+verifyTransporter();
+
+const isSmtpActive = () => smtpActive;
 
 const createEmailWorker = () => {
     const connection = getConnection();
@@ -34,9 +67,21 @@ const createEmailWorker = () => {
         logger.info(`[WORKER][Email] Processing: ${type}`, { to, queueDelayMs: queueDelay });
 
         const transport = getTransporter();
-        if (!transport) {
-            logger.warn('[WORKER][Email] No EMAIL_HOST set. Skipping send.', { type, to });
-            await recordMetric('sent', type).catch(() => {});
+        if (!transport || !smtpActive) {
+            logger.warn('[WORKER][Email] SMTP is unavailable/degraded. Routing job to local DLQ file and skipping send.', { type, to });
+            try {
+                const fs = require('fs');
+                const path = require('path');
+                const dlqDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
+                if (!fs.existsSync(dlqDir)) fs.mkdirSync(dlqDir, { recursive: true });
+                fs.appendFileSync(
+                    path.join(dlqDir, 'dlq_failed_jobs.log'),
+                    JSON.stringify({ timestamp: new Date().toISOString(), jobId: job.id, type, error: 'SMTP unavailable (degraded mode)', to }) + '\n'
+                );
+            } catch (logErr) {
+                logger.error('[WORKER][Email] DLQ write failed:', { error: logErr.message });
+            }
+            await recordMetric('failed', type).catch(() => {});
             return;
         }
 
@@ -87,4 +132,4 @@ const createEmailWorker = () => {
     return worker;
 };
 
-module.exports = { createEmailWorker };
+module.exports = { createEmailWorker, isSmtpActive, verifyTransporter };

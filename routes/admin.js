@@ -435,4 +435,12 @@ router.get('/payments', auth, adminAuth, async (req, res) => {
     }
 });
 
+/**
+ * GET /api/admin/test-exception
+ * Admin-only test exception route to verify Sentry and SRE crash logging
+ */
+router.get('/test-exception', auth, adminAuth, (req, res) => {
+    throw new Error('SRE Sentry Verification Exception: Admin-triggered test crash.');
+});
+
 module.exports = router;

@@ -7,7 +7,7 @@ let _errorLogged = false;
 
 /**
  * Initialize Redis safely.
- * Requires REDIS_URL env var — no localhost fallback on Railway.
+ * Requires REDIS_URL env var — no localhost fallback.
  * NEVER throws. Returns null if Redis is disabled or unavailable.
  */
 const initRedis = () => {
@@ -24,6 +24,12 @@ const initRedis = () => {
         return null;
     }
 
+    // Secure protocol detection
+    if (!url.startsWith('redis://') && !url.startsWith('rediss://')) {
+        logger.error('[REDIS] Invalid REDIS_URL protocol. Must start with redis:// or rediss://');
+        return null;
+    }
+
     try {
         redisClient = new Redis(url, {
             maxRetriesPerRequest: null,
@@ -37,7 +43,9 @@ const initRedis = () => {
                     }
                     return null;
                 }
-                return Math.min(times * 500, 5000);
+                const delay = Math.min(times * 1000, 5000);
+                logger.warn(`[REDIS] Connection retry #${times} in ${delay}ms`);
+                return delay;
             },
             reconnectOnError: (err) => err.message.includes('READONLY'),
         });
@@ -46,7 +54,7 @@ const initRedis = () => {
         redisClient.on('ready', () => {
             redisAvailable = true;
             _errorLogged = false;
-            logger.info('[REDIS] Client ready.');
+            logger.info('[REDIS] Client ready and ACTIVE.');
         });
         redisClient.on('error', (err) => {
             redisAvailable = false;
@@ -55,7 +63,9 @@ const initRedis = () => {
                 _errorLogged = true;
             }
         });
-        redisClient.on('reconnecting', () => logger.warn('[REDIS] Reconnecting...'));
+        redisClient.on('reconnecting', (delay) => {
+            logger.warn(`[REDIS] Connection lost. Reconnecting in ${delay}ms...`);
+        });
         redisClient.on('end', () => {
             redisAvailable = false;
             logger.warn('[REDIS] Connection closed.');
@@ -70,6 +80,40 @@ const initRedis = () => {
 
 const getRedisClient = () => redisClient || initRedis();
 const isRedisAvailable = () => !!redisClient && redisAvailable && redisClient.status === 'ready';
+
+const verifyRedis = async () => {
+    if (process.env.ENABLE_REDIS === 'false') {
+        redisAvailable = false;
+        return false;
+    }
+    const url = process.env.REDIS_URL;
+    if (!url) {
+        redisAvailable = false;
+        return false;
+    }
+    const client = getRedisClient();
+    if (!client) {
+        redisAvailable = false;
+        return false;
+    }
+    try {
+        await Promise.race([
+            client.ping(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Ping timeout')), 3000))
+        ]);
+        logger.info('[REDIS] Startup health check successful. Redis is ACTIVE.');
+        redisAvailable = true;
+        return true;
+    } catch (err) {
+        logger.error('[REDIS] Startup health check failed. Redis is DEGRADED.', { error: err.message });
+        redisAvailable = false;
+        return false;
+    }
+};
+
+// Trigger boot-time validation
+verifyRedis().catch(() => {});
+
 const disconnectRedis = async () => {
     if (redisClient) {
         try { 
@@ -81,4 +125,5 @@ const disconnectRedis = async () => {
     }
 };
 
-module.exports = { initRedis, getRedisClient, isRedisAvailable, disconnectRedis };
+module.exports = { initRedis, getRedisClient, isRedisAvailable, verifyRedis, disconnectRedis };
+

@@ -83,22 +83,72 @@ router.get('/questions/:subject', questionLimiter, async (req, res, next) => {
 router.get('/subject/:subject/topics', async (req, res) => {
     try {
         const subject = req.params.subject.toLowerCase();
-        const cacheKey = `questions_${subject}`;
+        const topicsCacheKey = `topics_${subject}`;
+        const questionsCacheKey = `questions_${subject}`;
 
-        let questions = await getCachedData(cacheKey);
-        if (!questions) {
-            questions = await loadQuestions(subject);
-            if (questions && questions.length > 0) {
-                await setCachedData(cacheKey, questions, 600);
-            }
+        // Tier 1: Check topics-only cache (TTL 10min = 600s)
+        let topics = await getCachedData(topicsCacheKey);
+        if (topics && Array.isArray(topics) && topics.length > 0) {
+            return res.json(topics);
         }
 
+        // Tier 2: Check MongoDB using index-covered / fast query
+        try {
+            const Question = require('../models/question');
+            const [rawTopicIds, rawTopics] = await Promise.all([
+                Question.distinct('topicId', { $or: [{ subjectId: subject }, { subject }] }),
+                Question.distinct('topic', { $or: [{ subjectId: subject }, { subject }] })
+            ]);
+
+            const merged = [...new Set([...rawTopicIds, ...rawTopics])];
+            let dbTopics = merged
+                .filter(t => t && t.toLowerCase() !== 'general')
+                .map(t => {
+                    return t
+                        .split(/[_\s-]+/)
+                        .map(word => {
+                            const w = word.toLowerCase();
+                            if (w === 'ssc' || w === 'cgl' || w === 'pcs' || w === 'cbt') {
+                                return word.toUpperCase();
+                            }
+                            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                        })
+                        .join(' ');
+                });
+
+            dbTopics = [...new Set(dbTopics)].filter(t => !!t).sort();
+
+            if (dbTopics && dbTopics.length > 0) {
+                // Cache topics-only list
+                await setCachedData(topicsCacheKey, dbTopics, 600);
+                return res.json(dbTopics);
+            }
+        } catch (dbErr) {
+            console.warn(`[API] Tier 2 MongoDB distinct failed, falling back to cache/disk:`, dbErr.message);
+        }
+
+        // Tier 3: Check questions cache (questions_${subject})
+        let questions = await getCachedData(questionsCacheKey);
+        if (questions && questions.length > 0) {
+            topics = [...new Set(questions.map(q => q.topic).filter(t => !!t))].sort();
+            await setCachedData(topicsCacheKey, topics, 600);
+            return res.json(topics);
+        }
+
+        // Tier 4: Load questions from file (cold path)
+        questions = await loadQuestions(subject);
         if (!questions || questions.length === 0) {
             return res.status(404).json({ error: 'Subject not found' });
         }
 
-        const topics = [...new Set(questions.map(q => q.topic).filter(t => !!t))];
-        res.json(topics.sort());
+        // Cache the full questions array
+        await setCachedData(questionsCacheKey, questions, 600);
+
+        topics = [...new Set(questions.map(q => q.topic).filter(t => !!t))].sort();
+        // Cache topics-only list
+        await setCachedData(topicsCacheKey, topics, 600);
+
+        res.json(topics);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

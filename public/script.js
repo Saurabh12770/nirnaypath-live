@@ -1490,10 +1490,16 @@ function initBackToTop() {
    27. SCROLL REVEAL
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function initScrollAnimations() {
-    const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    if (window.NirnayPath && window.NirnayPath.initScrollAnimations) {
+        window.NirnayPath.initScrollAnimations();
+    } else {
+        if (window.__scrollAnimationsInitialized) return;
+        window.__scrollAnimationsInitialized = true;
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

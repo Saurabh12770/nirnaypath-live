@@ -31,7 +31,14 @@ async function getCachedData(key) {
     
     // FAANG-Level Immutability: ALWAYS return a deep clone for local memory objects
     try {
-        return JSON.parse(JSON.stringify(cachedItem.data));
+        const val = cachedItem.data;
+        if (Array.isArray(val) && val.length <= 500 && val.every(i => typeof i === 'string' || typeof i === 'number' || typeof i === 'boolean' || i === null)) {
+            if (!Object.isFrozen(val)) {
+                Object.freeze(val);
+            }
+            return val;
+        }
+        return JSON.parse(JSON.stringify(val));
     } catch (e) {
         return cachedItem.data;
     }
