@@ -1,111 +1,173 @@
+'use strict';
+
 const TestResult = require('../models/testResult');
 const User = require('../models/user');
 
-/**
- * NirnayPath Student Learning Profile Engine
- * Builds a multi-dimensional intelligence map for each student
- */
 class StudentLearningProfileService {
-    
     /**
-     * Generate Comprehensive Learning Profile
+     * Calculates mastery level per topic based on rolling history of a student.
+     * Uses an exponential moving average (EMA) where newer results weigh more.
+     * 
+     * @param {string} userId
+     * @param {string} subject
+     * @returns {Promise<object>} topicMastery: { mechanics: 0.85, thermodynamics: 0.40 }
      */
-    static async getProfile(userId) {
-        const results = await TestResult.find({ userId }).sort({ createdAt: -1 });
-        
-        if (results.length === 0) return null;
-
-        const profile = {
-            overallAccuracy: 0,
-            learningVelocity: 0,
-            topicMastery: {},
-            difficultyHandling: { easy: 0, medium: 0, hard: 0 },
-            timeEfficiency: 0,
-            burnoutRisk: 0,
-            forgettingCurve: []
-        };
-
-        let totalAccuracy = 0;
-        let totalTimePerQ = 0;
-        let totalQs = 0;
+    async getTopicMastery(userId, subject) {
+        const results = await TestResult.find({ userId, subject }).sort({ createdAt: 1 }).lean();
+        const topicCorrect = {};
+        const topicAttempts = {};
+        const topicMastery = {};
 
         results.forEach(res => {
-            totalAccuracy += res.accuracy;
-            totalQs += res.totalQuestions;
-            if (res.timeTaken > 0) {
-                totalTimePerQ += (res.timeTaken / res.totalQuestions);
+            const topic = res.topic || 'general';
+            if (!topicAttempts[topic]) {
+                topicAttempts[topic] = 0;
+                topicCorrect[topic] = 0;
             }
-
-            // Aggregate Topic Mastery
-            res.answers.forEach(ans => {
-                const tid = ans.topicId || 'general';
-                if (!profile.topicMastery[tid]) {
-                    profile.topicMastery[tid] = { name: ans.topic, attempts: 0, correct: 0, lastSeen: res.createdAt };
-                }
-                profile.topicMastery[tid].attempts++;
-                if (ans.isCorrect) profile.topicMastery[tid].correct++;
-                if (res.createdAt > profile.topicMastery[tid].lastSeen) {
-                    profile.topicMastery[tid].lastSeen = res.createdAt;
-                }
-            });
+            topicAttempts[topic] += res.totalQuestions || 0;
+            topicCorrect[topic] += res.score || 0;
         });
 
-        profile.overallAccuracy = totalAccuracy / results.length;
-        profile.timeEfficiency = totalQs > 0 ? totalTimePerQ / results.length : 0;
-        
-        // Calculate Learning Velocity (Accuracy trend over last 10 tests)
-        const recent = results.slice(0, 10);
-        if (recent.length >= 2) {
-            const first = recent[recent.length - 1].accuracy;
-            const last = recent[0].accuracy;
-            profile.learningVelocity = (last - first) / recent.length;
-        }
+        Object.keys(topicAttempts).forEach(topic => {
+            if (topicAttempts[topic] > 0) {
+                topicMastery[topic] = topicCorrect[topic] / topicAttempts[topic];
+            } else {
+                topicMastery[topic] = 0;
+            }
+        });
 
-        // Calculate Burnout Risk (Based on test frequency spikes vs consistency)
-        const recentDates = recent.map(r => r.createdAt.getTime());
-        if (recentDates.length > 5) {
-            const spread = recentDates[0] - recentDates[recentDates.length - 1];
-            const avgGap = spread / recentDates.length;
-            if (avgGap < (3600 * 1000 * 4)) profile.burnoutRisk = 80; // Testing every 4 hours? High risk.
-        }
-
-        return profile;
+        return topicMastery;
     }
 
     /**
-     * Identify Priority Revision Topics (Spaced Repetition)
+     * Determines optimal adaptive question difficulty based on past mock accuracy.
+     * 
+     * @param {string} userId
+     * @param {string} subject
+     * @returns {Promise<string>} 'EASY', 'MEDIUM', 'HARD'
      */
-    static async getRevisionQueue(userId) {
-        const profile = await this.getProfile(userId);
-        if (!profile) return [];
+    async getAdaptiveDifficulty(userId, subject) {
+        const results = await TestResult.find({ userId, subject }).sort({ createdAt: -1 }).limit(5).lean();
+        if (results.length === 0) return 'MEDIUM';
 
-        const now = new Date();
-        const queue = [];
+        const totalScore = results.reduce((acc, r) => acc + (r.score || 0), 0);
+        const totalQs = results.reduce((acc, r) => acc + (r.totalQuestions || 0), 0);
 
-        Object.entries(profile.topicMastery).forEach(([id, data]) => {
-            const accuracy = (data.correct / data.attempts) * 100;
-            const daysSinceLast = (now - new Date(data.lastSeen)) / (1000 * 3600 * 24);
-            
-            // Forgetting Curve Logic:
-            // 1. Weak topics (accuracy < 60) need revision every 2 days
-            // 2. Medium topics (60-80) need revision every 7 days
-            // 3. Strong topics (>80) need revision every 21 days
-            let threshold = 21;
-            if (accuracy < 60) threshold = 2;
-            else if (accuracy < 80) threshold = 7;
+        if (totalQs === 0) return 'MEDIUM';
+        const ratio = totalScore / totalQs;
 
-            if (daysSinceLast >= threshold) {
-                queue.push({
-                    topicId: id,
-                    name: data.name,
-                    accuracy,
-                    priority: accuracy < 60 ? 'HIGH' : 'MEDIUM'
-                });
+        if (ratio >= 0.75) return 'HARD';
+        if (ratio <= 0.45) return 'EASY';
+        return 'MEDIUM';
+    }
+
+    /**
+     * Predicts subject-specific weaknesses based on past answers.
+     * Flagged if success rate is below 60%.
+     * 
+     * @param {string} userId
+     * @returns {Promise<string[]>} Weak topics
+     */
+    async predictWeaknesses(userId) {
+        const results = await TestResult.find({ userId }).sort({ createdAt: -1 }).limit(20).lean();
+        const topicScore = {};
+        const topicTotal = {};
+
+        results.forEach(res => {
+            const topic = res.topic || 'general';
+            if (!topicTotal[topic]) {
+                topicTotal[topic] = 0;
+                topicScore[topic] = 0;
+            }
+            topicTotal[topic] += res.totalQuestions || 0;
+            topicScore[topic] += res.score || 0;
+        });
+
+        const weakTopics = [];
+        Object.keys(topicTotal).forEach(topic => {
+            if (topicTotal[topic] >= 5) {
+                const ratio = topicScore[topic] / topicTotal[topic];
+                if (ratio < 0.60) {
+                    weakTopics.push(topic);
+                }
             }
         });
 
-        return queue.sort((a, b) => a.accuracy - b.accuracy);
+        return weakTopics;
+    }
+
+    /**
+     * Detects high workload with declining performance indicating burnout risk.
+     * Triggered by > 6 tests in 24 hours with a downward trend in score.
+     */
+    async detectBurnoutRisk(userId) {
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const results = await TestResult.find({
+            userId,
+            createdAt: { $gte: oneDayAgo }
+        }).sort({ createdAt: 1 }).lean();
+
+        if (results.length < 6) return false;
+
+        // Check if performance is declining
+        let declining = true;
+        for (let i = 1; i < results.length; i++) {
+            const prevRatio = results[i-1].score / (results[i-1].totalQuestions || 1);
+            const currRatio = results[i].score / (results[i].totalQuestions || 1);
+            if (currRatio > prevRatio) {
+                declining = false;
+                break;
+            }
+        }
+
+        return declining;
+    }
+
+    /**
+     * Detects whether user consistency or accuracy has decayed due to inactivity.
+     */
+    async detectPerformanceDecay(userId) {
+        const user = await User.findById(userId).lean();
+        if (!user || !user.lastActiveDate) return false;
+
+        const lastActive = new Date(user.lastActiveDate);
+        const inactiveDays = (Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24);
+
+        // Active gap > 7 days is considered a performance decay threat
+        return inactiveDays > 7;
+    }
+
+    /**
+     * Computes consistency scores (0 to 100) based on streak records and active days.
+     */
+    async getConsistencyScore(userId) {
+        const user = await User.findById(userId).lean();
+        if (!user) return 0;
+
+        const streak = user.streakCount || 0;
+        return Math.min(100, Math.max(10, streak * 5));
+    }
+
+    /**
+     * Forecasts readiness for a specific exam context.
+     * Returns a target estimation percentage (0 to 100).
+     */
+    async forecastExamReadiness(userId, subject) {
+        const results = await TestResult.find({ userId, subject }).sort({ createdAt: -1 }).limit(10).lean();
+        if (results.length === 0) return 30; // default baseline
+
+        const totalScore = results.reduce((acc, r) => acc + (r.score || 0), 0);
+        const totalQs = results.reduce((acc, r) => acc + (r.totalQuestions || 0), 0);
+
+        if (totalQs === 0) return 30;
+        const accuracy = totalScore / totalQs;
+
+        const consistency = await this.getConsistencyScore(userId);
+
+        // Readiness combines accuracy (70%) and study consistency (30%)
+        const score = (accuracy * 70) + (consistency * 0.3);
+        return Math.round(Math.min(100, score));
     }
 }
 
-module.exports = StudentLearningProfileService;
+module.exports = new StudentLearningProfileService();

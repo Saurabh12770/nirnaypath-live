@@ -118,9 +118,13 @@ function deduplicateByFingerprint(questions) {
     const seen = new Map(); // fingerprint → first id
     const unique = [];
     let dropped = 0;
+    const isProduction = process.env.NODE_ENV === 'production';
 
     for (const q of questions) {
-        const fp = generateFingerprint(q);
+        const fp = q._fingerprint || generateFingerprint(q);
+        if (!Object.isFrozen(q) && q._fingerprint === undefined) {
+            q._fingerprint = fp;
+        }
         const id = q.id || q.questionId || (q._id ? q._id.toString() : '?');
 
         if (!fp) {
@@ -129,10 +133,12 @@ function deduplicateByFingerprint(questions) {
         }
 
         if (seen.has(fp)) {
-            console.warn(
-                `[QUESTION_FINGERPRINT][DEDUPE] Duplicate detected. ` +
-                `Dropping id="${id}" (same fingerprint as id="${seen.get(fp)}")`
-            );
+            if (!isProduction) {
+                console.warn(
+                    `[QUESTION_FINGERPRINT][DEDUPE] Duplicate detected. ` +
+                    `Dropping id="${id}" (same fingerprint as id="${seen.get(fp)}")`
+                );
+            }
             dropped++;
             continue;
         }

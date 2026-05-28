@@ -83,7 +83,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nirnaypath', {
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/nirnaypath';
+mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 5000,
     connectTimeoutMS: 10000,
     heartbeatFrequencyMS: 10000
@@ -308,27 +309,26 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`[BOOT] PID: ${process.pid}`);
     console.log('====================================================');
 
-    try {
-        console.log('[BOOT] Initializing background services...');
-        initCronJobs();
-        initWorkers();
-        console.log('[BOOT] Background services initialization sequence triggered.');
-        
-        // Trigger precompiled cache generation for sub-50ms warm reads
-        const QuestionRepository = require('./services/questionRepository');
-        QuestionRepository.precompileAllSubjects().catch(err => {
-            console.error('[BOOT][PRECOMPILE] Error warming up question cache:', err.message);
-        });
+    // Defer initialization of background services to ensure port binds in < 1 second
+    setImmediate(() => {
+        try {
+            console.log('[BOOT] Initializing background services...');
+            initCronJobs();
+            initWorkers();
+            console.log('[BOOT] Background services initialization sequence triggered.');
+            
+            // Trigger precompiled cache generation for sub-50ms warm reads
+            const QuestionRepository = require('./services/questionRepository');
+            QuestionRepository.precompileAllSubjects().catch(err => {
+                console.error('[BOOT][PRECOMPILE] Error warming up question cache:', err.message);
+            });
 
-        // Launch isolated background workers AFTER port is fully bound.
-        // workersLoader is the ONLY bridge between boot and runtime subsystems.
-        // process.nextTick guarantees this runs after the listen() I/O completes.
-        process.nextTick(() => {
+            // Launch isolated background workers
             require('./bootstrap/workersLoader').start(server);
-        });
-    } catch (error) {
-        console.error('[BOOT] Error during background service initialization:', error.message);
-    }
+        } catch (error) {
+            console.error('[BOOT] Error during background service initialization:', error.message);
+        }
+    });
 });
 
 // CB-1 FIX: Graceful shutdown with hard timeout.

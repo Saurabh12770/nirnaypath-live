@@ -68,6 +68,9 @@ function slowQueryLoggerPlugin(schema, options = {}) {
                         timestamp:  new Date().toISOString()
                     };
 
+                    const telemetryEngine = require('./productionTelemetryEngine');
+                    telemetryEngine.recordSlowQuery(collectionName, method, elapsedMs, filter);
+
                     QueryProfiler._slowQueries.push(record);
                     if (QueryProfiler._slowQueries.length > 500) {
                         QueryProfiler._slowQueries.shift();

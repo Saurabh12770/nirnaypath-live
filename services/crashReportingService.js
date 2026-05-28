@@ -111,6 +111,12 @@ class CrashReportingService {
             }
         }
 
+        // Telemetry integration
+        try {
+            const telemetryEngine = require('./productionTelemetryEngine');
+            telemetryEngine.recordError(err.message, err.code || 'CRASH_ERROR', { category, ...context });
+        } catch (_) {}
+
         // 3. Local SRE Crash Dump Registry (Zero-Trust Resilience)
         try {
             const dumpData = {

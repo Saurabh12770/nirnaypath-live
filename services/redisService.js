@@ -125,5 +125,32 @@ const disconnectRedis = async () => {
     }
 };
 
-module.exports = { initRedis, getRedisClient, isRedisAvailable, verifyRedis, disconnectRedis };
+const zlib = require('zlib');
+
+/**
+ * Compresses string/buffer using gzip.
+ */
+function compressPayload(data) {
+    if (!data) return data;
+    const str = typeof data === 'string' ? data : JSON.stringify(data);
+    return zlib.gzipSync(str);
+}
+
+/**
+ * Decompresses gzip data back to string.
+ */
+function decompressPayload(buffer) {
+    if (!buffer) return buffer;
+    return zlib.gunzipSync(buffer).toString();
+}
+
+module.exports = { 
+    initRedis, 
+    getRedisClient, 
+    isRedisAvailable, 
+    verifyRedis, 
+    disconnectRedis,
+    compressPayload,
+    decompressPayload
+};
 

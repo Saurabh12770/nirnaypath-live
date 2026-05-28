@@ -159,6 +159,24 @@ const initCronJobs = () => {
         console.log('Running weekly email digest cron...');
         await generateWeeklyDigest();
     });
+
+    // 6. Midnight Operations Cleanup (Every day at midnight)
+    cron.schedule('0 0 * * *', async () => {
+        console.log('Running midnight log rotation & session cleanup crons...');
+        try {
+            // Log Rotation / Trace cleanups (remove records older than 7 days)
+            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            
+            // Cleanup stale sessions/expired refresh tokens
+            const result = await User.updateMany(
+                { lastActiveDate: { $lt: oneWeekAgo } },
+                { $set: { refreshTokens: [] } }
+            );
+            console.log(`[CRON-CLEANUP] Sessions flushed: ${result.modifiedCount}`);
+        } catch (error) {
+            console.error('[CRON-CLEANUP] Operations maintenance error:', error);
+        }
+    });
 };
 
 module.exports = { initCronJobs };

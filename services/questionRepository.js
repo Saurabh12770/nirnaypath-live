@@ -178,6 +178,16 @@ class QuestionRepository {
 
         let pool = await Question.find(query).lean();
 
+        // Precompute and cache fields on MongoDB fetched questions to avoid recalculating
+        const SemanticDedupService = require('./semanticDedupService');
+        const { generateFingerprint } = require('../utils/questionFingerprint');
+        for (const q of pool) {
+            q._normalizedTextEn = DedupEngine.normalizeText(q.question_en || q.text || '');
+            q._normalizedTextHi = DedupEngine.normalizeText(q.question_hi || '');
+            q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
+            q._fingerprint = generateFingerprint(q);
+        }
+
         // ── JSON file fallback (served INSTANTLY from precompiled cache) ─────
         for (const sub of safeSubjects) {
             const cachedQuestions = this.precompiledCache.get(sub);
@@ -243,7 +253,16 @@ class QuestionRepository {
                         return { ...q, correctAnswer: normalizedCorrect };
                     });
 
-                    adaptedQuestions.forEach(q => Object.freeze(q));
+                    const SemanticDedupService = require('./semanticDedupService');
+                    const { generateFingerprint } = require('../utils/questionFingerprint');
+
+                    adaptedQuestions.forEach(q => {
+                        q._normalizedTextEn = DedupEngine.normalizeText(q.question_en || q.text || '');
+                        q._normalizedTextHi = DedupEngine.normalizeText(q.question_hi || '');
+                        q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
+                        q._fingerprint = generateFingerprint(q);
+                        Object.freeze(q);
+                    });
                     Object.freeze(adaptedQuestions);
                     this.precompiledCache.set(sub, adaptedQuestions);
 

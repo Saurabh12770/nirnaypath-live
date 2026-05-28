@@ -15,6 +15,9 @@ class DedupEngine {
 
         const SemanticDedupService = require('./semanticDedupService');
         const seenFingerprints = new Set();
+        let duplicatesCount = 0;
+
+        const isProduction = process.env.NODE_ENV === 'production';
 
         for (const q of questions) {
             // Check ID (Prioritize JSON id over Mongo _id)
@@ -22,29 +25,51 @@ class DedupEngine {
             if (!id) continue;
             
             if (seenIds.has(id)) {
-                console.warn(`[DedupEngine] Duplicate Question ID detected: ${id}`);
+                if (!isProduction) {
+                    console.warn(`[DedupEngine] Duplicate Question ID detected: ${id}`);
+                }
+                duplicatesCount++;
                 continue;
             }
 
             // Check normalized text and Semantic Fingerprint
-            const rawText = q.question_en || q.question_hi || q.text || '';
-            const normalizedText = this.normalizeText(rawText);
-            const fingerprint = SemanticDedupService.getSemanticFingerprint(q);
+            if (q._normalizedTextEn === undefined) {
+                if (!Object.isFrozen(q)) {
+                    q._normalizedTextEn = this.normalizeText(q.question_en || q.text || '');
+                }
+            }
+            const normalizedText = q._normalizedTextEn || this.normalizeText(q.question_en || q.text || '');
+
+            if (q._semanticFingerprint === undefined) {
+                if (!Object.isFrozen(q)) {
+                    q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
+                }
+            }
+            const fingerprint = q._semanticFingerprint || SemanticDedupService.getSemanticFingerprint(q);
             
             if (normalizedText && seenTexts.has(normalizedText)) {
-                console.warn(`[DedupEngine] Duplicate exact text detected: ${normalizedText.substring(0, 30)}...`);
+                if (!isProduction) {
+                    console.warn(`[DedupEngine] Duplicate exact text detected: ${normalizedText.substring(0, 30)}...`);
+                }
+                duplicatesCount++;
                 continue;
             }
             if (fingerprint && seenFingerprints.has(fingerprint)) {
-                console.warn(`[DedupEngine] Duplicate semantic fingerprint detected for ID: ${id}`);
+                if (!isProduction) {
+                    console.warn(`[DedupEngine] Duplicate semantic fingerprint detected for ID: ${id}`);
+                }
+                duplicatesCount++;
                 continue;
             }
             
             seenIds.add(id);
             if (normalizedText) seenTexts.add(normalizedText);
             if (fingerprint) seenFingerprints.add(fingerprint);
-            if (normalizedText) seenTexts.add(normalizedText);
             uniqueQuestions.push(q);
+        }
+
+        if (duplicatesCount > 0 && isProduction) {
+            console.warn(`[DedupEngine][validateFinalOutput] Dropped ${duplicatesCount} duplicates from output pool of ${questions.length}.`);
         }
 
         return uniqueQuestions;
@@ -62,12 +87,32 @@ class DedupEngine {
         const startTime = Date.now();
 
         const useFuzzy = process.env.USE_FUZZY_DEDUP === 'true';
+        const isProduction = process.env.NODE_ENV === 'production';
+        let duplicatesCount = 0;
 
         for (const q of questions) {
             const id = String(q.id || q.questionId || q._id || 'UNKNOWN').trim();
-            const textEn = this.normalizeText(q.question_en || q.text || '');
-            const textHi = this.normalizeText(q.question_hi || '');
-            const fingerprint = SemanticDedupService.getSemanticFingerprint(q);
+
+            if (q._normalizedTextEn === undefined) {
+                if (!Object.isFrozen(q)) {
+                    q._normalizedTextEn = this.normalizeText(q.question_en || q.text || '');
+                }
+            }
+            const textEn = q._normalizedTextEn || this.normalizeText(q.question_en || q.text || '');
+
+            if (q._normalizedTextHi === undefined) {
+                if (!Object.isFrozen(q)) {
+                    q._normalizedTextHi = this.normalizeText(q.question_hi || '');
+                }
+            }
+            const textHi = q._normalizedTextHi || this.normalizeText(q.question_hi || '');
+
+            if (q._semanticFingerprint === undefined) {
+                if (!Object.isFrozen(q)) {
+                    q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
+                }
+            }
+            const fingerprint = q._semanticFingerprint || SemanticDedupService.getSemanticFingerprint(q);
 
             let isDuplicate = false;
             let conflictSnippet = '';
@@ -86,8 +131,8 @@ class DedupEngine {
             if (!isDuplicate && useFuzzy) {
                 // Fuzzy match against unique pool
                 for (const uq of uniqueQuestions) {
-                    const uqEn = this.normalizeText(uq.question_en || uq.text || '');
-                    const uqHi = this.normalizeText(uq.question_hi || '');
+                    const uqEn = uq._normalizedTextEn || this.normalizeText(uq.question_en || uq.text || '');
+                    const uqHi = uq._normalizedTextHi || this.normalizeText(uq.question_hi || '');
                     
                     if (textEn && uqEn && this.getSimilarity(textEn, uqEn) > 0.85) {
                         isDuplicate = true;
@@ -103,7 +148,10 @@ class DedupEngine {
             }
 
             if (isDuplicate) {
-                console.warn(`[DedupEngine] WARNING: Semantic duplicate detected. Dropping question ID ${id}. Snippet: ${conflictSnippet}...`);
+                if (!isProduction) {
+                    console.warn(`[DedupEngine] WARNING: Semantic duplicate detected. Dropping question ID ${id}. Snippet: ${conflictSnippet}...`);
+                }
+                duplicatesCount++;
                 continue;
             }
 
@@ -115,7 +163,9 @@ class DedupEngine {
         }
         
         const duration = Date.now() - startTime;
-        if (duration > 100 && questions.length >= 2000) {
+        if (duplicatesCount > 0 && isProduction) {
+            console.warn(`[DedupEngine] WARNING: Semantic duplicate check completed. Dropped ${duplicatesCount} duplicates from pool of ${questions.length} (took ${duration}ms).`);
+        } else if (duration > 100 && questions.length >= 2000) {
             console.warn(`[DedupEngine] PERF WARNING: Semantic dedup took ${duration}ms for ${questions.length} questions.`);
         }
 

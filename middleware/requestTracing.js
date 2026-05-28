@@ -49,6 +49,10 @@ function requestTracer(req, res, next) {
                 status:     res.statusCode,
                 durationMs
             });
+
+            // Production telemetry integrations
+            const telemetryEngine = require('../services/productionTelemetryEngine');
+            telemetryEngine.recordRouteTiming(`${req.method} ${req.path}`, durationMs, res.statusCode);
         });
         next();
     });

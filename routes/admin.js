@@ -435,6 +435,39 @@ router.get('/payments', auth, adminAuth, async (req, res) => {
     }
 });
 
+// ══════════════════════════════════════════════════════════
+// 5. PRODUCTION TELEMETRY & OBSERVABILITY ENDPOINTS
+// ══════════════════════════════════════════════════════════
+
+const runtimeMetricsService = require('../services/runtimeMetricsService');
+
+router.get('/runtime-metrics', auth, adminAuth, (req, res) => {
+    try {
+        const stats = runtimeMetricsService.getOverviewSnapshot();
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/slow-queries', auth, adminAuth, (req, res) => {
+    try {
+        const queries = runtimeMetricsService.getRecentSlowQueries();
+        res.json(queries);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/live-health', auth, adminAuth, async (req, res) => {
+    try {
+        const health = await runtimeMetricsService.getSystemLiveHealth();
+        res.json(health);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 /**
  * GET /api/admin/test-exception
  * Admin-only test exception route to verify Sentry and SRE crash logging

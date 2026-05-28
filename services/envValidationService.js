@@ -22,8 +22,9 @@ function validateEnv() {
     }
 
     // MONGO_URI Check
-    if (!process.env.MONGO_URI) {
-        errors.push("MONGO_URI is missing.");
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!mongoUri) {
+        errors.push("MONGO_URI or MONGODB_URI is missing.");
     } else {
         active.push("MongoDB");
     }
