@@ -1,6 +1,6 @@
 # NirnayPath — Final SRE Certification Report
 
-**Date:** 2026-05-29T14:38:40.389Z
+**Date:** 2026-05-29T16:19:09.793Z
 **Target:** http://127.0.0.1:3000
 **Result:** CERTIFIED ✅
 
@@ -8,7 +8,7 @@
 
 | # | Check | Status | Detail |
 |---|-------|--------|--------|
-| 1 | Health Endpoint Responds 200 | ✅ PASS | uptime=348s |
+| 1 | Health Endpoint Responds 200 | ✅ PASS | uptime=6377s |
 | 2 | Auth Endpoint Rejects Unauthenticated Requests | ✅ PASS | status=401 (expected 401/403) |
 | 3 | Admin Route Protected | ✅ PASS | status=401 (expected 401/403/302) |
 | 4 | API 404 Handler Returns JSON (not HTML) | ✅ PASS | status=404, json={"error":"API route not found"} |

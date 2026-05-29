@@ -114,15 +114,20 @@ const Dashboard = {
     renderDashboard(profile, stats) {
         // User Info
         const nameDisplay = document.getElementById('dash-user-name');
-        nameDisplay.textContent = profile.user.name;
-        if (profile.user.plan === 'pro_monthly') {
-            const badge = document.createElement('span');
-            badge.className = 'pro-badge';
-            badge.textContent = 'PRO';
-            nameDisplay.appendChild(badge);
+        if (nameDisplay) {
+            nameDisplay.textContent = profile.user.name;
+            if (profile.user.plan === 'pro_monthly') {
+                const badge = document.createElement('span');
+                badge.className = 'pro-badge';
+                badge.textContent = 'PRO';
+                nameDisplay.appendChild(badge);
+            }
         }
 
-        document.getElementById('dash-user-email').textContent = profile.user.email;
+        const emailDisplay = document.getElementById('dash-user-email');
+        if (emailDisplay) {
+            emailDisplay.textContent = profile.user.email;
+        }
         
         // Show Upgrade CTA if free
         const upgradeCTA = document.getElementById('dashboard-upgrade-cta');
@@ -130,8 +135,15 @@ const Dashboard = {
             upgradeCTA.style.display = profile.user.plan === 'free' ? 'block' : 'none';
         }
 
-        document.getElementById('dash-streak').textContent = profile.user.streakCount || profile.streak || 0;
-        document.getElementById('dash-user-avatar').src = `https://ui-avatars.com/api/?background=6366f1&color=fff&size=100&bold=true&name=${encodeURIComponent(profile.user.name)}`;
+        const streakDisplay = document.getElementById('dash-streak');
+        if (streakDisplay) {
+            streakDisplay.textContent = profile.user.streakCount || profile.streak || 0;
+        }
+
+        const avatarDisplay = document.getElementById('dash-user-avatar');
+        if (avatarDisplay) {
+            avatarDisplay.src = `https://ui-avatars.com/api/?background=6366f1&color=fff&size=100&bold=true&name=${encodeURIComponent(profile.user.name)}`;
+        }
 
         // Badges
         const badgesContainer = document.getElementById('badges-container');
@@ -158,53 +170,63 @@ const Dashboard = {
         }
 
         // Summary Stats
-        document.getElementById('dash-total-tests').textContent = stats.totalTests;
-        document.getElementById('dash-avg-accuracy').textContent = stats.avgAccuracy + '%';
+        const totalTestsDisplay = document.getElementById('dash-total-tests');
+        if (totalTestsDisplay) {
+            totalTestsDisplay.textContent = stats.totalTests;
+        }
+        const avgAccuracyDisplay = document.getElementById('dash-avg-accuracy');
+        if (avgAccuracyDisplay) {
+            avgAccuracyDisplay.textContent = stats.avgAccuracy + '%';
+        }
 
         // Recent Tests Table
         const tbody = document.getElementById('recent-tests-body');
-        tbody.innerHTML = '';
-        
-        if (!profile.recentTests || profile.recentTests.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No tests taken yet. Start your first mock test!</td></tr>';
-        } else {
-            profile.recentTests.forEach(test => {
-                const row = document.createElement('tr');
-                const date = new Date(test.createdAt).toLocaleDateString();
-                row.innerHTML = `
-                    <td>${date}</td>
-                    <td><span class="exam-tag">${test.exam.toUpperCase()}</span> ${test.subject}</td>
-                    <td><strong>${test.score}/${test.totalQuestions}</strong></td>
-                    <td><div class="accuracy-pill ${this.getAccuracyClass(test.accuracy)}">${test.accuracy}%</div></td>
-                    <td><button class="view-btn" onclick="Dashboard.viewResult('${test._id}')">Review</button></td>
-                `;
-                tbody.appendChild(row);
-            });
+        if (tbody) {
+            tbody.innerHTML = '';
+            
+            if (!profile.recentTests || profile.recentTests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No tests taken yet. Start your first mock test!</td></tr>';
+            } else {
+                profile.recentTests.forEach(test => {
+                    const row = document.createElement('tr');
+                    const date = new Date(test.createdAt).toLocaleDateString();
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td><span class="exam-tag">${test.exam.toUpperCase()}</span> ${test.subject}</td>
+                        <td><strong>${test.score}/${test.totalQuestions}</strong></td>
+                        <td><div class="accuracy-pill ${this.getAccuracyClass(test.accuracy)}">${test.accuracy}%</div></td>
+                        <td><button class="view-btn" onclick="Dashboard.viewResult('${test._id}')">Review</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
         }
 
         // Subject Analysis
         const statsContainer = document.getElementById('subject-stats-container');
-        statsContainer.innerHTML = '';
-        
-        const subjects = Object.keys(stats.subjectStats);
-        if (subjects.length === 0) {
-            statsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Take tests in different subjects to see analysis.</p>';
-        } else {
-            subjects.forEach(sub => {
-                const score = stats.subjectStats[sub];
-                const card = document.createElement('div');
-                card.className = 'subject-stat-card';
-                card.innerHTML = `
-                    <div class="sub-header">
-                        <span>${sub}</span>
-                        <span>${score}%</span>
-                    </div>
-                    <div class="sub-progress">
-                        <div class="sub-progress-fill" style="width: ${score}%; background: ${this.getScoreColor(score)}"></div>
-                    </div>
-                `;
-                statsContainer.appendChild(card);
-            });
+        if (statsContainer) {
+            statsContainer.innerHTML = '';
+            
+            const subjects = Object.keys(stats.subjectStats);
+            if (subjects.length === 0) {
+                statsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Take tests in different subjects to see analysis.</p>';
+            } else {
+                subjects.forEach(sub => {
+                    const score = stats.subjectStats[sub];
+                    const card = document.createElement('div');
+                    card.className = 'subject-stat-card';
+                    card.innerHTML = `
+                        <div class="sub-header">
+                            <span>${sub}</span>
+                            <span>${score}%</span>
+                        </div>
+                        <div class="sub-progress">
+                            <div class="sub-progress-fill" style="width: ${score}%; background: ${this.getScoreColor(score)}"></div>
+                        </div>
+                    `;
+                    statsContainer.appendChild(card);
+                });
+            }
         }
     },
 

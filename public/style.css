@@ -254,13 +254,23 @@ html {
     box-sizing: border-box;
 }
 
+/* ── Phase 7: Responsive Hardening — App Shell Containment ──
+   overflow-x: clip is stronger than hidden:
+     • 'hidden' can still be scrolled programmatically via JS
+     • 'clip' is an absolute containment boundary — no leakage
+   min-height: 100dvh handles iOS safe-area (dynamic viewport units)
+   position: relative creates a stacking context for z-index layers
+   ──────────────────────────────────────────────────────────── */
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
     width: 100%;
     max-width: 100%;
+    min-height: 100dvh;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    position: relative;
 }
 
 *, *::before, *::after {
@@ -8184,50 +8194,122 @@ h2, .section-title { font-size: clamp(1.5rem, 4vw, 2.5rem) !important; }
     transform: rotate(180deg);
 }
 
-/* Hero Slider Styles */
-.hero-slider-section {
+/* Unified Hero System (16:6 Aspect Ratio, CLS & Overflow Safe) */
+.hero-section {
     width: 100%;
+    margin-bottom: var(--sp-6);
+}
+
+.hero-container {
+    width: 100%;
+    aspect-ratio: 16 / 6;
+    position: relative;
     overflow: hidden;
-    margin: 0;
-    padding: 0;
-    background: var(--bg-main);
-}
-.hero-slider {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-.hero-slider::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-}
-.hero-slider img {
-    flex: 0 0 100%;
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-    border: 4px solid #F97316;
+    background: var(--bg-secondary);
     border-radius: var(--r-xl);
+    border: 1.5px solid var(--border-color);
     box-shadow: var(--shadow-md);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
-    animation: heroGlowPulse 4s ease-in-out infinite;
 }
-.hero-slider img:hover {
-    transform: scale(1.025);
-    box-shadow: var(--shadow-hover);
-    animation-play-state: paused;
+
+[data-theme="dark"] .hero-container {
+    border-color: rgba(96, 165, 250, 0.2);
 }
-@keyframes heroGlowPulse {
-    0%, 100% { box-shadow: var(--shadow-md); }
-    50%       { box-shadow: var(--shadow-md); }
+
+.hero-slider {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
-/* Cycle border colors */
-.hero-slider img:nth-child(4n+1) { border-color: #F97316; }
-.hero-slider img:nth-child(4n+2) { border-color: #EC4899; }
-.hero-slider img:nth-child(4n+3) { border-color: #10B981; }
-.hero-slider img:nth-child(4n+4) { border-color: #4F46E5; }
+
+.hero-slider img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+    z-index: 1;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transform: translate3d(0, 0, 0); /* hardware GPU acceleration */
+    will-change: opacity;
+}
+
+.hero-slider img.active {
+    opacity: 1;
+    z-index: 2;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.85) 100%);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.hero-content-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    padding: var(--sp-4) var(--sp-5);
+    text-align: left;
+}
+
+.hero-content {
+    max-width: 700px;
+    z-index: 5;
+    color: #FFFFFF !important;
+}
+
+.hero-content h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: var(--sp-2);
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+}
+
+.hero-content p.lead {
+    font-size: clamp(0.9rem, 2vw, 1.1rem) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: var(--sp-3);
+    line-height: 1.5;
+}
+
+.hero-trust-row {
+    display: flex;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+    flex-wrap: wrap;
+}
+
+.trust-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    font-size: 0.8rem;
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.trust-badge-item i {
+    color: #FCD34D;
+}
+
 
 /* Mobile Menu Toggle within Header */
 /* Consolidated into main mobile menu definition */

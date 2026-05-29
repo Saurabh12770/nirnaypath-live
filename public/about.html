@@ -523,31 +523,27 @@
 
     <main>
         <!-- ── HERO ── -->
-        <section class="about-hero reveal" aria-label="About NirnayPath hero">
-            <div class="container">
-                <span class="about-hero .hero-badge"><i class="fas fa-crown"></i> India's Free Mock Test Platform</span>
-                <h1 class="hero-title">Empowering Every Aspirant<br>to Reach Their <span class="gradient-text">True Potential</span></h1>
-                <p class="hero-sub">We are building India's most trusted, accessible, and high-quality mock test platform. Selection depends on preparation — not your wallet.</p>
-
-                <!-- 4-column gallery grid -->
-                <div class="about-gallery">
-                    <div class="gallery-item">
-                        <img src="/about_hero1.jpg" loading="eager" alt="Students preparing for competitive exams"
-                             onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80'">
-                    </div>
-                    <div class="gallery-item item-offset">
-                        <img src="/about_hero2.jpg" loading="eager" alt="Group study session"
-                             onerror="this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80'">
-                    </div>
-                    <div class="gallery-item">
-                        <img src="/about_hero3.jpg" loading="eager" alt="Digital learning classroom"
-                             onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80'">
-                    </div>
-                    <div class="gallery-item item-offset">
-                        <img src="/about_hero4.jpg" loading="eager" alt="Aspirant celebrating success"
-                             onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80'">
+        <section class="about-hero-section reveal" aria-label="About NirnayPath hero">
+            <div class="hero-container">
+                <!-- Background Slider -->
+                <div class="hero-slider" id="aboutHeroSlider">
+                    <img src="about_hero1.jpg" alt="About Hero 1" width="1200" height="450" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'">
+                    <img data-src="about_hero2.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="About Hero 2" width="1200" height="450" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80'">
+                    <img data-src="about_hero3.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="About Hero 3" width="1200" height="450" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'">
+                    <img data-src="about_hero4.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="About Hero 4" width="1200" height="450" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80'">
+                </div>
+                <div class="hero-overlay"></div>
+                
+                <!-- Static Content Overlay -->
+                <div class="hero-content-overlay container" style="justify-content: center; text-align: center;">
+                    <div class="hero-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
+                        <span class="hero-badge animate-pulse-gentle" style="display:inline-block;padding:4px 14px;border-radius:var(--r-pill);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--gradient);color:var(--bg-secondary);margin-bottom:var(--sp-2);"><i class="fas fa-crown"></i> India's Free Mock Test Platform</span>
+                        <h1 class="hero-title" style="color: #FFFFFF !important; text-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin-bottom: 1.2rem; background: none; -webkit-background-clip: initial; background-clip: initial; -webkit-text-fill-color: initial;">Empowering Every Aspirant to Reach Their <span class="gradient-text" style="background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;">True Potential</span></h1>
+                        <p class="lead" style="color: rgba(255, 255, 255, 0.9) !important; max-width: 680px; margin: 0 auto 2rem; font-size: clamp(0.95rem, 2vw, 1.15rem); line-height: 1.6;">We are building India's most trusted, accessible, and high-quality mock test platform. Selection depends on preparation — not your wallet.</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
                 <!-- Impact stat bar -->
                 <div class="impact-bar">

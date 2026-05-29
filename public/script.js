@@ -231,50 +231,121 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/* ============================================================ 
-   4. VIEW MANAGER – guaranteed visibility control
+/* ============================================================
+   4. VIEW MANAGER — guaranteed visibility control
    ============================================================ */
 
-/**
- * FORENSIC FIX — cleanupActiveView()
- * Called before EVERY view transition.
- * Tears down: timers, hero slider intervals, stale CSS transforms,
- * opacity leaks, and exam-mode body classes.
- */
-function cleanupActiveView() {
-    if (window.logDiagnostic) window.logDiagnostic('cleanupActiveView');
-    // Stop the in-page exam timer (if running)
-    clearInterval(timerInterval);
-    timerInterval = null;
+/* ── Phase 3: Centralized SPA Lifecycle Hooks ───────────────
+   pageUnmount(viewId) — tears down all intervals, resets styles
+   pageMount(viewId)   — deduplicates DOM IDs, re-binds hero
+   ─────────────────────────────────────────────────────────── */
 
-    // Reset any stale opacity/transform leftover from slide animations
+/** Track the currently active view for lifecycle purposes */
+let _activeViewId = null;
+
+/**
+ * pageUnmount(viewId)
+ * Called BEFORE the outgoing view is hidden.
+ * Responsibilities:
+ *   1. Stop all hero slider intervals stored in dataset.heroInterval
+ *   2. Stop infinite-slider intervals stored in dataset.sliderInterval
+ *   3. Reset stale CSS transforms / opacity leaks from slide animations
+ *   4. Reset exam timer and body overflow
+ *   5. Collapse stale overlays
+ */
+function pageUnmount(viewId) {
+    if (window.logDiagnostic) window.logDiagnostic('pageUnmount:' + viewId);
+
+    // 1. Tear down hero slider intervals (prevent stacking on re-navigation)
+    document.querySelectorAll('[data-hero-interval]').forEach(el => {
+        const id = Number(el.dataset.heroInterval);
+        if (id) clearInterval(id);
+        delete el.dataset.heroInterval;
+        delete el.dataset.sliderInitialized;
+    });
+
+    // 2. Tear down infinite-slider intervals
+    document.querySelectorAll('[data-slider-interval]').forEach(el => {
+        const id = Number(el.dataset.sliderInterval);
+        if (id) clearInterval(id);
+        delete el.dataset.sliderInterval;
+    });
+
+    // 3. Reset stale opacity/transform from question slide animations
     const qArea = document.querySelector('.question-area');
     if (qArea) {
         qArea.style.opacity = '1';
         qArea.style.transform = 'none';
         qArea.style.transition = 'none';
-        qArea.style.display = ''; // Clear display none
+        qArea.style.display = '';
     }
 
-    // Reset pointer-events and overflow leaks on body (Root cause of frozen UI)
+    // 4. Exam timer + body overflow reset
+    clearInterval(timerInterval);
+    timerInterval = null;
     document.body.style.pointerEvents = 'auto';
-    document.body.style.overflow = ''; // FIX: '' defers to CSS; 'auto' was overriding overflow-x:clip in style.css
+    document.body.style.overflow = '';
 
-    // Flush any lingering overlay display states
+    // 5. Collapse stale overlays and banners
     document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
-
-    // Remove fs-warning banner if present (avoid stale on nav)
     removeFsWarningBanner();
 }
 
+/**
+ * pageMount(viewId)
+ * Called AFTER the incoming view becomes visible.
+ * Responsibilities:
+ *   1. DOM deduplication — purge duplicate element IDs inside the mounting view
+ *   2. Re-initialize hero sliders if mounting the dashboard (they were cleared by pageUnmount)
+ */
+function pageMount(viewId) {
+    if (window.logDiagnostic) window.logDiagnostic('pageMount:' + viewId);
+
+    // 1. DOM deduplication guard — remove any elements with duplicate IDs
+    //    This catches re-render artifacts from rapid multi-click navigation.
+    const idMap = {};
+    document.querySelectorAll('[id]').forEach(el => {
+        const id = el.id;
+        if (!id) return;
+        if (idMap[id]) {
+            // A duplicate exists — remove the LATER duplicate
+            if (window.logDiagnostic) window.logDiagnostic('pageMount:dedup:' + id);
+            el.remove();
+        } else {
+            idMap[id] = true;
+        }
+    });
+
+    // 2. Re-initialize hero sliders on dashboard mount
+    //    (they were torn down by pageUnmount to prevent interval stacking)
+    if (viewId === 'dashboard' && typeof initHeroSliders === 'function') {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(initHeroSliders);
+        } else {
+            setTimeout(initHeroSliders, 100);
+        }
+    }
+
+    _activeViewId = viewId;
+}
+
+/**
+ * LEGACY COMPAT — cleanupActiveView()
+ * Retained for any call sites not yet migrated to pageUnmount.
+ * Now delegates directly to pageUnmount to avoid duplicated logic.
+ */
+function cleanupActiveView() {
+    pageUnmount(_activeViewId || 'unknown');
+}
+
 function showView(id) {
-    if (window.logDiagnostic) window.logDiagnostic('showView');
+    if (window.logDiagnostic) window.logDiagnostic('showView:' + id);
 
     if (window.AsyncManager) AsyncManager.cancelAll();
     if (window.AppState) AppState.dispatch('ui', { currentView: id });
 
-    // ── FORENSIC FIX: Always cleanup before switching views
-    cleanupActiveView();
+    // ── Phase 3: Centralized lifecycle — unmount outgoing view
+    pageUnmount(_activeViewId || 'unknown');
 
     /* Hard-hide EVERY view unconditionally */
     Object.values(VIEW).forEach(v => {
@@ -300,7 +371,7 @@ function showView(id) {
         document.querySelectorAll('.exam-btn').forEach(b => b.classList.remove('active-exam'));
     }
 
-    /* Body state – controls header/footer visibility */
+    /* Body state — controls header/footer visibility */
     document.body.setAttribute('data-view', id);
 
     if (id === 'engine') {
@@ -315,6 +386,9 @@ function showView(id) {
 
     /* Scroll to top for non-exam pages */
     if (id !== 'engine') window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // ── Phase 3: Centralized lifecycle — mount incoming view
+    pageMount(id);
 }
 
 /* ============================================================ 
@@ -1626,72 +1700,61 @@ function makeHeroSlider(selector) {
     const container = document.querySelector(selector);
     if (!container) return;
 
-    // ── FORENSIC FIX: Guard against multiple initializations (prevents
-    //    infinite clone accumulation if makeHeroSlider is called again)
+    // Guard against multiple initializations
     if (container.dataset.sliderInitialized === 'true') return;
     container.dataset.sliderInitialized = 'true';
 
-    const slides = Array.from(container.children);
+    const slides = Array.from(container.children).filter(c => c.tagName === 'IMG');
     if (slides.length === 0) return;
 
-    // Load first image immediately if not already loaded
-    const firstImg = slides[0].tagName === 'IMG' ? slides[0] : slides[0].querySelector('img');
-    if (firstImg && firstImg.dataset.src) {
-        firstImg.src = firstImg.dataset.src;
-        firstImg.removeAttribute('data-src');
+    // Load first image immediately
+    if (slides[0].dataset.src) {
+        slides[0].src = slides[0].dataset.src;
+        slides[0].removeAttribute('data-src');
     }
+    slides[0].classList.add('active');
 
-    // Clone first few slides for infinite loop
-    slides.forEach(slide => {
-        const clone = slide.cloneNode(true);
-        container.appendChild(clone);
-    });
-
-    // Lazy load the remaining images asynchronously (original and clones)
-    const lazyImages = Array.from(container.querySelectorAll('img[data-src]'));
+    // Lazy load the remaining images asynchronously
+    const lazyImages = slides.slice(1);
     const loadRemainingImages = () => {
         lazyImages.forEach(img => {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
         });
     };
 
     if ('requestIdleCallback' in window) {
         window.requestIdleCallback(loadRemainingImages);
     } else {
-        setTimeout(loadRemainingImages, 1000);
+        setTimeout(loadRemainingImages, 800);
     }
 
-    let scrollAmount = 0;
+    let currentIndex = 0;
     let isPaused = false;
 
-    function autoSlide() {
+    function nextSlide() {
         if (isPaused) return;
-        scrollAmount += container.offsetWidth;
 
-        container.scrollTo({
-            left: scrollAmount,
-            behavior: 'smooth'
-        });
+        slides[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % slides.length;
 
-        if (scrollAmount >= slides.length * container.offsetWidth) {
-            setTimeout(() => {
-                container.scrollTo({ left: 0, behavior: 'auto' });
-                scrollAmount = 0;
-            }, 600);
+        // Ensure target image is loaded before animating active
+        const nextImg = slides[currentIndex];
+        if (nextImg.dataset.src) {
+            nextImg.src = nextImg.dataset.src;
+            nextImg.removeAttribute('data-src');
         }
+        nextImg.classList.add('active');
     }
 
-    // Store the interval on dataset so it can be cleared on cleanup
-    const heroInterval = setInterval(autoSlide, 3000);
+    // Store interval on dataset for cleanup safety
+    const heroInterval = setInterval(nextSlide, 4500);
     container.dataset.heroInterval = heroInterval;
 
     container.addEventListener('mouseenter', () => isPaused = true);
     container.addEventListener('mouseleave', () => isPaused = false);
-
-    window.addEventListener('resize', debounce(() => {
-        scrollAmount = Math.round(container.scrollLeft / container.offsetWidth) * container.offsetWidth;
-    }, 150));
 }
 
 /**

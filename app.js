@@ -291,7 +291,7 @@ const server = http.createServer(app);
 // keepAliveTimeout must exceed the upstream proxy idle timeout (typically 60s).
 // headersTimeout must be slightly greater than keepAliveTimeout.
 server.keepAliveTimeout = 65000;
-server.headersTimeout   = 66000;
+server.headersTimeout = 66000;
 
 // Initialize WebSocket Engine
 socketService.init(server);

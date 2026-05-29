@@ -92,15 +92,25 @@ const Intelligence = {
     },
 
     renderProfile(overview) {
-        document.getElementById('dash-total-tests').textContent = overview.totalTests;
-        document.getElementById('dash-avg-accuracy').textContent = Math.round(overview.avgAccuracy || 0) + '%';
-        document.getElementById('dash-avg-time').textContent = Math.round(overview.avgTimePerTest || 0) + 's';
+        const totalTestsEl = document.getElementById('dash-total-tests');
+        if (totalTestsEl) totalTestsEl.textContent = overview.totalTests;
+        
+        const avgAccEl = document.getElementById('dash-avg-accuracy');
+        if (avgAccEl) avgAccEl.textContent = Math.round(overview.avgAccuracy || 0) + '%';
+        
+        const avgTimeEl = document.getElementById('dash-avg-time');
+        if (avgTimeEl) avgTimeEl.textContent = Math.round(overview.avgTimePerTest || 0) + 's';
         
         const user = JSON.parse(localStorage.getItem('np_user_data') || '{}');
         if (user.name) {
-            document.getElementById('dash-user-name').textContent = user.name;
-            document.getElementById('dash-user-email').textContent = user.email;
-            document.getElementById('dash-user-avatar').src = `https://ui-avatars.com/api/?background=6366f1&color=fff&size=200&bold=true&name=${encodeURIComponent(user.name)}`;
+            const userNameEl = document.getElementById('dash-user-name');
+            if (userNameEl) userNameEl.textContent = user.name;
+            
+            const userEmailEl = document.getElementById('dash-user-email');
+            if (userEmailEl) userEmailEl.textContent = user.email;
+            
+            const userAvatarEl = document.getElementById('dash-user-avatar');
+            if (userAvatarEl) userAvatarEl.src = `https://ui-avatars.com/api/?background=6366f1&color=fff&size=200&bold=true&name=${encodeURIComponent(user.name)}`;
         }
     },
 
@@ -117,15 +127,23 @@ const Intelligence = {
             localStorage.setItem('np_user_level', level);
         }
 
-        document.getElementById('user-level').textContent = level;
-        document.getElementById('user-xp').textContent = `${totalXP} XP`;
-        document.getElementById('xp-fill').style.width = `${progress}%`;
-        document.getElementById('xp-remaining').textContent = 1000 - currentLevelXP;
+        const levelEl = document.getElementById('user-level');
+        if (levelEl) levelEl.textContent = level;
+        
+        const xpEl = document.getElementById('user-xp');
+        if (xpEl) xpEl.textContent = `${totalXP} XP`;
+        
+        const xpFillEl = document.getElementById('xp-fill');
+        if (xpFillEl) xpFillEl.style.width = `${progress}%`;
+        
+        const xpRemEl = document.getElementById('xp-remaining');
+        if (xpRemEl) xpRemEl.textContent = 1000 - currentLevelXP;
     },
 
     renderStats(overview) {
         // Update high level metrics
-        document.getElementById('dash-total-tests').textContent = overview.totalTests;
+        const totalTestsEl = document.getElementById('dash-total-tests');
+        if (totalTestsEl) totalTestsEl.textContent = overview.totalTests;
     },
 
     renderReadiness(readiness) {
@@ -159,9 +177,14 @@ const Intelligence = {
             }
         });
 
-        document.getElementById('readiness-value').textContent = `${score}%`;
-        document.getElementById('readiness-confidence').textContent = readiness.confidence || 'Low Confidence';
-        document.getElementById('readiness-message').textContent = readiness.message || 'Keep practicing to improve your score.';
+        const readinessValueEl = document.getElementById('readiness-value');
+        if (readinessValueEl) readinessValueEl.textContent = `${score}%`;
+        
+        const readinessConfEl = document.getElementById('readiness-confidence');
+        if (readinessConfEl) readinessConfEl.textContent = readiness.confidence || 'Low Confidence';
+        
+        const readinessMsgEl = document.getElementById('readiness-message');
+        if (readinessMsgEl) readinessMsgEl.textContent = readiness.message || 'Keep practicing to improve your score.';
     },
 
     renderTrends(trends) {
@@ -236,7 +259,8 @@ const Intelligence = {
         });
 
         if (data.length > 0) {
-            document.getElementById('dash-best-subject').textContent = data[0].topicName;
+            const bestSubEl = document.getElementById('dash-best-subject');
+            if (bestSubEl) bestSubEl.textContent = data[0].topicName;
         }
     },
 

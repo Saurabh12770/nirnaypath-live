@@ -1,9 +1,136 @@
-/* NirnayPath Service Worker — Phase 12 PWA Upgrade */
+/* NirnayPath Service Worker — Phase 5 Stabilized Cache Strategy */
 'use strict';
 
-const CACHE_VERSION = 'nirnaypath-v12';
-const STATIC_CACHE  = `${CACHE_VERSION}-static`;
-const API_CACHE     = `${CACHE_VERSION}-api`;
+/* ── Cache versioning: bump to force purge of stale v12 assets ── */
+const CACHE_VERSION  = 'nirnaypath-v13';
+const STATIC_CACHE   = `${CACHE_VERSION}-static`;
+const API_CACHE      = `${CACHE_VERSION}-api`;
+const DYNAMIC_CACHE  = `${CACHE_VERSION}-dynamic`;
+
+/* ── HTML pages: ALWAYS Network-First ────────────────────────────
+   Guarantees users receive deployment updates immediately without
+   needing a hard refresh. Falls back to cache only when offline.  */
+const HTML_PAGES = ['/', '/index.html', '/about.html', '/test.html', '/mobile-app-shell.html'];
+
+/* ── Static assets: Stale-While-Revalidate ──────────────────────
+   Serves cached version instantly (no FOUC) while simultaneously
+   fetching a fresh copy to update the cache in the background.     */
+const SWR_EXTENSIONS = ['.css', '.js'];
+
+/* ─── Assets to pre-cache on install ──────────────────────────────────── */
+const STATIC_ASSETS = [
+    '/',
+    '/index.html',
+    '/about.html',
+    '/test.html',
+    '/mobile-app-shell.html',
+    '/style.css',
+    '/script.js',
+    '/manifest.json',
+    '/logo.png',
+    '/js/auth.js',
+    '/js/dashboard.js',
+    '/js/push.js',
+    '/js/app.js',
+    '/js/offlineStorage.js'
+];
+
+/* ─── API routes eligible for network-first caching ─────────────── */
+const NETWORK_FIRST_PATTERNS = [
+    '/api/questions/',
+    '/api/drill/',
+    '/api/section/',
+    '/api/learning/',
+    '/api/recommendations'
+];
+
+/* ─── Install: pre-cache all static assets ───────────────────────── */
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(STATIC_CACHE)
+            .then(cache => {
+                console.log('[SW] Pre-caching static assets...');
+                return cache.addAll(STATIC_ASSETS);
+            })
+            .then(() => self.skipWaiting()) // Take control immediately
+    );
+});
+
+/* ─── Activate: purge ALL stale caches ───────────────────────────── */
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(keys => {
+            const validCaches = [STATIC_CACHE, API_CACHE, DYNAMIC_CACHE];
+            return Promise.all(
+                keys
+                    .filter(key => !validCaches.includes(key))
+                    .map(key => {
+                        console.log('[SW] Deleting stale cache:', key);
+                        return caches.delete(key);
+                    })
+            );
+        }).then(() => self.clients.claim())
+    );
+});
+
+/* ─── Fetch: routing strategy ────────────────────────────────────── */
+self.addEventListener('fetch', event => {
+    const { request } = event;
+    const url = new URL(request.url);
+
+    // ── NETWORK STABILIZATION GUARD ──────────────────────────────
+    // NEVER intercept mutation requests (POST, PUT, DELETE, PATCH).
+    if (request.method !== 'GET') return;
+
+    // Skip chrome-extension and non-http(s) protocols
+    if (url.protocol.startsWith('chrome') || !url.protocol.startsWith('http')) return;
+
+    // ── EXTERNAL CDN BYPASS ──────────────────────────────────────
+    const externalCDNs = [
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+        'cdnjs.cloudflare.com',
+        'jsdelivr.net',
+        'cdn.jsdelivr.net'
+    ];
+    const isExternalCDN = externalCDNs.some(cdn => url.hostname === cdn || url.hostname.endsWith('.' + cdn));
+    if (isExternalCDN) return;
+
+    // ── EXPLICIT TELEMETRY BYPASS ─────────────────────────────────
+    if (url.pathname.startsWith('/api/telemetry/')) return;
+
+    // Learning sync endpoint — always network, never cache
+    if (url.pathname === '/api/learning/sync') return;
+
+    // ── Phase 5: HTML pages → Network-First ──────────────────────
+    const isHTMLPage = HTML_PAGES.includes(url.pathname) ||
+                       url.pathname === '/' ||
+                       request.headers.get('accept')?.includes('text/html');
+    if (isHTMLPage) {
+        event.respondWith(networkFirstHTML(request));
+        return;
+    }
+
+    // ── Phase 5: CSS/JS → Stale-While-Revalidate ─────────────────
+    const isSWR = SWR_EXTENSIONS.some(ext => url.pathname.endsWith(ext));
+    if (isSWR) {
+        event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
+        return;
+    }
+
+    // Network-first for eligible API routes
+    const isNetworkFirst = NETWORK_FIRST_PATTERNS.some(p => url.pathname.startsWith(p));
+    if (isNetworkFirst) {
+        event.respondWith(networkFirstWithCache(request, API_CACHE, 300)); // 5 min TTL
+        return;
+    }
+
+    // Skip all other /api/ routes (auth, payment, admin) — always fresh
+    if (url.pathname.startsWith('/api/')) return;
+
+    // Remaining static assets — cache-first
+    event.respondWith(cacheFirstWithNetworkFallback(request));
+});
 
 /* ─── Assets to pre-cache on install ──────────────────────────────────── */
 const STATIC_ASSETS = [
@@ -179,6 +306,50 @@ async function cacheFirstWithNetworkFallback(request) {
         }
         return new Response('Offline', { status: 503 });
     }
+}
+
+/* ─── Strategy: Network-First for HTML pages (Phase 5) ──────────────────
+   Ensures every navigation gets the latest HTML from the server.
+   Only falls back to cache when genuinely offline.                        */
+async function networkFirstHTML(request) {
+    try {
+        const networkResponse = await fetch(request.clone());
+        if (networkResponse.ok) {
+            const cache = await caches.open(STATIC_CACHE);
+            cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+    } catch (_err) {
+        // Offline: serve from cache
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        // Last-resort: serve the offline app shell
+        const shell = await caches.match('/mobile-app-shell.html');
+        if (shell) return shell;
+        return new Response('<h1>You are offline</h1>', {
+            status: 503,
+            headers: { 'Content-Type': 'text/html' }
+        });
+    }
+}
+
+/* ─── Strategy: Stale-While-Revalidate for CSS/JS (Phase 5) ─────────────
+   Serves the cached version immediately (zero latency, no FOUC),
+   then fetches a fresh copy in the background to keep cache current.      */
+async function staleWhileRevalidate(request, cacheName) {
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+
+    // Fire background fetch regardless of cache hit
+    const networkFetch = fetch(request.clone()).then(networkResponse => {
+        if (networkResponse.ok) {
+            cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+    }).catch(() => null);
+
+    // Return cached immediately if available, else await network
+    return cachedResponse || networkFetch;
 }
 
 /* ─── Background Sync: flush offline test attempts ──────────────────── */
