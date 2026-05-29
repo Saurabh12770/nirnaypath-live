@@ -87,7 +87,10 @@ const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://
 mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 5000,
     connectTimeoutMS: 10000,
-    heartbeatFrequencyMS: 10000
+    heartbeatFrequencyMS: 10000,
+    maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '50'),
+    minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '5'),
+    socketTimeoutMS: parseInt(process.env.MONGO_SOCKET_TIMEOUT_MS || '45000')
 })
     .then(async () => {
         console.log('Connected to MongoDB');
@@ -313,7 +316,17 @@ server.listen(PORT, '0.0.0.0', () => {
     setImmediate(() => {
         try {
             console.log('[BOOT] Initializing background services...');
-            initCronJobs();
+            
+            // PM2 Cluster Mode Isolation: Only run crons on instance 0 or when not in PM2 cluster mode
+            const isPrimaryInstance = process.env.NODE_APP_INSTANCE === undefined || 
+                                     process.env.NODE_APP_INSTANCE === '0';
+            if (isPrimaryInstance) {
+                console.log('[BOOT] Primary instance / single node detected. Registering cron jobs...');
+                initCronJobs();
+            } else {
+                console.log(`[BOOT] Clustered instance #${process.env.NODE_APP_INSTANCE}. Skipping cron registration.`);
+            }
+
             initWorkers();
             console.log('[BOOT] Background services initialization sequence triggered.');
             
@@ -331,22 +344,59 @@ server.listen(PORT, '0.0.0.0', () => {
     });
 });
 
-// CB-1 FIX: Graceful shutdown with hard timeout.
-// If shutdownWorkers() hangs (e.g. BullMQ/Redis stall), the 5s race forces continuation
-// so server.close() is always reached and the TCP port is always released.
+// Upgraded SRE Graceful Shutdown Handler
 async function gracefulShutdown(signal) {
     console.log(`[SHUTDOWN] ${signal} received. Graceful shutdown initiated.`);
+
+    // 1. Stop Cron Jobs
+    try {
+        const { shutdownCronJobs } = require('./services/cronService');
+        await shutdownCronJobs();
+    } catch (err) {
+        console.error('[SHUTDOWN] Cron cleanup error:', err.message);
+    }
+
+    // 2. Close Sockets (disconnect WebSocket clients cleanly)
+    try {
+        const socketService = require('./services/socketService');
+        await socketService.close();
+    } catch (err) {
+        console.error('[SHUTDOWN] Socket cleanup error:', err.message);
+    }
+
+    // 3. Shutdown BullMQ workers
     const shutdownTimeout = new Promise(resolve => setTimeout(resolve, 5000));
     try {
         await Promise.race([shutdownWorkers(), shutdownTimeout]);
     } catch (err) {
         console.error('[SHUTDOWN] Worker shutdown error (non-fatal):', err.message);
     }
+
+    // 4. Close MongoDB connection
+    try {
+        if (mongoose.connection.readyState !== 0) {
+            console.log('[SHUTDOWN] Closing MongoDB connection...');
+            await mongoose.connection.close();
+            console.log('[SHUTDOWN] MongoDB connection closed.');
+        }
+    } catch (err) {
+        console.error('[SHUTDOWN] MongoDB close error:', err.message);
+    }
+
+    // 5. Disconnect Redis client socket
+    try {
+        const { disconnectRedis } = require('./services/redisService');
+        await disconnectRedis();
+    } catch (err) {
+        console.error('[SHUTDOWN] Redis disconnect error:', err.message);
+    }
+
     server.close(() => {
         console.log('[SHUTDOWN] HTTP server closed. Exiting cleanly.');
         process.exit(0);
     });
-    // Hard kill if server.close() itself hangs (e.g. persistent WebSocket connections)
+
+    // Hard kill fallback if server.close() itself hangs
     setTimeout(() => {
         console.error('[SHUTDOWN] Forced exit after hard timeout.');
         process.exit(1);

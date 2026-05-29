@@ -34,9 +34,24 @@ function slowQueryLoggerPlugin(schema, options = {}) {
     ];
 
     queryMethods.forEach(method => {
-        // pre-hook: capture start time
+        // pre-hook: capture start time and inject default timeout guards
         schema.pre(method, function(next) {
             this._queryStartMs = Date.now();
+            try {
+                if (method === 'aggregate') {
+                    this.options = this.options || {};
+                    if (!this.options.maxTimeMS) {
+                        this.options.maxTimeMS = parseInt(process.env.MONGO_AGGREGATE_TIMEOUT_MS || '10000');
+                    }
+                } else {
+                    if (typeof this.maxTimeMS === 'function' && (!this.options || !this.options.maxTimeMS)) {
+                        this.maxTimeMS(parseInt(process.env.MONGO_QUERY_TIMEOUT_MS || '5000'));
+                    }
+                }
+            } catch (err) {
+                // Safeguard: Never block query execution if timeout injection fails
+                console.error('[SLOW-QUERY-LOGGER] Error injecting query timeout guard:', err.message);
+            }
             if (typeof next === 'function') next();
         });
 

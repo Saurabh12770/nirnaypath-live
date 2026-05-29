@@ -11,8 +11,17 @@ const EXAMS_CONFIG = {
     'upsc': { name: 'UPSC Civil Services', date: new Date('2026-06-20T00:00:00Z') }
 };
 
+const activeCronTasks = [];
+
 const initCronJobs = () => {
     console.log('Initializing scheduled retention engines...');
+
+    const originalSchedule = cron.schedule;
+    cron.schedule = (expression, func, options) => {
+        const task = originalSchedule(expression, func, options);
+        activeCronTasks.push(task);
+        return task;
+    };
 
     // 1. Daily Streak/Comeback Reminder (Every day at 8 PM)
     cron.schedule('0 20 * * *', async () => {
@@ -177,6 +186,19 @@ const initCronJobs = () => {
             console.error('[CRON-CLEANUP] Operations maintenance error:', error);
         }
     });
+    cron.schedule = originalSchedule;
 };
 
-module.exports = { initCronJobs };
+const shutdownCronJobs = async () => {
+    console.log('[CRON] Stopping all active cron tasks...');
+    activeCronTasks.forEach(task => {
+        try {
+            task.stop();
+        } catch (err) {
+            console.error('[CRON] Error stopping cron task:', err.message);
+        }
+    });
+    activeCronTasks.length = 0;
+};
+
+module.exports = { initCronJobs, shutdownCronJobs };

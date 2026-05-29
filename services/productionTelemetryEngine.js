@@ -15,12 +15,51 @@ class ProductionTelemetryEngine {
 
         // Monitor event loop lag
         let lastTime = Date.now();
+        let lastLagAlertTime = 0;
         setInterval(() => {
             const now = Date.now();
             const lag = Math.max(0, now - lastTime - 1000);
             this.eventLoopLag = (this.eventLoopLag * 0.9) + (lag * 0.1); // EMA
             lastTime = now;
+
+            // SRE Alert: Lag spike > 100ms
+            if (this.eventLoopLag > 100 && now - lastLagAlertTime > 30000) {
+                try {
+                    const logger = require('../utils/logger');
+                    logger.warn(`[TELEMETRY][EVENT-LOOP] Event loop lag spiked! Lag: ${Math.round(this.eventLoopLag)}ms`, {
+                        eventLoopLagMs: this.eventLoopLag
+                    });
+                } catch (_) {}
+                lastLagAlertTime = now;
+            }
         }, 1000).unref();
+
+        // Monitor V8 Heap Limit & Backpressure (every 10s)
+        const v8 = require('v8');
+        let lastMemoryAlertTime = 0;
+        setInterval(() => {
+            try {
+                const mem = process.memoryUsage();
+                const heapStats = v8.getHeapStatistics();
+                const limit = heapStats.heap_size_limit;
+                const ratio = mem.heapUsed / limit;
+
+                if (ratio > 0.85 && Date.now() - lastMemoryAlertTime > 60000) {
+                    const logger = require('../utils/logger');
+                    const rssMB = Math.round(mem.rss / 1024 / 1024);
+                    const heapUsedMB = Math.round(mem.heapUsed / 1024 / 1024);
+                    const limitMB = Math.round(limit / 1024 / 1024);
+
+                    logger.error(`[TELEMETRY][MEMORY-CRITICAL] Critical heap usage pressure detected: ${Math.round(ratio * 100)}% of limit!`, {
+                        rssMB,
+                        heapUsedMB,
+                        heapLimitMB: limitMB,
+                        usageRatio: ratio
+                    });
+                    lastMemoryAlertTime = Date.now();
+                }
+            } catch (_) {}
+        }, 10000).unref();
     }
 
     recordRouteTiming(route, duration, status) {

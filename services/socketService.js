@@ -78,6 +78,25 @@ class SocketService {
         });
     }
 
+    async close() {
+        if (this.io) {
+            console.log('[Socket] Disconnecting all WebSocket clients and shutting down server...');
+            try {
+                this.io.disconnectSockets(true);
+            } catch (err) {
+                console.error('[Socket] Error disconnecting clients:', err.message);
+            }
+            await new Promise((resolve) => this.io.close(resolve));
+            this.io = null;
+        }
+        if (this.subClient) {
+            try {
+                await this.subClient.quit();
+            } catch (_) {}
+            this.subClient = null;
+        }
+    }
+
     emitToUser(userId, event, data) { if (this.io) this.io.to(`user:${userId}`).emit(event, data); }
     emitToExam(examId, event, data) { if (this.io) this.io.to(`exam:${examId}`).emit(event, data); }
 }

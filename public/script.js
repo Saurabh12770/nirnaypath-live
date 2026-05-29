@@ -1087,6 +1087,19 @@ function bindExamControls() {
     /* Submit (header) */
     on('btn-header-submit', 'click', () => confirmSubmit());
 
+    /* Submit Modal Cancel */
+    on('submit-modal-cancel', 'click', () => {
+        const modal = document.getElementById('submit-confirm-modal');
+        if (modal) modal.style.display = 'none';
+    });
+
+    /* Submit Modal Confirm */
+    on('submit-modal-confirm', 'click', () => {
+        const modal = document.getElementById('submit-confirm-modal');
+        if (modal) modal.style.display = 'none';
+        submitTest();
+    });
+
     /* Review & Home */
     on('btn-review', 'click', () => {
         const rc = document.getElementById('review-container');
@@ -1102,11 +1115,36 @@ function bindExamControls() {
 }
 
 function confirmSubmit() {
-    const un = testState.selectedQuestions.length - Object.keys(testState.answers).length;
-    const msg = un > 0
-        ? `You have ${un} unanswered question(s).\n\nAre you sure you want to submit?`
-        : 'Submit this test now?';
-    if (confirm(msg)) submitTest();
+    const total = testState.selectedQuestions.length;
+    const answered = Object.keys(testState.answers).length;
+    const unanswered = total - answered;
+    const marked = testState.marked.length;
+    
+    // Populate stats inside modal
+    const statsEl = document.getElementById('submit-modal-stats');
+    if (statsEl) {
+        statsEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Total Questions:</span>
+                <strong>${total}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Answered:</span>
+                <strong style="color: var(--success);">${answered}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Unanswered:</span>
+                <strong style="color: ${unanswered > 0 ? 'var(--danger)' : 'var(--success)'};">${unanswered}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Marked for Review:</span>
+                <strong style="color: var(--warning);">${marked}</strong>
+            </div>
+        `;
+    }
+    
+    const modal = document.getElementById('submit-confirm-modal');
+    if (modal) modal.style.display = 'flex';
 }
 
 /* Wire static trending test buttons in HTML */
@@ -1982,3 +2020,110 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   35. OFFLINE DETECTION ENGINE (Product Maturity Sprint)
+   Non-blocking: shows banner without interrupting active tests
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+(function initOfflineDetection() {
+    'use strict';
+    let banner = null;
+    let onlineTimer = null;
+
+    function getOrCreateBanner() {
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.className = 'offline-warning';
+            banner.id = 'np-offline-banner';
+            banner.setAttribute('role', 'alert');
+            banner.setAttribute('aria-live', 'assertive');
+            document.body.prepend(banner);
+        }
+        return banner;
+    }
+
+    function showOfflineBanner() {
+        clearTimeout(onlineTimer);
+        const b = getOrCreateBanner();
+        b.className = 'offline-warning';
+        b.innerHTML = '<i class="fas fa-wifi" style="opacity:0.4"></i> You are offline — some features may be unavailable.';
+        requestAnimationFrame(() => b.classList.add('show'));
+    }
+
+    function showOnlineBanner() {
+        const b = getOrCreateBanner();
+        b.className = 'offline-warning online show';
+        b.innerHTML = '<i class="fas fa-wifi"></i> Connection restored! You\'re back online.';
+        onlineTimer = setTimeout(() => b.classList.remove('show'), 3500);
+    }
+
+    window.addEventListener('offline', showOfflineBanner);
+    window.addEventListener('online',  showOnlineBanner);
+
+    // Silently check initial offline state (defer to avoid blocking first paint)
+    if (!navigator.onLine) {
+        setTimeout(showOfflineBanner, 1200);
+    }
+})();
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   36. MOBILE BOTTOM NAV BINDING (Product Maturity Sprint)
+   Maps bottom nav taps to SPA view transitions
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+(function initMobileBottomNavBinding() {
+    'use strict';
+
+    function setActiveBottomNav(id) {
+        document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(id);
+        if (target) target.classList.add('active');
+    }
+
+    const homeBtn      = document.getElementById('mob-nav-home');
+    const practiceBtn  = document.getElementById('mob-nav-practice');
+    const startBtn     = document.getElementById('mob-nav-start');
+    const analyticsBtn = document.getElementById('mob-nav-analytics');
+
+    if (homeBtn) {
+        homeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('dashboard');
+            setActiveBottomNav('mob-nav-home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    if (practiceBtn) {
+        practiceBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('dashboard');
+            setActiveBottomNav('mob-nav-practice');
+            setTimeout(() => {
+                const target = document.getElementById('popular-exams');
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            }, 150);
+        });
+    }
+
+    if (startBtn) {
+        startBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveBottomNav('mob-nav-start');
+            const target = document.getElementById('popular-exams');
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+
+    if (analyticsBtn) {
+        analyticsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveBottomNav('mob-nav-analytics');
+            const dashLink = document.getElementById('dashNavLink');
+            if (dashLink && dashLink.style.display !== 'none') {
+                showView('user-dashboard');
+            } else {
+                document.getElementById('loginBtn')?.click();
+            }
+        });
+    }
+})();

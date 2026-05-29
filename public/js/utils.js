@@ -109,6 +109,136 @@ window.NirnayPath = {
         
         // 6. Global animation initialization (fixes about.html visibility)
         this.initScrollAnimations();
+
+        // 7. Centralised footer renderer
+        this.renderFooter();
+    },
+
+    /**
+     * Render the canonical NirnayPath footer into every <footer> element on the page.
+     * Skipped on test.html (active test terminal) to avoid polluting the exam view.
+     * Idempotent — safe to call multiple times.
+     */
+    renderFooter() {
+        if (window.__footerRendered) return;
+        if (window.location.pathname.includes('test.html')) return;
+
+        const footerEls = document.querySelectorAll('footer');
+        if (!footerEls.length) return;
+
+        const html = `
+<div class="footer-content">
+    <div class="footer-col footer-brand">
+        <div class="footer-logo">
+            <div class="logo-icon"><i class="fas fa-crown"></i></div>
+            <div class="logo-text">
+                <span class="logo-main">NirnayPath</span>
+                <span class="logo-sub">Mock Test Platform</span>
+            </div>
+        </div>
+        <p class="footer-tagline">Free. Unlimited. Realistic Mock Tests for Every Aspirant.</p>
+        <p class="footer-mission">Our mission is to democratize access to high-quality exam preparation for every competitive exam aspirant in India.</p>
+        <div class="footer-stats">
+            <div class="stat"><i class="fas fa-users"></i><div><h4>50,000+</h4><p>Aspirants</p></div></div>
+            <div class="stat"><i class="fas fa-question-circle"></i><div><h4>10,000+</h4><p>Questions</p></div></div>
+            <div class="stat"><i class="fas fa-chart-line"></i><div><h4>95%</h4><p>Success Rate</p></div></div>
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="social-link" title="Telegram"><i class="fab fa-telegram"></i></a>
+            <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+    </div>
+
+    <div class="footer-col">
+        <h4><i class="fas fa-graduation-cap"></i> Popular Exams</h4>
+        <ul class="footer-links-list">
+            <li><a href="#"><i class="fas fa-arrow-right"></i> BPSC Tests</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> UPSC Tests</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> Railway Tests</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> Teaching Exams</a></li>
+            <li><a href="#"><i class="fas fa-arrow-right"></i> State PSC Tests</a></li>
+        </ul>
+    </div>
+
+    <div class="footer-col">
+        <h4><i class="fas fa-book-open"></i> Resources</h4>
+        <ul class="footer-links-list">
+            <li><a href="#"><i class="fas fa-newspaper"></i> Blog &amp; Articles</a></li>
+            <li><a href="#"><i class="fas fa-file-pdf"></i> Study Materials</a></li>
+            <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
+            <li><a href="#"><i class="fas fa-trophy"></i> Success Stories</a></li>
+            <li><a href="#"><i class="fas fa-chart-line"></i> Performance Analytics</a></li>
+            <li><a href="#"><i class="fas fa-question-circle"></i> FAQ &amp; Help</a></li>
+            <li><a href="#"><i class="fas fa-download"></i> Mobile App</a></li>
+        </ul>
+    </div>
+
+    <div class="footer-col">
+        <h4><i class="fas fa-building"></i> Company</h4>
+        <ul class="footer-links-list">
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i> Contact Us</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Our Team</a></li>
+            <li><a href="#"><i class="fas fa-bullhorn"></i> Careers</a></li>
+            <li><a href="#"><i class="fas fa-handshake"></i> Partnerships</a></li>
+            <li><a href="#"><i class="fas fa-newspaper"></i> Press &amp; Media</a></li>
+            <li><a href="#"><i class="fas fa-star"></i> Testimonials</a></li>
+        </ul>
+    </div>
+
+    <div class="footer-col footer-newsletter-app">
+        <h4><i class="fas fa-envelope"></i> Stay Updated</h4>
+        <p class="newsletter-desc">Get weekly exam tips, study strategies, and updates.</p>
+        <div class="newsletter">
+            <div class="newsletter-input-group">
+                <input type="email" id="footer-newsletter-email" placeholder="Enter your email">
+                <button class="newsletter-btn btn-primary" id="footer-newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <h4 class="mt-4"><i class="fas fa-mobile-alt"></i> Download App</h4>
+        <div class="app-badges-vertical">
+            <a href="#" class="app-badge"><i class="fab fa-google-play"></i><div><span>GET IT ON</span><strong>Google Play</strong></div></a>
+            <a href="#" class="app-badge"><i class="fab fa-apple"></i><div><span>Download on</span><strong>App Store</strong></div></a>
+        </div>
+    </div>
+</div>
+
+<div class="footer-bottom">
+    <div class="footer-bottom-content">
+        <div class="copyright">
+            <p>© 2026 NirnayPath — Created with <i class="fas fa-heart"></i> by Saurabh Kumar. All rights reserved.</p>
+            <p class="copyright-note">NirnayPath is an independent platform and is not affiliated with any government exam conducting body.</p>
+        </div>
+        <div class="footer-bottom-links">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                <a href="#"><i class="fas fa-cookie-bite"></i> Cookie Policy</a>
+                <a href="#"><i class="fas fa-exclamation-triangle"></i> Disclaimer</a>
+                <a href="#"><i class="fas fa-sitemap"></i> Sitemap</a>
+            </div>
+            <div class="payment-methods">
+                <span class="payment-label">Secure Payments:</span>
+                <div class="payment-icons">
+                    <i class="fab fa-cc-visa" title="Visa"></i>
+                    <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                    <i class="fab fa-cc-paypal" title="PayPal"></i>
+                    <i class="fab fa-google-pay" title="Google Pay"></i>
+                    <i class="fab fa-cc-amazon-pay" title="Amazon Pay"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+        footerEls.forEach(footer => { footer.innerHTML = html; });
+        window.__footerRendered = true;
     },
 
     initTheme() {

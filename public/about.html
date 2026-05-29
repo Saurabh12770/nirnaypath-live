@@ -27,112 +27,439 @@
     <script src="/js/telemetry.js" defer></script>
     <script src="/js/utils.js?v=3.0.0"></script>
     <style>
-        /* ── ABOUT PAGE HERO FIXES ── */
+        /* ════════════════════════════════════════
+           ABOUT PAGE — PREMIUM DESIGN SYSTEM
+           All styles scoped to about page classes.
+           Does NOT override global style.css tokens.
+        ════════════════════════════════════════ */
 
-        /* FIX 1 — overflow:hidden was clipping the translateY(24px) offset images.
-           Changed to overflow:clip which blocks horizontal scroll without clipping
-           transformed children in the block direction (vertical).
-           Also cancels style.css section { margin-bottom: 4rem } which created
-           excessive gap between hero and the founder section below. */
+        /* ── Hero ── */
         .about-hero {
-            padding: 8rem 0 4rem;
+            padding: 7rem 0 5rem;
             position: relative;
-            overflow: clip;         /* was: overflow:hidden — was cutting bottom 24px of .item-offset images */
-            overflow-clip-margin: 40px; /* allow 40px of overhang before clipping (covers the 24px offset) */
-            margin-bottom: 0;       /* cancels style.css section { margin-bottom: var(--sp-8) } = 4rem gap */
+            overflow: clip;
+            overflow-clip-margin: 48px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(79,70,229,.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .about-hero .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(79,70,229,.12);
+            border: 1px solid rgba(79,70,229,.3);
+            color: var(--primary);
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .35rem 1rem;
+            border-radius: 99px;
+            margin-bottom: 1.6rem;
+        }
+        .about-hero .hero-title {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+            letter-spacing: -.02em;
+        }
+        .about-hero .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 3.5rem;
+            line-height: 1.75;
         }
 
-        /* Gallery grid — removed redundant padding:0 1rem that was double-stacking
-           with .container's existing padding:0 1.5rem, making images narrower than designed. */
+        /* ── Gallery grid ── */
         .about-gallery {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
             max-width: 1100px;
-            margin: 3rem auto 0;    /* was: 4rem auto — reduced top margin, bottom=0 (padding handles it) */
-            padding-bottom: 2.5rem; /* gives offset items room to visually overhang without clipping */
+            margin: 0 auto;
+            padding-bottom: 3rem;
         }
-
-        /* Gallery image items */
         .gallery-item {
-            position: relative;
-            border-radius: 16px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,.1);
             height: 280px;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            transition: transform .4s cubic-bezier(.175,.885,.32,1.275), box-shadow .3s;
+        }
+        .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .5s ease; }
+        .gallery-item:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 24px 40px rgba(0,0,0,.16); z-index:10; }
+        .gallery-item:hover img { transform: scale(1.08); }
+        .item-offset { transform: translateY(28px); }
+        .item-offset:hover { transform: translateY(18px) scale(1.03); }
+
+        /* ── Impact stats bar ── */
+        .impact-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 4rem auto 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,.06);
+        }
+        .impact-stat { text-align: center; }
+        .impact-stat .stat-number {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .impact-stat .stat-label {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: .4rem;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+        .impact-stat-divider {
+            width: 1px;
+            background: var(--border-color);
+            align-self: stretch;
         }
 
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
+        /* ── Founder ── */
+        .founder-section { padding: 6rem 0; }
+        .founder-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        .founder-visual { position: relative; }
+        .founder-image-wrapper {
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(79,70,229,.2), 0 0 0 8px rgba(79,70,229,.08);
+            aspect-ratio: 4/5;
+        }
+        .founder-image-wrapper img { width:100%; height:100%; object-fit:cover; }
+        .founder-badge {
+            position: absolute;
+            bottom: -1.5rem;
+            right: -1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 700;
+            padding: .75rem 1.25rem;
+            border-radius: 14px;
+            max-width: 200px;
+            line-height: 1.4;
+            box-shadow: 0 8px 24px rgba(79,70,229,.35);
+        }
+        .founder-eyebrow {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .founder-name { font-size: 1.1rem; font-weight: 700; margin-bottom: .25rem; }
+        .founder-role { font-size: .9rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
+        .founder-socials { display:flex; gap:.75rem; }
+        .founder-socials a {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            display: flex; align-items:center; justify-content:center;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: all .2s;
+            text-decoration: none;
+        }
+        .founder-socials a:hover { background: var(--primary); color:#fff; border-color:var(--primary); transform: translateY(-2px); }
+        .founder-quote-block {
+            background: linear-gradient(135deg, rgba(79,70,229,.08), rgba(236,72,153,.06));
+            border-left: 4px solid var(--primary);
+            border-radius: 0 16px 16px 0;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+        }
+        .founder-quote-block p {
+            font-size: 1.15rem;
+            font-style: italic;
+            font-weight: 600;
+            line-height: 1.65;
+            color: var(--text-primary);
+        }
+        .founder-quote-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: .75rem;
+            display: block;
+            opacity: .6;
+        }
+        .founder-story p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Values ── */
+        .values-section {
+            padding: 6rem 0;
+            background: var(--bg-soft);
+        }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .value-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.25rem;
+            transition: transform .3s, box-shadow .3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .value-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--vc-color, rgba(79,70,229,.06)), transparent);
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity .3s;
+        }
+        .value-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+        .value-card:hover::after { opacity: 1; }
+        .value-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex; align-items:center; justify-content:center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .value-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .75rem; }
+        .value-card p { font-size: .9rem; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ── Timeline ── */
+        .timeline-section { padding: 6rem 0; }
+        .timeline { position: relative; max-width: 800px; margin: 4rem auto 0; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            transform: translateX(-50%);
+            opacity: .3;
+        }
+        .tl-item {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 0;
+            margin-bottom: 3rem;
+            align-items: center;
+        }
+        .tl-item.right .tl-content { grid-column: 3; text-align: left; }
+        .tl-item.right .tl-empty { grid-column: 1; }
+        .tl-item.left .tl-content { grid-column: 1; text-align: right; }
+        .tl-item.left .tl-empty { grid-column: 3; }
+        .tl-dot {
+            grid-column: 2;
+            display: flex; align-items:center; justify-content:center;
+            position: relative; z-index:1;
+        }
+        .tl-dot-inner {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items:center; justify-content:center;
+            color: #fff;
+            font-size: 1.1rem;
+            box-shadow: 0 0 0 6px rgba(79,70,229,.12);
+        }
+        .tl-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,.06);
+        }
+        .tl-year {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--primary);
+            margin-bottom: .4rem;
+        }
+        .tl-content h4 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+        .tl-content p { font-size: .88rem; color: var(--text-secondary); line-height: 1.65; }
+
+        /* ── Experts ── */
+        .experts-section { padding: 6rem 0; background: var(--bg-soft); }
+        .expert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .expert-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform .3s, box-shadow .3s;
+        }
+        .expert-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+        .expert-avatar {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1.25rem;
+            border: 4px solid var(--bg-soft);
             object-fit: cover;
-            display: block; /* prevents inline baseline gap under images */
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: block;
+        }
+        .expert-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+        .expert-role { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .75rem; }
+        .expert-card p { font-size: .875rem; color: var(--text-secondary); line-height: 1.65; }
+
+        /* ── CTA Banner ── */
+        .about-cta-section {
+            padding: 6rem 0;
+            text-align: center;
+        }
+        .about-cta-inner {
+            background: linear-gradient(135deg, var(--primary), #7c3aed, var(--secondary));
+            border-radius: 28px;
+            padding: 5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .about-cta-inner::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+            top: -100px; right: -100px;
+        }
+        .about-cta-inner::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+            bottom: -80px; left: -80px;
+        }
+        .about-cta-inner h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1rem;
+            position: relative; z-index:1;
+        }
+        .about-cta-inner p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,.85);
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+            position: relative; z-index:1;
+        }
+        .cta-btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative; z-index:1;
+        }
+        .cta-btn-primary {
+            background: #fff;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: .9rem 2.25rem;
+            border-radius: 99px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex; align-items:center; gap:.5rem;
+            transition: transform .2s, box-shadow .2s;
+            text-decoration: none;
+        }
+        .cta-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+        .cta-btn-outline {
+            background: transparent;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: .9rem 2.25rem;
+            border-radius: 99px;
+            border: 2px solid rgba(255,255,255,.5);
+            cursor: pointer;
+            display: inline-flex; align-items:center; gap:.5rem;
+            transition: all .2s;
+            text-decoration: none;
+        }
+        .cta-btn-outline:hover { background: rgba(255,255,255,.15); border-color:#fff; transform: translateY(-2px); }
+
+        /* ── Shared section title ── */
+        .section-eyebrow {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--primary);
+            margin-bottom: .75rem;
+            display: block;
         }
 
-        .gallery-item:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
-            z-index: 10;
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.08);
-        }
-
-        /* Staggered offset for alternating items — creates the masonry-like effect */
-        .item-offset {
-            transform: translateY(24px);
-        }
-
-        .item-offset:hover {
-            transform: translateY(16px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
-        }
-
-        /* FIX 2 — Cancel style.css's global np-card border-top:3px !important cycling colors.
-           The .about-stat-card.glass-card.np-card stat cards should use the clean glass-card
-           border, not the multi-color card system that's designed for index.html feature cards. */
-        .about-stat-card.np-card,
-        .about-stat-card.glass-card {
-            border-top: 1px solid var(--border-color) !important; /* override np-card 3px colored top */
-        }
-
-        /* ── RESPONSIVE BREAKPOINTS ── */
+        /* ── Responsive ── */
         @media (max-width: 991px) {
-            .about-gallery {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1.25rem;
-            }
-            .gallery-item {
-                height: 220px;
-            }
-            /* Disable vertical offset on tablet — avoids clipping in 2-col layout */
-            .item-offset {
-                transform: none;
-            }
-            .item-offset:hover {
-                transform: translateY(-8px) scale(1.02);
-            }
+            .about-gallery { grid-template-columns: repeat(2, 1fr); }
+            .gallery-item { height: 220px; }
+            .item-offset { transform: none; }
+            .item-offset:hover { transform: translateY(-8px) scale(1.02); }
+            .founder-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .founder-badge { right: 1rem; bottom: 1rem; }
+            .impact-bar { grid-template-columns: repeat(2, 1fr); }
+            .timeline::before { left: 24px; }
+            .tl-item { grid-template-columns: 48px 1fr; gap: 1rem; }
+            .tl-item.right .tl-content,
+            .tl-item.left .tl-content { grid-column: 2; text-align: left; }
+            .tl-item.right .tl-empty,
+            .tl-item.left .tl-empty { display: none; }
+            .tl-dot { grid-column: 1; }
         }
-
         @media (max-width: 576px) {
-            .about-gallery {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                margin-top: 2rem;
-                padding-bottom: 1rem;
-            }
-            .gallery-item {
-                height: 200px; /* was 180px — slightly taller on mobile for better image visibility */
-            }
-            .about-hero {
-                padding: 5rem 0 2rem;
-            }
-            .hero-title {
-                font-size: 2.2rem !important;
-            }
+            .about-gallery { grid-template-columns: 1fr; gap: 1rem; }
+            .gallery-item { height: 200px; }
+            .about-hero { padding: 5rem 0 3rem; }
+            .impact-bar { grid-template-columns: repeat(2, 1fr); padding: 1.75rem 1rem; }
+            .impact-stat .stat-number { font-size: 2rem; }
+            .about-cta-inner { padding: 3.5rem 1.5rem; }
+            .founder-image-wrapper { max-width: 320px; margin: 0 auto; }
         }
     </style>
 
@@ -195,287 +522,239 @@
     <div id="panelOverlay" class="panel-overlay"></div>
 
     <main>
-        <!-- Professional SaaS Hero -->
-        <section class="about-hero reveal">
-            <div class="container text-center">
-                <h1 class="hero-title" style="font-size: 3.5rem; margin-bottom: 1rem;">Empowering Every Aspirant <br>to Reach Their <span class="gradient-text">True Potential</span></h1>
-                <p class="hero-subtitle" style="font-size: 1.25rem; color: var(--text-secondary); max-width: 800px; margin: 0 auto 3rem;">We are building India's most trusted, accessible, and high-quality mock test platform. Selection depends on preparation, not your wallet.</p>
-                
-                <!-- Premium About Hero Gallery Grid -->
+        <!-- ── HERO ── -->
+        <section class="about-hero reveal" aria-label="About NirnayPath hero">
+            <div class="container">
+                <span class="about-hero .hero-badge"><i class="fas fa-crown"></i> India's Free Mock Test Platform</span>
+                <h1 class="hero-title">Empowering Every Aspirant<br>to Reach Their <span class="gradient-text">True Potential</span></h1>
+                <p class="hero-sub">We are building India's most trusted, accessible, and high-quality mock test platform. Selection depends on preparation — not your wallet.</p>
+
+                <!-- 4-column gallery grid -->
                 <div class="about-gallery">
                     <div class="gallery-item">
-                        <img src="/about_hero1.jpg" alt="Aspirant preparation 1" onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80'">
+                        <img src="/about_hero1.jpg" loading="eager" alt="Students preparing for competitive exams"
+                             onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="gallery-item item-offset">
-                        <img src="/about_hero2.jpg" alt="Group study session 2" onerror="this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80'">
+                        <img src="/about_hero2.jpg" loading="eager" alt="Group study session"
+                             onerror="this.src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="gallery-item">
-                        <img src="/about_hero3.jpg" alt="Interactive digital classroom 3" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80'">
+                        <img src="/about_hero3.jpg" loading="eager" alt="Digital learning classroom"
+                             onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="gallery-item item-offset">
-                        <img src="/about_hero4.jpg" alt="Success & achievements 4" onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80'">
+                        <img src="/about_hero4.jpg" loading="eager" alt="Aspirant celebrating success"
+                             onerror="this.src='https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80'">
                     </div>
                 </div>
 
-                <div class="about-hero-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto;">
-                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
-                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">50K+</h3>
-                        <p style="font-weight: 600; color: var(--text-secondary);">Active Aspirants</p>
+                <!-- Impact stat bar -->
+                <div class="impact-bar">
+                    <div class="impact-stat">
+                        <div class="stat-number" data-target="50000" data-suffix="K+">50K+</div>
+                        <div class="stat-label">Active Aspirants</div>
                     </div>
-                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
-                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">100+</h3>
-                        <p style="font-weight: 600; color: var(--text-secondary);">Exam Categories</p>
+                    <div class="impact-stat">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Exam Categories</div>
                     </div>
-                    <div class="about-stat-card glass-card np-card" style="padding: 2rem; border-radius: var(--r-xl); text-align: center;">
-                        <h3 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 800;">10M+</h3>
-                        <p style="font-weight: 600; color: var(--text-secondary);">Questions Attempted</p>
+                    <div class="impact-stat">
+                        <div class="stat-number">10M+</div>
+                        <div class="stat-label">Questions Attempted</div>
+                    </div>
+                    <div class="impact-stat">
+                        <div class="stat-number">₹0</div>
+                        <div class="stat-label">Cost to Students. Forever.</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Founder's Message -->
-        <section class="founder-section reveal">
+        <!-- ── FOUNDER ── -->
+        <section class="founder-section reveal" aria-label="Founder message">
             <div class="container">
                 <div class="founder-grid">
+                    <!-- Left: Photo -->
                     <div class="founder-visual">
                         <div class="founder-image-wrapper">
-                            <img src="founder.jpeg" loading="lazy" alt="Saurabh Kumar" onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
+                            <img src="founder.jpeg" loading="lazy" alt="Saurabh Kumar — Founder, NirnayPath"
+                                 onerror="this.src='https://ui-avatars.com/api/?background=4f46e5&color=fff&size=500&name=Saurabh+Kumar'">
                         </div>
-                        <div class="founder-badge">Built by an Engineer, For Every Aspirant</div>
-                        <div class="founder-meta">
-                            <h3>Saurabh Kumar</h3>
-                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Founder & Lead Engineer</p>
-                            <div class="social-links" style="justify-content: center; gap: 15px;">
-                                <a href="#" style="font-size: 1.5rem;"><i class="fab fa-linkedin"></i></a>
-                                <a href="#" style="font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
-                                <a href="#" style="font-size: 1.5rem;"><i class="fas fa-envelope"></i></a>
+                        <div class="founder-badge"><i class="fas fa-code"></i> Built by an Engineer, for Every Aspirant</div>
+                    </div>
+
+                    <!-- Right: Story -->
+                    <div class="founder-content">
+                        <span class="section-eyebrow"><i class="fas fa-seedling"></i> Our Founding Story</span>
+                        <h2 class="section-title">The Heart Behind <span class="gradient-text">NirnayPath</span></h2>
+
+                        <div class="founder-story">
+                            <p>As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams — not because of lack of ability, but because they couldn't afford expensive test series costing thousands of rupees.</p>
+                            <p>I built NirnayPath with a single promise: every Indian student deserves access to world-class mock tests absolutely free. Our platform is not just a product; it is a movement to level the playing field.</p>
+                        </div>
+
+                        <div class="founder-quote-block">
+                            <i class="fas fa-quote-left founder-quote-icon"></i>
+                            <p>Selection depends on preparation, and preparation should not depend on your wallet.</p>
+                        </div>
+
+                        <!-- Founder identity -->
+                        <div>
+                            <p class="founder-name">Saurabh Kumar</p>
+                            <p class="founder-role">Founder &amp; Lead Engineer, NirnayPath</p>
+                            <div class="founder-socials">
+                                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                                <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
-                    <div class="founder-content">
-                        <h2 class="section-title">The Heart Behind <span class="gradient-text">NirnayPath</span></h2>
-                        <div class="founder-text">
-                            <p>"As an engineer and a fellow aspirant, I witnessed firsthand how talented students from humble backgrounds were forced to abandon their government exam dreams—not because of a lack of ability, but because they couldn't afford expensive test series that cost thousands of rupees."</p>
-                            <p>"I built NirnayPath with a single promise: every Indian student deserves access to world-class mock tests absolutely free. Our platform is not a business; it is a movement to level the playing field."</p>
-                        </div>
-                        <div class="founder-quote">
-                            <i class="fas fa-quote-left" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
-                            <p style="font-size: 1.25rem; font-style: italic; font-weight: 600;">Selection depends on preparation, and preparation should not depend on your wallet.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Mission & Vision -->
-        <section class="mission-vision-section reveal" style="padding: 6rem 0; background: var(--bg-soft);">
+        <!-- ── VALUES ── -->
+        <section class="values-section reveal" aria-label="Our values">
             <div class="container">
+                <span class="section-eyebrow text-center" style="display:block"><i class="fas fa-compass"></i> What Drives Us</span>
                 <h2 class="section-title text-center">Our Core <span class="gradient-text">Beliefs</span></h2>
-                <div class="mission-grid grid-standard" style="margin-top: 3rem;">
-                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <i class="fas fa-bullseye" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; display: block;"></i>
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Mission</h3>
-                        <p style="color: var(--text-secondary); line-height: 1.6;">To demolish financial barriers in education by providing high-quality, scientifically designed mock tests entirely for free.</p>
+                <div class="values-grid">
+                    <div class="value-card" style="--vc-color: rgba(79,70,229,.07)">
+                        <div class="value-icon" style="background: rgba(79,70,229,.12); color: #4f46e5;"><i class="fas fa-bullseye"></i></div>
+                        <h3>Mission-First</h3>
+                        <p>Demolishing financial barriers in education by providing high-quality, scientifically designed mock tests entirely free of cost.</p>
                     </div>
-                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <i class="fas fa-eye" style="font-size: 2.5rem; color: var(--secondary); margin-bottom: 1.5rem; display: block;"></i>
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Vision</h3>
-                        <p style="color: var(--text-secondary); line-height: 1.6;">To become India's most trusted digital public infrastructure for merit-based self-assessment and competitive exam preparation.</p>
+                    <div class="value-card" style="--vc-color: rgba(236,72,153,.07)">
+                        <div class="value-icon" style="background: rgba(236,72,153,.12); color: #ec4899;"><i class="fas fa-eye"></i></div>
+                        <h3>Inclusive Vision</h3>
+                        <p>Becoming India's most trusted digital infrastructure for merit-based self-assessment across all competitive exams.</p>
                     </div>
-                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <i class="fas fa-hand-holding-heart" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 1.5rem; display: block;"></i>
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Promise</h3>
-                        <p style="color: var(--text-secondary); line-height: 1.6;">We promise to maintain our core mock testing engine and extensive question banks 100% free forever for all students.</p>
+                    <div class="value-card" style="--vc-color: rgba(16,185,129,.07)">
+                        <div class="value-icon" style="background: rgba(16,185,129,.12); color: #10b981;"><i class="fas fa-hand-holding-heart"></i></div>
+                        <h3>Forever Free Promise</h3>
+                        <p>Our core mock testing engine and question banks will remain 100% free, forever. Non-negotiable.</p>
                     </div>
-                    <div class="mission-card np-card" style="padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <i class="fas fa-users-cog" style="font-size: 2.5rem; color: var(--success); margin-bottom: 1.5rem; display: block;"></i>
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Our Strategy</h3>
-                        <p style="color: var(--text-secondary); line-height: 1.6;">Leveraging AI and data-driven insights to bridge the gap between candidate effort and successful selection.</p>
+                    <div class="value-card" style="--vc-color: rgba(245,158,11,.07)">
+                        <div class="value-icon" style="background: rgba(245,158,11,.12); color: #f59e0b;"><i class="fas fa-brain"></i></div>
+                        <h3>AI-Powered Insight</h3>
+                        <p>Leveraging intelligence and data to bridge the gap between candidate effort and successful selection.</p>
+                    </div>
+                    <div class="value-card" style="--vc-color: rgba(99,102,241,.07)">
+                        <div class="value-icon" style="background: rgba(99,102,241,.12); color: #6366f1;"><i class="fas fa-shield-alt"></i></div>
+                        <h3>Trusted Quality</h3>
+                        <p>Every question is curated by subject experts, reviewed for accuracy, and mapped to the official exam syllabus.</p>
+                    </div>
+                    <div class="value-card" style="--vc-color: rgba(239,68,68,.07)">
+                        <div class="value-icon" style="background: rgba(239,68,68,.12); color: #ef4444;"><i class="fas fa-heart"></i></div>
+                        <h3>Student First</h3>
+                        <p>Every product decision is filtered through one question: does this make life easier for the student preparing for their dream?</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Experts -->
-        <section class="team-section reveal" style="padding: 6rem 0;">
+        <!-- ── JOURNEY TIMELINE ── -->
+        <section class="timeline-section reveal" aria-label="Platform journey timeline">
             <div class="container">
-                <h2 class="section-title text-center">Guidance from <span class="gradient-text">The Experts</span></h2>
-                <div class="mentor-grid grid-standard" style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <img src="https://ui-avatars.com/api/?name=Dr.+Mehra&background=4f46e5&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Dr. R.K. Mehra</h4>
-                        <p style="color: var(--primary); font-weight: 600; margin-bottom: 1rem;">Ex-IAS, Senior Mentor</p>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Providing strategic insights and interview guidance for UPSC candidates.</p>
+                <span class="section-eyebrow text-center" style="display:block"><i class="fas fa-road"></i> Our Journey</span>
+                <h2 class="section-title text-center">How NirnayPath <span class="gradient-text">Grew</span></h2>
+                <div class="timeline">
+                    <div class="tl-item right">
+                        <div class="tl-empty"></div>
+                        <div class="tl-dot"><div class="tl-dot-inner"><i class="fas fa-lightbulb"></i></div></div>
+                        <div class="tl-content">
+                            <div class="tl-year">2023 — Idea</div>
+                            <h4>The Spark</h4>
+                            <p>Frustrated by expensive test series, Saurabh Kumar starts coding the first version of NirnayPath — a free, full-length BPSC mock test engine.</p>
+                        </div>
                     </div>
-                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <img src="https://ui-avatars.com/api/?name=Anshul+T&background=ec4899&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Anshul Tiwari</h4>
-                        <p style="color: var(--secondary); font-weight: 600; margin-bottom: 1rem;">Quant Specialist</p>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Developing advanced quantitative aptitude frameworks for SSC & Banking.</p>
+                    <div class="tl-item left">
+                        <div class="tl-content">
+                            <div class="tl-year">2024 — Launch</div>
+                            <h4>Going Public</h4>
+                            <p>NirnayPath launches publicly with 500+ questions, real-time leaderboards, and detailed performance analytics. 5,000 aspirants join in the first month.</p>
+                        </div>
+                        <div class="tl-dot"><div class="tl-dot-inner"><i class="fas fa-rocket"></i></div></div>
+                        <div class="tl-empty"></div>
                     </div>
-                    <div class="mentor-card np-card" style="text-align: center; padding: 2.5rem; border-radius: var(--r-xl); background: var(--card-bg);">
-                        <img src="https://ui-avatars.com/api/?name=Priya+S&background=10b981&color=fff&size=200" loading="lazy" alt="Mentor" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1.5rem; border: 4px solid var(--bg-soft);">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Priya Sharma</h4>
-                        <p style="color: var(--success); font-weight: 600; margin-bottom: 1rem;">Current Affairs Lead</p>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Curating high-yield daily current affairs and general awareness modules.</p>
+                    <div class="tl-item right">
+                        <div class="tl-empty"></div>
+                        <div class="tl-dot"><div class="tl-dot-inner"><i class="fas fa-layer-group"></i></div></div>
+                        <div class="tl-content">
+                            <div class="tl-year">2025 — Expansion</div>
+                            <h4>Multi-Exam Platform</h4>
+                            <p>UPSC, SSC CGL, Railway, and Banking exam suites added. Question bank crosses 10,000 items. AI-powered performance intelligence goes live.</p>
+                        </div>
+                    </div>
+                    <div class="tl-item left">
+                        <div class="tl-content">
+                            <div class="tl-year">2026 — Now</div>
+                            <h4>50,000+ & Growing</h4>
+                            <p>50,000+ active aspirants. Daily mock tests, consistency heatmaps, national rankings, and adaptive question generation — all free, all live.</p>
+                        </div>
+                        <div class="tl-dot"><div class="tl-dot-inner"><i class="fas fa-trophy"></i></div></div>
+                        <div class="tl-empty"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Final CTA -->
-        <section class="cta-banner reveal">
-            <div class="cta-banner-content">
-                <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Ready to Begin Your <span class="gradient-text">Success Story?</span></h2>
-                <p style="font-size: 1.2rem; margin-bottom: 2rem;">Join over 50,000+ serious aspirants who trust NirnayPath for their daily preparation.</p>
-                <button class="cta-btn primary-btn pulse" onclick="location.href='index.html'" style="font-size: 1.1rem; padding: 1rem 2.5rem; border-radius: 99px;">
-                    Start Free Mock Test <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
-                </button>
+        <!-- ── EXPERTS ── -->
+        <section class="experts-section reveal" aria-label="Expert advisors">
+            <div class="container">
+                <span class="section-eyebrow text-center" style="display:block"><i class="fas fa-user-tie"></i> Expert Guidance</span>
+                <h2 class="section-title text-center">Guidance from <span class="gradient-text">The Experts</span></h2>
+                <div class="expert-grid">
+                    <div class="expert-card">
+                        <img class="expert-avatar"
+                             src="https://ui-avatars.com/api/?name=Dr.+Mehra&background=4f46e5&color=fff&size=200"
+                             loading="lazy" alt="Dr. R.K. Mehra">
+                        <h4>Dr. R.K. Mehra</h4>
+                        <p class="expert-role" style="color: var(--primary);">Ex-IAS, Senior Mentor</p>
+                        <p>Strategic insights and interview guidance for UPSC candidates with 20+ years of administrative experience.</p>
+                    </div>
+                    <div class="expert-card">
+                        <img class="expert-avatar"
+                             src="https://ui-avatars.com/api/?name=Anshul+T&background=ec4899&color=fff&size=200"
+                             loading="lazy" alt="Anshul Tiwari">
+                        <h4>Anshul Tiwari</h4>
+                        <p class="expert-role" style="color: var(--secondary);">Quant Specialist</p>
+                        <p>Advanced quantitative aptitude frameworks for SSC &amp; Banking, trusted by over 15,000 students.</p>
+                    </div>
+                    <div class="expert-card">
+                        <img class="expert-avatar"
+                             src="https://ui-avatars.com/api/?name=Priya+S&background=10b981&color=fff&size=200"
+                             loading="lazy" alt="Priya Sharma">
+                        <h4>Priya Sharma</h4>
+                        <p class="expert-role" style="color: var(--success);">Current Affairs Lead</p>
+                        <p>Curating high-yield daily current affairs and general awareness modules mapped to exam patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── CTA ── -->
+        <section class="about-cta-section reveal" aria-label="Call to action">
+            <div class="container">
+                <div class="about-cta-inner">
+                    <h2>Ready to Begin Your<br>Success Story?</h2>
+                    <p>Join 50,000+ serious aspirants who trust NirnayPath for their daily preparation. It's free. It's unlimited. It's built for you.</p>
+                    <div class="cta-btn-group">
+                        <a href="index.html" class="cta-btn-primary" id="about-cta-start">
+                            <i class="fas fa-play-circle"></i> Start Free Mock Test
+                        </a>
+                        <a href="index.html#features" class="cta-btn-outline" id="about-cta-explore">
+                            <i class="fas fa-compass"></i> Explore Features
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-col footer-brand">
-                <div class="footer-logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-crown"></i>
-                    </div>
-                    <div class="logo-text">
-                        <span class="logo-main">NirnayPath</span>
-                        <span class="logo-sub">Mock Test Platform</span>
-                    </div>
-                </div>
-                <p class="footer-tagline">Free. Unlimited. Realistic Mock Tests for Every Aspirant.</p>
-                <p class="footer-mission">Our mission is to democratize access to high-quality exam preparation for every competitive exam aspirant in India.</p>
-                <div class="footer-stats">
-                    <div class="stat">
-                        <i class="fas fa-users"></i>
-                        <div>
-                            <h4>50,000+</h4>
-                            <p>Aspirants</p>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-question-circle"></i>
-                        <div>
-                            <h4>10,000+</h4>
-                            <p>Questions</p>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <i class="fas fa-chart-line"></i>
-                        <div>
-                            <h4>95%</h4>
-                            <p>Success Rate</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="social-links">
-                    <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-link" title="Telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
-                </div>
-            </div>
-            
-            <div class="footer-col">
-                <h4><i class="fas fa-graduation-cap"></i> Popular Exams</h4>
-                <ul class="footer-links-list">
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> BPSC Tests</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> UPSC Tests</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> Railway Tests</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> Teaching Exams</a></li>
-                    <li><a href="#"><i class="fas fa-arrow-right"></i> State PSC Tests</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-col">
-                <h4><i class="fas fa-book-open"></i> Resources</h4>
-                <ul class="footer-links-list">
-                    <li><a href="#"><i class="fas fa-newspaper"></i> Blog & Articles</a></li>
-                    <li><a href="#"><i class="fas fa-file-pdf"></i> Study Materials</a></li>
-                    <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
-                    <li><a href="#"><i class="fas fa-trophy"></i> Success Stories</a></li>
-                    <li><a href="#"><i class="fas fa-chart-line"></i> Performance Analytics</a></li>
-                    <li><a href="#"><i class="fas fa-question-circle"></i> FAQ & Help</a></li>
-                    <li><a href="#"><i class="fas fa-download"></i> Mobile App</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-col">
-                <h4><i class="fas fa-building"></i> Company</h4>
-                <ul class="footer-links-list">
-                    <li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
-                    <li><a href="#"><i class="fas fa-envelope"></i> Contact Us</a></li>
-                    <li><a href="#"><i class="fas fa-users"></i> Our Team</a></li>
-                    <li><a href="#"><i class="fas fa-bullhorn"></i> Careers</a></li>
-                    <li><a href="#"><i class="fas fa-handshake"></i> Partnerships</a></li>
-                    <li><a href="#"><i class="fas fa-newspaper"></i> Press & Media</a></li>
-                    <li><a href="#"><i class="fas fa-star"></i> Testimonials</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-col footer-newsletter-app">
-                <h4><i class="fas fa-envelope"></i> Stay Updated</h4>
-                <p class="newsletter-desc">Get weekly exam tips, study strategies, and updates.</p>
-                <div class="newsletter">
-                    <div class="newsletter-input-group">
-                        <input type="email" placeholder="Enter your email">
-                        <button class="newsletter-btn btn-primary">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <h4 class="mt-4"><i class="fas fa-mobile-alt"></i> Download App</h4>
-                <div class="app-badges-vertical">
-                    <a href="#" class="app-badge">
-                        <i class="fab fa-google-play"></i>
-                        <div><span>GET IT ON</span><strong>Google Play</strong></div>
-                    </a>
-                    <a href="#" class="app-badge">
-                        <i class="fab fa-app-store"></i>
-                        <div><span>Download on</span><strong>App Store</strong></div>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <div class="footer-bottom-content">
-                <div class="copyright">
-                    <p>© 2026 NirnayPath — Created with <i class="fas fa-heart"></i> by Saurabh Kumar. All rights reserved.</p>
-                    <p class="copyright-note">NirnayPath is an independent platform and is not affiliated with any government exam conducting body.</p>
-                </div>
-                <div class="footer-bottom-links">
-                    <div class="footer-links">
-                        <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
-                        <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
-                        <a href="#"><i class="fas fa-cookie-bite"></i> Cookie Policy</a>
-                        <a href="#"><i class="fas fa-exclamation-triangle"></i> Disclaimer</a>
-                        <a href="#"><i class="fas fa-sitemap"></i> Sitemap</a>
-                    </div>
-                    <div class="payment-methods">
-                        <span class="payment-label">Secure Payments:</span>
-                        <div class="payment-icons">
-                            <i class="fab fa-cc-visa" title="Visa"></i>
-                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                            <i class="fab fa-cc-paypal" title="PayPal"></i>
-                            <i class="fab fa-google-pay" title="Google Pay"></i>
-                            <i class="fab fa-cc-amazon-pay" title="Amazon Pay"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <footer id="site-footer" aria-label="Site footer"></footer>
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-background"></div>

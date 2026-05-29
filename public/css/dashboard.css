@@ -15,8 +15,8 @@
 }
 
 .intel-dashboard {
-    display: grid;
-    grid-template-columns: 320px 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 25px;
     padding: 30px;
     background: var(--dash-bg);
@@ -40,16 +40,75 @@
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.12);
 }
 
-/* Sidebar Styles */
-.intel-sidebar {
+/* Header Panel Grid Styles */
+.intel-header-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .intel-header-panel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .intel-header-panel > :first-child {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .intel-header-panel {
+        grid-template-columns: 1fr;
+    }
+    .intel-header-panel > :first-child {
+        grid-column: span 1;
+    }
+}
+
+.profile-header-meta {
     display: flex;
-    flex-direction: column;
-    gap: 25px;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.profile-header-meta .profile-img {
+    margin-bottom: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.profile-name-container h2 {
+    font-size: 1.3rem;
+    margin: 0 0 4px 0;
+}
+
+.profile-name-container p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.consistency-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.consistency-header-row h3 {
+    margin: 0;
+}
+
+.consistency-header-row .streak-mini {
+    padding: 6px 12px;
+    border-radius: 12px;
+    gap: 8px;
 }
 
 .intel-profile-card {
     position: relative;
-    text-align: center;
     overflow: hidden;
 }
 

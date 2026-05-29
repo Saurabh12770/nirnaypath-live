@@ -25,37 +25,37 @@
         <i class="fas fa-spinner fa-spin fa-3x"></i>
     </div>
 
-    <div class="sidebar">
-        <div class="sidebar-header">
+    <header class="admin-topbar">
+        <div class="topbar-brand">
             <h3>NirnayPath Admin</h3>
+            <button class="menu-toggle" id="admin-menu-toggle" onclick="document.querySelector('.sidebar-nav').classList.toggle('mobile-active')">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        <div class="sidebar-nav">
-            <div class="nav-item active" id="nav-analytics">
+        <nav class="sidebar-nav">
+            <div class="nav-item active" id="nav-analytics" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-chart-line"></i> Analytics
             </div>
-            <div class="nav-item" id="nav-questions">
+            <div class="nav-item" id="nav-questions" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-question-circle"></i> Questions
             </div>
-            <div class="nav-item" id="nav-users">
+            <div class="nav-item" id="nav-users" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-users"></i> Users
             </div>
-            <div class="nav-item" id="nav-payments">
+            <div class="nav-item" id="nav-payments" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-credit-card"></i> Payments
             </div>
-            <div class="nav-item" id="nav-live-sessions">
+            <div class="nav-item" id="nav-live-sessions" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-video"></i> Live Sessions
             </div>
-            
-            <div class="nav-item" id="nav-telemetry">
+            <div class="nav-item" id="nav-telemetry" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-satellite-dish"></i> Telemetry
             </div>
-        </div>
-        <div class="sidebar-footer">
-            <div class="nav-item" id="nav-home">
+            <div class="nav-item" id="nav-home" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-home"></i> Back to Site
             </div>
-        </div>
-    </div>
+        </nav>
+    </header>
 
     <main class="main-content">
         <div class="content-header">
@@ -288,7 +288,7 @@
             
             <div class="admin-card" style="margin-top: 20px;">
                 <h3><i class="fas fa-chart-area"></i> System Memory Trend</h3>
-                <div style="height: 300px; width: 100%;">
+                <div class="chart-container">
                     <canvas id="memoryTrendChart"></canvas>
                 </div>
             </div>
