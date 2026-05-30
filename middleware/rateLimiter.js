@@ -59,6 +59,26 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
             return next();
         }
 
+        // 2. Critical Path Exemption Layer (Zero-429 Guarantee for key business flows)
+        const normalizedPath = ((req.baseUrl || '') + (req.path || req.url || '')).toLowerCase().split('?')[0].replace(/\/$/, '');
+        const isCriticalRoute = 
+            normalizedPath.startsWith('/api/auth') ||
+            normalizedPath === '/api/test/start' ||
+            normalizedPath === '/api/test/submit' ||
+            normalizedPath === '/api/test/heartbeat' ||
+            normalizedPath === '/api/user/me';
+
+        console.log(`[RateLimiter] tierName=${tierName} path=${normalizedPath} ip=${clientIp} isCritical=${isCriticalRoute}`);
+
+        if (isCriticalRoute) {
+            const isLoginOrSignup = normalizedPath === '/api/auth/login' || normalizedPath === '/api/auth/signup';
+            if (tierName === 'auth' && isLoginOrSignup) {
+                // Brute-force protection: allow AUTH_LIMITER to monitor credentials endpoints
+            } else {
+                return next();
+            }
+        }
+
         // Resolve maximum limits dynamically (allows live adjustments)
         const maxLimit = typeof maxLimitLoader === 'function' ? maxLimitLoader() : maxLimitLoader;
         const key = `rate_limit:${tierName}:${clientIp}`;
@@ -114,7 +134,6 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
                 ttlLeftMs = record.resetTime - now;
             }
         }
-
         // Set standard rate limiting headers
         const remaining = Math.max(0, maxLimit - currentCount);
         res.setHeader('X-RateLimit-Limit', maxLimit);
@@ -125,6 +144,10 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
         if (currentCount > maxLimit) {
             logger.warn(`[RATE_LIMIT_BLOCKED] Client blocked on tier="${tierName}": ip="${clientIp}" (req count: ${currentCount}/${maxLimit})`);
             
+            // Compute Retry-After in whole seconds (required by RFC 7231)
+            const retryAfterSec = Math.ceil(ttlLeftMs / 1000);
+            res.setHeader('Retry-After', retryAfterSec);
+
             return res.status(429).json({
                 success: false,
                 error: 'Too many requests. Please try again later.',
@@ -147,7 +170,7 @@ const parseEnvInt = (value, defaultValue) => {
 const generalLimiter = createRateLimiter(
     'general',
     15 * 60 * 1000, // 15 minutes
-    () => parseEnvInt(process.env.RATE_LIMIT_MAX, 100)
+    () => parseEnvInt(process.env.RATE_LIMIT_MAX, 200)
 );
 
 // Authentication Endpoint Rate Limiter
@@ -164,9 +187,30 @@ const paymentLimiter = createRateLimiter(
     () => parseEnvInt(process.env.PAYMENT_LIMIT_MAX, 15)
 );
 
+// Telemetry Rate Limiter
+// Telemetry is a high-frequency internal endpoint — it must not compete with
+// the general /api/ quota (100 req/15min shared across ALL endpoints).
+// Client patch (v4.1) sends max 1 req/30s = max 30 req/15min per tab.
+// Allowing 60 per window gives headroom for 2 concurrent tabs safely.
+const telemetryLimiter = createRateLimiter(
+    'telemetry',
+    15 * 60 * 1000, // 15 minutes
+    () => parseEnvInt(process.env.TELEMETRY_LIMIT_MAX, 60)
+);
+
+// Test Engine Rate Limiter
+// Dedicated bucket for test engine non-exempt routes, default: 100 req / 15 min.
+const testEngineLimiter = createRateLimiter(
+    'test',
+    15 * 60 * 1000, // 15 minutes
+    () => parseEnvInt(process.env.TEST_LIMIT_MAX, 100)
+);
+
 module.exports = {
     createRateLimiter,
     generalLimiter,
     authLimiter,
-    paymentLimiter
+    paymentLimiter,
+    telemetryLimiter,
+    testEngineLimiter
 };

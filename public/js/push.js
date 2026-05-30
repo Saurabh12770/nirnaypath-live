@@ -1,4 +1,4 @@
-﻿/* push.js - Handles push notification subscription */
+/* push.js - Handles push notification subscription */
 
 const PushManager = {
     publicVapidKey: 'BNUaS5vSyhaHFhm2k0dXnO1sS3Y-WfWbN7PjrxmaNdtr-gwGCbT64DcgYgBhIKxgIi5c3ySUheGlcJTyhpQ9K5I',
@@ -12,17 +12,15 @@ const PushManager = {
 
     async registerServiceWorker() {
         try {
-            const register = await navigator.serviceWorker.register('/service-worker.js', {
-                scope: '/'
-            });
-            console.log('Service Worker Registered');
+            const register = await navigator.serviceWorker.ready;
+            console.log('Service Worker ready for push notifications');
 
             // If user is logged in, try to subscribe
             if (Auth.isLoggedIn()) {
                 this.checkSubscription(register);
             }
         } catch (error) {
-            console.error('Service Worker Registration Error:', error);
+            console.error('Service Worker Ready Query Error:', error);
         }
     },
 

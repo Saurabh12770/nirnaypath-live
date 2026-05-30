@@ -9,14 +9,48 @@ window.AppLifecycle = {
         this.initQueue = [];
     },
 
-    boot() {
-        this.initQueue.forEach(fn => {
+    async boot() {
+        // 1. AUTH READY: Initialize authentication first and wait for it
+        if (window.Auth && typeof window.Auth.init === 'function') {
             try {
-                fn();
+                await window.Auth.init();
             } catch (e) {
-                console.error("Init error:", e);
+                console.error("Auth init failed:", e);
             }
+        }
+
+        // 2. STATE READY: Run other initializers and mark state ready
+        const remainingInits = this.initQueue.filter(fn => {
+            const fnStr = fn.toString();
+            return !fnStr.includes('Auth.init');
         });
+
+        for (const fn of remainingInits) {
+            try {
+                const res = fn();
+                if (res instanceof Promise) await res;
+            } catch (e) {
+                console.error("Initializer failed:", e);
+            }
+        }
+
+        if (window.UIState) {
+            window.UIState.setReady();
+        }
+
+        // 3. ROUTE READY: Wait for routing/navigation and session checks to settle
+        if (window.checkExistingTestSession) {
+            try {
+                await window.checkExistingTestSession();
+            } catch (e) {
+                console.error("checkExistingTestSession failed:", e);
+            }
+        }
+
+        // 4. RENDER: Allow RenderController to boot and flush rendering to DOM
+        if (window.RenderController) {
+            window.RenderController.boot();
+        }
     }
 };
 
@@ -26,14 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 window.addEventListener("beforeunload", () => {
     AppLifecycle.reset();
-});
-
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        if (window.UIState) {
-            UIState.setReady();
-        }
-    }, 50);
 });
 
 // Safe window.showToast fallback definition

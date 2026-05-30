@@ -1,4 +1,4 @@
-﻿window.UIState = {
+window.UIState = {
     ready: false,
     listeners: [],
 
@@ -13,9 +13,6 @@
             }
         });
         this.listeners = []; // Clear queue after execution
-
-        // IMPORTANT: flush render queue AFTER UI is stable
-        if (window.RenderController) window.RenderController.boot();
     },
 
     onReady(fn) {

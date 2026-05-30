@@ -1,8 +1,8 @@
 /* NirnayPath Service Worker — Phase 5 Stabilized Cache Strategy */
 'use strict';
 
-/* ── Cache versioning: bump to force purge of stale v12 assets ── */
-const CACHE_VERSION  = 'nirnaypath-v13';
+/* ── Cache versioning: bump to force purge of stale v13 assets ── */
+const CACHE_VERSION  = 'nirnaypath-v14';
 const STATIC_CACHE   = `${CACHE_VERSION}-static`;
 const API_CACHE      = `${CACHE_VERSION}-api`;
 const DYNAMIC_CACHE  = `${CACHE_VERSION}-dynamic`;
@@ -102,6 +102,13 @@ self.addEventListener('fetch', event => {
     // Learning sync endpoint — always network, never cache
     if (url.pathname === '/api/learning/sync') return;
 
+    // ── PHASE 3 SAFETY RULES: NEVER cache critical API routes ──
+    const isCriticalRoute = 
+        url.pathname.startsWith('/api/auth/') ||
+        url.pathname.startsWith('/api/user/') ||
+        url.pathname.startsWith('/api/test/');
+    if (isCriticalRoute) return;
+
     // ── Phase 5: HTML pages → Network-First ──────────────────────
     const isHTMLPage = HTML_PAGES.includes(url.pathname) ||
                        url.pathname === '/' ||
@@ -129,124 +136,6 @@ self.addEventListener('fetch', event => {
     if (url.pathname.startsWith('/api/')) return;
 
     // Remaining static assets — cache-first
-    event.respondWith(cacheFirstWithNetworkFallback(request));
-});
-
-/* ─── Assets to pre-cache on install ──────────────────────────────────── */
-const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/about.html',
-    '/test.html',
-    '/mobile-app-shell.html',
-    '/style.css',
-    '/script.js',
-    '/manifest.json',
-    '/logo.png',
-    '/js/auth.js',
-    '/js/dashboard.js',
-    '/js/push.js',
-    '/js/app.js',
-    '/js/offlineStorage.js'
-];
-
-/* ─── API routes eligible for network-first caching ─────────────────── */
-const NETWORK_FIRST_PATTERNS = [
-    '/api/questions/',
-    '/api/drill/',
-    '/api/section/',
-    '/api/learning/',
-    '/api/recommendations'
-];
-
-/* ─── Install: pre-cache all static assets ───────────────────────────── */
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(STATIC_CACHE)
-            .then(cache => {
-                console.log('[SW] Pre-caching static assets...');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => self.skipWaiting()) // Take control immediately
-    );
-});
-
-/* ─── Activate: purge stale caches ───────────────────────────────────── */
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(keys => {
-            // Include legacy cache explicitly to ensure complete purge
-            const legacyCache = 'nirnaypath-cbt-v1';
-            const keysToDelete = keys.filter(key => key !== STATIC_CACHE && key !== API_CACHE);
-            if (keys.includes(legacyCache) && !keysToDelete.includes(legacyCache)) {
-                keysToDelete.push(legacyCache);
-            }
-            return Promise.all(
-                keysToDelete.map(key => {
-                    console.log('[SW] Deleting stale cache:', key);
-                    return caches.delete(key);
-                })
-            );
-        }).then(() => self.clients.claim()) // Take control of existing clients
-    );
-});
-
-/* ─── Fetch: routing strategy ────────────────────────────────────────── */
-self.addEventListener('fetch', event => {
-    const { request } = event;
-    const url = new URL(request.url);
-
-    // ── NETWORK STABILIZATION GUARD ──────────────────────────────────────
-    // NEVER intercept mutation requests (POST, PUT, DELETE, PATCH).
-    // Intercepting them would corrupt idempotency guarantees on heartbeat,
-    // test submission, telemetry, push subscription, and payment endpoints.
-    if (request.method !== 'GET') return;
-
-    // Skip chrome-extension and non-http(s) protocols
-    if (url.protocol.startsWith('chrome') || !url.protocol.startsWith('http')) return;
-
-    // ── EXTERNAL CDN BYPASS ──────────────────────────────────────────────
-    // Do not cache or intercept requests to external CDNs. Intercepting them
-    // can lead to CORS/ORB issues or stale CDN assets.
-    const externalCDNs = [
-        'fonts.googleapis.com',
-        'fonts.gstatic.com',
-        'cdnjs.cloudflare.com',
-        'jsdelivr.net',
-        'cdn.jsdelivr.net'
-    ];
-    const isExternalCDN = externalCDNs.some(cdn => url.hostname === cdn || url.hostname.endsWith('.' + cdn));
-    if (isExternalCDN) {
-        return;
-    }
-
-    // ── EXPLICIT TELEMETRY BYPASS ─────────────────────────────────────────
-    // Telemetry reports must always reach the server fresh — never serve
-    // from cache and never queue them through the SW fetch pipeline.
-    // (They are POST requests so the guard above already covers this, but
-    // this named bypass makes the intent explicit for future maintainers.)
-    if (url.pathname.startsWith('/api/telemetry/')) {
-        return;
-    }
-
-    // Learning sync endpoint — always network, never cache
-    if (url.pathname === '/api/learning/sync') {
-        return;
-    }
-
-    // Network-first for eligible API routes
-    const isNetworkFirst = NETWORK_FIRST_PATTERNS.some(p => url.pathname.startsWith(p));
-    if (isNetworkFirst) {
-        event.respondWith(networkFirstWithCache(request, API_CACHE, 300)); // 5 min TTL
-        return;
-    }
-
-    // Skip all other /api/ routes (auth, payment, admin) — always fresh from network
-    if (url.pathname.startsWith('/api/')) {
-        return;
-    }
-
-    // Cache-first with network fallback for static assets
     event.respondWith(cacheFirstWithNetworkFallback(request));
 });
 

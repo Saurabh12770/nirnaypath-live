@@ -68,6 +68,12 @@ router.post('/start', auth, async (req, res) => {
         const sanitizedQuestions = sanitizeForClient(finalQuestions);
         const warning = warnings && warnings.length > 0 ? warnings[0] : null;
 
+        // Deactivate any existing active session for the user before starting a new one
+        await TestSession.updateMany(
+            { userId: req.user._id, status: 'active' },
+            { $set: { status: 'expired' } }
+        );
+
         // 2. Atomic Session Creation
         const session = new TestSession({
             userId: req.user._id,
@@ -134,7 +140,16 @@ router.post('/submit', auth, async (req, res) => {
         );
         
         if (!session) {
-            const existingResult = await TestResult.findOne({ sessionId, userId: req.user._id });
+            // SRE: Retry mechanism for duplicate submission race condition.
+            // If another request is currently processing the submit flow, the TestResult might
+            // not be saved yet. We poll up to 5 times (total 1 second) to allow it to finish.
+            let existingResult = null;
+            for (let i = 0; i < 5; i++) {
+                existingResult = await TestResult.findOne({ sessionId, userId: req.user._id });
+                if (existingResult) break;
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
             if (existingResult) {
                 return res.status(200).json({ 
                     message: 'Test result saved successfully', 

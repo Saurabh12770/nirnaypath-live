@@ -199,6 +199,16 @@ async function startCBT(isResume = false) {
         _cbtStartLock = false;
         return;
     }
+
+    // CBT GATING: Verify the session status with the server BEFORE rendering anything or starting timers
+    clearInterval(timerInterval);
+    clearInterval(heartbeatInterval);
+    const syncSuccess = await forceServerSync();
+    if (!syncSuccess || !testState || !testState.isActive) {
+        _cbtStartLock = false;
+        return;
+    }
+
     _cbtStarted = true;
 
     if (window.RealTime) {
@@ -222,17 +232,6 @@ async function startCBT(isResume = false) {
     initAntiCheat();
     bindCBTControls();
 
-    // CBT-TIMER-01 FIX: await the server sync BEFORE starting the interval.
-    // Without await, the timer begins on the client's stale timeLeft while
-    // the server correction is still in-flight — causing the clock to show
-    // the wrong value and potentially firing submit before time is confirmed.
-    clearInterval(timerInterval);
-    clearInterval(heartbeatInterval);
-    await forceServerSync();
-    if (!testState || !testState.isActive) {
-        _cbtStartLock = false;
-        return;
-    }
     timerInterval = setInterval(localTimerTick, 1000);
     heartbeatInterval = setInterval(heartbeatPing, 10000);
     
@@ -331,6 +330,7 @@ async function increaseRiskScore(points, type) {
 }
 
 function terminateTest(reason) {
+    if (!testState || !testState.isActive) return;
     testState.isActive = false;
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
@@ -369,23 +369,62 @@ function updateTimerDisplay() {
 }
 
 async function forceServerSync() {
-    if (!testState.isActive) return;
+    if (!testState || !testState.isActive) return false;
     try {
         const token = Auth.getToken();
         const res = await fetch(`/api/test/sync/${testState.sessionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (res.ok) {
             const data = await res.json();
-            if (data.isExpired || data.status !== 'active') {
-                testState.timeLeft = 0; executeSubmitFlow(true);
+            if (data.status === 'submitted') {
+                testState.isActive = false;
+                clearInterval(timerInterval);
+                clearInterval(heartbeatInterval);
+                sessionStorage.removeItem('cbt-active');
+                sessionStorage.removeItem('cbt-active-session');
+                localStorage.removeItem('mockTestState');
+                
+                document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
+                const termOverlay = document.getElementById('terminated-overlay');
+                if (termOverlay) {
+                    termOverlay.classList.add('active');
+                    document.getElementById('terminate-title').textContent = 'Test Submitted';
+                    document.getElementById('terminate-message').textContent = 'Your responses have been saved securely.';
+                    const termIcon = document.getElementById('terminate-icon');
+                    if (termIcon) {
+                        termIcon.className = 'fas fa-check-circle terminate-icon';
+                        termIcon.style.color = '#10b981';
+                    }
+                }
+                return false;
+            } else if (data.isExpired || data.status !== 'active') {
+                testState.timeLeft = 0;
+                await executeSubmitFlow(true);
+                return false;
             } else {
-                testState.timeLeft = data.timeLeft; updateTimerDisplay();
+                testState.timeLeft = data.timeLeft;
+                updateTimerDisplay();
+                return true;
             }
+        } else {
+            // Session is not found or invalid
+            alert("Session validation failed. Returning to dashboard.");
+            testState.isActive = false;
+            clearInterval(timerInterval);
+            clearInterval(heartbeatInterval);
+            localStorage.removeItem('mockTestState');
+            sessionStorage.removeItem('cbt-active');
+            sessionStorage.removeItem('cbt-active-session');
+            window.location.href = '/index.html';
+            return false;
         }
-    } catch(err){}
+    } catch(err){
+        console.warn("[SYNC] Network error, continuing with local timer state.");
+        return true; // resilient fallback for temporary network errors
+    }
 }
 
 async function heartbeatPing() {
-    if (!testState.isActive) return;
+    if (!testState || !testState.isActive || _submitExecuting || _isSubmitInProgress) return;
     
     localStorage.setItem('mockTestState', JSON.stringify(testState)); // Local fallback cache
     
@@ -413,6 +452,9 @@ async function heartbeatPing() {
             body: JSON.stringify(payload)
         });
         
+        // Late guard in case submission started while the network request was in-flight
+        if (!testState.isActive || _submitExecuting || _isSubmitInProgress) return;
+
         if (res.ok) {
             isHeartbeatFailing = false;
             const data = await res.json();
@@ -422,7 +464,9 @@ async function heartbeatPing() {
                 if (Math.abs(testState.timeLeft - data.timeLeft) > 3) testState.timeLeft = data.timeLeft;
             }
         } else {
-            if (res.status === 403) terminateTest("Session terminated by server.");
+            if (res.status === 403 || res.status === 404 || res.status === 401) {
+                terminateTest("Session terminated by server.");
+            }
         }
     } catch(err) {
         console.warn("[HEARTBEAT] Connection failed. Running in isolated mode.");
@@ -669,6 +713,9 @@ async function executeSubmitFlow(isForced) {
     _submitExecuting = true;
     _isSubmitInProgress = true; // ensure flag is set for forced/timer submits too
 
+    const confirmBtn = document.getElementById('btn-confirm-submit');
+    if (confirmBtn) confirmBtn.disabled = true;
+
     clearInterval(timerInterval);
     clearInterval(heartbeatInterval);
     testState.isActive = false;
@@ -766,6 +813,8 @@ async function executeSubmitFlow(isForced) {
         }
     } catch (err) {
         _submitExecuting = false;
+        const confirmBtn = document.getElementById('btn-confirm-submit');
+        if (confirmBtn) confirmBtn.disabled = false;
         console.error("Submit failed", err);
         alert("Network error during submission. Results are saved locally and will sync when connection restores.");
     }

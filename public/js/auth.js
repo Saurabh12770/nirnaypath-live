@@ -381,5 +381,6 @@ const Auth = {
     }
 };
 
+window.Auth = Auth;
 AppLifecycle.register(() => Auth.init());
 

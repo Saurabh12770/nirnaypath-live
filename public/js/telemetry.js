@@ -1,12 +1,24 @@
 /* ============================================================
-   NirnayPath Telemetry Engine — Phase 4 Stabilized
+   NirnayPath Telemetry Engine — v4.1 Emergency Stabilized
+   ✅ Singleton guard (no double-init on multi-page loads)
    ✅ Tab-Visibility Pause (no sampling on hidden tabs)
    ✅ Idle Detection (throttle after 3 min inactivity)
    ✅ Exponential Backoff on 429 (Retry-After compliance)
    ✅ Self-tracking loop guard
+   ✅ [PATCH v4.1] Memory sampler: 10s → 60s  (6x reduction)
+   ✅ [PATCH v4.1] Main flush interval: 15s → 30s (2x reduction)
+   ✅ [PATCH v4.1] Min flush cooldown: 10s → 30s (3x reduction)
+   ✅ [PATCH v4.1] Post-resume grace period: 5s backoff on tab-visible
+   ✅ [PATCH v4.1] Idle flush: 60s → 120s
    ============================================================ */
 (function() {
     'use strict';
+
+    /* ── Singleton Guard ────────────────────────────────────────
+       Prevents re-execution if telemetry.js is loaded more than
+       once in the same browsing context (e.g. multi-page MPA). */
+    if (window.__NirnayTelemetryLoaded) return;
+    window.__NirnayTelemetryLoaded = true;
 
     /* ── State ─────────────────────────────────────────────── */
     const queue = [];
@@ -14,11 +26,11 @@
     const sessionStart = Date.now();
     let isShuttingDown = false;
 
-    // ── Phase 4: Backoff state ────────────────────────────────
+    // ── Backoff state ─────────────────────────────────────────
     let backoffUntil = 0;          // timestamp — don't flush before this
     let backoffMultiplier = 1;     // grows on consecutive 429s
 
-    // ── Phase 4: Idle detection ───────────────────────────────
+    // ── Idle detection ────────────────────────────────────────
     const IDLE_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
     let lastActivityAt = Date.now();
     let isIdle = false;
@@ -36,7 +48,7 @@
         window.addEventListener(evt, resetIdleTimer, { passive: true });
     });
 
-    // Periodically check idle state
+    // Periodically check idle state (kept at 30s — low cost)
     setInterval(() => {
         if (!isIdle && (Date.now() - lastActivityAt) > IDLE_THRESHOLD_MS) {
             isIdle = true;
@@ -58,6 +70,11 @@
     let lastFlushTime = 0;
     let flushTimeout = null;
 
+    // [PATCH v4.1] MINIMUM_FLUSH_INTERVAL raised from 10s → 30s
+    // This is the primary throttle. Even if events arrive rapidly,
+    // we will never POST more than once per 30 seconds.
+    const MINIMUM_FLUSH_INTERVAL_MS = 30000;
+
     function track(type, payload) {
         if (isShuttingDown && type !== 'session_end') return;
         queue.push({ type, timestamp: Date.now(), ...payload });
@@ -65,11 +82,11 @@
     }
 
     function shouldSuppressFlush() {
-        // ── Phase 4: Suppress if tab is hidden
+        // Suppress if tab is hidden
         if (document.visibilityState === 'hidden') return true;
-        // ── Phase 4: Suppress during backoff window
+        // Suppress during backoff window
         if (Date.now() < backoffUntil) return true;
-        // ── Phase 4: Suppress if idle (reduce to 1-per-min max)
+        // Suppress if idle (main interval also gates on !isIdle)
         if (isIdle) return true;
         return false;
     }
@@ -77,12 +94,13 @@
     function throttleFlush() {
         if (shouldSuppressFlush()) return;
         const now = Date.now();
-        if (now - lastFlushTime < 10000) {
+        // [PATCH v4.1] Hard minimum: 30s between any two flushes
+        if (now - lastFlushTime < MINIMUM_FLUSH_INTERVAL_MS) {
             if (!flushTimeout) {
                 flushTimeout = setTimeout(() => {
                     flushTimeout = null;
                     flush();
-                }, 10000 - (now - lastFlushTime));
+                }, MINIMUM_FLUSH_INTERVAL_MS - (now - lastFlushTime));
             }
             return;
         }
@@ -116,11 +134,13 @@
             });
 
             if (response.status === 429) {
-                // ── Phase 4: Parse Retry-After and apply exponential backoff
-                const retryAfter = parseInt(response.headers.get('Retry-After') || '15', 10);
+                // Parse Retry-After and apply exponential backoff.
+                // [PATCH v4.1] Use Retry-After as the BASE (not multiplied before min),
+                // ensuring the first retry is at least as long as the server requests.
+                const retryAfter = parseInt(response.headers.get('Retry-After') || '30', 10);
                 const backoffSeconds = Math.min(retryAfter * backoffMultiplier, 300); // cap at 5 min
                 backoffUntil = Date.now() + (backoffSeconds * 1000);
-                backoffMultiplier = Math.min(backoffMultiplier * 1.5, 16); // cap multiplier
+                backoffMultiplier = Math.min(backoffMultiplier * 1.5, 16);
                 if (window.logDiagnostic) window.logDiagnostic('telemetry:429:backoff:' + backoffSeconds + 's');
                 // Return dropped events to queue front so they aren't lost
                 queue.unshift(...payload.events);
@@ -183,10 +203,12 @@
         }
     };
 
-    /* ── 3. Memory & DOM Size Sampling ─────────────────────
-       Phase 4: Skip when hidden OR idle to prevent 429 spam   */
+    /* ── 3. Memory & DOM Size Sampling ───────────────────────
+       [PATCH v4.1] Interval raised from 10s → 60s.
+       Previously: 2 events every 10s = 12 events/min = 1 flush/min minimum.
+       Now:        2 events every 60s = 2 events/min = 1 flush per ~15 min.   */
     setInterval(() => {
-        // Phase 4: Do not sample on hidden tabs or idle sessions
+        // Do not sample on hidden tabs or idle sessions
         if (document.visibilityState === 'hidden' || isIdle) return;
 
         if (performance && performance.memory) {
@@ -195,7 +217,7 @@
             track('memory_unsupported', {});
         }
         track('listener_count', { count: document.getElementsByTagName('*').length });
-    }, 10000);
+    }, 60000); // [PATCH v4.1] was 10000
 
     /* ── 4. Long Tasks ───────────────────────────────────── */
     if ('PerformanceObserver' in window) {
@@ -230,28 +252,40 @@
         handleRouteEnd(window.location.pathname);
     });
 
-    /* ── Periodic flush (Phase 4: gated by suppression logic) */
+    /* ── Periodic flush ───────────────────────────────────────
+       [PATCH v4.1] Interval raised from 15s → 30s.
+       Combined with MINIMUM_FLUSH_INTERVAL_MS=30s, this means
+       the absolute maximum rate is 1 POST per 30 seconds.         */
     setInterval(() => {
         if (!isIdle) throttleFlush();
-    }, 15000);
+    }, 30000); // [PATCH v4.1] was 15000
 
-    /* ── Phase 4: Idle-friendly slow flush (once per minute) */
+    /* ── Idle-friendly slow flush ─────────────────────────────
+       [PATCH v4.1] Interval raised from 60s → 120s.              */
     setInterval(() => {
         if (isIdle && queue.length > 0 && !shouldSuppressFlush()) {
             flush();
         }
-    }, 60000);
+    }, 120000); // [PATCH v4.1] was 60000
 
-    /* ── Tab Visibility (Phase 4: full pause + resume logic) */
+    /* ── Tab Visibility ───────────────────────────────────────
+       [PATCH v4.1] On tab-visible resume, apply a 5-second
+       grace period before allowing any flush. This prevents the
+       immediate POST storm that occurred when the user switched
+       back to the tab (memory sampler would fire within seconds
+       of resume and immediately trigger throttleFlush).            */
     window.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
             track('session_end', { duration: Date.now() - sessionStart });
             isShuttingDown = true;
             beaconFlush();
         } else if (document.visibilityState === 'visible') {
-            // Tab became visible again — resume session
+            // Tab became visible again — resume session with grace period
             isShuttingDown = false;
             resetIdleTimer();
+            // [PATCH v4.1] Apply 5s grace period to absorb first-frame events
+            // without immediately flushing to the server.
+            backoffUntil = Math.max(backoffUntil, Date.now() + 5000);
             if (window.logDiagnostic) window.logDiagnostic('telemetry:tab-visible-resume');
         }
     });

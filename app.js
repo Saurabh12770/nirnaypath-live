@@ -228,7 +228,15 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-const { generalLimiter } = require('./middleware/rateLimiter');
+const { generalLimiter, telemetryLimiter, testEngineLimiter } = require('./middleware/rateLimiter');
+
+// Telemetry gets its own isolated rate-limit tier (60 req/15min)
+app.use('/api/telemetry', telemetryLimiter);
+app.use('/api/v1/telemetry', telemetryLimiter);
+
+// Test Engine gets its own isolated rate-limit tier (100 req/15min)
+app.use('/api/test', testEngineLimiter);
+
 app.use('/api/', generalLimiter);
 
 // Routes

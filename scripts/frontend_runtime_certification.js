@@ -108,7 +108,7 @@ console.log(`\n${BOLD}── CHECK 3: Service Worker Cache Strategy (Phase 5) �
     if (!sw) { fail('service-worker.js not found'); }
     else {
         const checks = [
-            ['Cache version is v13 (purges stale v12)', /nirnaypath-v13/],
+            ['Cache version is v14 (purges stale v13)', /nirnaypath-v14/],
             ['HTML pages array defined',                /const HTML_PAGES\s*=/],
             ['SWR_EXTENSIONS array defined',            /const SWR_EXTENSIONS\s*=/],
             ['networkFirstHTML function defined',       /async function networkFirstHTML/],

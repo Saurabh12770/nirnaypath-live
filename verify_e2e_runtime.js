@@ -58,15 +58,8 @@ async function waitForSpinnerHidden(page) {
         await page.reload({ waitUntil: 'domcontentloaded' });
         // Allow requestIdleCallback to fire and register Chatbot.init() with UIState
         await delay(1000);
-        // In headless mode, external CDN resources (FontAwesome, MathJax, Google Fonts)
-        // are slow/blocked, which delays the window `load` event indefinitely.
-        // UIState.setReady() is only called on `load`, so force it here if not already done.
-        await page.evaluate(() => {
-            if (window.UIState && !window.UIState.ready) {
-                console.log('[E2E] Forcing UIState.setReady() — CDN resources delayed load event');
-                window.UIState.setReady();
-            }
-        });
+        // Wait for the app's sequential boot flow to complete Auth initialization and event binding
+        await page.waitForFunction(() => window.Auth && window.Auth.eventListenersSetup === true, { timeout: 10000 });
         await delay(500); // Allow RenderController to flush chatbot DOM injection
         console.log('✔ Anonymous Homepage loaded successfully.');
 
