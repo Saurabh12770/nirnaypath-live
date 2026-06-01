@@ -1,0 +1,1899 @@
+{
+  "consoleLogs": [
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "info",
+      "text": "Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner."
+    },
+    {
+      "type": "log",
+      "text": "SW registered: http://localhost:3000/"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "info",
+      "text": "Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner."
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 503 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "info",
+      "text": "Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner."
+    }
+  ],
+  "consoleErrors": [
+    {
+      "severity": "HIGH",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "source": "console"
+    },
+    {
+      "severity": "HIGH",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "source": "console"
+    },
+    {
+      "severity": "HIGH",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "source": "console"
+    },
+    {
+      "severity": "HIGH",
+      "text": "Failed to load resource: the server responded with a status of 503 ()",
+      "source": "console"
+    },
+    {
+      "severity": "HIGH",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "source": "console"
+    }
+  ],
+  "networkRequests": [
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/lifecycle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/uiState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/style.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/chatbot.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/dashboard.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/renderController.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/appState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/asyncManager.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/authStore.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero1.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/auth.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/utils.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/intelligence.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/realtime.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/dashboard.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/push.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/app.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/chatbot.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/assets/founder.jpeg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/events.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/telemetry.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/script.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/socket.io/socket.io.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/manifest.json?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout.razorpay.com/v1/checkout.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.jsdelivr.net/npm/chart.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml;utf8,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"2\" cy=\"2\" r=\"2\" fill=\"rgba(255,255,255,0.05)\"/></svg>",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/api/user/me",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://api.razorpay.com/v1/checkout/public?traffic_env=production&build=c754096205a48a33d3633b3023c94000971ba8d7&build_v1=da4ee3f43a28ad81dba8ed06daf899a4520c691f&checkout_v2=1&new_session=1&unified_session_id=SvdnWwboqcHm0U",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.razorpay.com/static/cx/razorpay-risk-detection/bundle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero2.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/Home_hero3.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero4.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero5.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero6.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero7.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero8.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcviYwY.woff2",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "https://lumberjack.razorpay.com/v2/logz",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcvsYwYL8g.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/c754096205a48a33d3633b3023c94000971ba8d7/v2-entry.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/index.html",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/lifecycle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/uiState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/renderController.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/appState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/asyncManager.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/authStore.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/style.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero1.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/chatbot.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/dashboard.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.jsdelivr.net/npm/chart.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/assets/founder.jpeg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/telemetry.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/utils.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/auth.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/intelligence.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/realtime.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/dashboard.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/push.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/script.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/app.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/chatbot.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/events.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/socket.io/socket.io.js",
+      "status": 304
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcvsYwYL8g.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcviYwY.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml;utf8,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"2\" cy=\"2\" r=\"2\" fill=\"rgba(255,255,255,0.05)\"/></svg>",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/manifest.json?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout.razorpay.com/v1/checkout.js",
+      "status": 304
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.razorpay.com/static/cx/razorpay-risk-detection/bundle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/api/user/me",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "url": "https://api.razorpay.com/v1/checkout/public?traffic_env=production&build=c754096205a48a33d3633b3023c94000971ba8d7&build_v1=da4ee3f43a28ad81dba8ed06daf899a4520c691f&checkout_v2=1&new_session=1&rzp_device_id=1.2fe13ea724947f377470471c2c842ec528efc7f7.1780158365711.20021926&unified_session_id=SvdnWwboqcHm0U",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "https://lumberjack.razorpay.com/v2/logz",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero2.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/Home_hero3.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero4.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero5.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero6.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero7.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero8.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/c754096205a48a33d3633b3023c94000971ba8d7/v2-entry.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2.9f73ca9d.32143.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-loader-eebe73ca.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-22f9bbfe.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-d3a7c88e.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-c4908e31.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-24654d4c.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-app-85252e6d.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/icons/icon-192x192.png",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/favicon.ico",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-a49c05c2.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f9a15b0a.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-19e35d03.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-da1fe57b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-179bb19a.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-1369ed27.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-70aec872.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-fa5c72f7.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-94be187d.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-2061d9a0.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-7b0c2d80.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-12bd7436.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-0e08afce.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-5af8821c.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-card-b7f11def.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-5166cd64.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-3ff1baf1.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f2bbf6bf.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-3c2642bc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f5828ff2.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-a45899de.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-checkout-payment-3fb61e73.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-card-block-5d08a713.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-c950b4ae.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-94f944c8.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-method-button-16ff0829.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-button-98e460fc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-72db346f.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-qr-ce814fcd.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-emi-block-dfc57449.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-block-4657b651.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-netbanking-block-b33f0304.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-wallet-block-a3905b9b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-otp-e3c3ea26.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-paylater-block-acede8a9.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-nach-block-22478978.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-analytics-43a02261.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-icon-common-33e4ee5b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-icon-common0-17d40644.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-standard-icon-common-339ee233.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/about.html",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/lifecycle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/style.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/uiState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/renderController.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/chatbot.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/authStore.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/auth.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/about_hero1.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/utils.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/app.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/founder.jpeg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/manifest.json?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1JlFc-K.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/telemetry.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/chatbot.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/api/user/me",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/icons/icon-192x192.png",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/about_hero2.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/about_hero3.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/about_hero4.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7SUc.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/index.html",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/lifecycle.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/uiState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/renderController.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/authStore.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/style.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/chatbot.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/telemetry.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/utils.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/auth.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/app.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/chatbot.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/appState.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/asyncManager.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/css/dashboard.css?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1JlFc-K.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "data:image/svg+xml;utf8,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"2\" cy=\"2\" r=\"2\" fill=\"rgba(255,255,255,0.05)\"/></svg>",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero1.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/assets/founder.jpeg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.jsdelivr.net/npm/chart.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/manifest.json?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/intelligence.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/realtime.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/dashboard.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/push.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/js/events.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/script.js?v=3.0.0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/socket.io/socket.io.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout.razorpay.com/v1/checkout.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://api.razorpay.com/v1/checkout/public?traffic_env=production&build=c754096205a48a33d3633b3023c94000971ba8d7&build_v1=da4ee3f43a28ad81dba8ed06daf899a4520c691f&checkout_v2=1&new_session=1&rzp_device_id=1.2fe13ea724947f377470471c2c842ec528efc7f7.1780158365711.20021926&unified_session_id=SvdnWwboqcHm0U",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/c754096205a48a33d3633b3023c94000971ba8d7/v2-entry.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.razorpay.com/static/cx/razorpay-risk-detection/bundle.js",
+      "status": 503
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/api/user/me",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-loader-eebe73ca.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-c4908e31.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-d3a7c88e.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-22f9bbfe.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-24654d4c.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2.9f73ca9d.32143.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-app-85252e6d.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero2.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/Home_hero3.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero4.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero5.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero6.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero7.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/home_hero8.jpg",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcviYwY.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCo3FwrK3iLTcvsYwYL8g.woff2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-a49c05c2.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f9a15b0a.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-19e35d03.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-da1fe57b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-179bb19a.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-1369ed27.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-70aec872.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-fa5c72f7.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-94be187d.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-2061d9a0.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-7b0c2d80.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-12bd7436.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-0e08afce.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-5af8821c.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-card-b7f11def.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-5166cd64.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-3ff1baf1.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f2bbf6bf.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-3c2642bc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-f5828ff2.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-a45899de.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-checkout-payment-3fb61e73.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-card-block-5d08a713.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-c950b4ae.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-94f944c8.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-method-button-16ff0829.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-button-98e460fc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-72db346f.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-qr-ce814fcd.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-emi-block-dfc57449.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-block-4657b651.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-netbanking-block-b33f0304.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-wallet-block-a3905b9b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-otp-e3c3ea26.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-paylater-block-acede8a9.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-nach-block-22478978.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/icons/icon-192x192.png",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-analytics-43a02261.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-icon-common-33e4ee5b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-icon-common0-17d40644.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-standard-icon-common-339ee233.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-illustration-a3bdff51.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-lang-en-f0506636.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-customer-a7dcf3f7.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-shield-55b9e553.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-merchant-identity-e956de54.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-home-ccc0ddbc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-overview-75ef8d80.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-ff32d017.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-card-b7f11def.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-checkout-payment-3fb61e73.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-google-pay-store-21b64dcc.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-flow-04423d5b.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-apple-pay-experiment-eligibility-16cbb028.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-festivity-flow-77ae3ef5.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-load-partner-sdks-75d4a5d6.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-gpay-in-a-box-62b6102e.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-in-app-90a0cc68.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-getAppleExperimentEligibilityData-9f4318e4.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-intl-bank-transfer-currency-d0ce3d69.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-fiduciary-consent-d62ade62.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-sentry-a896a370.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-lottie-player-e75f21ba.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-intelligent-offers-ranking-86fa6bc9.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-v2-asset-common-978099be.modern.js",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://localhost:3000/api/telemetry/report",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-qr-ce814fcd.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-upi-block-4657b651.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-initialize-pay-with-partner-eb5a6df3.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-cod-block-491bdbe1.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-show-pay-with-partner-buttons-a7d5bc9a.modern.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/chunks/v2-entry-dcc-ui-79fbd7f0.modern.js",
+      "status": 200
+    }
+  ],
+  "networkFailures": [
+    {
+      "method": "GET",
+      "url": "https://checkout.razorpay.com/v1/checkout.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "method": "GET",
+      "url": "https://cdn.razorpay.com/static/cx/razorpay-risk-detection/bundle.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "method": "GET",
+      "url": "https://checkout-static-next.razorpay.com/build/undefined",
+      "error": "net::ERR_BLOCKED_BY_ORB"
+    }
+  ],
+  "apiMatrix": [
+    {
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "3543ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "3550ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "3552ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "5480ms",
+      "error": null
+    },
+    {
+      "url": "/api/user/me",
+      "method": "GET",
+      "status": 401,
+      "responseTime": "81ms",
+      "error": "HTTP Status 401"
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "2ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "1ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "1ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "0ms",
+      "error": null
+    },
+    {
+      "url": "/api/user/me",
+      "method": "GET",
+      "status": 401,
+      "responseTime": "62ms",
+      "error": "HTTP Status 401"
+    },
+    {
+      "url": "/api/user/me",
+      "method": "GET",
+      "status": 401,
+      "responseTime": "8ms",
+      "error": "HTTP Status 401"
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Priya+Verma&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "132ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Rahul+Kumar&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "107ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?name=Anjali+Singh&background=random",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "135ms",
+      "error": null
+    },
+    {
+      "url": "https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=NP",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "183ms",
+      "error": null
+    },
+    {
+      "url": "/api/user/me",
+      "method": "GET",
+      "status": 401,
+      "responseTime": "34ms",
+      "error": "HTTP Status 401"
+    },
+    {
+      "url": "/api/telemetry/report",
+      "method": "POST",
+      "status": 200,
+      "responseTime": "47ms",
+      "error": null
+    }
+  ]
+}

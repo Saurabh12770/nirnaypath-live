@@ -350,4 +350,88 @@ router.get('/friends', auth, async (req, res) => {
     }
 });
 
+/**
+ * GET /api/leaderboard/:exam
+ * Dynamic leaderboard for a specific exam category (e.g., upsc, bpsc).
+ * Returns a bare array of entries sorted by totalScore.
+ */
+router.get('/:exam', auth, async (req, res) => {
+    try {
+        const { exam } = req.params;
+        const examLower = exam.toLowerCase().trim();
+
+        // Exclude static keyword routes
+        if (['global', 'weekly', 'friends'].includes(examLower)) {
+            return res.status(400).json({ error: 'Invalid exam parameter.' });
+        }
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const leaderboardData = await TestResult.aggregate([
+            {
+                $match: {
+                    exam: examLower,
+                    createdAt: { $gte: thirtyDaysAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: "$userId",
+                    totalScore: { $sum: "$score" },
+                    testsCount: { $sum: 1 }
+                }
+            },
+            { $sort: { totalScore: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "userInfo"
+                }
+            },
+            { $unwind: "$userInfo" },
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$_id",
+                    userName: "$userInfo.name",
+                    totalScore: 1,
+                    testsCount: 1
+                }
+            }
+        ]);
+
+        // Assign ranks with proper tie-handling
+        let currentRank = 1;
+        let usersAtRank = 0;
+        let prevScore = null;
+
+        const ranked = leaderboardData.map((item, index) => {
+            const score = item.totalScore || 0;
+            if (prevScore !== null && score < prevScore) {
+                currentRank += usersAtRank;
+                usersAtRank = 1;
+            } else {
+                usersAtRank++;
+            }
+            prevScore = score;
+
+            return {
+                rank: currentRank,
+                userName: item.userName || 'Anonymous User',
+                totalScore: score,
+                testsCount: item.testsCount || 1
+            };
+        });
+
+        res.json(ranked);
+    } catch (error) {
+        console.error('[LeaderboardExam] Error:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

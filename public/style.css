@@ -10241,6 +10241,29 @@ textarea:focus-visible,
    RULE: No UI redesign — only layout containment fixes
    ══════════════════════════════════════════════════════ */
 
+/* ── 0.5. HERO CONTAINER: swap 16/6 ratio for a taller one on tablets/mid-range phones ── */
+@media (min-width: 481px) and (max-width: 767px) {
+    .hero-container {
+        aspect-ratio: 16 / 9;
+        min-height: 320px;
+    }
+    .hero-content h1 {
+        font-size: clamp(1.3rem, 4vw, 1.8rem) !important;
+    }
+    .hero-content p.lead {
+        font-size: 0.88rem !important;
+        margin-bottom: var(--sp-2);
+    }
+    .hero-trust-row {
+        gap: var(--sp-2);
+        margin-top: var(--sp-2);
+    }
+    .trust-badge-item {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+    }
+}
+
 /* ── 1. HERO CONTAINER: swap 16/6 ratio for a taller one on phones ── */
 @media (max-width: 480px) {
     .hero-container {
@@ -10461,3 +10484,50 @@ textarea:focus-visible,
 /* ══════════════════════════════════════════════════════
    END OF MOBILE RESPONSIVENESS PATCH
    ══════════════════════════════════════════════════════ */
+
+/* ── BUG-H1 FIX: Hero CTA clipping on small screens ──────────────────────
+   Root cause: .hero uses overflow:hidden which clips absolutely-positioned
+   decorative accents. On mobile the min-height is insufficient for all CTA
+   content. Fix: free the overflow constraint, guarantee min-height.       */
+@media (max-width: 768px) {
+    .hero {
+        overflow: visible !important;
+        min-height: 480px !important;
+        padding: 5rem 0 4rem !important;
+    }
+
+    .hero-bg-accent,
+    .hero::before,
+    .hero::after {
+        /* Clip decorative pseudo-elements only, not CTA content */
+        overflow: hidden;
+    }
+
+    .hero-actions {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .hero-title {
+        font-size: clamp(1.8rem, 6vw, 2.6rem) !important;
+    }
+
+    .hero-desc {
+        font-size: 1rem !important;
+        max-width: 100% !important;
+    }
+
+    .cta-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        min-height: 420px !important;
+        padding: 4rem 0 3rem !important;
+    }
+}
+

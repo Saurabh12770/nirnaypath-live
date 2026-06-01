@@ -858,6 +858,53 @@
     <script src="/js/auth.js?v=3.0.0"></script>
     <script src="/js/app.js?v=3.0.0"></script>
     <script src="/js/chatbot.js?v=3.0.0"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.querySelector('#aboutHeroSlider');
+        if (container && container.dataset.sliderInitialized !== 'true') {
+            container.dataset.sliderInitialized = 'true';
+            const slides = Array.from(container.children).filter(c => c.tagName === 'IMG');
+            if (slides.length > 0) {
+                if (slides[0].dataset.src) {
+                    slides[0].src = slides[0].dataset.src;
+                    slides[0].removeAttribute('data-src');
+                }
+                slides[0].classList.add('active');
+                const lazyImages = slides.slice(1);
+                const loadRemainingImages = () => {
+                    lazyImages.forEach(img => {
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                    });
+                };
+                if ('requestIdleCallback' in window) {
+                    window.requestIdleCallback(loadRemainingImages);
+                } else {
+                    setTimeout(loadRemainingImages, 800);
+                }
+                let currentIndex = 0;
+                let isPaused = false;
+                function nextSlide() {
+                    if (isPaused) return;
+                    slides[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    const nextImg = slides[currentIndex];
+                    if (nextImg.dataset.src) {
+                        nextImg.src = nextImg.dataset.src;
+                        nextImg.removeAttribute('data-src');
+                    }
+                    nextImg.classList.add('active');
+                }
+                const heroInterval = setInterval(nextSlide, 4500);
+                container.dataset.heroInterval = heroInterval;
+                container.addEventListener('mouseenter', () => isPaused = true);
+                container.addEventListener('mouseleave', () => isPaused = false);
+            }
+        }
+    });
+    </script>
     </div>
 </div>
 </body>

@@ -4,5 +4,5 @@ module.exports = {
     "Reasoning": ["reasoning"],
     "English Language": ["english"],
     "Current Affairs": ["current", "current-affairs"],
-    "State Special": ["bpsc-special", "bihar-gk"],
+    "State Special": ["bpsc-special", "bihar"],
 };

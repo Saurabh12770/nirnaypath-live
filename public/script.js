@@ -163,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     VIEW.engine = document.getElementById('exam-engine');
     VIEW.result = document.getElementById('result-screen');
     VIEW.userDashboard = document.getElementById('user-dashboard');
+    VIEW['user-dashboard'] = VIEW.userDashboard; // case-insensitive safety fallback
 
     /* Inject CSS enhancements (scrollbar, animations, etc.) */
     injectDynamicCSS();
@@ -289,6 +290,12 @@ function pageUnmount(viewId) {
     // 5. Collapse stale overlays and banners
     document.querySelectorAll('.cbt-overlay').forEach(el => el.classList.remove('active'));
     removeFsWarningBanner();
+
+    // 6. Ensure mobile navigation panel and overlay are closed on view transitions
+    const navPanel = document.getElementById('mobileNavPanel');
+    const panelOverlay = document.getElementById('panelOverlay');
+    if (navPanel) navPanel.classList.remove('open');
+    if (panelOverlay) panelOverlay.classList.remove('active');
 }
 
 /**
@@ -2181,9 +2188,8 @@ function debounce(func, wait) {
         analyticsBtn.addEventListener('click', (e) => {
             e.preventDefault();
             setActiveBottomNav('mob-nav-analytics');
-            const dashLink = document.getElementById('dashNavLink');
-            if (dashLink && dashLink.style.display !== 'none') {
-                showView('user-dashboard');
+            if (Auth.isLoggedIn()) {
+                Dashboard.show();
             } else {
                 document.getElementById('loginBtn')?.click();
             }

@@ -1,7 +1,18 @@
-﻿
+
 AppLifecycle.register(() => {
   const el1 = document.getElementById('dashNavLink');
   if (el1) { el1.addEventListener('click', (e) => { Dashboard.show() }); }
+  const elDashMobile = document.getElementById('mobileDashNavLink');
+  if (elDashMobile) {
+    elDashMobile.addEventListener('click', (e) => {
+      e.preventDefault();
+      Dashboard.show();
+      const navPanel = document.getElementById('mobileNavPanel');
+      const panelOverlay = document.getElementById('panelOverlay');
+      if (navPanel) navPanel.classList.remove('open');
+      if (panelOverlay) panelOverlay.classList.remove('active');
+    });
+  }
   const el2 = document.getElementById('gen-btn-2');
   if (el2) { el2.addEventListener('click', (e) => { setActiveExam('upsc') }); }
   const el3 = document.getElementById('gen-btn-3');

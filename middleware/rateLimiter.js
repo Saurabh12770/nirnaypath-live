@@ -81,7 +81,18 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
 
         // Resolve maximum limits dynamically (allows live adjustments)
         const maxLimit = typeof maxLimitLoader === 'function' ? maxLimitLoader() : maxLimitLoader;
-        const key = `rate_limit:${tierName}:${clientIp}`;
+
+        // BUG-H2 FIX: Key telemetry rate limit by sessionId/userId, not raw IP.
+        // Prevents NAT-based 429 blocks in shared networks (schools, libraries).
+        let throttleKey = clientIp;
+        if (tierName === 'telemetry') {
+            if (req.body && req.body.sessionId) {
+                throttleKey = `sid:${req.body.sessionId}`;
+            } else if (req.user && req.user._id) {
+                throttleKey = `uid:${String(req.user._id)}`;
+            }
+        }
+        const key = `rate_limit:${tierName}:${throttleKey}`;
 
         let currentCount = 0;
         let ttlLeftMs = windowMs;
@@ -195,7 +206,7 @@ const paymentLimiter = createRateLimiter(
 const telemetryLimiter = createRateLimiter(
     'telemetry',
     15 * 60 * 1000, // 15 minutes
-    () => parseEnvInt(process.env.TELEMETRY_LIMIT_MAX, 60)
+    () => parseEnvInt(process.env.TELEMETRY_LIMIT_MAX, 120)
 );
 
 // Test Engine Rate Limiter

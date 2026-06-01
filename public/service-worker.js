@@ -2,7 +2,7 @@
 'use strict';
 
 /* ── Cache versioning: bump to force purge of stale v13 assets ── */
-const CACHE_VERSION  = 'nirnaypath-v14';
+const CACHE_VERSION  = 'nirnaypath-v15';
 const STATIC_CACHE   = `${CACHE_VERSION}-static`;
 const API_CACHE      = `${CACHE_VERSION}-api`;
 const DYNAMIC_CACHE  = `${CACHE_VERSION}-dynamic`;
@@ -12,10 +12,12 @@ const DYNAMIC_CACHE  = `${CACHE_VERSION}-dynamic`;
    needing a hard refresh. Falls back to cache only when offline.  */
 const HTML_PAGES = ['/', '/index.html', '/about.html', '/test.html', '/mobile-app-shell.html'];
 
-/* ── Static assets: Stale-While-Revalidate ──────────────────────
-   Serves cached version instantly (no FOUC) while simultaneously
-   fetching a fresh copy to update the cache in the background.     */
-const SWR_EXTENSIONS = ['.css', '.js'];
+/* ── Static assets: Network-First (BUG-M1 FIX) ─────────────────
+   Previously used Stale-While-Revalidate for .css/.js, causing
+   users to see stale layouts/styles until a second reload after
+   deploys. Network-First ensures the newest code is always served
+   when online. SWR fallback is used only when the network fails.  */
+const NETWORK_FIRST_EXTENSIONS = ['.css', '.js'];
 
 /* ─── Assets to pre-cache on install ──────────────────────────────────── */
 const STATIC_ASSETS = [
@@ -118,10 +120,15 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // ── Phase 5: CSS/JS → Stale-While-Revalidate ─────────────────
-    const isSWR = SWR_EXTENSIONS.some(ext => url.pathname.endsWith(ext));
-    if (isSWR) {
-        event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
+    // ── BUG-M1 FIX: CSS/JS → Network-First (always fresh when online) ─
+    // BUG-M2 FIX: Normalize cache key by stripping version query strings
+    const isNetworkFirstAsset = NETWORK_FIRST_EXTENSIONS.some(ext => url.pathname.endsWith(ext));
+    if (isNetworkFirstAsset) {
+        // Normalize request: strip ?v=... query params to avoid cache duplicates
+        const normalizedUrl = new URL(request.url);
+        normalizedUrl.search = '';
+        const normalizedRequest = new Request(normalizedUrl.toString(), { headers: request.headers });
+        event.respondWith(networkFirstAsset(normalizedRequest, DYNAMIC_CACHE));
         return;
     }
 
@@ -222,23 +229,27 @@ async function networkFirstHTML(request) {
     }
 }
 
-/* ─── Strategy: Stale-While-Revalidate for CSS/JS (Phase 5) ─────────────
-   Serves the cached version immediately (zero latency, no FOUC),
-   then fetches a fresh copy in the background to keep cache current.      */
-async function staleWhileRevalidate(request, cacheName) {
+/* ─── Strategy: Network-First for CSS/JS (BUG-M1 fix) ───────────────────
+   Always fetches fresh JS/CSS from network when online. Only falls back
+   to cache if network fails (offline), ensuring post-deploy style updates
+   are visible immediately without requiring a hard refresh.              */
+async function networkFirstAsset(request, cacheName) {
     const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-
-    // Fire background fetch regardless of cache hit
-    const networkFetch = fetch(request.clone()).then(networkResponse => {
+    try {
+        const networkResponse = await fetch(request.clone());
         if (networkResponse.ok) {
             cache.put(request, networkResponse.clone());
         }
         return networkResponse;
-    }).catch(() => null);
-
-    // Return cached immediately if available, else await network
-    return cachedResponse || networkFetch;
+    } catch (_err) {
+        // Offline fallback: serve from cache
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        return new Response('/* offline */', {
+            status: 503,
+            headers: { 'Content-Type': 'text/css' }
+        });
+    }
 }
 
 /* ─── Background Sync: flush offline test attempts ──────────────────── */

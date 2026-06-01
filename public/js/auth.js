@@ -318,6 +318,7 @@ const Auth = {
         const adminNavLink = document.getElementById('adminNavLink');
         const mobileAdminNavLink = document.getElementById('mobileAdminNavLink');
         const dashNavLink = document.getElementById('dashNavLink');
+        const mobileDashNavLink = document.getElementById('mobileDashNavLink');
 
         if (isLoggedIn && user) {
             const logoutHtml = `<i class="fas fa-sign-out-alt"></i> Logout`;
@@ -342,6 +343,7 @@ const Auth = {
             }
             if (candName) candName.textContent = user.name;
             if (dashNavLink) dashNavLink.style.display = 'inline-block';
+            if (mobileDashNavLink) mobileDashNavLink.style.display = 'flex';
         } else {
             const loginHtml = `<i class="fas fa-sign-in-alt"></i> Login`;
             if (loginBtn) {
@@ -354,6 +356,7 @@ const Auth = {
             if (adminNavLink) adminNavLink.style.display = 'none';
             if (mobileAdminNavLink) mobileAdminNavLink.style.display = 'none';
             if (dashNavLink) dashNavLink.style.display = 'none';
+            if (mobileDashNavLink) mobileDashNavLink.style.display = 'none';
         }
     },
 

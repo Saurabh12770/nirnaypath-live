@@ -37,6 +37,7 @@ const ALLOWED_SUBJECTS = new Set([
   // Section: State Special
   'bpsc-special',
   'bihar-gk',
+  'bihar',
 
   // Standalone subjects
   'computerscience',
@@ -52,6 +53,10 @@ const ALLOWED_SUBJECTS = new Set([
   'upsc',
   'banking',
   'mathematics',
+  'law',
+  'general_awareness',
+  'police_science',
+  'social_science',
 ]);
 
 /**
@@ -76,8 +81,8 @@ function validateSubject(rawSubject) {
   if (/\.[^.]+$/.test(slug)) {
     return null; // e.g. math.js, math.json, math.php — all rejected
   }
-  // 4. Strict character regex: only [a-z0-9-] allowed (no dots, slashes, percent encoding)
-  if (!/^[a-z0-9-]+$/.test(slug)) {
+  // 4. Strict character regex: only [a-z0-9_-] allowed (no dots, slashes, percent encoding)
+  if (!/^[a-z0-9_-]+$/.test(slug)) {
     return null;
   }
 

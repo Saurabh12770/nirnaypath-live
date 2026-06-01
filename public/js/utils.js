@@ -276,12 +276,12 @@ window.NirnayPath = {
 
         if (menuToggle && panel && overlay) {
             const open = () => {
-                panel.classList.add('active');
+                panel.classList.add('open');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
             };
             const close = () => {
-                panel.classList.remove('active');
+                panel.classList.remove('open');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
             };

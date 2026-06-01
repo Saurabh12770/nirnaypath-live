@@ -45,7 +45,10 @@ const Dashboard = {
             const [profileRes, statsRes, lbRes] = await Promise.all([
                 Auth.fetchWithAuth('/api/user/me', { signal }),
                 Auth.fetchWithAuth('/api/user/stats', { signal }),
-                Auth.fetchWithAuth('/api/leaderboard/upsc', { signal })
+                Auth.fetchWithAuth('/api/leaderboard/upsc', { signal }).catch(err => {
+                    console.warn('Leaderboard fetch failed:', err);
+                    return { ok: false, status: 500 };
+                })
             ]);
 
             if (profileRes.status === 401 || statsRes.status === 401) {
@@ -207,7 +210,7 @@ const Dashboard = {
         if (statsContainer) {
             statsContainer.innerHTML = '';
             
-            const subjects = Object.keys(stats.subjectStats);
+            const subjects = Object.keys(stats.subjectStats || {});
             if (subjects.length === 0) {
                 statsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Take tests in different subjects to see analysis.</p>';
             } else {
