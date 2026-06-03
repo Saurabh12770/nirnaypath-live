@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -109,19 +110,28 @@ function info(phase, msg) {
         fail('PHASE1', `Server unreachable: ${err.message}`);
     }
 
-    // SW check
-    await delay(1500);
-    const swRegistered = await page.evaluate(async () => {
-        if (!('serviceWorker' in navigator)) return false;
-        const regs = await navigator.serviceWorker.getRegistrations();
-        return regs.length > 0;
-    });
+    // SW check with retry loop
+    let swRegistered = false;
+    for (let attempt = 0; attempt < 10; attempt++) {
+        swRegistered = await page.evaluate(async () => {
+            if (!('serviceWorker' in navigator)) return false;
+            const regs = await navigator.serviceWorker.getRegistrations();
+            return regs.length > 0;
+        });
+        if (swRegistered) break;
+        await delay(500);
+    }
     swRegistered ? pass('PHASE1', 'Service Worker registered') : fail('PHASE1', 'Service Worker NOT registered');
 
-    const cacheKeys = await page.evaluate(async () => {
-        if (!('caches' in window)) return [];
-        return await window.caches.keys();
-    });
+    let cacheKeys = [];
+    for (let attempt = 0; attempt < 10; attempt++) {
+        cacheKeys = await page.evaluate(async () => {
+            if (!('caches' in window)) return [];
+            return await window.caches.keys();
+        });
+        if (cacheKeys.some(k => k.includes('nirnaypath-v15'))) break;
+        await delay(500);
+    }
     if (cacheKeys.some(k => k.includes('nirnaypath-v15'))) {
         pass('PHASE1', `SW cache v15 active — keys: ${cacheKeys.join(', ')}`);
     } else {
@@ -226,6 +236,27 @@ function info(phase, msg) {
     });
     signedUpIn ? pass('PHASE3', 'Signup succeeded — user session created') : fail('PHASE3', 'Signup may have failed — no session detected');
 
+    if (signedUpIn) {
+        info('PHASE3', `Promoting ${email} to Pro plan in MongoDB...`);
+        try {
+            await mongoose.connect('mongodb://localhost:27017/nirnaypath');
+            await mongoose.connection.db.collection('users').updateOne(
+                { email: email },
+                {
+                    $set: {
+                        plan: 'pro_monthly',
+                        subscriptionStatus: 'active',
+                        subscriptionEnd: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
+                    }
+                }
+            );
+            await mongoose.disconnect();
+            pass('PHASE3', 'User promoted to Pro successfully');
+        } catch (dbErr) {
+            fail('PHASE3', `Failed to promote user to Pro: ${dbErr.message}`);
+        }
+    }
+
     // Logout
     info('PHASE3', 'Triggering logout...');
     await page.waitForSelector('#loginBtn', { visible: true });
@@ -304,11 +335,9 @@ function info(phase, msg) {
 
     await page.setViewport({ width: 1440, height: 900 });
 
-    // Leaderboard API
+    // Leaderboard API (Cookie-based Auth verification)
     const lbRes = await page.evaluate(async () => {
-        const token = window.Auth ? Auth.getToken() : null;
-        if (!token) return { status: 'no-token' };
-        const r = await fetch('/api/leaderboard/upsc', { headers: { Authorization: 'Bearer ' + token } });
+        const r = await fetch('/api/leaderboard/upsc');
         return { status: r.status };
     });
     lbRes.status === 200 ? pass('PHASE3', `GET /api/leaderboard/upsc → ${lbRes.status}`) : fail('PHASE3', `GET /api/leaderboard/upsc → ${lbRes.status}`);
@@ -346,7 +375,7 @@ function info(phase, msg) {
         // POST /api/test/start verified (check API matrix)
         const startApiCall = results.apiMatrix.find(a => a.url.includes('/api/test/start'));
         startApiCall
-            ? (startApiCall.status === 200 ? pass('PHASE4', `POST /api/test/start → ${startApiCall.status} in ${startApiCall.responseTime}`) : fail('PHASE4', `POST /api/test/start → ${startApiCall.status}`))
+            ? (startApiCall.status === 201 ? pass('PHASE4', `POST /api/test/start → ${startApiCall.status} in ${startApiCall.responseTime}`) : fail('PHASE4', `POST /api/test/start → ${startApiCall.status}`))
             : info('PHASE4', 'POST /api/test/start not captured in API matrix (may have occurred before interception started)');
 
         // System diagnostics
@@ -481,7 +510,7 @@ function info(phase, msg) {
         const biharApiCalls = results.apiMatrix.filter(a => a.url.includes('/api/test/start'));
         info('PHASE5', `test/start API calls: ${biharApiCalls.map(c => `${c.status}`).join(', ')}`);
         const lastStart = biharApiCalls[biharApiCalls.length - 1];
-        lastStart?.status === 200 ? pass('PHASE5', `POST /api/test/start → ${lastStart.status} ✔ No 404 "No questions found"`) : fail('PHASE5', `POST /api/test/start → ${lastStart?.status} — possible subject mismatch`);
+        lastStart?.status === 201 ? pass('PHASE5', `POST /api/test/start → ${lastStart.status} ✔ No 404 "No questions found"`) : fail('PHASE5', `POST /api/test/start → ${lastStart?.status} — possible subject mismatch`);
 
         await page.waitForSelector('#btn-system-ok', { visible: true, timeout: 8000 });
         await page.click('#btn-system-ok');
@@ -539,9 +568,9 @@ function info(phase, msg) {
         { path: '/api/leaderboard/upsc', method: 'GET' }
     ];
     for (const api of dashboardApis) {
-        const hit = results.apiMatrix.find(a => a.url.includes(api.path) && a.method === api.method);
+        const hit = results.apiMatrix.filter(a => a.url.includes(api.path) && a.method === api.method).pop();
         if (hit) {
-            hit.status === 200
+            (hit.status === 200 || hit.status === 304)
                 ? pass('PHASE6', `${api.method} ${api.path} → ${hit.status} (${hit.responseTime})`)
                 : fail('PHASE6', `${api.method} ${api.path} → ${hit.status}`);
         } else {

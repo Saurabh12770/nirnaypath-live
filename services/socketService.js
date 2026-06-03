@@ -18,14 +18,20 @@ class SocketService {
         });
 
         // Redis Adapter — optional, falls back to single-instance mode gracefully
-        const { getRedisClient, isRedisAvailable } = require('./redisService');
+        const { getRedisClient, isRedisAvailable, createNewClient } = require('./redisService');
         if (isRedisAvailable()) {
             try {
-                this.pubClient = getRedisClient();
-                this.subClient = this.pubClient.duplicate();
-                this.subClient.on('error', (e) => console.error('[Socket] Sub error:', e.message));
-                this.io.adapter(createAdapter(this.pubClient, this.subClient));
-                console.log('[Socket] Redis Adapter enabled (multi-instance mode using shared singleton).');
+                this.pubClient = createNewClient();
+                this.subClient = createNewClient();
+                
+                if (this.pubClient && this.subClient) {
+                    this.pubClient.on('error', (e) => console.error('[Socket] Pub client error:', e.message));
+                    this.subClient.on('error', (e) => console.error('[Socket] Sub client error:', e.message));
+                    this.io.adapter(createAdapter(this.pubClient, this.subClient));
+                    console.log('[Socket] Clustered Redis Adapter enabled successfully.');
+                } else {
+                    console.log('[Socket] Redis client creation failed. Using single-instance mode.');
+                }
             } catch (err) {
                 console.error('[Socket] Redis Adapter failed, using single-instance:', err.message);
             }
@@ -88,6 +94,12 @@ class SocketService {
             }
             await new Promise((resolve) => this.io.close(resolve));
             this.io = null;
+        }
+        if (this.pubClient) {
+            try {
+                await this.pubClient.quit();
+            } catch (_) {}
+            this.pubClient = null;
         }
         if (this.subClient) {
             try {

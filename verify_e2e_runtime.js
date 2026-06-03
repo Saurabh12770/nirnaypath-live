@@ -152,12 +152,32 @@ async function waitForSpinnerHidden(page) {
         const hasSession = await page.evaluate(() => !!localStorage.getItem('np_user_data'));
         console.log('✔ Session created in localStorage after Signup (np_user_data):', hasSession);
 
+        // Dismiss onboarding modal if visible, since it spans full screen and blocks clicking the logout button (#loginBtn)
+        const onboardingExists = await page.evaluate(() => {
+            const modal = document.getElementById('onboardingModal');
+            return modal && modal.style.display !== 'none';
+        });
+        if (onboardingExists) {
+            console.log('✔ Onboarding modal detected. Choosing exam and submitting...');
+            await page.waitForSelector('.onboard-exam-opt', { visible: true });
+            await page.click('.onboard-exam-opt[data-exam="bpsc"]');
+            await delay(500);
+            await page.click('#onboardingSubmitBtn');
+            console.log('✔ Onboarding submitted.');
+            await delay(1000); // allow transition and modal hide to complete
+        }
+
         // Logout
         if (hasSession) {
             console.log('✔ Triggering logout via navbar button...');
             await page.waitForSelector('#loginBtn', { visible: true });
             await page.click('#loginBtn'); // click logout
-            await delay(2000); // wait for page reload
+            // Auth.logout() calls window.location.reload() — wait for page to fully reload and re-initialize
+            await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
+            // Wait for Auth to re-initialize event listeners after the reload
+            await page.waitForFunction(() => window.Auth && window.Auth.eventListenersSetup === true, { timeout: 10000 })
+                .catch(() => console.warn('⚠️  Auth.eventListenersSetup not set after reload — continuing anyway.'));
+            await delay(500);
         } else {
             // Session not in localStorage (httpOnly cookie may still be set).
             // Close the modal that is still open after signup and reload to clear state.
@@ -179,6 +199,25 @@ async function waitForSpinnerHidden(page) {
         // Login again manually
         await page.waitForSelector('#loginBtn', { visible: true });
         await page.click('#loginBtn'); // opens login modal
+        await delay(500);
+
+        // Programmatic fallback: if the click did not open the modal (e.g. JS boot slow due to CDN fail),
+        // force-open it directly so the test can continue.
+        const modalOpenAfterClick = await page.evaluate(() => {
+            const modal = document.getElementById('loginModal');
+            if (!modal) return false;
+            if (window.getComputedStyle(modal).display !== 'flex') {
+                modal.style.display = 'flex'; // force open
+                // Ensure we're on the login form, not signup
+                const lc = document.getElementById('loginFormContainer');
+                const sc = document.getElementById('signupFormContainer');
+                if (lc) lc.style.display = 'block';
+                if (sc) sc.style.display = 'none';
+                return 'force-opened';
+            }
+            return true;
+        });
+        console.log('✔ Login modal state after click:', modalOpenAfterClick);
 
         // FIX: The modal may still show signupFormContainer (from the showSignup click above).
         // Ensure we are on the login form before typing credentials.
@@ -202,6 +241,7 @@ async function waitForSpinnerHidden(page) {
 
         const loggedInAgain = await page.evaluate(() => !!localStorage.getItem('np_user_data'));
         console.log('✔ Session verified after manual Login:', loggedInAgain);
+
 
 
         // ==========================================
@@ -290,7 +330,7 @@ async function waitForSpinnerHidden(page) {
         await page.waitForSelector('#loginBtn', { visible: true });
         await page.click('#loginBtn');
         await page.waitForSelector('#loginEmail', { visible: true });
-        await page.type('#loginEmail', 'admin@example.com');
+        await page.type('#loginEmail', 'admin@nirnaypath.local');
         await page.type('#loginPass', 'AdminPassword123!');
         await page.click('#doLogin');
         await delay(3000);

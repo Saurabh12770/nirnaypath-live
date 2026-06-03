@@ -141,7 +141,7 @@ window.NirnayPath = {
         <div class="footer-stats">
             <div class="stat"><i class="fas fa-users"></i><div><h4>50,000+</h4><p>Aspirants</p></div></div>
             <div class="stat"><i class="fas fa-question-circle"></i><div><h4>10,000+</h4><p>Questions</p></div></div>
-            <div class="stat"><i class="fas fa-chart-line"></i><div><h4>95%</h4><p>Success Rate</p></div></div>
+            <div class="stat"><i class="fas fa-chart-line"></i><div><h4>99%</h4><p>Syllabus Coverage</p></div></div>
         </div>
         <div class="social-links">
             <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
@@ -156,11 +156,11 @@ window.NirnayPath = {
     <div class="footer-col">
         <h4><i class="fas fa-graduation-cap"></i> Popular Exams</h4>
         <ul class="footer-links-list">
-            <li><a href="#"><i class="fas fa-arrow-right"></i> BPSC Tests</a></li>
-            <li><a href="#"><i class="fas fa-arrow-right"></i> UPSC Tests</a></li>
-            <li><a href="#"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
+            <li><a href="#" onclick="event.preventDefault(); setActiveExam('bpsc');"><i class="fas fa-arrow-right"></i> BPSC Tests</a></li>
+            <li><a href="#" onclick="event.preventDefault(); setActiveExam('upsc');"><i class="fas fa-arrow-right"></i> UPSC Tests</a></li>
+            <li><a href="#" onclick="event.preventDefault(); setActiveExam('ssc');"><i class="fas fa-arrow-right"></i> SSC CGL Tests</a></li>
+            <li><a href="#" onclick="event.preventDefault(); setActiveExam('banking');"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
             <li><a href="#"><i class="fas fa-arrow-right"></i> Railway Tests</a></li>
-            <li><a href="#"><i class="fas fa-arrow-right"></i> Banking Tests</a></li>
             <li><a href="#"><i class="fas fa-arrow-right"></i> Teaching Exams</a></li>
             <li><a href="#"><i class="fas fa-arrow-right"></i> State PSC Tests</a></li>
         </ul>
@@ -217,6 +217,7 @@ window.NirnayPath = {
         </div>
         <div class="footer-bottom-links">
             <div class="footer-links">
+                <a href="/trust-center.html"><i class="fas fa-shield-alt"></i> Trust Center</a>
                 <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
                 <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
                 <a href="#"><i class="fas fa-cookie-bite"></i> Cookie Policy</a>

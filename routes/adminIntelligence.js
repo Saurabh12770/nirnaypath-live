@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/user');
 const Payment = require('../models/payment');
 const TestResult = require('../models/testResult');
@@ -41,7 +42,7 @@ router.post('/log', auth, async (req, res) => {
  * GET /api/admin/intelligence/revenue
  * Aggregates revenue, payment details, and subscription plans.
  */
-router.get('/revenue', auth, async (req, res) => {
+router.get('/revenue', auth, adminAuth, async (req, res) => {
     try {
         const analytics = await GrowthService.getSubscriptionAnalytics();
         res.json(analytics);
@@ -55,7 +56,7 @@ router.get('/revenue', auth, async (req, res) => {
  * GET /api/admin/intelligence/funnel
  * Calculates user conversion rates: Signup -> Mock Attempt -> Upgrade
  */
-router.get('/funnel', auth, async (req, res) => {
+router.get('/funnel', auth, adminAuth, async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
         const attemptedTest = await TestResult.distinct('userId');
@@ -87,7 +88,7 @@ router.get('/funnel', auth, async (req, res) => {
  * Calculates cohort retention percentages.
  * Groups users by the week they signed up and tracks their subsequent active weeks.
  */
-router.get('/retention', auth, async (req, res) => {
+router.get('/retention', auth, adminAuth, async (req, res) => {
     try {
         // Find users registered in the last 4 weeks
         const fourWeeksAgo = new Date(Date.now() - 28 * 24 * 3600 * 1000);
@@ -138,7 +139,7 @@ router.get('/retention', auth, async (req, res) => {
  * GET /api/admin/intelligence/dropoffs
  * Identifies high-dropoff locations in checkouts and mock exams.
  */
-router.get('/dropoffs', auth, async (req, res) => {
+router.get('/dropoffs', auth, adminAuth, async (req, res) => {
     try {
         // Mock exam drop-off stats
         const testStarts = await UserActivityLog.countDocuments({ action: 'test_start' });
@@ -174,7 +175,7 @@ router.get('/dropoffs', auth, async (req, res) => {
  * GET /api/admin/intelligence/heatmap
  * Pulls coordinate logs clustered by page for click hotspots.
  */
-router.get('/heatmap', auth, async (req, res) => {
+router.get('/heatmap', auth, adminAuth, async (req, res) => {
     try {
         const page = req.query.page || '/';
         const points = await UserActivityLog.find({ action: 'click', page })

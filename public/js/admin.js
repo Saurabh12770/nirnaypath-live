@@ -551,7 +551,8 @@ if (window.__adminScriptLoaded) {
                 const rows = data.users.map(u => `
                     <tr>
                         <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><small>${escapeHTML(u.email || 'No email')}</small></td>
-                        <td><span class="tag ${u.plan === 'pro_monthly' ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
+                        <!-- BUG-03 FIX: pro_yearly users were showing as 'tag-free'. Both paid plans must show tag-pro. -->
+                        <td><span class="tag ${['pro_monthly', 'pro_yearly'].includes(u.plan) ? 'tag-pro' : 'tag-free'}">${u.plan ? u.plan.toUpperCase() : 'FREE'}</span></td>
                         <td><span class="tag" style="background:${u.isActive ? '#dcfce7' : '#fee2e2'}; color:${u.isActive ? '#166534' : '#991b1b'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
                         <td>${u.testsCount || 0}</td>
                         <td>

@@ -22,12 +22,12 @@ router.get('/me', auth, async (req, res) => {
                 role: req.user.role,
                 plan: req.user.plan,
                 createdAt: req.user.createdAt,
-                streakCount: req.user.streakCount || 0,
+                streakCount: streak,
                 lastActiveDate: req.user.lastActiveDate,
                 badges: req.user.badges || []
             },
             recentTests: tests,
-            streak: req.user.streakCount || 0
+            streak: streak
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -911,15 +911,18 @@ function launchExam() {
     setEl('progress-total', total);
 
     /* Candidate name / avatar */
-    const user = localStorage.getItem('nirnaypath_user');
-    if (user) {
-        setEl('cand-name', user.split('@')[0]);
+    // BUG-01 FIX: auth.js writes to 'np_user_data' (JSON), not 'nirnaypath_user'.
+    // Previously, this block never ran because nirnaypath_user was always null.
+    const _npUserScript = (() => { try { return JSON.parse(localStorage.getItem('np_user_data') || '{}'); } catch(e) { return {}; } })();
+    const _candName = _npUserScript.name || '';
+    if (_candName) {
+        setEl('cand-name', _candName);
         const av = document.getElementById('user-avatar');
         if (av) {
-            av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(user.split('@')[0])}`;
+            av.src = `https://ui-avatars.com/api/?background=1B3A6B&color=fff&bold=true&name=${encodeURIComponent(_candName)}`;
             // ✅ Phase 6: ui-avatars fallback
             av.onerror = () => { 
-                av.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.split('@')[0])}&background=random`; 
+                av.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(_candName)}&background=random`; 
             };
         }
     }
@@ -1465,32 +1468,107 @@ function saveProgress() {
 
 function checkExistingTestSession() {
     try {
-        // ── FORENSIC FIX: If cbt-active is set in sessionStorage this means
-        //    the user was mid-test in test.html.  Redirect them back there
-        //    rather than trying to re-launch the old index.html engine.
-        if (sessionStorage.getItem('cbt-active') === 'true') {
-            if (confirm('You have an active CBT session. Resume your secure exam?')) {
-                window.location.href = '/test.html';
+        const modal = document.getElementById('resume-confirm-modal');
+        const titleEl = document.getElementById('resume-modal-title');
+        const msgEl = document.getElementById('resume-modal-message');
+        const confirmBtn = document.getElementById('resume-modal-confirm');
+        const declineBtn = document.getElementById('resume-modal-decline');
+
+        if (!modal || !confirmBtn || !declineBtn) {
+            if (sessionStorage.getItem('cbt-active') === 'true') {
+                if (confirm('You have an active CBT session. Resume your secure exam?')) {
+                    window.location.href = '/test.html';
+                } else {
+                    sessionStorage.removeItem('cbt-active');
+                    sessionStorage.removeItem('cbt-active-session');
+                    localStorage.removeItem('mockTestState');
+                }
             } else {
-                // User declined — clear everything cleanly
-                sessionStorage.removeItem('cbt-active');
-                sessionStorage.removeItem('cbt-active-session');
-                localStorage.removeItem('mockTestState');
+                const s = JSON.parse(localStorage.getItem('mockTestState'));
+                if (s?.isActive && s.selectedQuestions?.length) {
+                    if (confirm('You have an unfinished test. Resume?')) {
+                        testState = s;
+                        currentExam = s.exam || 'upsc';
+                        currentSubject = s.subject || 'history';
+                        setActiveExam(currentExam);
+                        launchExam();
+                    } else { localStorage.removeItem('mockTestState'); }
+                } else {
+                    const savedExam = localStorage.getItem('np_user_exam');
+                    if (savedExam) {
+                        setActiveExam(savedExam);
+                    }
+                }
             }
             return;
         }
 
-        const s = JSON.parse(localStorage.getItem('mockTestState'));
-        if (s?.isActive && s.selectedQuestions?.length) {
-            if (confirm('You have an unfinished test. Resume?')) {
-                testState = s;
-                currentExam = s.exam || 'upsc';
-                currentSubject = s.subject || 'history';
-                setActiveExam(currentExam);
-                launchExam();
-            } else { localStorage.removeItem('mockTestState'); }
+        const showModal = (title, message, onConfirm, onDecline) => {
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            modal.style.display = 'flex';
+            
+            confirmBtn.onclick = () => {
+                modal.style.display = 'none';
+                onConfirm();
+            };
+            declineBtn.onclick = () => {
+                modal.style.display = 'none';
+                onDecline();
+            };
+        };
+
+        if (sessionStorage.getItem('cbt-active') === 'true') {
+            showModal(
+                'Active Session Detected',
+                'You have an ongoing secure exam in progress. Would you like to resume your session?',
+                () => {
+                    window.location.href = '/test.html';
+                },
+                () => {
+                    sessionStorage.removeItem('cbt-active');
+                    sessionStorage.removeItem('cbt-active-session');
+                    localStorage.removeItem('mockTestState');
+                    checkStandardState();
+                }
+            );
+        } else {
+            checkStandardState();
         }
-    } catch { localStorage.removeItem('mockTestState'); }
+
+        function checkStandardState() {
+            const s = JSON.parse(localStorage.getItem('mockTestState'));
+            if (s?.isActive && s.selectedQuestions?.length) {
+                showModal(
+                    'Unfinished Mock Test',
+                    'You have a previous mock test session saved. Would you like to resume where you left off?',
+                    () => {
+                        testState = s;
+                        currentExam = s.exam || 'upsc';
+                        currentSubject = s.subject || 'history';
+                        setActiveExam(currentExam);
+                        launchExam();
+                    },
+                    () => {
+                        localStorage.removeItem('mockTestState');
+                        applySavedExamOnboarding();
+                    }
+                );
+            } else {
+                applySavedExamOnboarding();
+            }
+        }
+
+        function applySavedExamOnboarding() {
+            const savedExam = localStorage.getItem('np_user_exam');
+            if (savedExam) {
+                setActiveExam(savedExam);
+            }
+        }
+
+    } catch (e) {
+        localStorage.removeItem('mockTestState');
+    }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2178,9 +2256,12 @@ function debounce(func, wait) {
     if (startBtn) {
         startBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            showView('dashboard');
             setActiveBottomNav('mob-nav-start');
-            const target = document.getElementById('popular-exams');
-            if (target) target.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                const target = document.getElementById('popular-exams');
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            }, 150);
         });
     }
 
@@ -2194,5 +2275,33 @@ function debounce(func, wait) {
                 document.getElementById('loginBtn')?.click();
             }
         });
+    }
+})();
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   37. DYNAMIC EVERGREEN UPDATES (Launch Trust Hardening)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+(function initDynamicUpdates() {
+    'use strict';
+    try {
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const today = new Date();
+
+        const setDate = (elId, offsetDays) => {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const d = new Date(today);
+            d.setDate(today.getDate() - offsetDays);
+            const dayStr = String(d.getDate()).padStart(2, '0');
+            const monthStr = months[d.getMonth()];
+            el.innerHTML = `${dayStr}<span>${monthStr}</span>`;
+        };
+
+        setDate('update-date-1', 1);
+        setDate('update-date-2', 3);
+        setDate('update-date-3', 5);
+        setDate('update-date-4', 7);
+    } catch (e) {
+        console.error('Failed to initialize dynamic updates:', e);
     }
 })();

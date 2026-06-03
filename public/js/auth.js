@@ -62,9 +62,22 @@ const Auth = {
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = document.getElementById('doLogin');
+                if (btn) {
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                }
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPass').value;
-                await this.login(email, password);
+                try {
+                    await this.login(email, password);
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In & Continue Practice';
+                    }
+                }
             });
         }
 
@@ -165,6 +178,7 @@ const Auth = {
                 const loginModalEl = document.getElementById('loginModal');
                 if (loginModalEl) loginModalEl.style.display = 'none'; // Guard: loginModal absent on about/admin pages
                 this.showToast('Account created successfully!');
+                this.showOnboardingModal(data.user);
             } else {
                 alert(data.error || 'Signup failed');
             }
@@ -261,6 +275,15 @@ const Auth = {
     },
 
     async checkAuthStatus() {
+        // BUG-07 FIX: If there is no stored session in localStorage, there is
+        // nothing to verify on the server. Skip the network call entirely to
+        // avoid two spurious 401s (GET /api/user/me + POST /api/auth/refresh-token)
+        // on every guest page load.
+        if (!localStorage.getItem(this.userKey)) {
+            this.updateUI(false);
+            return false;
+        }
+
         try {
             const token = this.getToken();
             const headers = {};
@@ -274,8 +297,8 @@ const Auth = {
                 this.saveSession(data.user);
                 this.updateUI(true, data.user);
                 return true;
-            } else if (response.status === 401) {
-                // Graceful 401 return — clear session and update UI safely
+            } else if (response.status === 401 || response.status === 503) {
+                // 401: Token expired/invalid; 503: DB error — clear stale session, update UI as guest
                 localStorage.removeItem(this.userKey);
                 this.updateUI(false);
                 return false;
@@ -381,6 +404,208 @@ const Auth = {
         } else {
             console.log('Toast:', msg);
         }
+    },
+
+    showOnboardingModal(user) {
+        let modal = document.getElementById('onboardingModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'onboardingModal';
+            modal.className = 'modal-overlay onboarding-modal';
+            modal.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.75);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                padding: 20px;
+                font-family: 'Poppins', sans-serif;
+            `;
+            document.body.appendChild(modal);
+        }
+
+        modal.innerHTML = `
+            <div class="onboarding-card" style="
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+                border-radius: 24px;
+                width: 100%;
+                max-width: 540px;
+                padding: 40px;
+                color: #ffffff;
+                text-align: center;
+                transform: translateY(20px);
+                transition: transform 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            ">
+                <div style="position: absolute; width: 250px; height: 250px; border-radius: 50%; background: rgba(79, 70, 229, 0.25); filter: blur(60px); top: -80px; left: -80px; pointer-events: none;"></div>
+                <div style="position: absolute; width: 250px; height: 250px; border-radius: 50%; background: rgba(236, 72, 153, 0.2); filter: blur(60px); bottom: -80px; right: -80px; pointer-events: none;"></div>
+
+                <div style="font-size: 3.5rem; margin-bottom: 20px;">🎉</div>
+                <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2;">
+                    Welcome, <span style="background: linear-gradient(135deg, #818cf8, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${user.name}</span>!
+                </h2>
+                <p style="font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin-bottom: 30px;">
+                    Let's personalize your prep. What is your primary target exam?
+                </p>
+
+                <div class="exam-selection-grid" style="
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 16px;
+                    margin-bottom: 35px;
+                ">
+                    <button class="onboard-exam-opt" data-exam="upsc" style="
+                        background: rgba(255, 255, 255, 0.06);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        color: #ffffff;
+                        padding: 16px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-crown" style="font-size: 1.25rem; color: #f59e0b;"></i>
+                        UPSC IAS
+                    </button>
+                    <button class="onboard-exam-opt" data-exam="bpsc" style="
+                        background: rgba(255, 255, 255, 0.06);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        color: #ffffff;
+                        padding: 16px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-landmark" style="font-size: 1.25rem; color: #10b981;"></i>
+                        BPSC CCE
+                    </button>
+                    <button class="onboard-exam-opt" data-exam="ssc" style="
+                        background: rgba(255, 255, 255, 0.06);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        color: #ffffff;
+                        padding: 16px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-file-contract" style="font-size: 1.25rem; color: #3b82f6;"></i>
+                        SSC CGL
+                    </button>
+                    <button class="onboard-exam-opt" data-exam="banking" style="
+                        background: rgba(255, 255, 255, 0.06);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        color: #ffffff;
+                        padding: 16px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-university" style="font-size: 1.25rem; color: #a855f7;"></i>
+                        Banking
+                    </button>
+                </div>
+
+                <button id="onboardingSubmitBtn" disabled style="
+                    background: linear-gradient(135deg, #4f46e5, #ec4899);
+                    border: none;
+                    color: #ffffff;
+                    padding: 16px 40px;
+                    border-radius: 99px;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    cursor: not-allowed;
+                    opacity: 0.5;
+                    transition: all 0.3s ease;
+                    width: 100%;
+                    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+                ">
+                    Select an Exam to Start
+                </button>
+            </div>
+        `;
+
+        let selectedExam = null;
+        const submitBtn = modal.querySelector('#onboardingSubmitBtn');
+        const options = modal.querySelectorAll('.onboard-exam-opt');
+
+        options.forEach(opt => {
+            opt.addEventListener('click', () => {
+                options.forEach(o => {
+                    o.style.background = 'rgba(255, 255, 255, 0.06)';
+                    o.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    o.style.boxShadow = 'none';
+                });
+                
+                opt.style.background = 'rgba(79, 70, 229, 0.15)';
+                opt.style.borderColor = '#4f46e5';
+                opt.style.boxShadow = '0 0 15px rgba(79, 70, 229, 0.3)';
+                
+                selectedExam = opt.dataset.exam;
+                submitBtn.disabled = false;
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.style.opacity = '1';
+                submitBtn.textContent = "Start Preparation 🚀";
+            });
+        });
+
+        submitBtn.addEventListener('click', () => {
+            if (!selectedExam) return;
+            
+            localStorage.setItem('np_user_exam', selectedExam);
+            
+            modal.style.opacity = '0';
+            modal.querySelector('.onboarding-card').style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                
+                if (typeof window.setActiveExam === 'function') {
+                    window.setActiveExam(selectedExam);
+                }
+                
+                const targetSec = document.getElementById('popular-exams') || document.getElementById('subject-selection-area');
+                if (targetSec) {
+                    targetSec.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 300);
+        });
+
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            modal.querySelector('.onboarding-card').style.transform = 'translateY(0)';
+        }, 50);
     }
 };
 

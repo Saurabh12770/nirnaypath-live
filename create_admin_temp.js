@@ -11,7 +11,7 @@ async function run() {
         await mongoose.connect(mongoUri);
         console.log('Connected to MongoDB');
 
-        const email = 'admin@example.com';
+        const email = process.env.ADMIN_EMAIL || 'admin@nirnaypath.local';
         const password = 'AdminPassword123!';
         const hashedPassword = await bcrypt.hash(password, 12);
 

@@ -1,4 +1,4 @@
-﻿/* app.js - PWA Registration & Install logic */
+/* app.js - PWA Registration & Install logic */
 
 let deferredPrompt;
 
@@ -105,6 +105,9 @@ const PaymentManager = {
                 }
             };
 
+            if (typeof window.Razorpay === 'undefined') {
+                throw new Error('Razorpay SDK failed to load. Please check your internet connection or disable ad-blockers.');
+            }
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (error) {

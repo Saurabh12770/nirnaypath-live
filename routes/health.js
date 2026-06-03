@@ -231,26 +231,120 @@ router.get('/env-audit', auth, adminAuth, (req, res) => {
  * 
  * Ensures absolute privacy — zero secrets, configurations, or credentials leaked.
  */
-router.get('/services', (req, res) => {
-    const { isRedisAvailable } = require('../services/redisService');
-    const { isSmtpActive } = require('../workers/emailWorker');
-    const CrashReportingService = require('../services/crashReportingService');
+/**
+ * GET /api/health/detailed
+ * ========================
+ * High-concurrency SRE Observability status endpoint exposing:
+ * - database status (latency, pool)
+ * - redis status (cluster info, ping latency)
+ * - websocket status (active count)
+ * - memory statistics
+ * - cache hit ratios (L1 + L2 diagnostics)
+ * - event loop lag
+ */
+router.get('/detailed', async (req, res) => {
+    const start = Date.now();
+    
+    // 1. Event Loop Lag
+    const lagMs = await measureEventLoopLag();
 
-    const redisStatus = isRedisAvailable() ? 'ACTIVE' : 'DEGRADED';
-    const smtpStatus = isSmtpActive() ? 'ACTIVE' : 'DEGRADED';
-    
-    const hasRazorpay = !!(process.env.RAZORPAY_KEY_ID && 
-                           process.env.RAZORPAY_KEY_SECRET && 
-                           process.env.RAZORPAY_WEBHOOK_SECRET);
-    const razorpayStatus = hasRazorpay ? 'ACTIVE' : 'DEGRADED';
-    
-    const sentryStatus = CrashReportingService.isSentryActive() ? 'ACTIVE' : 'DEGRADED';
+    // 2. Database Diagnostics
+    let dbStatus = 'disconnected';
+    let dbLatencyMs = -1;
+    try {
+        if (mongoose.connection.readyState === 1) {
+            const dbStart = Date.now();
+            await mongoose.connection.db.admin().ping();
+            dbLatencyMs = Date.now() - dbStart;
+            dbStatus = 'connected';
+        }
+    } catch (_) {
+        dbStatus = 'unhealthy';
+    }
+
+    const dbStats = {
+        status: dbStatus,
+        latencyMs: dbLatencyMs,
+        maxPoolSize: mongoose.connection.client?.options?.maxPoolSize || 'default',
+        minPoolSize: mongoose.connection.client?.options?.minPoolSize || 'default',
+        socketTimeoutMS: mongoose.connection.client?.options?.socketTimeoutMS || 'default'
+    };
+
+    // 3. Redis Diagnostics
+    let redisStatus = 'disconnected';
+    let redisLatencyMs = -1;
+    let redisDetails = {};
+    try {
+        if (isRedisAvailable()) {
+            const redisStart = Date.now();
+            await getRedisClient().ping();
+            redisLatencyMs = Date.now() - redisStart;
+            redisStatus = 'connected';
+            redisDetails = {
+                type: process.env.REDIS_CLUSTER_MODE === 'true' ? 'cluster' : 'standalone',
+                status: getRedisClient().status || 'ready'
+            };
+        }
+    } catch (err) {
+        redisStatus = 'unhealthy';
+        redisDetails = { error: err.message };
+    }
+
+    // 4. WebSocket Connections Count
+    let socketCount = 0;
+    if (socketService && socketService.io) {
+        try {
+            socketCount = socketService.io.sockets.sockets.size;
+        } catch (_) {}
+    }
+
+    // 5. Memory Utilization
+    const memUsage = process.memoryUsage();
+    const memoryStats = {
+        rssMB: Math.round(memUsage.rss / 1024 / 1024),
+        heapUsedMB: Math.round(memUsage.heapUsed / 1024 / 1024),
+        heapTotalMB: Math.round(memUsage.heapTotal / 1024 / 1024),
+        externalMB: Math.round(memUsage.external / 1024 / 1024)
+    };
+
+    // 6. Cache Hit/Miss Ratios
+    let cacheDiagnostics = {};
+    try {
+        cacheDiagnostics = await RedisCacheLayer.getDiagnostics();
+    } catch (err) {
+        try {
+            cacheDiagnostics = { l1: cacheLayer.getDiagnostics(), l2: { error: err.message } };
+        } catch (_) {}
+    }
+
+    // 7. General Uptime
+    const uptimeSeconds = Math.floor(process.uptime());
+    const hours = Math.floor(uptimeSeconds / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+    const seconds = uptimeSeconds % 60;
 
     res.json({
-        redis: redisStatus,
-        smtp: smtpStatus,
-        razorpay: razorpayStatus,
-        sentry: sentryStatus
+        success: true,
+        timestamp: new Date().toISOString(),
+        overallLatencyMs: Date.now() - start,
+        uptime: {
+            seconds: uptimeSeconds,
+            formatted: `${hours}h ${minutes}m ${seconds}s`
+        },
+        eventLoop: {
+            lagMs: Math.round(lagMs * 100) / 100
+        },
+        database: dbStats,
+        redis: {
+            status: redisStatus,
+            latencyMs: redisLatencyMs,
+            details: redisDetails
+        },
+        websocket: {
+            activeConnections: socketCount
+        },
+        memory: memoryStats,
+        cache: cacheDiagnostics
     });
 });
 

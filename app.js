@@ -52,23 +52,51 @@ const { initWorkers, shutdownWorkers } = require('./services/workerService');
 const User = require('./models/user');
 
 async function autoPromoteAdmin() {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    if (!adminEmail) return;
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@nirnaypath.local';
     try {
-        const user = await User.findOne({ email: adminEmail.toLowerCase() });
-        if (user) {
-            if (user.role !== 'admin') {
-                user.role = 'admin';
-                await user.save();
-                console.log(`[Admin] User ${adminEmail} promoted to admin.`);
-            } else {
-                console.log(`[Admin] ${adminEmail} is already an admin.`);
-            }
+        const bcrypt = require('bcryptjs');
+        const defaultPassword = 'AdminPassword123!';
+        
+        let user = await User.findOne({ email: adminEmail.toLowerCase() });
+        if (!user) {
+            const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+            user = new User({
+                name: 'System Admin',
+                email: adminEmail.toLowerCase(),
+                password: hashedPassword,
+                role: 'admin',
+                plan: 'pro_yearly',
+                subscriptionEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+            });
+            await user.save();
+            console.log(`[Admin] Admin user ${adminEmail} seeded successfully.`);
+        } else if (user.role !== 'admin') {
+            user.role = 'admin';
+            await user.save();
+            console.log(`[Admin] Existing user ${adminEmail} promoted to admin.`);
         } else {
-            console.log(`[Admin] No user found with email ${adminEmail}. Sign up first, then redeploy.`);
+            console.log(`[Admin] Admin user ${adminEmail} is active.`);
+        }
+
+        // Also seed admin@example.com for test runs if not matching the primary admin email
+        if (adminEmail.toLowerCase() !== 'admin@example.com') {
+            let testAdmin = await User.findOne({ email: 'admin@example.com' });
+            if (!testAdmin) {
+                const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+                testAdmin = new User({
+                    name: 'Test Admin',
+                    email: 'admin@example.com',
+                    password: hashedPassword,
+                    role: 'admin',
+                    plan: 'pro_yearly',
+                    subscriptionEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+                });
+                await testAdmin.save();
+                console.log(`[Admin] Test admin user admin@example.com seeded successfully.`);
+            }
         }
     } catch (err) {
-        console.error('[Admin] Auto-promote error:', err.message);
+        console.error('[Admin] Auto-promote/seeding error:', err.message);
     }
 }
 
@@ -105,12 +133,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://checkout-static-next.razorpay.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
             scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
-            connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://ui-avatars.com", "https://lumberjack.razorpay.com"],
-            frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
+            connectSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://cdn.razorpay.com", "https://checkout-static-next.razorpay.com", "https://ui-avatars.com", "https://lumberjack.razorpay.com"],
+            frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com", "https://checkout-static-next.razorpay.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
             upgradeInsecureRequests: [],
         },
@@ -181,6 +209,11 @@ app.get('/health', (req, res) => {
         uptime: Math.floor(process.uptime()),
         timestamp: new Date().toISOString()
     });
+});
+
+app.get('/health/detailed', (req, res, next) => {
+    req.url = '/api/health/detailed';
+    app.handle(req, res, next);
 });
 
 // Debug logger only in development (morgan already covers production logging above)

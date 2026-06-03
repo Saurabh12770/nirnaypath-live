@@ -94,12 +94,35 @@ class QuestionRepository {
      * Precompile all static JSON questions into deep-frozen, memory-safe pools.
      * Executed during startup to eliminate CPU spikes, GC pressure, and disk reads.
      */
+    static _isPrecompiling = false;
+
     /**
      * Precompile frequently used static JSON questions into deep-frozen, memory-safe pools in background.
-     * Hardened: Only precompiles frequently used subjects in background to prevent memory spikes & OOM.
+     * Hardened: Precompiles major subject pools incrementally to avoid event-loop blocking and OOM spikes.
      */
     static async precompileAllSubjects() {
-        console.log(`[BOOT][PRECOMPILE] Lazy-loading enabled. Subjects will be loaded on demand.`);
+        if (this._isPrecompiling) return;
+        this._isPrecompiling = true;
+
+        console.log(`[BOOT][PRECOMPILE] Asynchronous background warming started...`);
+        const targetSubjects = ['science', 'history', 'polity', 'geography', 'math', 'aptitude', 'reasoning', 'english', 'bihar'];
+        
+        // Spaced execution using setImmediate prevents concurrent parsing spikes and OOM risks
+        targetSubjects.forEach((sub) => {
+            setImmediate(async () => {
+                try {
+                    const cacheKey = `questions:${sub}:all`;
+                    const cached = CacheLayer.getSnapshot(cacheKey);
+                    if (!cached) {
+                        console.log(`[BOOT][PRECOMPILE] Warming subject pool: "${sub}"`);
+                        await this.fetchQuestions(sub, null, true);
+                        console.log(`[BOOT][PRECOMPILE] Subject pool: "${sub}" fully warmed.`);
+                    }
+                } catch (err) {
+                    console.error(`[BOOT][PRECOMPILE] Failed to precompile subject "${sub}":`, err.message);
+                }
+            });
+        });
     }
 
     /**
@@ -107,9 +130,10 @@ class QuestionRepository {
      *
      * @param {string|string[]} subjectOrSubjects
      * @param {string|null}     topic
+     * @param {boolean}         skipPrecompile
      * @returns {Promise<object[]>} deep-cloned, safe question objects
      */
-    static async fetchQuestions(subjectOrSubjects, topic = null) {
+    static async fetchQuestions(subjectOrSubjects, topic = null, skipPrecompile = false) {
         const { yieldIfLagging } = require('../utils/eventLoopSafeguard');
         await yieldIfLagging(50); // SRE: cooperative yielding
 
@@ -153,7 +177,7 @@ class QuestionRepository {
         }
 
         // Lazy-warmup if not already precompiled (for instant hydration resilience)
-        if (this.precompiledCache.size === 0) {
+        if (!skipPrecompile && this.precompiledCache.size === 0) {
             await this.precompileAllSubjects();
         }
 

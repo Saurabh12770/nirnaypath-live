@@ -24,31 +24,74 @@ const initRedis = () => {
         return null;
     }
 
-    // Secure protocol detection
-    if (!url.startsWith('redis://') && !url.startsWith('rediss://')) {
-        logger.error('[REDIS] Invalid REDIS_URL protocol. Must start with redis:// or rediss://');
-        return null;
+    // Secure protocol detection (allow comma-separated lists for cluster urls)
+    const urlParts = url.split(',');
+    for (const part of urlParts) {
+        const trimmed = part.trim();
+        if (!trimmed.startsWith('redis://') && !trimmed.startsWith('rediss://')) {
+            logger.error('[REDIS] Invalid REDIS_URL protocol. Must start with redis:// or rediss://: ' + trimmed);
+            return null;
+        }
     }
 
     try {
-        redisClient = new Redis(url, {
-            maxRetriesPerRequest: null,
-            enableReadyCheck: true,
-            connectTimeout: 10000,
-            retryStrategy: (times) => {
-                if (times > 10) {
-                    if (!_errorLogged) {
-                        logger.error('[REDIS] Max reconnect attempts reached. Giving up.');
-                        _errorLogged = true;
-                    }
-                    return null;
+        const isCluster = process.env.REDIS_CLUSTER_MODE === 'true' || urlParts.length > 1;
+        
+        if (isCluster) {
+            logger.info('[REDIS] Initializing Redis Enterprise Cluster client...');
+            const nodes = urlParts.map(u => {
+                try {
+                    const parsed = new URL(u.trim());
+                    return {
+                        host: parsed.hostname,
+                        port: parseInt(parsed.port) || 6379,
+                        password: parsed.password ? decodeURIComponent(parsed.password) : undefined
+                    };
+                } catch (e) {
+                    logger.error('[REDIS-CLUSTER] Failed to parse node URL: ' + u.trim(), e.message);
+                    return { host: '127.0.0.1', port: 6379 };
                 }
-                const delay = Math.min(times * 1000, 5000);
-                logger.warn(`[REDIS] Connection retry #${times} in ${delay}ms`);
-                return delay;
-            },
-            reconnectOnError: (err) => err.message.includes('READONLY'),
-        });
+            });
+
+            redisClient = new Redis.Cluster(nodes, {
+                clusterRetryStrategy: (times) => {
+                    if (times > 10) {
+                        if (!_errorLogged) {
+                            logger.error('[REDIS-CLUSTER] Max reconnect attempts reached. Giving up.');
+                            _errorLogged = true;
+                        }
+                        return null;
+                    }
+                    const delay = Math.min(times * 1000, 5000);
+                    logger.warn(`[REDIS-CLUSTER] Connection retry #${times} in ${delay}ms`);
+                    return delay;
+                },
+                redisOptions: {
+                    maxRetriesPerRequest: null,
+                    connectTimeout: 10000
+                }
+            });
+        } else {
+            logger.info('[REDIS] Initializing standard Redis client...');
+            redisClient = new Redis(url, {
+                maxRetriesPerRequest: null,
+                enableReadyCheck: true,
+                connectTimeout: 10000,
+                retryStrategy: (times) => {
+                    if (times > 10) {
+                        if (!_errorLogged) {
+                            logger.error('[REDIS] Max reconnect attempts reached. Giving up.');
+                            _errorLogged = true;
+                        }
+                        return null;
+                    }
+                    const delay = Math.min(times * 1000, 5000);
+                    logger.warn(`[REDIS] Connection retry #${times} in ${delay}ms`);
+                    return delay;
+                },
+                reconnectOnError: (err) => err.message.includes('READONLY'),
+            });
+        }
 
         redisClient.on('connect', () => logger.info('[REDIS] Socket connected.'));
         redisClient.on('ready', () => {
@@ -144,6 +187,45 @@ function decompressPayload(buffer) {
     return zlib.gunzipSync(buffer).toString();
 }
 
+const createNewClient = () => {
+    if (process.env.ENABLE_REDIS === 'false') return null;
+    const url = process.env.REDIS_URL;
+    if (!url) return null;
+
+    const urlParts = url.split(',');
+    try {
+        const isCluster = process.env.REDIS_CLUSTER_MODE === 'true' || urlParts.length > 1;
+        if (isCluster) {
+            const nodes = urlParts.map(u => {
+                try {
+                    const parsed = new URL(u.trim());
+                    return {
+                        host: parsed.hostname,
+                        port: parseInt(parsed.port) || 6379,
+                        password: parsed.password ? decodeURIComponent(parsed.password) : undefined
+                    };
+                } catch (e) {
+                    return { host: '127.0.0.1', port: 6379 };
+                }
+            });
+            return new Redis.Cluster(nodes, {
+                clusterRetryStrategy: (times) => Math.min(times * 1000, 5000),
+                redisOptions: { maxRetriesPerRequest: null, connectTimeout: 10000 }
+            });
+        } else {
+            return new Redis(url, {
+                maxRetriesPerRequest: null,
+                enableReadyCheck: true,
+                connectTimeout: 10000,
+                retryStrategy: (times) => Math.min(times * 1000, 5000)
+            });
+        }
+    } catch (err) {
+        logger.error('[REDIS] Failed to create new client:', err.message);
+        return null;
+    }
+};
+
 module.exports = { 
     initRedis, 
     getRedisClient, 
@@ -151,6 +233,7 @@ module.exports = {
     verifyRedis, 
     disconnectRedis,
     compressPayload,
-    decompressPayload
+    decompressPayload,
+    createNewClient
 };
 

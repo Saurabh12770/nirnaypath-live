@@ -46,7 +46,7 @@ function nodeGetAuth(path, token) {
 
     // STEP 0: Get admin token via Node HTTP
     console.log('✔ Authenticating admin via direct Node.js HTTP call...');
-    const loginRes = await nodePost('/api/auth/login', { email: 'admin@example.com', password: 'AdminPassword123!' });
+    const loginRes = await nodePost('/api/auth/login', { email: 'admin@nirnaypath.local', password: 'AdminPassword123!' });
     if (loginRes.status !== 200 || !loginRes.body.user) {
         console.error('❌ FATAL: Admin login failed via Node HTTP. Status:', loginRes.status, 'Body:', JSON.stringify(loginRes.body));
         process.exit(1);

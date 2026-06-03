@@ -48,8 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Global UI Context
     document.getElementById('cbt-exam-name').textContent = testState.testName || 'Mock Test';
-    const user = localStorage.getItem('nirnaypath_user') || 'Aspirant@';
-    const name = user.split('@')[0];
+    // BUG-01 FIX: auth.js stores user as JSON under 'np_user_data'; 'nirnaypath_user' is never written.
+    // Reading the wrong key meant every candidate's name showed as "Aspirant" on the CBT header
+    // and verification screen.
+    const _npUser = (() => { try { return JSON.parse(localStorage.getItem('np_user_data') || '{}'); } catch(e) { return {}; } })();
+    const name = _npUser.name || 'Aspirant';
     
     document.getElementById('cbt-cand-name').textContent = name;
     document.getElementById('verify-name').textContent = name;
@@ -566,6 +569,32 @@ function updatePaletteClasses() {
         
         if (i === testState.currentIdx) btn.classList.add('active-q');
     });
+
+    // Compute live status counts across the question set
+    let ans = 0, notAns = 0, mark = 0, ansMark = 0, notVis = 0;
+    testState.selectedQuestions.forEach((_, i) => {
+        const visited = testState.visited.includes(i);
+        const answered = testState.answers[i] !== undefined;
+        const marked = testState.marked.includes(i);
+        if (!visited) notVis++;
+        else if (answered && marked) ansMark++;
+        else if (answered) ans++;
+        else if (marked) mark++;
+        else notAns++;
+    });
+
+    // Hydrate legend UI elements in the sidebar
+    const legAns = document.querySelector('.palette-legend .p-btn.answered');
+    const legNotAns = document.querySelector('.palette-legend .p-btn.not-answered');
+    const legNotVis = document.querySelector('.palette-legend .p-btn.not-visited');
+    const legMark = document.querySelector('.palette-legend .p-btn.marked');
+    const legAnsMark = document.querySelector('.palette-legend .p-btn.answered-marked');
+
+    if (legAns) legAns.textContent = ans;
+    if (legNotAns) legNotAns.textContent = notAns;
+    if (legNotVis) legNotVis.textContent = notVis;
+    if (legMark) legMark.textContent = mark;
+    if (legAnsMark) legAnsMark.innerHTML = `${ansMark}<div class="green-dot"></div>`;
 }
 
 function saveLocalAnswer(val) {

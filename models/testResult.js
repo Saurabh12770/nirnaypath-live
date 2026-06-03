@@ -79,6 +79,7 @@ const testResultSchema = new mongoose.Schema({
     stateRank: { type: Number, default: null },
     categoryRank: { type: Number, default: null },
     irtThetaFinal: { type: Number, default: null },
+    timeTaken: { type: Number, default: 0 },
     // --------------------------
 
     createdAt: {
@@ -97,6 +98,7 @@ testResultSchema.index({ userId: 1, exam: 1, createdAt: -1 }); // Exam-scoped hi
 testResultSchema.index({ subject: 1, score: -1 });              // Subject leaderboard
 testResultSchema.index({ exam: 1, score: -1, createdAt: -1 }); // Exam rank + recent
 testResultSchema.index({ fraudProbabilityScore: 1 }, { sparse: true }); // Anti-cheat queries
+testResultSchema.index({ subject: 1, createdAt: -1, timeTaken: 1, fraudProbabilityScore: 1 }); // Optimized subject leaderboard queries
 
 const TestResult = mongoose.model('TestResult', testResultSchema);
 

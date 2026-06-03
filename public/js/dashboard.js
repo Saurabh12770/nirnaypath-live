@@ -3,6 +3,16 @@
  * Handles Performance Stats, Streak, and Recent Tests
  */
 
+// BUG-04/05 FIX: Sanitize user-supplied strings before inserting into innerHTML
+function _dashEscapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 const Dashboard = {
     async show() {
         return new Promise((resolve) => {
@@ -108,10 +118,11 @@ const Dashboard = {
     },
 
     BADGE_METADATA: {
-        'streak7': { name: '7-Day Warrior', desc: 'Maintain a 7-day test streak', icon: 'ðŸ”¥' },
-        'test30': { name: 'Prolific Learner', desc: 'Complete 30 mock tests', icon: 'ðŸ“š' },
-        'perfect100': { name: 'Century Club', desc: 'Achieve 100% accuracy in a test', icon: 'ðŸŽ¯' },
-        'test100': { name: 'Nirnay Path Hero', description: 'Complete 100 mock tests', icon: 'ðŸ†' }
+        // BUG-06 FIX: Emoji bytes were corrupted (file saved in wrong encoding). Replaced with correct codepoints.
+        'streak7':   { name: '7-Day Warrior',    desc: 'Maintain a 7-day test streak',        icon: '\uD83D\uDD25' }, // 🔥
+        'test30':    { name: 'Prolific Learner',  desc: 'Complete 30 mock tests',              icon: '\uD83D\uDCDA' }, // 📚
+        'perfect100':{ name: 'Century Club',      desc: 'Achieve 100% accuracy in a test',    icon: '\uD83C\uDFAF' }, // 🎯
+        'test100':   { name: 'Nirnay Path Hero',  desc: 'Complete 100 mock tests',            icon: '\uD83C\uDFC6' }  // 🏆
     },
 
     renderDashboard(profile, stats) {
@@ -119,7 +130,8 @@ const Dashboard = {
         const nameDisplay = document.getElementById('dash-user-name');
         if (nameDisplay) {
             nameDisplay.textContent = profile.user.name;
-            if (profile.user.plan === 'pro_monthly') {
+            // BUG-02 FIX: pro_yearly users were denied the PRO badge — plan check only matched pro_monthly.
+            if (['pro_monthly', 'pro_yearly'].includes(profile.user.plan)) {
                 const badge = document.createElement('span');
                 badge.className = 'pro-badge';
                 badge.textContent = 'PRO';
@@ -193,12 +205,14 @@ const Dashboard = {
                 profile.recentTests.forEach(test => {
                     const row = document.createElement('tr');
                     const date = new Date(test.createdAt).toLocaleDateString();
+                    // BUG-05 FIX: test.exam and test.subject are server-stored strings;
+                    // inserting them raw into innerHTML opens an XSS vector.
                     row.innerHTML = `
                         <td>${date}</td>
-                        <td><span class="exam-tag">${test.exam.toUpperCase()}</span> ${test.subject}</td>
-                        <td><strong>${test.score}/${test.totalQuestions}</strong></td>
-                        <td><div class="accuracy-pill ${this.getAccuracyClass(test.accuracy)}">${test.accuracy}%</div></td>
-                        <td><button class="view-btn" onclick="Dashboard.viewResult('${test._id}')">Review</button></td>
+                        <td><span class="exam-tag">${_dashEscapeHtml(test.exam).toUpperCase()}</span> ${_dashEscapeHtml(test.subject)}</td>
+                        <td><strong>${_dashEscapeHtml(String(test.score))}/${_dashEscapeHtml(String(test.totalQuestions))}</strong></td>
+                        <td><div class="accuracy-pill ${this.getAccuracyClass(test.accuracy)}">${_dashEscapeHtml(String(test.accuracy))}%</div></td>
+                        <td><button class="view-btn" onclick="Dashboard.viewResult('${_dashEscapeHtml(String(test._id))}')">Review</button></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -345,11 +359,13 @@ const Dashboard = {
         data.forEach(entry => {
             const row = document.createElement('tr');
             const rankClass = entry.rank <= 3 ? `rank-${entry.rank}` : 'rank-other';
+            // BUG-04 FIX: entry.userName comes from the DB and was rendered raw into innerHTML.
+            // A user named "<script>alert(1)</script>" would execute XSS.
             row.innerHTML = `
-                <td><div class="rank-badge ${rankClass}">${entry.rank}</div></td>
-                <td><strong>${entry.userName}</strong></td>
-                <td>${entry.totalScore}</td>
-                <td>${entry.testsCount} tests</td>
+                <td><div class="rank-badge ${rankClass}">${parseInt(entry.rank) || 0}</div></td>
+                <td><strong>${_dashEscapeHtml(entry.userName)}</strong></td>
+                <td>${parseInt(entry.totalScore) || 0}</td>
+                <td>${parseInt(entry.testsCount) || 0} tests</td>
             `;
             tbody.appendChild(row);
         });

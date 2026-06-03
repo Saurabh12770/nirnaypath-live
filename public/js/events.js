@@ -1,7 +1,12 @@
 
 AppLifecycle.register(() => {
   const el1 = document.getElementById('dashNavLink');
-  if (el1) { el1.addEventListener('click', (e) => { Dashboard.show() }); }
+  if (el1) {
+    el1.addEventListener('click', (e) => {
+      e.preventDefault();
+      Dashboard.show();
+    });
+  }
   const elDashMobile = document.getElementById('mobileDashNavLink');
   if (elDashMobile) {
     elDashMobile.addEventListener('click', (e) => {
@@ -35,6 +40,12 @@ AppLifecycle.register(() => {
   if (el11) { el11.addEventListener('click', (e) => { SectionalTests.closeModal() }); }
   const el12 = document.getElementById('gen-btn-12');
   if (el12) { el12.addEventListener('click', (e) => { document.getElementById('upgradeModal').style.display='none' }); }
+  const elUpgradeCTA = document.getElementById('dashboard-upgrade-cta');
+  if (elUpgradeCTA) {
+    elUpgradeCTA.addEventListener('click', (e) => {
+      document.getElementById('upgradeModal').style.display = 'flex';
+    });
+  }
   const el13 = document.getElementById('gen-btn-13');
   if (el13) { el13.addEventListener('click', (e) => { PaymentManager.upgrade('pro_monthly') }); }
   const el14 = document.getElementById('gen-btn-14');
@@ -43,5 +54,16 @@ AppLifecycle.register(() => {
   if (el15) { el15.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none' }); }
   const el16 = document.getElementById('gen-btn-16');
   if (el16) { el16.addEventListener('click', (e) => { document.getElementById('reviewModal').style.display='none'; showView('dashboard') }); }
+
+  // Bind Success Tips links to smooth scroll rather than dead anchor jumps
+  document.querySelectorAll('.learn-more-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetEl = document.getElementById('popular-exams') || document.querySelector('.exam-ribbon');
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
 });
 

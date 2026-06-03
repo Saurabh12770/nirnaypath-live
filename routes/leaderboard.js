@@ -77,6 +77,7 @@ router.get('/global', auth, async (req, res) => {
                     select: 'name'
                 })
                 .sort({ totalXP: -1 })
+                .limit(1000)
                 .lean();
 
             // Filter out populated null users (admins or inactive)
@@ -116,7 +117,26 @@ router.get('/global', auth, async (req, res) => {
         const paginatedList = rankedList.slice(startIndex, startIndex + limit);
 
         // Find current requesting user's rank
-        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+        let currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+        if (!currentUserEntry && req.user && req.user._id) {
+            try {
+                const myXP = await UserXP.findOne({ userId: req.user._id }).lean();
+                if (myXP) {
+                    const higherCount = await UserXP.countDocuments({ totalXP: { $gt: myXP.totalXP } });
+                    currentUserEntry = {
+                        userId:       req.user._id,
+                        userName:     req.user.name,
+                        score:        myXP.totalXP,
+                        level:        myXP.level,
+                        streak:       myXP.currentStreak,
+                        rank:         higherCount + 1,
+                        previousRank: myXP.previousRank || (higherCount + 1),
+                        movement:     0,
+                        percentile:   100
+                    };
+                }
+            } catch (_) {}
+        }
 
         res.json({
             success: true,
@@ -154,6 +174,7 @@ router.get('/weekly', auth, async (req, res) => {
                     select: 'name'
                 })
                 .sort({ weeklyXP: -1 })
+                .limit(1000)
                 .lean();
 
             const validUsers = activeUsersXP.filter(item => item.userId);
@@ -176,7 +197,26 @@ router.get('/weekly', auth, async (req, res) => {
         const startIndex = (page - 1) * limit;
         const paginatedList = rankedList.slice(startIndex, startIndex + limit);
 
-        const currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+        let currentUserEntry = rankedList.find(e => String(e.userId) === String(req.user._id));
+        if (!currentUserEntry && req.user && req.user._id) {
+            try {
+                const myXP = await UserXP.findOne({ userId: req.user._id }).lean();
+                if (myXP) {
+                    const higherCount = await UserXP.countDocuments({ weeklyXP: { $gt: myXP.weeklyXP } });
+                    currentUserEntry = {
+                        userId:       req.user._id,
+                        userName:     req.user.name,
+                        score:        myXP.weeklyXP,
+                        level:        myXP.level,
+                        streak:       myXP.currentStreak,
+                        rank:         higherCount + 1,
+                        previousRank: myXP.previousRank || (higherCount + 1),
+                        movement:     0,
+                        percentile:   100
+                    };
+                }
+            } catch (_) {}
+        }
 
         res.json({
             success: true,

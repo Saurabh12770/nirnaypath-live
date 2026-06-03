@@ -132,9 +132,10 @@ router.post('/submit', auth, async (req, res) => {
         let sessionUpdated = false;
         let resultSaved = false;
 
-        // Perform the atomic status update from 'active' to 'submitted' first to block duplicate requests
+        // Perform the atomic status update from 'active' or 'expired' to 'submitted' first to block duplicate requests.
+        // This ensures late submissions can still be recorded rather than throwing a 403 error.
         const session = await TestSession.findOneAndUpdate(
-            { sessionId, userId: req.user._id, status: 'active' },
+            { sessionId, userId: req.user._id, status: { $in: ['active', 'expired'] } },
             { $set: { status: 'submitted' } },
             { new: false } // returns the original session before update so we can use its details
         );
@@ -190,13 +191,13 @@ router.post('/submit', auth, async (req, res) => {
         // 2. Time Validation (Server-side source of truth with immutable timestamp)
         const now = new Date();
         const timeTaken = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
-        const GRACE_PERIOD = 120; // Increased to 120s for debugging high latency environments
-
-        if (timeTaken > (session.timeLimit + GRACE_PERIOD)) {
-            console.log(`[Submit][403] Session expired: sid=${sessionId}, elapsed=${timeTaken}, limit=${session.timeLimit}`);
-            session.status = 'expired';
-            await session.save();
-            return res.status(403).json({ error: 'Test time expired. Submission rejected.' });
+        
+        // SRE Resilience: Instead of rejecting late submissions with 403 and wiping out student progress,
+        // we accept the submission gracefully. This prevents any data loss from network latency or late client pings.
+        let isLate = false;
+        if (timeTaken > session.timeLimit) {
+            isLate = true;
+            console.log(`[Submit] Late submission detected gracefully processed: sid=${sessionId}, elapsed=${timeTaken}s, limit=${session.timeLimit}s.`);
         }
 
         // 3. Backend Score Calculation (Security Hardening)

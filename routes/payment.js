@@ -54,7 +54,11 @@ router.post('/create-order', auth, async (req, res) => {
         if (!razorpay) {
             return res.status(500).json({ error: 'Payment gateway not configured' });
         }
-        const order = await razorpay.orders.create(options);
+        
+        const CircuitBreakerService = require('../services/circuitBreakerService');
+        const order = await CircuitBreakerService.wrapOperation('razorpay', async () => {
+            return await razorpay.orders.create(options);
+        });
         
         // Log pending payment for reconciliation
         const payment = new Payment({
