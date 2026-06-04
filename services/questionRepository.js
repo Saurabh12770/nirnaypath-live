@@ -101,15 +101,19 @@ class QuestionRepository {
      * Hardened: Precompiles major subject pools incrementally to avoid event-loop blocking and OOM spikes.
      */
     static async precompileAllSubjects() {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`[BOOT][PRECOMPILE] Skipped subject warming in non-production environment.`);
+            return;
+        }
         if (this._isPrecompiling) return;
         this._isPrecompiling = true;
 
         console.log(`[BOOT][PRECOMPILE] Asynchronous background warming started...`);
         const targetSubjects = ['science', 'history', 'polity', 'geography', 'math', 'aptitude', 'reasoning', 'english', 'bihar'];
         
-        // Spaced execution using setImmediate prevents concurrent parsing spikes and OOM risks
-        targetSubjects.forEach((sub) => {
-            setImmediate(async () => {
+        // Spaced execution using setTimeout prevents event-loop blocking and high concurrency CPU load
+        targetSubjects.forEach((sub, idx) => {
+            setTimeout(async () => {
                 try {
                     const cacheKey = `questions:${sub}:all`;
                     const cached = CacheLayer.getSnapshot(cacheKey);
@@ -121,7 +125,7 @@ class QuestionRepository {
                 } catch (err) {
                     console.error(`[BOOT][PRECOMPILE] Failed to precompile subject "${sub}":`, err.message);
                 }
-            });
+            }, idx * 800);
         });
     }
 

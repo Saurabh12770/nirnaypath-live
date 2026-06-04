@@ -159993,6 +159993,34 @@
     "__v": 0
   },
   {
+    "_id": "6a21b2c4224c7f0fdda13298",
+    "subjectId": "history",
+    "subject": "history",
+    "question_en": "Automated QA Test Question?",
+    "question_hi": "क्या यह स्वचालित परीक्षण प्रश्न है?",
+    "options": [],
+    "options_en": [
+      "Yes",
+      "No",
+      "Maybe",
+      "None"
+    ],
+    "options_hi": [],
+    "correctAnswer": 0,
+    "difficulty": "MEDIUM",
+    "explanation_en": "Explanation en",
+    "explanation_hi": "Explanation hi",
+    "qualityScore": 75,
+    "qualityFlags": [
+      "WEAK_EXPLANATION",
+      "MISSING_SUBJECT"
+    ],
+    "reviewRequired": true,
+    "createdAt": "2026-06-04T17:15:48.339Z",
+    "topic": "QA Validation",
+    "__v": 0
+  },
+  {
     "_id": "69f21fc44db6b8a79431bb10",
     "examId": "upsc",
     "subjectId": "history",

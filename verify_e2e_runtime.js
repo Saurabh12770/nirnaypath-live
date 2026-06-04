@@ -17,6 +17,7 @@ async function waitForSpinnerHidden(page) {
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
+    await page.setBypassServiceWorker(true);
     await page.setViewport({ width: 1600, height: 1000 });
 
     const consoleErrors = [];

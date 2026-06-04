@@ -25,9 +25,6 @@ class DedupEngine {
             if (!id) continue;
             
             if (seenIds.has(id)) {
-                if (!isProduction) {
-                    console.warn(`[DedupEngine] Duplicate Question ID detected: ${id}`);
-                }
                 duplicatesCount++;
                 continue;
             }
@@ -48,16 +45,10 @@ class DedupEngine {
             const fingerprint = q._semanticFingerprint || SemanticDedupService.getSemanticFingerprint(q);
             
             if (normalizedText && seenTexts.has(normalizedText)) {
-                if (!isProduction) {
-                    console.warn(`[DedupEngine] Duplicate exact text detected: ${normalizedText.substring(0, 30)}...`);
-                }
                 duplicatesCount++;
                 continue;
             }
             if (fingerprint && seenFingerprints.has(fingerprint)) {
-                if (!isProduction) {
-                    console.warn(`[DedupEngine] Duplicate semantic fingerprint detected for ID: ${id}`);
-                }
                 duplicatesCount++;
                 continue;
             }
@@ -148,9 +139,6 @@ class DedupEngine {
             }
 
             if (isDuplicate) {
-                if (!isProduction) {
-                    console.warn(`[DedupEngine] WARNING: Semantic duplicate detected. Dropping question ID ${id}. Snippet: ${conflictSnippet}...`);
-                }
                 duplicatesCount++;
                 continue;
             }
