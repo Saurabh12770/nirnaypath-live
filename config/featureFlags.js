@@ -28,6 +28,14 @@ const FeatureFlags = {
     ENABLE_NATIONAL_AUDIT_LEDGER: process.env.ENABLE_NATIONAL_AUDIT_LEDGER === 'true',
 
     /**
+     * GROWTH_MODE — Jio-launch strategy flag.
+     * When true: all plan gates bypass instantly. No plan check. No upgrade walls.
+     * When false: original premium gate logic applies exactly as before.
+     * Toggle via environment: GROWTH_MODE=true
+     */
+    GROWTH_MODE: process.env.GROWTH_MODE === 'true',
+
+    /**
      * Helper to gracefully check flag status.
      * @param {string} flagName
      * @returns {boolean}

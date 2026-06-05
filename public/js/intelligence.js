@@ -6,18 +6,28 @@
 const Intelligence = {
     charts: {},
     
-    async init() {
+    async init(options = {}) {
         return new Promise((resolve) => {
             const fetchAndRender = async () => {
                 console.log('[Intelligence] Awakening engine...');
                 
                 try {
-                    // Fetch concurrently OUTSIDE the render block
+                    const plan = options?.plan || 'free';
+                    const isPro = plan !== 'free' || !!(window._npConfig && window._npConfig.growthMode);
+
+                    // Fetch overview and trends (free routes)
+                    const overviewPromise = this.fetchData('/api/analytics/overview');
+                    const trendsPromise = this.fetchData('/api/analytics/trends');
+
+                    // Fetch gated routes conditionally
+                    const topicsPromise = isPro ? this.fetchData('/api/analytics/topics') : Promise.resolve(null);
+                    const readinessPromise = isPro ? this.fetchData('/api/analytics/readiness') : Promise.resolve(null);
+                    
                     const [overview, topics, trends, readiness] = await Promise.all([
-                        this.fetchData('/api/analytics/overview'),
-                        this.fetchData('/api/analytics/topics'),
-                        this.fetchData('/api/analytics/trends'),
-                        this.fetchData('/api/analytics/readiness')
+                        overviewPromise,
+                        topicsPromise,
+                        trendsPromise,
+                        readinessPromise
                     ]);
                     
                     const leaderboardData = await this.fetchData('/api/leaderboard/global').catch(e => null);
@@ -34,14 +44,23 @@ const Intelligence = {
                             console.warn('[Intelligence] Overview data unavailable.');
                         }
 
-                        if (readiness) this.renderReadiness(readiness);
+                        if (isPro && readiness) {
+                            this.renderReadiness(readiness);
+                        } else {
+                            this.renderLockedWidget('readinessChart', 'Exam Readiness', 'Unlock predictive readiness scores & performance estimations.');
+                        }
+
                         if (trends) {
                             this.renderTrends(trends);
                             this.renderHeatmap(trends);
                         }
-                        if (topics) {
+
+                        if (isPro && topics) {
                             this.renderMastery(topics);
                             this.renderRecommendations(topics);
+                        } else {
+                            this.renderLockedWidget('masteryChart', 'Topic Mastery Radar', 'Unlock topic-wise radar charts & personalized drill focus points.');
+                            this.renderLockedRecommendations();
                         }
 
                         console.log('[Intelligence] Engine online. Partial/Full sync complete.');
@@ -69,6 +88,50 @@ const Intelligence = {
                 fetchAndRender();
             }
         });
+    },
+
+    renderLockedWidget(canvasId, title, description) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const card = canvas.closest('.glass');
+        if (!card) return;
+        
+        // Destroy existing chart if any
+        const chartKey = canvasId === 'readinessChart' ? 'readiness' : (canvasId === 'masteryChart' ? 'mastery' : null);
+        if (chartKey && this.charts[chartKey]) {
+            this.charts[chartKey].destroy();
+            this.charts[chartKey] = null;
+        }
+
+        // Remove existing overlay if any
+        const existing = card.querySelector('.premium-locked-overlay');
+        if (existing) existing.remove();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'premium-locked-overlay';
+        overlay.innerHTML = `
+            <i class="fas fa-lock lock-icon"></i>
+            <h4>${title}</h4>
+            <p>${description}</p>
+            <button onclick="document.getElementById('upgradeModal').style.display = 'flex';">Unlock with PRO</button>
+        `;
+        card.style.position = 'relative';
+        card.appendChild(overlay);
+    },
+
+    renderLockedRecommendations() {
+        const container = document.getElementById('topic-recommendations');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="rec-item locked-rec-item" style="border-left: 4px solid var(--accent); opacity: 0.85;">
+                <i class="fas fa-lock" style="color: var(--accent); font-size: 1.2rem; margin-right: 10px;"></i>
+                <div class="rec-text">
+                    <h4>Personalized Recommendations Gated</h4>
+                    <p>Upgrade to Pro to view AI-curated focus points and weak-area drills based on your mock exam performance.</p>
+                </div>
+                <button class="btn-primary-xs" onclick="document.getElementById('upgradeModal').style.display = 'flex';" style="margin-left: auto;">Upgrade</button>
+            </div>
+        `;
     },
 
     async fetchData(url) {
@@ -150,6 +213,12 @@ const Intelligence = {
         const ctx = document.getElementById('readinessChart');
         if (!ctx) return;
 
+        const card = ctx.closest('.glass');
+        if (card) {
+            const overlay = card.querySelector('.premium-locked-overlay');
+            if (overlay) overlay.remove();
+        }
+
         if (this.charts.readiness) this.charts.readiness.destroy();
 
         const score = readiness.score || 0;
@@ -225,6 +294,12 @@ const Intelligence = {
     renderMastery(topics) {
         const ctx = document.getElementById('masteryChart');
         if (!ctx) return;
+
+        const card = ctx.closest('.glass');
+        if (card) {
+            const overlay = card.querySelector('.premium-locked-overlay');
+            if (overlay) overlay.remove();
+        }
 
         if (this.charts.mastery) this.charts.mastery.destroy();
 

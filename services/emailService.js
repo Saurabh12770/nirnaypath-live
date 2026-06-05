@@ -240,8 +240,31 @@ const sendEmail = async (typeOrTo, payloadOrType, context) => {
         }
 
         // Add to BullMQ Queue
-        await addEmailJob(type.toLowerCase(), { to: user.email, subject, html });
-        console.log(`[EmailService] ${type} email job added to queue for: ${user.email}`);
+        const job = await addEmailJob(type.toLowerCase(), { to: user.email, subject, html });
+        if (job) {
+            console.log(`[EmailService] ${type} email job added to queue for: ${user.email}`);
+        } else {
+            console.warn(`[EmailService] Queue unavailable. Falling back to direct email send for: ${user.email}`);
+            const nodemailer = require('nodemailer');
+            if (process.env.EMAIL_HOST) {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.EMAIL_HOST,
+                    port: parseInt(process.env.EMAIL_PORT || '587'),
+                    secure: process.env.EMAIL_SECURE === 'true',
+                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+                });
+                await transporter.sendMail({
+                    from: '"NirnayPath" <noreply@nirnaypath.com>',
+                    to: user.email,
+                    subject,
+                    html
+                });
+                console.log(`[EmailService] Direct email sent successfully to: ${user.email}`);
+            } else {
+                console.warn('[EmailService] SMTP not configured. Writing to Dead-Letter storage.');
+                logToDeadLetter(type, payload, new Error('Queue and SMTP both unavailable'));
+            }
+        }
 
     } catch (err) {
         console.error(`[EmailService] Unified Pipeline Error for ${type}:`, err.message);

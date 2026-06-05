@@ -58,9 +58,15 @@ const UserXPSchema = new mongoose.Schema({
         default: []
     },
 
-    // ── Leaderboard Snapshot ──────────────────────────────────────
+    // ── Leaderboard Snapshot ──────────────────────────────────────────────
     weeklyXP:    { type: Number, default: 0 },  // reset every Monday
     weeklyReset: { type: Date,   default: null },
+
+    // ── Rank History (BUG-007 fix) ────────────────────────────────────────
+    // Stores the user's rank from the last leaderboard snapshot.
+    // Updated non-blocking via bulkWrite after each leaderboard computation.
+    // Used to compute rankMovement (previousRank - currentRank) on next render.
+    previousRank: { type: Number, default: 0 },
 
     updatedAt:   { type: Date, default: Date.now }
 }, { timestamps: true });

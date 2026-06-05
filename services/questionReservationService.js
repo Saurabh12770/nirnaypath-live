@@ -54,32 +54,20 @@ class QuestionReservationManager {
     async reserveAtomically(userId, questionIds, sessionId) {
         if (!questionIds || questionIds.length === 0) return true;
 
-        const reserved = [];
+        const docs = questionIds.map(qId => ({
+            userId,
+            questionId: qId,
+            sessionId,
+            status: 'RESERVED',
+            timestamp: new Date()
+        }));
+
         try {
-            for (const qId of questionIds) {
-                try {
-                    await QuestionReservation.create({
-                        userId,
-                        questionId: qId,
-                        sessionId,
-                        status: 'RESERVED',
-                        timestamp: new Date()
-                    });
-                    reserved.push(qId);
-                } catch (err) {
-                    // Duplicate key error means it's already reserved
-                    if (err.code === 11000) {
-                        throw new Error(`Question ${qId} is already reserved.`);
-                    }
-                    throw err;
-                }
-            }
+            await QuestionReservation.insertMany(docs, { ordered: false });
             return true;
         } catch (err) {
             console.error(`[Reservation] Atomic reservation failed: ${err.message}. Rolling back...`);
-            if (reserved.length > 0) {
-                await this.release(userId, reserved);
-            }
+            await this.release(userId, questionIds);
             return false;
         }
     }

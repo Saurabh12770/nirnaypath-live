@@ -41,6 +41,7 @@ const recommendationRoutes = require('./routes/recommendations');
 const growthRoutes = require('./routes/growth');
 const seoRoutes = require('./routes/seo');
 const engagementRoutes = require('./routes/engagement');
+const statsRoutes = require('./routes/stats');
 const adminIntelligenceRoutes = require('./routes/adminIntelligence');
 const telemetryRoutes = require('./routes/telemetry');
 const { recordError } = require('./utils/telemetryStore');
@@ -53,23 +54,30 @@ const User = require('./models/user');
 
 async function autoPromoteAdmin() {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@nirnaypath.local';
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isBlockedEmail = ['admin@nirnaypath.local', 'admin@example.com', 'test@example.com', 'demo@example.com'].includes(adminEmail.toLowerCase());
+
     try {
-        const bcrypt = require('bcryptjs');
+        const bcrypt = require('bcrypt'); // NP-PERF-01: native bcrypt (libuv thread pool)
         const defaultPassword = 'AdminPassword123!';
         
         let user = await User.findOne({ email: adminEmail.toLowerCase() });
         if (!user) {
-            const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-            user = new User({
-                name: 'System Admin',
-                email: adminEmail.toLowerCase(),
-                password: hashedPassword,
-                role: 'admin',
-                plan: 'pro_yearly',
-                subscriptionEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-            });
-            await user.save();
-            console.log(`[Admin] Admin user ${adminEmail} seeded successfully.`);
+            if (isProduction && isBlockedEmail) {
+                console.log(`[Admin] Refusing to seed default/test admin account ${adminEmail} in production.`);
+            } else {
+                const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+                user = new User({
+                    name: 'System Admin',
+                    email: adminEmail.toLowerCase(),
+                    password: hashedPassword,
+                    role: 'admin',
+                    plan: 'pro_yearly',
+                    subscriptionEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+                });
+                await user.save();
+                console.log(`[Admin] Admin user ${adminEmail} seeded successfully.`);
+            }
         } else if (user.role !== 'admin') {
             user.role = 'admin';
             await user.save();
@@ -78,8 +86,8 @@ async function autoPromoteAdmin() {
             console.log(`[Admin] Admin user ${adminEmail} is active.`);
         }
 
-        // Also seed admin@example.com for test runs if not matching the primary admin email
-        if (adminEmail.toLowerCase() !== 'admin@example.com') {
+        // Also seed admin@example.com for test runs if not matching the primary admin email and NOT in production
+        if (!isProduction && adminEmail.toLowerCase() !== 'admin@example.com') {
             let testAdmin = await User.findOne({ email: 'admin@example.com' });
             if (!testAdmin) {
                 const hashedPassword = await bcrypt.hash(defaultPassword, 10);
@@ -292,6 +300,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/growth', growthRoutes);
 app.use('/api/engagement', engagementRoutes);
+app.use('/api/stats', statsRoutes);
 app.use('/api/admin/intelligence', adminIntelligenceRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/v1/telemetry', telemetryRoutes);

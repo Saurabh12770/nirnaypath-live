@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const TestResult = require('../models/testResult');
 const plans = require('../config/plans');
+const FeatureFlags = require('../config/featureFlags');
 
 /**
  * Enterprise Plan Guard Middleware
@@ -8,6 +9,11 @@ const plans = require('../config/plans');
  */
 const requirePlan = (requiredFeature) => {
     return async (req, res, next) => {
+        // GROWTH_MODE BYPASS: when flag is true, all plan gates are removed.
+        // Original gate logic below is completely preserved for flag=false.
+        if (FeatureFlags.GROWTH_MODE) {
+            return next();
+        }
         try {
             const user = await User.findById(req.user._id);
             if (!user) return res.status(404).json({ error: 'User not found' });

@@ -62,10 +62,15 @@ router.get('/referral', auth, async (req, res) => {
 router.post('/referral/claim', auth, async (req, res) => {
     try {
         const { code } = req.body;
-        if (!code) {
+        if (!code || typeof code !== 'string') {
             return res.status(400).json({ error: 'Referral code is required.' });
         }
-        const refRecord = await GrowthService.registerReferral(req.user._id, code);
+        // Phase 6: Sanitise — only accept alphanumeric codes 5-12 chars
+        const sanitised = code.trim().toUpperCase();
+        if (!/^[A-Z0-9]{5,12}$/.test(sanitised)) {
+            return res.status(400).json({ error: 'Invalid referral code format.' });
+        }
+        const refRecord = await GrowthService.registerReferral(req.user._id, sanitised);
         if (!refRecord) {
             return res.status(400).json({ error: 'Invalid or expired referral code.' });
         }
@@ -149,6 +154,20 @@ router.get('/referrals/leaderboard', auth, async (req, res) => {
     } catch (err) {
         console.error('[GROWTH] Get referrals leaderboard error:', err.message);
         res.status(500).json({ error: 'Failed to retrieve referral leaderboard.' });
+    }
+});
+
+/**
+ * GET /api/growth/referral/stats
+ * Returns the current user's referral statistics.
+ */
+router.get('/referral/stats', auth, async (req, res) => {
+    try {
+        const stats = await GrowthService.getReferralStats(req.user._id);
+        res.json(stats);
+    } catch (err) {
+        console.error('[GROWTH] Get referral stats error:', err.message);
+        res.status(500).json({ error: 'Failed to retrieve referral stats.' });
     }
 });
 

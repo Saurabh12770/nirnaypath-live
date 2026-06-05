@@ -42,6 +42,13 @@ const XP_ACTIONS = {
 
     // Achievement unlock bonus
     achievement_unlock:   { xp: 50,  daily: false, desc: 'Achievement badge unlocked' },
+
+    // Referral milestone rewards
+    referral_1:           { xp: 100,  daily: false, desc: 'Referred 1 user' },
+    referral_5:           { xp: 500,  daily: false, desc: 'Referred 5 users' },
+    referral_10:          { xp: 1000, daily: false, desc: 'Referred 10 users' },
+    referral_25:          { xp: 2500, daily: false, desc: 'Referred 25 users' },
+    referral_50:          { xp: 5000, daily: false, desc: 'Referred 50 users' },
 };
 
 // ── Utility: today's date key ──────────────────────────────────────────

@@ -13,6 +13,22 @@ const { loadQuestions } = require('../utils/questionLoader');
 const { atomicWriteFile } = require('../utils/fileUtils');
 const QQS = require('../services/questionQualityService');
 
+const APPROVED_SUBJECTS = [
+    'aptitude', 'bihar', 'chemistry', 'computerscience', 'current',
+    'economics', 'english', 'environment', 'general_awareness', 'geography',
+    'hindi', 'history', 'law', 'math', 'police_science', 'polity',
+    'reasoning', 'science', 'social_science', 'test'
+];
+
+function getSafeSubject(subject) {
+    if (!subject || typeof subject !== 'string') return null;
+    const safeSubject = path.basename(subject).toLowerCase().trim();
+    if (!APPROVED_SUBJECTS.includes(safeSubject)) {
+        return null;
+    }
+    return safeSubject;
+}
+
 // List questions from MongoDB (Primary source of truth)
 router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
     const { trace, CATEGORIES } = require('../utils/runtimeTrace');
@@ -20,21 +36,29 @@ router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
         const { subject } = req.params;
         const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
         
-        const subLower = subject.toLowerCase().trim();
+        const subLower = getSafeSubject(subject);
+        if (!subLower) {
+            return res.status(400).json({ error: 'Invalid or unapproved subject name' });
+        }
+        
         trace(CATEGORIES.ADMIN_FLOW, 'Question List Requested', { subject: subLower, page });
         
-        const query = { 
-            $or: [{ subjectId: subLower }, { subject: subLower }] 
-        };
+        const query = {};
+
+        if (search) {
+            query.$and = [
+                { $or: [{ subjectId: subLower }, { subject: subLower }] },
+                { $or: [
+                    { question_en: { $regex: search, $options: 'i' } },
+                    { question_hi: { $regex: search, $options: 'i' } }
+                ]}
+            ];
+        } else {
+            query.$or = [{ subjectId: subLower }, { subject: subLower }];
+        }
 
         if (topic) query.topic = topic; 
         if (difficulty) query.difficulty = difficulty;
-        if (search) {
-            query.$or = [
-                { question_en: { $regex: search, $options: 'i' } },
-                { question_hi: { $regex: search, $options: 'i' } }
-            ];
-        }
 
         const skip = (page - 1) * parseInt(limit);
         const questions = await Question.find(query)

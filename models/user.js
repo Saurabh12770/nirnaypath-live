@@ -91,7 +91,12 @@ const userSchema = new mongoose.Schema({
         ref: 'User'
     }],
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    // Per-user mutex for concurrent /start prevention (TTL-backed distributed lock)
+    testStartLock: { type: String, default: null },
+    testStartLockExpiry: { type: Date, default: null },
+    referralCodeUsed: { type: String, default: null },
+    processedPayments: { type: [String], default: [] }
 });
 
 userSchema.index({ createdAt: -1 });

@@ -68,7 +68,10 @@ const createRateLimiter = (tierName, windowMs, maxLimitLoader) => {
             normalizedPath === '/api/test/heartbeat' ||
             normalizedPath === '/api/user/me';
 
-        console.log(`[RateLimiter] tierName=${tierName} path=${normalizedPath} ip=${clientIp} isCritical=${isCriticalRoute}`);
+        // BUG-010 fix: gate debug log to non-production environments only
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`[RateLimiter] tierName=${tierName} path=${normalizedPath} ip=${clientIp} isCritical=${isCriticalRoute}`);
+        }
 
         if (isCriticalRoute) {
             const isLoginOrSignup = normalizedPath === '/api/auth/login' || normalizedPath === '/api/auth/signup';

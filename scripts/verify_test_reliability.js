@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config(); // Load .env so JWT_SECRET matches the running server
+
 const assert = require('assert');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
@@ -11,7 +13,8 @@ const Question = require('../models/question');
 
 const PORT = process.env.PORT || 3000;
 const BASE_URL = `http://localhost:${PORT}`;
-const JWT_SECRET = process.env.JWT_SECRET || "10c16af3ac3ec10f7bac51fb6d3d4aae4185648615bb70c2237abbf7aefe678987c0abf84910907efa9693a948509c62";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('JWT_SECRET not set — ensure .env is present');
 
 async function runVerification() {
     console.log('🏁 STARTING TEST RELIABILITY & STABILITY VERIFICATION...');

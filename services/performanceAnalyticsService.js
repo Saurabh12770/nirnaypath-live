@@ -6,6 +6,9 @@ const { getCachedData, setCachedData } = require('../middleware/cache');
  * Performance Intelligence Engine
  * Handles complex student performance analysis with MongoDB Aggregation.
  */
+// Map to coalesce in-flight overview queries to prevent thundering herd under heavy concurrent load
+const inFlightOverviewRequests = new Map();
+
 class PerformanceAnalyticsService {
     
     /**
@@ -16,28 +19,54 @@ class PerformanceAnalyticsService {
         const cached = await getCachedData(cacheKey);
         if (cached) return cached;
 
-        const stats = await TestResult.aggregate([
-            { $match: { userId: userId } },
-            { 
-                $group: {
-                    _id: null,
-                    totalTests: { $sum: 1 },
-                    avgAccuracy: { $avg: "$accuracy" },
-                    totalQuestions: { $sum: "$totalQuestions" },
-                    totalCorrect: { $sum: "$correct" },
-                    avgTimePerTest: { $avg: "$timeTaken" }
+        // Thundering herd protection: coalesce concurrent requests for the same user
+        if (inFlightOverviewRequests.has(cacheKey)) {
+            return inFlightOverviewRequests.get(cacheKey);
+        }
+
+        const promise = (async () => {
+            try {
+                // ── Early-exit: skip aggregation for users with no tests ─────────────
+                // This avoids a full collection scan + aggregation for every new user,
+                // dramatically reducing p50 latency under concurrent-signup load.
+                const hasTests = await TestResult.exists({ userId });
+                if (!hasTests) {
+                    const empty = { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
+                    // Short TTL: user may take a test soon
+                    await setCachedData(cacheKey, empty, 30);
+                    return empty;
                 }
+
+                const stats = await TestResult.aggregate([
+                    { $match: { userId: userId } },
+                    { 
+                        $group: {
+                            _id: null,
+                            totalTests: { $sum: 1 },
+                            avgAccuracy: { $avg: "$accuracy" },
+                            totalQuestions: { $sum: "$totalQuestions" },
+                            totalCorrect: { $sum: "$correct" },
+                            avgTimePerTest: { $avg: "$timeTaken" }
+                        }
+                    }
+                ]);
+
+                const raw = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
+
+                // ── Analytics accuracy guard: clamp to valid range ───────────────────
+                raw.avgAccuracy    = Math.min(Math.max(raw.avgAccuracy    || 0, 0), 100);
+                raw.avgTimePerTest = Math.max(raw.avgTimePerTest || 0, 0);
+
+                await setCachedData(cacheKey, raw, 600); // 10 min cache
+                return raw;
+            } finally {
+                // Always clean up to prevent memory leak
+                inFlightOverviewRequests.delete(cacheKey);
             }
-        ]);
+        })();
 
-        const raw = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
-
-        // ── Analytics accuracy guard: clamp to valid range ───────────────────
-        raw.avgAccuracy    = Math.min(Math.max(raw.avgAccuracy    || 0, 0), 100);
-        raw.avgTimePerTest = Math.max(raw.avgTimePerTest || 0, 0);
-
-        await setCachedData(cacheKey, raw, 600); // 10 min cache
-        return raw;
+        inFlightOverviewRequests.set(cacheKey, promise);
+        return promise;
     }
 
     /**

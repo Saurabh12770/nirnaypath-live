@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="/js/lifecycle.js"></script>
+    <script src="/js/growthConfig.js"></script>
     <script src="/js/uiState.js"></script>
     <script src="/js/renderController.js"></script>
     <script src="/js/appState.js"></script>
@@ -172,9 +173,9 @@
                 <div class="hero-container">
                     <!-- Background Slider -->
                     <div class="hero-slider" id="homeHeroSlider">
-                        <img src="home_hero1.jpg" alt="Home Hero 1" width="1200" height="450" decoding="async">
+                        <img src="home_hero1.jpg" class="active" alt="Home Hero 1" width="1200" height="450" decoding="async">
                         <img data-src="home_hero2.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 2" width="1200" height="450" decoding="async">
-                        <img data-src="Home_hero3.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 3" width="1200" height="450" decoding="async">
+                        <img data-src="home_hero3.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 3" width="1200" height="450" decoding="async">
                         <img data-src="home_hero4.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 4" width="1200" height="450" decoding="async">
                         <img data-src="home_hero5.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 5" width="1200" height="450" decoding="async">
                         <img data-src="home_hero6.jpg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6'%3E%3C/svg%3E" loading="lazy" alt="Home Hero 6" width="1200" height="450" decoding="async">
@@ -369,6 +370,50 @@
                     <i class="fas fa-clock"></i>
                     <h2 class="stat-counter gradient-text" data-count="24">24/7</h2>
                     <p>Learning Access</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Platform Activity & Recent Achievements (Social Proof) -->
+        <section class="live-activity-section reveal" style="padding: 60px 0; background: var(--bg-secondary, #f8fafc); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+            <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+                <div class="live-activity-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+                    <!-- Left Column: Live Counters -->
+                    <div class="live-counters-container" style="background: var(--bg-card, #ffffff); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-color);">
+                        <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                            <span class="pulse-dot" style="display: inline-block; width: 10px; height: 10px; background-color: var(--success, #10b981); border-radius: 50%; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulse 2s infinite;"></span>
+                            Live Platform Pulse
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 30px;">Real-time learning activity across India today.</p>
+                        
+                        <div class="live-counter-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                            <div class="live-counter-card" style="padding: 15px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="font-size: 1.8rem; margin-bottom: 8px;">📝</div>
+                                <h4 id="live-tests-today" style="font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--primary);">--</h4>
+                                <span style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tests Completed</span>
+                            </div>
+                            <div class="live-counter-card" style="padding: 15px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="font-size: 1.8rem; margin-bottom: 8px;">🎯</div>
+                                <h4 id="live-questions-today" style="font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--primary);">--</h4>
+                                <span style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Questions Solved</span>
+                            </div>
+                            <div class="live-counter-card" style="padding: 15px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="font-size: 1.8rem; margin-bottom: 8px;">⚡</div>
+                                <h4 id="live-active-today" style="font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--primary);">--</h4>
+                                <span style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Active Learners</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Recent Achievements Feed -->
+                    <div class="achievements-feed-container" style="background: var(--bg-card, #ffffff); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-color); height: 260px; display: flex; flex-direction: column;">
+                        <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 5px; color: var(--text-main);"><i class="fas fa-award" style="color: #fbbf24;"></i> Recent Milestones</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Aspirants unlocking achievements right now.</p>
+                        
+                        <div id="achievements-scroll-container" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+                            <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-style: italic;">Loading achievement feed...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -915,6 +960,7 @@
 
         <!-- Premium Student Intelligence Dashboard -->
         <section id="user-dashboard" class="view-section">
+            <div id="engagement-banner-zone"></div>
             <div class="intel-dashboard">
                 
                 <!-- Top Row: Profile, Consistency & Achievements -->
@@ -975,6 +1021,45 @@
                         <h3><i class="fas fa-medal"></i> Achievements</h3>
                         <div id="badges-container" class="badges-grid-compact">
                             <!-- Badges injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Referral Panel -->
+                    <div class="referral-card glass">
+                        <h3><i class="fas fa-user-plus" style="color: var(--accent);"></i> Refer & Earn XP</h3>
+                        <div class="referral-body">
+                            <div class="referral-code-section">
+                                <span class="ref-label">Your Referral Code</span>
+                                <div class="ref-code-box">
+                                    <span id="ref-code-value">LOADING...</span>
+                                    <button id="ref-copy-btn" title="Copy Code" type="button"><i class="far fa-copy"></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="referral-stats-mini" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+                                <div class="ref-stat-box" style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary); display: block;">Invited Friends</span>
+                                    <strong id="ref-stat-count" style="font-size: 1.2rem; color: var(--primary);">0</strong>
+                                </div>
+                                <div class="ref-stat-box" style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary); display: block;">XP Earned</span>
+                                    <strong id="ref-stat-xp" style="font-size: 1.2rem; color: var(--success);">0 XP</strong>
+                                </div>
+                            </div>
+
+                            <div class="referral-progress-section" style="margin-bottom: 15px;">
+                                <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px;">
+                                    <span id="ref-progress-milestone">Next Milestone: 1 Friend</span>
+                                    <span id="ref-progress-percent">0/1</span>
+                                </div>
+                                <div class="xp-bar-bg" style="height: 6px;"><div id="ref-progress-fill" class="xp-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--accent), var(--primary));"></div></div>
+                            </div>
+
+                            <div class="referral-share-actions" style="display: flex; gap: 8px;">
+                                <button id="ref-share-wa" class="share-btn wa" type="button" style="flex: 1; padding: 8px; border-radius: 12px; background: #25d366; color: white; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                                <button id="ref-share-tg" class="share-btn tg" type="button" style="flex: 1; padding: 8px; border-radius: 12px; background: #0088cc; color: white; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"><i class="fab fa-telegram-plane"></i> Telegram</button>
+                                <button id="ref-share-native" class="share-btn native" type="button" style="padding: 8px 12px; border-radius: 12px; background: var(--primary); color: white; border: none; cursor: pointer;" title="Share Link"><i class="fas fa-share-alt"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1433,11 +1518,13 @@
     <script src="/js/auth.js?v=3.0.0"></script>
     <script src="/js/intelligence.js?v=3.0.0"></script>
     <script src="/js/realtime.js?v=3.0.0"></script>
+    <script src="/js/growthBanners.js?v=3.0.0"></script>
     <script src="/js/dashboard.js?v=3.0.0"></script>
     <script src="/js/push.js?v=3.0.0"></script>
     <script src="/script.js?v=3.0.0"></script>
     <script src="/js/app.js?v=3.0.0"></script>
     <script src="/js/chatbot.js?v=3.0.0"></script>
+    <script src="/js/socialProof.js?v=3.0.0"></script>
     <!-- Review Modal (Added for UI Stabilization) -->
     <div class="modal" id="reviewModal">
         <div class="modal-content review-modal-content" style="max-width: 600px;">
@@ -1538,6 +1625,7 @@
             <span>About</span>
         </a>
     </nav>
+  <script src="/js/referral.js?v=1.0.0"></script>
   <script src="/js/events.js?v=3.0.0"></script>
     </div>
 </div>

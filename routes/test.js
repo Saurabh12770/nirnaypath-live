@@ -46,67 +46,101 @@ router.post('/start', auth, async (req, res) => {
         const subLower = subject.toLowerCase().trim();
         const sessionId = crypto.randomUUID();
 
-        // 1. Unified Selection Pipeline
-        const rawPipelineResult = await QuestionService.getTestQuestions({
-            userId: req.user._id,
-            subject: subLower,
-            topicId,
-            count
-        });
-
-        // FIX #3: normalize contract — prevents .map crash
-        const { questions: finalQuestions, warnings } = normalizePipelineResult(
-            rawPipelineResult,
-            { requestId, subject: subLower }
+        // ── ATOMIC PER-USER MUTEX ────────────────────────────────────────────────
+        // Atomically claim the testStartLock on the User document.
+        // Only succeeds if: no lock exists, OR the existing lock has expired (TTL).
+        // This prevents two concurrent /start requests from both creating sessions.
+        const LOCK_TTL_MS = 15000; // 15s — plenty for question pipeline + DB write
+        const lockExpiry = new Date(Date.now() + LOCK_TTL_MS);
+        const lockClaimed = await User.findOneAndUpdate(
+            {
+                _id: req.user._id,
+                $or: [
+                    { testStartLock: null },
+                    { testStartLockExpiry: { $lt: new Date() } }
+                ]
+            },
+            { $set: { testStartLock: requestId, testStartLockExpiry: lockExpiry } },
+            { new: false }
         );
 
-        if (!finalQuestions || finalQuestions.length === 0) {
-            return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
+        if (!lockClaimed) {
+            return res.status(409).json({ error: 'A test session is already being started. Please wait a moment.' });
         }
+        // ── END MUTEX CLAIM ──────────────────────────────────────────────────────
 
-        // FIX #2: Strip all answer/explanation fields via centralized sanitizer
-        const sanitizedQuestions = sanitizeForClient(finalQuestions);
-        const warning = warnings && warnings.length > 0 ? warnings[0] : null;
-
-        // Deactivate any existing active session for the user before starting a new one
-        await TestSession.updateMany(
-            { userId: req.user._id, status: 'active' },
-            { $set: { status: 'expired' } }
-        );
-
-        // 2. Atomic Session Creation
-        const session = new TestSession({
-            userId: req.user._id,
-            sessionId,
-            subject: subLower,
-            exam: exam || 'General',
-            topic: topicId ? topicId.toLowerCase().trim() : null,
-            questionCount: finalQuestions.length,
-            timeLimit: parseInt(timeLimit) || 3600,
-            startTime: new Date(),
-            status: 'active',
-            questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
-        });
-
-        // Use atomic save with error handling for duplicate sessionId
         try {
-            await session.save();
-        } catch (saveErr) {
-            if (saveErr.code === 11000) {
-                return res.status(409).json({ error: 'Session conflict. Please try again.' });
-            }
-            throw saveErr;
-        }
+            // 1. Unified Selection Pipeline
+            const rawPipelineResult = await QuestionService.getTestQuestions({
+                userId: req.user._id,
+                subject: subLower,
+                topicId,
+                count
+            });
 
-        const responsePayload = {
-            sessionId,
-            questions: sanitizedQuestions,
-            startTime: session.startTime
-        };
-        if (warning) {
-            responsePayload.warning = warning;
+            // FIX #3: normalize contract — prevents .map crash
+            const { questions: finalQuestions, warnings } = normalizePipelineResult(
+                rawPipelineResult,
+                { requestId, subject: subLower }
+            );
+
+            if (!finalQuestions || finalQuestions.length === 0) {
+                return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
+            }
+
+            // FIX #2: Strip all answer/explanation fields via centralized sanitizer
+            const sanitizedQuestions = sanitizeForClient(finalQuestions);
+            const warning = warnings && warnings.length > 0 ? warnings[0] : null;
+
+            // Deactivate any existing active session for the user (safe inside mutex)
+            await TestSession.updateMany(
+                { userId: req.user._id, status: 'active' },
+                { $set: { status: 'expired' } }
+            );
+
+            // 2. Atomic Session Creation
+            const session = new TestSession({
+                userId: req.user._id,
+                sessionId,
+                subject: subLower,
+                exam: exam || 'General',
+                topic: topicId ? topicId.toLowerCase().trim() : null,
+                questionCount: finalQuestions.length,
+                timeLimit: parseInt(timeLimit) || 3600,
+                startTime: new Date(),
+                status: 'active',
+                questionIds: finalQuestions.map(q => q.id || (q._id ? q._id.toString() : null))
+            });
+
+            // Use atomic save with error handling for duplicate sessionId
+            try {
+                await session.save();
+            } catch (saveErr) {
+                if (saveErr.code === 11000) {
+                    return res.status(409).json({ error: 'Session conflict. Please try again.' });
+                }
+                throw saveErr;
+            }
+
+            const responsePayload = {
+                sessionId,
+                questions: sanitizedQuestions,
+                startTime: session.startTime
+            };
+            if (warning) {
+                responsePayload.warning = warning;
+            }
+            res.status(201).json(responsePayload);
+        } finally {
+            // ── RELEASE MUTEX ────────────────────────────────────────────────────
+            // Always release the lock after the operation (success or failure).
+            // Only release our own lock to prevent clobbering a newer lock.
+            await User.updateOne(
+                { _id: req.user._id, testStartLock: requestId },
+                { $set: { testStartLock: null, testStartLockExpiry: null } }
+            ).catch(err => console.error(`[TestStart][${requestId}] Failed to release mutex:`, err.message));
+            // ── END MUTEX RELEASE ─────────────────────────────────────────────────
         }
-        res.status(201).json(responsePayload);
     } catch (error) {
         console.error(`[TestStart][${requestId}] CRITICAL ERROR:`, error);
         res.status(500).json({ error: 'Internal system failure during test initialization' });
@@ -218,8 +252,8 @@ router.post('/submit', auth, async (req, res) => {
         if (allAvailableQuestions.length < session.questionIds.length) {
             const fileQuestions = await loadQuestions(session.subject);
             if (fileQuestions) {
-                const missingIds = session.questionIds.filter(id => !allAvailableQuestions.find(q => (q._id?.toString() === id || q.id === id)));
-                const fromFile = fileQuestions.filter(q => missingIds.includes(q.id));
+                const missingIds = session.questionIds.filter(id => !allAvailableQuestions.find(q => (q._id?.toString() === id || String(q.id || '').toLowerCase() === String(id).toLowerCase())));
+                const fromFile = fileQuestions.filter(q => missingIds.map(id => String(id).toLowerCase()).includes(String(q.id || '').toLowerCase()));
                 allAvailableQuestions = [...allAvailableQuestions, ...fromFile];
             }
         }
@@ -229,10 +263,11 @@ router.post('/submit', auth, async (req, res) => {
         let calcUnattempted = 0;
         
         const validatedAnswers = session.questionIds.map((qId, index) => {
-            const question = allAvailableQuestions.find(q => (q._id?.toString() === qId || q.id === qId));
+            const qIdLower = String(qId).toLowerCase();
+            const question = allAvailableQuestions.find(q => (q._id?.toString() === qId || String(q.id || '').toLowerCase() === qIdLower));
             
             // Query only from normalizedAnswers
-            const ansObj = normalizedAnswers.find(a => a && String(a.questionId) === String(qId));
+            const ansObj = normalizedAnswers.find(a => a && String(a.questionId).toLowerCase() === qIdLower);
             const userChoice = ansObj ? ansObj.answer : undefined;
             
             const isAttempted = userChoice !== null && userChoice !== undefined;
@@ -350,6 +385,13 @@ router.post('/submit', auth, async (req, res) => {
         try {
             const totalTests = await TestResult.countDocuments({ userId: req.user._id });
             
+            // NP-CONC-01 IDEMPOTENCY GUARANTEE (two layers):
+            //   Layer 1 — Session mutex: findOneAndUpdate at line ~171 atomically transitions
+            //             status to 'submitted'. Any concurrent /submit for the same sessionId
+            //             receives a 403/200 and never reaches this block.
+            //   Layer 2 — XPService rewardLog: award() keys each reward by sessionId and
+            //             checks rewardLog before writing. A replay of this block (bug/retry)
+            //             silently deduplicates — 1 submission == 1 XP award, always.
             // 1. Award XP for test completion & accuracy
             const xpAwards = await XPService.awardForTestSubmit(req.user._id, testResult);
             

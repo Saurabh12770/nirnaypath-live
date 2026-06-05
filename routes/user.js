@@ -3,18 +3,35 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const TestResult = require('../models/testResult');
+const Referral = require('../models/Referral');
+const FeatureFlags = require('../config/featureFlags');
 const router = express.Router();
+
+// ─── GET /api/user/config ────────────────────────────────────────────────────
+// Public (no auth): exposes safe frontend configuration from the backend.
+// Used by dashboard.js to determine GROWTH_MODE and adjust UI accordingly.
+// No PII. No secrets. Only safe boolean flags.
+router.get('/config', (req, res) => {
+    res.json({
+        growthMode: !!FeatureFlags.GROWTH_MODE
+    });
+});
+
+
+const GrowthService = require('../services/growthService');
 
 // ─── GET /api/user/me ─────────────────────────────────────────────────────────
 // Get user profile and recent tests (last 10 for dashboard widget)
 router.get('/me', auth, async (req, res) => {
     try {
-        const tests = await TestResult.find({ userId: req.user._id })
-            .sort({ createdAt: -1 })
-            .limit(10);
-            
-        const streak = await calculateStreak(req.user._id);
-        
+        const [tests, referralDoc, streak] = await Promise.all([
+            TestResult.find({ userId: req.user._id })
+                .sort({ createdAt: -1 })
+                .limit(10),
+            GrowthService.getOrCreateReferralCode(req.user._id),
+            calculateStreak(req.user._id)
+        ]);
+
         res.json({
             user: {
                 name: req.user.name,
@@ -24,7 +41,8 @@ router.get('/me', auth, async (req, res) => {
                 createdAt: req.user.createdAt,
                 streakCount: streak,
                 lastActiveDate: req.user.lastActiveDate,
-                badges: req.user.badges || []
+                badges: req.user.badges || [],
+                referralCode: referralDoc?.referralCode || null
             },
             recentTests: tests,
             streak: streak

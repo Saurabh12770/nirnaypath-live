@@ -1,5 +1,15 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
+/**
+ * NP-PERF-01 FIX: native bcrypt replaces bcryptjs.
+ * bcryptjs is pure-JS and runs on the main V8 thread — hash operations block
+ * the event loop for ~85ms (rounds=10) or ~340ms (rounds=12) per call.
+ * Under 25+ concurrent signups all hashes serialize on one thread.
+ *
+ * Native bcrypt delegates to libuv's UV thread pool (default 4 threads).
+ * Hash operations become truly async — concurrent signups run in parallel
+ * across OS threads, never blocking the event loop.
+ */
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
@@ -21,8 +31,14 @@ if (!process.env.REFRESH_TOKEN_SECRET) {
 }
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
-/** SECURITY: Minimum bcrypt cost factor — OWASP recommends >= 10 */
-const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12');
+/**
+ * SECURITY: bcrypt cost factor — OWASP minimum is 10.
+ * NP-PERF-01 FIX: Default reduced from 12 → 10.
+ *   - Rounds=12: ~340ms/hash → event-loop starvation at 25+ concurrent signups
+ *   - Rounds=10: ~85ms/hash  → 4× faster, within safe OWASP bounds
+ * Override via BCRYPT_ROUNDS env var (must be >= 10).
+ */
+const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '10');
 if (BCRYPT_ROUNDS < 10) {
   console.error(`FATAL: BCRYPT_ROUNDS=${BCRYPT_ROUNDS} is below minimum of 10.`);
   process.exit(1);
@@ -210,8 +226,9 @@ router.post('/logout', async (req, res) => {
             user.refreshTokens = user.refreshTokens.filter(t => t !== refreshToken);
             await user.save();
         }
-        res.clearCookie('token');
-        res.clearCookie('refreshToken');
+        const cookieSecure = process.env.NODE_ENV === 'production';
+        res.clearCookie('token', { httpOnly: true, secure: cookieSecure, sameSite: 'lax' });
+        res.clearCookie('refreshToken', { httpOnly: true, secure: cookieSecure, sameSite: 'lax' });
         res.json({ message: 'Logged out' });
     } catch (error) {
         res.status(500).json({ error: error.message });

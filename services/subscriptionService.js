@@ -31,14 +31,14 @@ class SubscriptionService {
         if (!user) throw new Error('User not found');
 
         // Prevent redundant payments
-        if (user.plan === planName && user.refreshTokens.includes(transactionId)) {
+        if (user.plan === planName && (user.processedPayments || []).includes(transactionId)) {
             return user;
         }
 
         user.plan = planName;
-        // Store txn key inside transient array as simple idempotency validation
+        // Store txn key inside processedPayments array as simple idempotency validation
         if (transactionId) {
-            user.refreshTokens = [...(user.refreshTokens || []), transactionId].slice(-5);
+            user.processedPayments = [...(user.processedPayments || []), transactionId].slice(-5);
         }
 
         await user.save();

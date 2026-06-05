@@ -38,7 +38,14 @@ const Dashboard = {
 
                 await this.loadData();
                 if (window.Intelligence) {
-                    await window.Intelligence.init();
+                    let plan = 'free';
+                    if (window.AppState) {
+                        const state = AppState.getState();
+                        plan = state?.dashboard?.profile?.user?.plan || 'free';
+                    } else if (this.profileData) {
+                        plan = this.profileData.user?.plan || 'free';
+                    }
+                    await window.Intelligence.init({ plan });
                 }
                 resolve();
             };
@@ -115,6 +122,9 @@ const Dashboard = {
         if (vm.leaderboard) {
             this.renderLeaderboard(vm.leaderboard);
         }
+        if (window.GrowthBanners) {
+            GrowthBanners.loadBanners();
+        }
     },
 
     BADGE_METADATA: {
@@ -144,10 +154,16 @@ const Dashboard = {
             emailDisplay.textContent = profile.user.email;
         }
         
-        // Show Upgrade CTA if free
+        // Show Upgrade CTA if free — suppressed entirely during Growth Mode
         const upgradeCTA = document.getElementById('dashboard-upgrade-cta');
         if (upgradeCTA) {
-            upgradeCTA.style.display = profile.user.plan === 'free' ? 'block' : 'none';
+            // growthMode is fetched from /api/user/config (backend-served, not hardcoded)
+            const isGrowthMode = !!(window._npConfig && window._npConfig.growthMode);
+            if (isGrowthMode) {
+                upgradeCTA.style.display = 'none';
+            } else {
+                upgradeCTA.style.display = profile.user.plan === 'free' ? 'block' : 'none';
+            }
         }
 
         const streakDisplay = document.getElementById('dash-streak');

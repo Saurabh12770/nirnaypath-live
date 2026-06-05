@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('./models/user');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -13,7 +13,7 @@ async function run() {
 
         const email = process.env.ADMIN_EMAIL || 'admin@nirnaypath.local';
         const password = 'AdminPassword123!';
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         let user = await User.findOne({ email });
         if (user) {

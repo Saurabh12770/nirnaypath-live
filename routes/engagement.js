@@ -10,6 +10,7 @@ const CommunityDiscussion = require('../models/CommunityDiscussion');
 const GoalTracker = require('../models/GoalTracker');
 const Question = require('../models/question');
 const GrowthService = require('../services/growthService');
+const TestResult = require('../models/testResult');
 
 /* ─── DAILY CHALLENGES ─────────────────────────────────────────────── */
 
@@ -417,6 +418,7 @@ async function getOrCreateGoalTracker(userId) {
 async function updateGoalProgress(userId, { minutes = 0, mocks = 0 }) {
     const tracker = await getOrCreateGoalTracker(userId);
     const todayStr = new Date().toISOString().split('T')[0];
+    const prevActiveDate = tracker.lastActiveDate; // Capture previous value before mutation
 
     // Reset counts if active day has rolled over
     if (tracker.lastActiveDate !== todayStr) {
@@ -450,7 +452,8 @@ async function updateGoalProgress(userId, { minutes = 0, mocks = 0 }) {
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-        if (tracker.currentStreak === 0 || tracker.lastActiveDate === yesterdayStr) {
+        // Compare against the captured prevActiveDate to see if last active day was yesterday
+        if (tracker.currentStreak === 0 || prevActiveDate === yesterdayStr) {
             tracker.currentStreak += 1;
             if (tracker.currentStreak > tracker.longestStreak) {
                 tracker.longestStreak = tracker.currentStreak;
@@ -461,6 +464,138 @@ async function updateGoalProgress(userId, { minutes = 0, mocks = 0 }) {
     await tracker.save();
     return tracker;
 }
+
+/**
+ * GET /api/engagement/smart-feed
+ * Generates personalized, contextual recommendation cards/banners
+ * using only existing learner data (no schema changes).
+ */
+router.get('/smart-feed', auth, async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const feed = [];
+
+        // 1. Fetch data concurrently
+        const [lastTest, allTests, tracker] = await Promise.all([
+            TestResult.findOne({ userId }).sort({ createdAt: -1 }).lean(),
+            TestResult.find({ userId }).select('subject accuracy totalQuestions correct').lean(),
+            GoalTracker.findOne({ userId }).lean()
+        ]);
+
+        // 2. Nudge based on Streak status
+        if (tracker) {
+            const streak = tracker.currentStreak || 0;
+            if (streak > 0) {
+                feed.push({
+                    id: 'streak-status',
+                    type: 'success',
+                    icon: '🔥',
+                    message: `You're on a <strong>${streak}-day streak</strong>! Keep the momentum going today.`,
+                    actionText: 'Keep Streak Alive',
+                    actionLink: '#practice-zone',
+                    priority: 90
+                });
+            } else {
+                feed.push({
+                    id: 'streak-status',
+                    type: 'info',
+                    icon: '🎯',
+                    message: 'Start a study streak! Complete a test today to start your streak.',
+                    actionText: 'Take a Test',
+                    actionLink: '#practice-zone',
+                    priority: 50
+                });
+            }
+        }
+
+        // 3. Nudge based on Last Test
+        if (lastTest) {
+            const dateStr = new Date(lastTest.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            let type = 'info';
+            let message = '';
+
+            if (lastTest.accuracy >= 80) {
+                type = 'success';
+                message = `Excellent job on your last <strong>${lastTest.subject.toUpperCase()}</strong> test on ${dateStr} (${lastTest.accuracy}% accuracy)! Ready to raise the bar?`;
+            } else if (lastTest.accuracy < 50) {
+                type = 'warning';
+                message = `Your last <strong>${lastTest.subject.toUpperCase()}</strong> test on ${dateStr} was challenging (${lastTest.accuracy}% accuracy). Let's review the concepts.`;
+            } else {
+                message = `You scored <strong>${lastTest.score}/${lastTest.totalQuestions}</strong> in <strong>${lastTest.subject.toUpperCase()}</strong> on ${dateStr}. Keep practicing to perfect this subject!`;
+            }
+
+            feed.push({
+                id: 'last-test',
+                type: type,
+                icon: '📊',
+                message: message,
+                actionText: 'Review Test',
+                actionLink: `javascript:Dashboard.viewResult('${lastTest._id}')`,
+                priority: 80
+            });
+        } else {
+            // No tests taken yet
+            feed.push({
+                id: 'welcome-nudge',
+                type: 'primary',
+                icon: '🚀',
+                message: 'Welcome to NirnayPath! Let\'s begin by taking a diagnostic mock test.',
+                actionText: 'Start Test',
+                actionLink: '#popular-exams',
+                priority: 100
+            });
+        }
+
+        // 4. Calculate Weak Topic (Subject) from all test results
+        if (allTests && allTests.length > 0) {
+            const subjectData = {};
+            allTests.forEach(test => {
+                if (test.subject) {
+                    const sub = test.subject.trim();
+                    if (!subjectData[sub]) {
+                        subjectData[sub] = { total: 0, correct: 0 };
+                    }
+                    subjectData[sub].total += test.totalQuestions || 0;
+                    subjectData[sub].correct += test.correct || 0;
+                }
+            });
+
+            let weakSubject = null;
+            let lowestAccuracy = 100;
+
+            for (const sub in subjectData) {
+                if (subjectData[sub].total > 0) {
+                    const accuracy = Math.round((subjectData[sub].correct / subjectData[sub].total) * 100);
+                    if (accuracy < lowestAccuracy) {
+                        lowestAccuracy = accuracy;
+                        weakSubject = sub;
+                    }
+                }
+            }
+
+            // Only nudge if the lowest accuracy is below 70% to be meaningful
+            if (weakSubject && lowestAccuracy < 70) {
+                feed.push({
+                    id: 'weak-subject',
+                    type: 'warning',
+                    icon: '💡',
+                    message: `Focus Area: Accuracy in <strong>${weakSubject.toUpperCase()}</strong> is currently at <strong>${lowestAccuracy}%</strong>. Take a quick drill to improve!`,
+                    actionText: 'Practice Drills',
+                    actionLink: '#practice-zone',
+                    priority: 85
+                });
+            }
+        }
+
+        // Sort by priority descending
+        feed.sort((a, b) => b.priority - a.priority);
+
+        res.json({ feed });
+    } catch (err) {
+        console.error('[ENGAGEMENT] Smart feed calculation error:', err.message);
+        res.status(500).json({ error: 'Failed to generate smart feed.' });
+    }
+});
 
 module.exports = router;
 module.exports.updateGoalProgress = updateGoalProgress;

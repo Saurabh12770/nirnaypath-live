@@ -7,6 +7,9 @@ const Wallet = require('../models/Wallet');
 const Referral = require('../models/Referral');
 const Coupon = require('../models/Coupon');
 const plans = require('../config/plans');
+const UserXP = require('../models/UserXP');
+const CacheLayer = require('./cacheLayer');
+const XPService = require('./xpService');
 
 class GrowthService {
 
@@ -93,6 +96,14 @@ class GrowthService {
     static async registerReferral(referredUserId, referralCode) {
         if (!referralCode) return null;
 
+        const referredUser = await User.findById(referredUserId);
+        if (!referredUser) {
+            throw new Error('User not found.');
+        }
+        if (referredUser.referralCodeUsed) {
+            throw new Error('You have already claimed a referral code.');
+        }
+
         const referrerRecord = await Referral.findOne({ referralCode: referralCode.toUpperCase() });
         if (!referrerRecord) {
             console.warn(`[Referral] Referral code ${referralCode} not found.`);
@@ -108,18 +119,24 @@ class GrowthService {
             u => u.referredUserId.toString() === referredUserId.toString()
         );
 
-        if (!alreadyReferred) {
-            referrerRecord.referredUsers.push({
-                referredUserId,
-                status: 'pending',
-                joinedAt: new Date(),
-                rewardGranted: false
-            });
-            await referrerRecord.save();
-
-            // Auto-complete immediately on join to grant reward credits
-            await this.completeReferralReward(referrerRecord.userId, referredUserId);
+        if (alreadyReferred) {
+            throw new Error('You have already claimed a referral code.');
         }
+
+        referrerRecord.referredUsers.push({
+            referredUserId,
+            status: 'pending',
+            joinedAt: new Date(),
+            rewardGranted: false
+        });
+        await referrerRecord.save();
+
+        // Mark user as referred
+        referredUser.referralCodeUsed = referralCode.toUpperCase();
+        await referredUser.save();
+
+        // Auto-complete immediately on join to grant reward credits
+        await this.completeReferralReward(referrerRecord.userId, referredUserId);
 
         return referrerRecord;
     }
@@ -158,6 +175,21 @@ class GrowthService {
                 source: 'referral',
                 description: 'Sign-up bonus using referral code'
             });
+
+            // ── PHASE 3: REFERRAL XP MILESTONES ──
+            try {
+                const completedCount = refRecord.referredUsers.filter(u => u.status === 'completed').length;
+                const milestones = [1, 5, 10, 25, 50];
+                for (const m of milestones) {
+                    if (completedCount >= m) {
+                        // Use a fixed key per milestone to guarantee single issuance
+                        const metadata = { sessionId: `milestone_${m}` };
+                        await XPService.award(referrerUserId, `referral_${m}`, metadata);
+                    }
+                }
+            } catch (xpErr) {
+                console.error('[GrowthService] Referral XP milestone award error:', xpErr.message);
+            }
         }
     }
 
@@ -324,6 +356,90 @@ class GrowthService {
                 acc[curr._id] = curr.count;
                 return acc;
             }, {})
+        };
+    }
+
+    /**
+     * Fetch referral statistics for a user
+     */
+    static async getReferralStats(userId) {
+        // Ensure referral code is generated
+        const myRef = await this.getOrCreateReferralCode(userId);
+        const referralCode = myRef.referralCode;
+        const referralCount = myRef.referredUsers.filter(u => u.status === 'completed').length;
+
+        // Try to read rank from cache
+        const cacheKey = `referral_rank_${userId}`;
+        let referralRank = CacheLayer.getSnapshot(cacheKey);
+
+        if (referralRank === null) {
+            try {
+                // Find how many referrers have completed count > myCount
+                const countHigher = await Referral.countDocuments({
+                    $expr: {
+                        $gt: [
+                            {
+                                $size: {
+                                    $filter: {
+                                        input: { $ifNull: ["$referredUsers", []] },
+                                        as: "u",
+                                        cond: { $eq: ["$$u.status", "completed"] }
+                                    }
+                                }
+                            },
+                            referralCount
+                        ]
+                    }
+                });
+                referralRank = countHigher + 1;
+                CacheLayer.setSnapshot(cacheKey, referralRank, 60); // 60s cache
+            } catch (err) {
+                console.error('[GrowthService] Error calculating referral rank:', err);
+                referralRank = 1; // Fallback
+            }
+        }
+
+        // Determine milestones
+        const milestones = [1, 5, 10, 25, 50];
+        let milestoneReached = 0;
+        let nextMilestone = milestones[0];
+
+        for (let i = 0; i < milestones.length; i++) {
+            if (referralCount >= milestones[i]) {
+                milestoneReached = milestones[i];
+                nextMilestone = milestones[i + 1] || null;
+            } else {
+                if (milestoneReached === 0) {
+                    nextMilestone = milestones[0];
+                }
+                break;
+            }
+        }
+
+        // Calculate milestone XP earned
+        let totalReferralXP = 0;
+        try {
+            const xpRecord = await UserXP.findOne({ userId }).lean();
+            if (xpRecord && xpRecord.rewardLog) {
+                const milestoneXPs = { 1: 100, 5: 500, 10: 1000, 25: 2500, 50: 5000 };
+                for (const m of milestones) {
+                    // XPService stores key as: `${action}_${metadata.sessionId}` = `referral_N_milestone_N`
+                    if (xpRecord.rewardLog.includes(`referral_${m}_milestone_${m}`)) {
+                        totalReferralXP += milestoneXPs[m];
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[GrowthService] Error reading referral XP:', err);
+        }
+
+        return {
+            referralCode,
+            referralCount,
+            referralRank,
+            milestoneReached,
+            nextMilestone,
+            totalReferralXP
         };
     }
 }

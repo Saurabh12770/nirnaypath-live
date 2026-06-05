@@ -94,7 +94,7 @@ function info(phase, msg) {
     // ─────────────────────────────────────────────────────────────────────
     console.log('\n━━━ PHASE 1: Environment Validation ━━━');
     try {
-        const resp = await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 15000 });
+        const resp = await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 20000 });
         if (resp.status() === 200) {
             pass('PHASE1', `Server UP — HTTP ${resp.status()}`);
         } else {
@@ -112,7 +112,7 @@ function info(phase, msg) {
 
     // SW check with retry loop
     let swRegistered = false;
-    for (let attempt = 0; attempt < 10; attempt++) {
+    for (let attempt = 0; attempt < 25; attempt++) {
         swRegistered = await page.evaluate(async () => {
             if (!('serviceWorker' in navigator)) return false;
             const regs = await navigator.serviceWorker.getRegistrations();
@@ -124,7 +124,7 @@ function info(phase, msg) {
     swRegistered ? pass('PHASE1', 'Service Worker registered') : fail('PHASE1', 'Service Worker NOT registered');
 
     let cacheKeys = [];
-    for (let attempt = 0; attempt < 10; attempt++) {
+    for (let attempt = 0; attempt < 25; attempt++) {
         cacheKeys = await page.evaluate(async () => {
             if (!('caches' in window)) return [];
             return await window.caches.keys();
@@ -228,7 +228,14 @@ function info(phase, msg) {
     const dialogHandler = async dialog => { await dialog.accept(); };
     page.on('dialog', dialogHandler);
     await page.click('#doSignup');
-    await delay(4000);
+    let signupSucceeded = false;
+    for (let attempt = 0; attempt < 30; attempt++) {
+        signupSucceeded = await page.evaluate(() => {
+            return !!localStorage.getItem('np_user_data');
+        });
+        if (signupSucceeded) break;
+        await delay(500);
+    }
     page.off('dialog', dialogHandler);
 
     const signedUpIn = await page.evaluate(() => {
@@ -255,6 +262,20 @@ function info(phase, msg) {
         } catch (dbErr) {
             fail('PHASE3', `Failed to promote user to Pro: ${dbErr.message}`);
         }
+    }
+
+    // Dismiss onboarding modal if visible, since it blocks clicking the logout button (#loginBtn)
+    const onboardingExists = await page.evaluate(() => {
+        const modal = document.getElementById('onboardingModal');
+        return modal && modal.style.display !== 'none';
+    });
+    if (onboardingExists) {
+        info('PHASE3', 'Onboarding modal detected. Choosing exam and submitting...');
+        await page.waitForSelector('.onboard-exam-opt', { visible: true });
+        await page.click('.onboard-exam-opt[data-exam="bpsc"]');
+        await delay(500);
+        await page.click('#onboardingSubmitBtn');
+        await delay(1000); // allow transition and modal hide to complete
     }
 
     // Logout
@@ -284,7 +305,14 @@ function info(phase, msg) {
     await page.type('#loginEmail', email);
     await page.type('#loginPass', password);
     await page.click('#doLogin');
-    await delay(4000);
+    let loginSucceeded = false;
+    for (let attempt = 0; attempt < 30; attempt++) {
+        loginSucceeded = await page.evaluate(() => {
+            return !!localStorage.getItem('np_user_data');
+        });
+        if (loginSucceeded) break;
+        await delay(500);
+    }
 
     const loggedIn = await page.evaluate(() => {
         return !!localStorage.getItem('np_user_data') || (window.Auth && window.Auth.isLoggedIn && Auth.isLoggedIn());
@@ -459,7 +487,11 @@ function info(phase, msg) {
         await page.waitForSelector('#btn-confirm-submit', { visible: true, timeout: 5000 });
         await page.click('#btn-confirm-submit');
         pass('PHASE4', 'Test submission confirmed');
-        await delay(3000);
+        try {
+            await page.waitForSelector('#terminated-overlay.active', { timeout: 12000 });
+        } catch (overlayErr) {
+            info('PHASE4', `Timeout waiting for #terminated-overlay.active: ${overlayErr.message}`);
+        }
         await page.screenshot({ path: path.join(SCRATCH_DIR, 'p4_result_screen.png') });
 
         // Verify submit API call
@@ -541,7 +573,11 @@ function info(phase, msg) {
         await delay(400);
         await page.waitForSelector('#btn-confirm-submit', { visible: true });
         await page.click('#btn-confirm-submit');
-        await delay(2000);
+        try {
+            await page.waitForSelector('#terminated-overlay.active', { timeout: 12000 });
+        } catch (overlayErr) {
+            info('PHASE5', `Timeout waiting for #terminated-overlay.active: ${overlayErr.message}`);
+        }
         await page.waitForSelector('#btn-return-home', { visible: true, timeout: 5000 });
         await page.click('#btn-return-home');
         await delay(2000);

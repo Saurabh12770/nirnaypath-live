@@ -9,6 +9,9 @@ if (!process.env.JWT_SECRET) {
 }
 const jwtSecret = process.env.JWT_SECRET;
 
+// Map to coalesce in-flight user database lookups under concurrent request load
+const inFlightUserLookups = new Map();
+
 const parseCookies = (cookieHeader) => {
     const list = {};
     if (!cookieHeader) return list;
@@ -21,6 +24,9 @@ const parseCookies = (cookieHeader) => {
     });
     return list;
 };
+
+// Fast synchronous cache for verified tokens to bypass CPU-heavy crypto operations under burst load
+const verifiedTokenCache = new Map();
 
 const auth = async (req, res, next) => {
     try {
@@ -44,26 +50,46 @@ const auth = async (req, res, next) => {
             return res.status(500).json({ error: 'Authentication service temporarily unavailable.', code: 'AUTH_CONFIG_ERROR' });
         }
 
-        let decoded;
-        try {
-            decoded = jwt.verify(token, jwtSecret);
-        } catch (jwtError) {
-            // PHASE-4A FIX: Differentiate JWT error types
-            if (jwtError.name === 'TokenExpiredError') {
-                return res.status(401).json({ error: 'Token has expired. Please refresh your session.', code: 'TOKEN_EXPIRED' });
+        let decoded = verifiedTokenCache.get(token);
+        if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
+            try {
+                decoded = jwt.verify(token, jwtSecret);
+                if (decoded && decoded.exp && decoded.exp * 1000 > Date.now()) {
+                    verifiedTokenCache.set(token, decoded);
+                }
+            } catch (jwtError) {
+                // Remove expired/invalid from cache if present
+                verifiedTokenCache.delete(token);
+
+                // PHASE-4A FIX: Differentiate JWT error types
+                if (jwtError.name === 'TokenExpiredError') {
+                    return res.status(401).json({ error: 'Token has expired. Please refresh your session.', code: 'TOKEN_EXPIRED' });
+                }
+                if (jwtError.name === 'JsonWebTokenError') {
+                    return res.status(400).json({ error: 'Invalid authentication token.', code: 'TOKEN_MALFORMED' });
+                }
+                if (jwtError.name === 'NotBeforeError') {
+                    return res.status(401).json({ error: 'Token is not yet active.', code: 'TOKEN_NOT_ACTIVE' });
+                }
+                return res.status(401).json({ error: 'Token verification failed.', code: 'TOKEN_INVALID' });
             }
-            if (jwtError.name === 'JsonWebTokenError') {
-                return res.status(400).json({ error: 'Invalid authentication token.', code: 'TOKEN_MALFORMED' });
-            }
-            if (jwtError.name === 'NotBeforeError') {
-                return res.status(401).json({ error: 'Token is not yet active.', code: 'TOKEN_NOT_ACTIVE' });
-            }
-            return res.status(401).json({ error: 'Token verification failed.', code: 'TOKEN_INVALID' });
         }
 
+        // Coalesce concurrent user lookups for the same ID to prevent DB thrashing under high concurrency
         let user;
         try {
-            user = await User.findById(decoded.id);
+            const cacheKey = decoded.id;
+            if (inFlightUserLookups.has(cacheKey)) {
+                user = await inFlightUserLookups.get(cacheKey);
+            } else {
+                const promise = User.findById(decoded.id).exec();
+                inFlightUserLookups.set(cacheKey, promise);
+                try {
+                    user = await promise;
+                } finally {
+                    inFlightUserLookups.delete(cacheKey);
+                }
+            }
         } catch (dbError) {
             // PHASE-4A FIX: Database errors should not be masked as auth failures
             console.error('[AUTH] Database error during user lookup:', dbError.message);
