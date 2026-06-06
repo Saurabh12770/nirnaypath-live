@@ -1,13 +1,4 @@
 const TestResult = require('../models/testResult');
-const User = require('../models/user');
-const { getCachedData, setCachedData } = require('../middleware/cache');
-
-/**
- * Performance Intelligence Engine
- * Handles complex student performance analysis with MongoDB Aggregation.
- */
-// Map to coalesce in-flight overview queries to prevent thundering herd under heavy concurrent load
-const inFlightOverviewRequests = new Map();
 
 class PerformanceAnalyticsService {
     
@@ -15,214 +6,139 @@ class PerformanceAnalyticsService {
      * Get Overview Stats (High Level)
      */
     static async getOverview(userId) {
-        const cacheKey = `analytics_overview_${userId}`;
-        const cached = await getCachedData(cacheKey);
-        if (cached) return cached;
-
-        // Thundering herd protection: coalesce concurrent requests for the same user
-        if (inFlightOverviewRequests.has(cacheKey)) {
-            return inFlightOverviewRequests.get(cacheKey);
-        }
-
-        const promise = (async () => {
-            try {
-                // ── Early-exit: skip aggregation for users with no tests ─────────────
-                // This avoids a full collection scan + aggregation for every new user,
-                // dramatically reducing p50 latency under concurrent-signup load.
-                const hasTests = await TestResult.exists({ userId });
-                if (!hasTests) {
-                    const empty = { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
-                    // Short TTL: user may take a test soon
-                    await setCachedData(cacheKey, empty, 30);
-                    return empty;
-                }
-
-                const stats = await TestResult.aggregate([
-                    { $match: { userId: userId } },
-                    { 
-                        $group: {
-                            _id: null,
-                            totalTests: { $sum: 1 },
-                            avgAccuracy: { $avg: "$accuracy" },
-                            totalQuestions: { $sum: "$totalQuestions" },
-                            totalCorrect: { $sum: "$correct" },
-                            avgTimePerTest: { $avg: "$timeTaken" }
-                        }
-                    }
-                ]);
-
-                const raw = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
-
-                // ── Analytics accuracy guard: clamp to valid range ───────────────────
-                raw.avgAccuracy    = Math.min(Math.max(raw.avgAccuracy    || 0, 0), 100);
-                raw.avgTimePerTest = Math.max(raw.avgTimePerTest || 0, 0);
-
-                await setCachedData(cacheKey, raw, 600); // 10 min cache
-                return raw;
-            } finally {
-                // Always clean up to prevent memory leak
-                inFlightOverviewRequests.delete(cacheKey);
+        try {
+            const hasTests = await TestResult.exists({ userId });
+            if (!hasTests) {
+                return { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
             }
-        })();
 
-        inFlightOverviewRequests.set(cacheKey, promise);
-        return promise;
+            const stats = await TestResult.aggregate([
+                { $match: { userId: userId } },
+                { 
+                    $group: {
+                        _id: null,
+                        totalTests: { $sum: 1 },
+                        avgAccuracy: { $avg: "$accuracy" },
+                        totalQuestions: { $sum: "$totalQuestions" },
+                        totalCorrect: { $sum: "$correct" },
+                        avgTimePerTest: { $avg: "$timeTaken" }
+                    }
+                }
+            ]);
+
+            const raw = stats[0] || { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
+            raw.avgAccuracy = Math.min(Math.max(Math.round(raw.avgAccuracy || 0), 0), 100);
+            raw.avgTimePerTest = Math.round(raw.avgTimePerTest || 0);
+
+            return raw;
+        } catch (err) {
+            console.error('[Analytics] Overview aggregation failed:', err.message);
+            return { totalTests: 0, avgAccuracy: 0, totalQuestions: 0, totalCorrect: 0, avgTimePerTest: 0 };
+        }
     }
 
     /**
-     * Get Topic-wise Performance Ranking
+     * Get Topic-wise Performance
      */
     static async getTopicMastery(userId) {
-        const cacheKey = `analytics_topics_${userId}`;
-        const cached = await getCachedData(cacheKey);
-        if (cached) return cached;
+        try {
+            const topicStats = await TestResult.aggregate([
+                { $match: { userId: userId } },
+                { $unwind: "$answers" },
+                {
+                    $group: {
+                        _id: "$answers.topicId",
+                        topicName: { $first: "$answers.topic" },
+                        attempts: { $sum: 1 },
+                        correct: { $sum: { $cond: ["$answers.isCorrect", 1, 0] } },
+                        avgAccuracy: { $avg: { $cond: ["$answers.isCorrect", 100, 0] } }
+                    }
+                },
+                { $sort: { avgAccuracy: -1 } }
+            ]);
 
-        // Flatten answers to analyze per-topic performance
-        const topicStats = await TestResult.aggregate([
-            { $match: { userId: userId } },
-            { $unwind: "$answers" },
-            {
-                $group: {
-                    _id: "$answers.topicId",
-                    topicName: { $first: "$answers.topic" },
-                    attempts: { $sum: 1 },
-                    correct: { $sum: { $cond: ["$answers.isCorrect", 1, 0] } },
-                    avgAccuracy: { $avg: { $cond: ["$answers.isCorrect", 100, 0] } }
-                }
-            },
-            { $sort: { avgAccuracy: -1 } }
-        ]);
+            const mappedStats = topicStats.map(t => ({
+                topicId: t._id || 'general',
+                topicName: t.topicName || t._id || 'General',
+                attempts: t.attempts,
+                correct: t.correct,
+                avgAccuracy: Math.round(t.avgAccuracy || 0)
+            }));
 
-        const strongest = topicStats.slice(0, 5);
-        const weakest = [...topicStats].sort((a, b) => a.avgAccuracy - b.avgAccuracy).slice(0, 5);
+            const strongest = mappedStats.filter(t => t.avgAccuracy >= 80).slice(0, 5);
+            const weakest = mappedStats.filter(t => t.avgAccuracy < 60).slice(0, 5);
 
-        const result = { strongest, weakest, all: topicStats };
-        await setCachedData(cacheKey, result, 1800); // 30 min cache
-        return result;
+            return { strongest, weakest, all: mappedStats };
+        } catch (err) {
+            console.error('[Analytics] Topic mastery aggregation failed:', err.message);
+            return { strongest: [], weakest: [], all: [] };
+        }
+    }
+
+    /**
+     * Get Subject-wise Performance
+     */
+    static async getSubjectMastery(userId) {
+        try {
+            const subjectStats = await TestResult.aggregate([
+                { $match: { userId: userId } },
+                {
+                    $group: {
+                        _id: "$subject",
+                        attempts: { $sum: "$totalQuestions" },
+                        correct: { $sum: "$correct" },
+                        avgAccuracy: { $avg: "$accuracy" }
+                    }
+                },
+                { $sort: { avgAccuracy: -1 } }
+            ]);
+
+            return subjectStats.map(s => ({
+                subject: s._id || 'General',
+                attempts: s.attempts,
+                correct: s.correct,
+                avgAccuracy: Math.round(s.avgAccuracy || 0)
+            }));
+        } catch (err) {
+            console.error('[Analytics] Subject mastery aggregation failed:', err.message);
+            return [];
+        }
     }
 
     /**
      * Improvement Trends (Last 30 days)
      */
     static async getTrends(userId) {
-        const cacheKey = `analytics_trends_${userId}`;
-        const cached = await getCachedData(cacheKey);
-        if (cached) return cached;
+        try {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const trends = await TestResult.aggregate([
+                { 
+                    $match: { 
+                        userId: userId,
+                        createdAt: { $gte: thirtyDaysAgo }
+                    } 
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                        avgAccuracy: { $avg: "$accuracy" },
+                        testCount: { $sum: 1 }
+                    }
+                },
+                { $sort: { "_id": 1 } }
+            ]);
 
-        const trends = await TestResult.aggregate([
-            { 
-                $match: { 
-                    userId: userId,
-                    createdAt: { $gte: thirtyDaysAgo }
-                } 
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                    avgAccuracy: { $avg: "$accuracy" },
-                    testCount: { $sum: 1 }
-                }
-            },
-            { $sort: { "_id": 1 } }
-        ]);
-
-        await setCachedData(cacheKey, trends, 3600);
-        return trends;
-    }
-
-    /**
-     * Exam Readiness Prediction
-     */
-    static async getReadiness(userId) {
-        const [overview, topics] = await Promise.all([
-            this.getOverview(userId),
-            this.getTopicMastery(userId)
-        ]);
-
-        if (overview.totalTests < 5) {
-            return { readiness: null, message: "Take at least 5 tests to calculate readiness." };
+            return trends.map(t => ({
+                date: t._id,
+                avgAccuracy: Math.round(t.avgAccuracy || 0),
+                testCount: t.testCount
+            }));
+        } catch (err) {
+            console.error('[Analytics] Trends aggregation failed:', err.message);
+            return [];
         }
-
-        // ── Readiness formula with accuracy guard ────────────────────────────
-        // Weights: 50% avg accuracy, 30% topic coverage, 20% volume (capped 50 tests)
-        const masteredTopics = topics.all.filter(t => t.avgAccuracy >= 70).length;
-        const totalTopics    = Math.max(topics.all.length, 1);
-        const coverage       = (masteredTopics / totalTopics) * 100;
-
-        const rawScore     = (overview.avgAccuracy * 0.5) + (coverage * 0.3) + (Math.min(overview.totalTests, 50) * 0.4);
-        const finalScore   = Math.min(Math.max(Math.round(rawScore), 0), 100); // guard: 0-100
-
-        let confidence = 'Low';
-        if (overview.totalTests > 20) confidence = 'High';
-        else if (overview.totalTests > 10) confidence = 'Medium';
-
-        return {
-            score: finalScore,
-            confidence,
-            factors: {
-                accuracy:    Math.round(overview.avgAccuracy * 10) / 10,
-                coverage:    Math.round(coverage * 10) / 10,
-                consistency: overview.totalTests > 10 ? 'High' : 'Developing'
-            }
-        };
-    }
-
-    /**
-     * Get Predictive Intelligence Metrics
-     */
-    static async getPredictiveMetrics(userId) {
-        const StudentLearningProfileService = require('./studentLearningProfileService');
-        const profile = await StudentLearningProfileService.getProfile(userId);
-        
-        if (!profile) return null;
-
-        // Predict Rank Band (Simulated based on accuracy and volume)
-        let rankBand = "Top 20% - 30%";
-        if (profile.overallAccuracy > 90) rankBand = "Top 1% - 5%";
-        else if (profile.overallAccuracy > 80) rankBand = "Top 5% - 15%";
-        else if (profile.overallAccuracy < 50) rankBand = "Bottom 40%";
-
-        return {
-            predictedPercentile: Math.min(Math.round(profile.overallAccuracy * 1.1), 99),
-            rankBand,
-            learningVelocity: profile.learningVelocity.toFixed(2),
-            burnoutRisk: profile.burnoutRisk,
-            comebackProbability: profile.learningVelocity > 0 ? "High" : "Low"
-        };
-    }
-
-    /**
-     * Calculate Streak (Hardened Logic)
-     */
-    static async getStreak(userId) {
-        const user = await User.findById(userId).select('streakCount lastActiveDate');
-        if (!user) return { currentStreak: 0, lastActive: null };
-        return {
-            currentStreak: Math.max(user.streakCount || 0, 0), // guard: no negative streaks
-            lastActive: user.lastActiveDate
-        };
-    }
-
-    /**
-     * Analytics health assertions (for drift detection & monitoring)
-     * Returns array of assertion failures — empty array means all healthy.
-     */
-    static assertAnalyticsHealth(overview, readiness) {
-        const failures = [];
-        if (overview) {
-            if (overview.avgAccuracy < 0 || overview.avgAccuracy > 100)
-                failures.push(`avgAccuracy out of range: ${overview.avgAccuracy}`);
-            if (overview.avgTimePerTest < 0)
-                failures.push(`avgTimePerTest is negative: ${overview.avgTimePerTest}`);
-        }
-        if (readiness && readiness.score !== null) {
-            if (readiness.score < 0 || readiness.score > 100)
-                failures.push(`readinessScore out of range: ${readiness.score}`);
-        }
-        return failures;
     }
 }
 

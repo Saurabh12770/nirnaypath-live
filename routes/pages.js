@@ -12,17 +12,40 @@ router.get('/about', (req, res) => {
     res.sendFile(path.join(publicPath, 'about.html'));
 });
 
-// Alias for about.html in case of direct links
 router.get('/about.html', (req, res) => {
     res.sendFile(path.join(publicPath, 'about.html'));
 });
 
-// Review admin was removed — redirect to main admin dashboard
-router.get('/review-admin', (req, res) => {
-    res.redirect(301, '/admin');
-});
-router.get('/review-admin.html', (req, res) => {
-    res.redirect(301, '/admin');
+// ── Learn Platform ────────────────────────────────────────────────────────────
+router.get('/learn', (req, res) => {
+    res.sendFile(path.join(publicPath, 'learn.html'));
 });
 
+router.get('/learn.html', (req, res) => {
+    res.sendFile(path.join(publicPath, 'learn.html'));
+});
+
+// ── Mock Tests ────────────────────────────────────────────────────────────────
+router.get('/mock-tests', (req, res) => {
+    res.sendFile(path.join(publicPath, 'mock-tests.html'));
+});
+
+router.get('/mock-tests.html', (req, res) => {
+    res.sendFile(path.join(publicPath, 'mock-tests.html'));
+});
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+router.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
+});
+
+router.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
+});
+
+// Redirects for old paths
+router.get('/review-admin', (req, res) => { res.redirect(301, '/admin'); });
+router.get('/review-admin.html', (req, res) => { res.redirect(301, '/admin'); });
+
 module.exports = router;
+

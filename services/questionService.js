@@ -1,9 +1,9 @@
 /**
- * Question Service Layer (Phase 2)
- * SINGLE entry point for question delivery.
+ * Question Service - Simplified v2.0
  */
 
-const QuestionPipeline = require('../core/questionPipeline');
+const QuestionRepository = require('./questionRepository');
+const SelectionEngine = require('./selectionEngine');
 
 class QuestionService {
     static async getTestQuestions({ userId, subject, topicId, count }) {
@@ -11,9 +11,13 @@ class QuestionService {
             throw new Error('Subject is required');
         }
 
-        // Orchestrate full pipeline via central core pipeline.
-        // No direct data mutation or selection logic here.
-        return await QuestionPipeline.execute({ userId, subject, topicId, count });
+        // Fetch valid questions from repo
+        const questions = await QuestionRepository.fetchQuestions(subject, topicId);
+
+        // Select count using random shuffle selection engine
+        const selected = SelectionEngine.select(questions, count || 20);
+
+        return selected;
     }
 }
 

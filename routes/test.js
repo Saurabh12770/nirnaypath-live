@@ -1,24 +1,15 @@
 'use strict';
 
-const express    = require('express');
-const auth       = require('../middleware/auth');
-const TestResult = require('../models/testResult');
-const User       = require('../models/user');
-const { sendResultEmail }   = require('../services/emailService');
-const { evaluateBadges }    = require('../services/badgeService');
-const AdaptiveLearningService = require('../services/adaptiveLearningService');
-const XPService = require('../services/xpService');
-const AchievementService = require('../services/achievementService');
-const notificationService = require('../services/notificationService');
-const RecommendationService = require('../services/recommendationService');
-const router  = express.Router();
-const crypto  = require('crypto');
-const TestSession   = require('../models/testSession');
-const Question      = require('../models/question');
+const express         = require('express');
+const auth            = require('../middleware/auth');
+const TestResult      = require('../models/testResult');
+const User            = require('../models/user');
+const router          = express.Router();
+const crypto          = require('crypto');
+const TestSession     = require('../models/testSession');
+const Question        = require('../models/question');
 const QuestionService = require('../services/questionService');
-const TestViolation   = require('../models/testViolation');
-const { normalizePipelineResult }  = require('../utils/normalizePipelineResult');
-const { sanitizeForClient, inspectPayloadForLeaks } = require('../utils/sanitizeQuestions');
+const { sanitizeForClient }        = require('../utils/sanitizeQuestions');
 
 /** Number of violations that trigger a session lock */
 const VIOLATION_LOCK_THRESHOLD = parseInt(process.env.VIOLATION_LOCK_THRESHOLD || '3');
@@ -78,13 +69,10 @@ router.post('/start', auth, async (req, res) => {
                 count
             });
 
-            // FIX #3: normalize contract — prevents .map crash
-            const { questions: finalQuestions, warnings } = normalizePipelineResult(
-                rawPipelineResult,
-                { requestId, subject: subLower }
-            );
+            const finalQuestions = rawPipelineResult || [];
+            const warnings = [];
 
-            if (!finalQuestions || finalQuestions.length === 0) {
+            if (finalQuestions.length === 0) {
                 return res.status(404).json({ error: `No questions found for subject: ${subject}.` });
             }
 
@@ -381,79 +369,35 @@ router.post('/submit', auth, async (req, res) => {
             { new: true }
         );
 
-        // For streak and badges, we can do best-effort or more complex logic.
-        // For now, let's just ensure we don't crash the submission.
+        // --- Simple Badge Evaluation (inline — no external service) ---
         let earnedBadges = [];
         try {
             const totalTests = await TestResult.countDocuments({ userId: req.user._id });
-            
-            // NP-CONC-01 IDEMPOTENCY GUARANTEE (two layers):
-            //   Layer 1 — Session mutex: findOneAndUpdate at line ~171 atomically transitions
-            //             status to 'submitted'. Any concurrent /submit for the same sessionId
-            //             receives a 403/200 and never reaches this block.
-            //   Layer 2 — XPService rewardLog: award() keys each reward by sessionId and
-            //             checks rewardLog before writing. A replay of this block (bug/retry)
-            //             silently deduplicates — 1 submission == 1 XP award, always.
-            // 1. Award XP for test completion & accuracy
-            const xpAwards = await XPService.awardForTestSubmit(req.user._id, testResult);
-            
-            // 2. Award XP for streak if milestone hit
-            const streakAwards = await XPService.awardForStreak(req.user._id, newStreak);
-            xpAwards.push(...streakAwards);
 
-            // 3. Award XP for comeback if milestone hit
-            if (gapDays > 1) {
-                const comebackAwards = await XPService.awardForComeback(req.user._id, gapDays);
-                xpAwards.push(...comebackAwards);
-            }
+            // Evaluate milestone badges
+            const BADGE_RULES = [
+                { key: 'test30',     condition: () => totalTests >= 30 },
+                { key: 'test100',    condition: () => totalTests >= 100 },
+                { key: 'streak7',    condition: () => newStreak >= 7 },
+                { key: 'perfect100', condition: () => calcAccuracy >= 100 }
+            ];
 
-            // 4. Update current streak in UserXP record
-            const xpRecord = await XPService.getOrCreate(req.user._id);
-            xpRecord.currentStreak = newStreak;
-            if (newStreak > xpRecord.longestStreak) {
-                xpRecord.longestStreak = newStreak;
-            }
-            await xpRecord.save();
+            const user = await User.findById(req.user._id).select('badges').lean();
+            const existingBadges = new Set(user?.badges || []);
+            const newBadges = BADGE_RULES
+                .filter(r => r.condition() && !existingBadges.has(r.key))
+                .map(r => r.key);
 
-            // 5. Evaluate achievements
-            const unlockedAchievements = await AchievementService.evaluateAfterTest(req.user._id, testResult, totalTests, newStreak);
-            
-            // 6. Notify user of achievements
-            for (const ach of unlockedAchievements) {
-                earnedBadges.push(ach.name);
-                await notificationService.sendAchievement(req.user._id, ach).catch(() => {});
-            }
-
-            // 7. Check if user leveled up
-            const hasLevelUp = xpAwards.some(a => a.levelUp);
-            if (hasLevelUp) {
-                const maxAwardedLevel = Math.max(...xpAwards.filter(a => a.levelUp).map(a => a.level));
-                await notificationService.sendLevelUp(req.user._id, maxAwardedLevel).catch(() => {});
-            }
-
-            // 8. If new badges were earned via legacy badgeService too, combine them
-            const legacyBadges = evaluateBadges(user, testResult, totalTests);
-            if (legacyBadges.length > 0) {
+            if (newBadges.length > 0) {
                 await User.updateOne(
                     { _id: req.user._id },
-                    { $addToSet: { badges: { $each: legacyBadges } } }
+                    { $addToSet: { badges: { $each: newBadges } } }
                 );
-                for (const badge of legacyBadges) {
-                    if (!earnedBadges.includes(badge)) {
-                        earnedBadges.push(badge);
-                    }
-                }
+                earnedBadges = newBadges;
             }
-
-            // 9. Invalidate AI Recommendations Cache to trigger fresh predictions on dashboard reload
-            RecommendationService.invalidateCache(req.user._id);
-
         } catch (gamifyErr) {
-            console.error('[GamificationError] Failed to process gamification rewards:', gamifyErr.message);
+            console.error('[Badge] Failed to evaluate badges:', gamifyErr.message);
         }
-        
-        // Send email (now queued via BullMQ in emailService)
-        await sendResultEmail(user, testResult).catch(err => console.error('[Email] Failed to queue result email:', err));
         
         res.status(201).json({ 
             message: 'Test result saved successfully', 
@@ -518,37 +462,45 @@ router.post('/violation', auth, async (req, res) => {
             });
         }
 
-        // 2. Persist the violation
-        await TestViolation.create({
-            userId:    req.user._id,
-            sessionId,
-            type:      safeType,
-            detail:    String(detail || '').slice(0, 500), // cap length
-            ipAddress: req.ip || '',
-            userAgent: req.get('User-Agent') || ''
+        // 2. Persist the violation in session document
+        const mapType = {
+            'tab_switch': 'tab_switch',
+            'window_blur': 'window_blur',
+            'copy_paste': 'clipboard_usage',
+            'right_click': 'shortcut_usage',
+            'devtools_open': 'devtools_detected',
+            'fullscreen_exit': 'fullscreen_exit',
+            'multiple_sessions': 'multiple_tabs'
+        };
+        const violationType = mapType[safeType] || 'tab_switch';
+        
+        session.violations.push({
+            violationType,
+            timestamp: new Date(),
+            userAgent: req.get('User-Agent') || '',
+            ip: req.ip || ''
         });
-
-        console.log(
-            `[ANTI_CHEAT] Violation recorded: user=${req.user._id} ` +
-            `session=${sessionId} type=${safeType}`
-        );
-
-        // 3. Count total violations for this session
-        const violationCount = await TestViolation.countDocuments({ sessionId });
-
+        session.violationCount = (session.violationCount || 0) + 1;
+        
+        const violationCount = session.violationCount;
         let locked = false;
+        
         if (violationCount >= VIOLATION_LOCK_THRESHOLD) {
-            // 4. Lock the session — prevents further submission
-            await TestSession.findOneAndUpdate(
-                { sessionId, status: 'active' },
-                { $set: { status: 'expired' } }
-            );
+            session.status = 'expired';
+            session.locked = true;
             locked = true;
             console.warn(
                 `[ANTI_CHEAT] SESSION LOCKED: user=${req.user._id} ` +
                 `session=${sessionId} violations=${violationCount}`
             );
         }
+        
+        await session.save();
+
+        console.log(
+            `[ANTI_CHEAT] Violation recorded: user=${req.user._id} ` +
+            `session=${sessionId} type=${safeType}`
+        );
 
         return res.json({
             recorded: true,

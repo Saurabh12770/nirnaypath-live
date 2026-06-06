@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Tests | NirnayPath — Practice Exams for UPSC, BPSC, SSC & Railway</title>
+    <meta name="description" content="Take timed mock tests for UPSC, BPSC, SSC CGL, Railway and Police exams. Instant results, detailed review, and anti-cheat protection.">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary:   #4F46E5;
+            --secondary: #F97316;
+            --success:   #10B981;
+            --danger:    #EF4444;
+            --warning:   #F59E0B;
+            --info:      #3B82F6;
+            --accent:    #EC4899;
+            --dark:      #0F172A;
+            --gray-800:  #1E293B;
+            --gray-700:  #334155;
+            --gray-500:  #64748B;
+            --gray-300:  #E2E8F0;
+            --gray-100:  #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted:#475569;
+            --card-bg:   #FFFFFF;
+            --border:    rgba(148,163,184,0.25);
+            --shadow:    0 4px 20px rgba(0,0,0,0.08);
+            --radius:    14px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #1A1A2E 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: rgba(15,23,42,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .topbar-brand span { color: var(--secondary); }
+
+        .topbar-nav { display: flex; gap: 8px; align-items: center; }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn-ghost { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); }
+        .nav-btn-ghost:hover { background: rgba(255,255,255,0.12); color: white; }
+
+        .nav-btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: #fff;
+        }
+        .nav-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* ── USER TAG ── */
+        #user-tag {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 56px 24px 44px;
+            text-align: center;
+            max-width: 780px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(ellipse, rgba(79,70,229,0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, rgba(79,70,229,0.3), rgba(139,92,246,0.2));
+            border: 1px solid rgba(79,70,229,0.4);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #A5B4FC;
+            margin-bottom: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #fff 30%, #A5B4FC 70%, #F9A8D4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item { text-align: center; }
+
+        .stat-num {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #F97316, #FBBF24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+        /* ── MAIN ── */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 24px 64px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar { position: sticky; top: 88px; }
+
+        .sidebar-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        /* ── EXAM SELECTOR ── */
+        .exam-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .exam-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .exam-item:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
+
+        .exam-item.active {
+            background: linear-gradient(135deg, rgba(79,70,229,0.25), rgba(139,92,246,0.15));
+            border-color: rgba(79,70,229,0.5);
+            color: #A5B4FC;
+        }
+
+        .exam-icon { font-size: 1.2rem; }
+        .exam-name { flex: 1; }
+        .exam-count { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+
+        /* ── SUBJECT SELECTOR ── */
+        .subject-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .subject-chip {
+            padding: 6px 12px;
+            border-radius: 100px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .subject-chip:hover { border-color: rgba(255,255,255,0.3); color: white; }
+        .subject-chip.active { border-color: var(--secondary); color: var(--secondary); background: rgba(249,115,22,0.12); }
+
+        /* ── CONFIG PANEL ── */
+        .config-row { margin-bottom: 16px; }
+
+        .config-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .config-select, .config-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.875rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .config-select:focus, .config-input:focus { border-color: var(--primary); }
+        .config-select option { background: var(--dark); color: white; }
+
+        /* ── START BUTTON ── */
+        .btn-start {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, #8B5CF6 50%, var(--accent) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-start::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.4s;
+        }
+
+        .btn-start:hover::before { left: 100%; }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(79,70,229,0.5); }
+        .btn-start:active { transform: translateY(0); }
+        .btn-start:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── CONTENT AREA ── */
+        .content-area { min-height: 500px; }
+
+        /* ── TEST SETUP VIEW ── */
+        #view-setup { display: block; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover { background: rgba(255,255,255,0.07); }
+
+        .feature-icon { font-size: 1.6rem; margin-bottom: 10px; }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .feature-desc { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+        /* ── RECENT TESTS ── */
+        .recent-tests { }
+
+        .recent-test-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .recent-test-card:hover { background: rgba(255,255,255,0.07); }
+
+        .recent-test-left { display: flex; flex-direction: column; gap: 4px; }
+
+        .recent-test-title { font-weight: 600; font-size: 0.9rem; }
+
+        .recent-test-meta { font-size: 0.75rem; color: rgba(255,255,255,0.5); display: flex; gap: 12px; }
+
+        .recent-test-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+        .acc-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+        }
+
+        .acc-high { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+        .acc-mid  { background: rgba(245,158,11,0.2); color: #FCD34D; }
+        .acc-low  { background: rgba(239,68,68,0.2);  color: #FCA5A5; }
+
+        /* ── ACTIVE TEST VIEW ── */
+        #view-test { display: none; }
+
+        .test-topbar {
+            background: rgba(15,23,42,0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: sticky;
+            top: 76px;
+            z-index: 50;
+        }
+
+        .test-info { display: flex; flex-direction: column; gap: 2px; }
+        .test-info-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .test-info-val { font-weight: 700; font-size: 0.95rem; }
+
+        .test-timer {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--success);
+            transition: color 0.3s;
+        }
+
+        .test-timer.urgent { color: var(--warning); animation: pulse 1s infinite; }
+        .test-timer.critical { color: var(--danger); animation: pulse 0.5s infinite; }
+
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .test-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        .test-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #8B5CF6);
+            border-radius: 2px;
+            transition: width 0.4s;
+        }
+
+        /* ── QUESTION PANEL ── */
+        .question-panel {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+
+        .question-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .question-num {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .question-flags { display: flex; gap: 8px; }
+
+        .flag-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .flag-btn:hover { border-color: var(--warning); color: var(--warning); }
+        .flag-btn.active { border-color: var(--warning); color: var(--warning); background: rgba(245,158,11,0.12); }
+
+        .question-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 28px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .option-btn:hover { background: rgba(79,70,229,0.12); border-color: rgba(79,70,229,0.35); color: white; }
+
+        .option-btn.selected {
+            background: rgba(79,70,229,0.2);
+            border-color: rgba(79,70,229,0.6);
+            color: white;
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .option-btn.selected .option-letter { background: var(--primary); color: white; }
+
+        /* ── NAVIGATION BUTTONS ── */
+        .test-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn-nav {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-nav:hover { background: rgba(255,255,255,0.1); color: white; }
+        .btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .btn-submit-test {
+            margin-left: auto;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--success), var(--teal, #14B8A6));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-submit-test:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* ── QUESTION GRID ── */
+        .q-grid-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+        }
+
+        .q-dot {
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
+        .q-dot:hover { transform: scale(1.1); }
+        .q-dot.answered { background: rgba(16,185,129,0.2); border-color: var(--success); color: #6EE7B7; }
+        .q-dot.marked { background: rgba(245,158,11,0.2); border-color: var(--warning); color: #FCD34D; }
+        .q-dot.current { background: rgba(79,70,229,0.3); border-color: var(--primary); color: white; }
+
+        /* ── RESULT VIEW ── */
+        #view-result { display: none; }
+
+        .result-hero {
+            text-align: center;
+            padding: 48px 32px 32px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(79,70,229,0.2), transparent 60%);
+        }
+
+        .result-score {
+            font-family: 'Poppins', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #F97316, #FBBF24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .result-label { font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .result-stat { text-align: center; }
+
+        .result-stat-num {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .result-stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+        /* ── REVIEW TABLE ── */
+        .review-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .review-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .review-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.15s;
+        }
+
+        .review-item:hover { background: rgba(255,255,255,0.03); }
+        .review-item:last-child { border-bottom: none; }
+
+        .review-q { font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; color: rgba(255,255,255,0.85); }
+
+        .review-options-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+
+        .review-opt {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+        }
+
+        .review-opt.correct { border-color: var(--success); background: rgba(16,185,129,0.12); color: #6EE7B7; }
+        .review-opt.wrong   { border-color: var(--danger);  background: rgba(239,68,68,0.12);  color: #FCA5A5; }
+
+        .review-exp {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.6;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ── LOGIN WALL ── */
+        .login-wall {
+            text-align: center;
+            padding: 64px 32px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius);
+        }
+
+        .login-wall .icon { font-size: 3rem; margin-bottom: 16px; }
+        .login-wall h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+        .login-wall p { color: rgba(255,255,255,0.5); margin-bottom: 28px; font-size: 0.9rem; }
+
+        .btn-login-wall {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-login-wall:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,0.4); }
+
+        /* ── TOAST ── */
+        #mt-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--dark);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s;
+            pointer-events: none;
+            max-width: 300px;
+        }
+
+        #mt-toast.show { opacity: 1; transform: translateY(0); }
+
+        /* ── LOADING OVERLAY ── */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.8);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #loading-overlay.show { display: flex; }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-msg { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .features-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; }
+            .main { padding: 24px 16px 48px; }
+            .question-panel { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+    <a href="/" class="topbar-brand">Nirnay<span>Path</span></a>
+    <nav class="topbar-nav">
+        <div id="user-tag">
+            <div class="user-avatar" id="user-avatar-initials">U</div>
+            <span id="user-name-tag">User</span>
+        </div>
+        <a href="/learn.html" class="nav-btn nav-btn-ghost">📚 Learn</a>
+        <a href="/dashboard.html" class="nav-btn nav-btn-ghost">📊 Dashboard</a>
+        <a href="/" class="nav-btn nav-btn-primary">🏠 Home</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-label">📝 Mock Test Engine</div>
+    <h1>Simulate Real Exam<br>Conditions, Score Higher</h1>
+    <p>Timed mock tests with server-validated results, anti-cheat protection, and detailed performance review.</p>
+    <div class="stats-bar">
+        <div class="stat-item"><div class="stat-num">50K+</div><div class="stat-label">Questions</div></div>
+        <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Exams</div></div>
+        <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Server Graded</div></div>
+        <div class="stat-item"><div class="stat-num">AI-Free</div><div class="stat-label">Reliable Results</div></div>
+    </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-title">Choose Exam</div>
+            <div class="exam-list" id="exam-list">
+                <div class="exam-item active" data-exam="UPSC"><span class="exam-icon">🏛️</span><span class="exam-name">UPSC CSE</span></div>
+                <div class="exam-item" data-exam="BPSC"><span class="exam-icon">🏢</span><span class="exam-name">BPSC</span></div>
+                <div class="exam-item" data-exam="SSC_CGL"><span class="exam-icon">📋</span><span class="exam-name">SSC CGL</span></div>
+                <div class="exam-item" data-exam="RAILWAY"><span class="exam-icon">🚂</span><span class="exam-name">Railway RRB</span></div>
+                <div class="exam-item" data-exam="POLICE"><span class="exam-icon">👮</span><span class="exam-name">Police Exam</span></div>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-title">Choose Subject</div>
+            <div class="subject-chips" id="subject-chips"></div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-title">Test Config</div>
+            <div class="config-row">
+                <label class="config-label">Number of Questions</label>
+                <select class="config-select" id="cfg-count">
+                    <option value="10">10 Questions</option>
+                    <option value="25" selected>25 Questions</option>
+                    <option value="50">50 Questions</option>
+                    <option value="100">100 Questions</option>
+                </select>
+            </div>
+            <div class="config-row">
+                <label class="config-label">Time Limit</label>
+                <select class="config-select" id="cfg-time">
+                    <option value="600">10 Minutes</option>
+                    <option value="1500" selected>25 Minutes</option>
+                    <option value="3600">60 Minutes</option>
+                    <option value="7200">120 Minutes</option>
+                </select>
+            </div>
+            <button class="btn-start" id="btn-start-test" onclick="startTest()">
+                <span>🚀</span> Start Mock Test
+            </button>
+        </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+        <!-- SETUP VIEW -->
+        <div id="view-setup">
+            <div style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:20px;opacity:0.8;">Why NirnayPath Mock Tests?</div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Instant Results</div>
+                    <div class="feature-desc">Server-graded in milliseconds — no waiting, no errors.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-title">Anti-Cheat</div>
+                    <div class="feature-desc">Tab-switch detection, time validation, and session integrity checks.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Deep Review</div>
+                    <div class="feature-desc">See every question, your choice, correct answer, and explanation.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <div class="feature-title">Auto-Save</div>
+                    <div class="feature-desc">Your progress is saved every 30 seconds — never lose your work.</div>
+                </div>
+            </div>
+
+            <div style="font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;margin-bottom:16px;opacity:0.8;">📋 Recent Tests</div>
+            <div id="recent-tests-list">
+                <div style="color:rgba(255,255,255,0.3);font-size:0.875rem;padding:24px;text-align:center;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">Log in to see your recent mock tests</div>
+            </div>
+        </div>
+
+        <!-- ACTIVE TEST VIEW -->
+        <div id="view-test">
+            <div class="test-topbar">
+                <div class="test-info">
+                    <span class="test-info-label">Question</span>
+                    <span class="test-info-val"><span id="q-current">1</span> / <span id="q-total">0</span></span>
+                </div>
+                <div style="text-align:center;">
+                    <div id="timer-display" class="test-timer">00:00</div>
+                    <div class="test-progress-bar"><div class="test-progress-fill" id="timer-bar" style="width:100%;"></div></div>
+                </div>
+                <div class="test-info" style="text-align:right;">
+                    <span class="test-info-label">Answered</span>
+                    <span class="test-info-val" id="q-answered">0</span>
+                </div>
+            </div>
+
+            <div class="question-panel">
+                <div class="question-nav-row">
+                    <span class="question-num" id="q-num-label">Question 1</span>
+                    <div class="question-flags">
+                        <button class="flag-btn" id="btn-mark" onclick="toggleMark()">⚑ Mark</button>
+                    </div>
+                </div>
+                <div class="question-text" id="question-text">Loading…</div>
+                <div class="options-grid" id="options-grid"></div>
+            </div>
+
+            <div class="test-nav">
+                <button class="btn-nav" id="btn-prev" onclick="goQuestion(-1)">← Previous</button>
+                <button class="btn-nav" id="btn-next" onclick="goQuestion(1)">Next →</button>
+                <button class="btn-submit-test" onclick="confirmSubmit()">✓ Submit Test</button>
+            </div>
+
+            <div class="q-grid-row" id="q-grid"></div>
+        </div>
+
+        <!-- RESULT VIEW -->
+        <div id="view-result">
+            <div class="result-hero">
+                <div class="result-score" id="res-score">0</div>
+                <div class="result-label">out of <span id="res-total">0</span> questions</div>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="result-stat-num" id="res-correct" style="color:#6EE7B7;">0</div>
+                        <div class="result-stat-label">Correct</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-num" id="res-wrong" style="color:#FCA5A5;">0</div>
+                        <div class="result-stat-label">Wrong</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-num" id="res-unattempted" style="color:#94A3B8;">0</div>
+                        <div class="result-stat-label">Skipped</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-num" id="res-accuracy" style="color:#A5B4FC;">0%</div>
+                        <div class="result-stat-label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+                <button class="btn-nav" style="color:white;" onclick="resetTest()">📝 Take New Test</button>
+                <button class="btn-nav" style="color:white;" onclick="showReview()">🔍 Review Answers</button>
+                <a href="/dashboard.html" class="btn-nav" style="color:white;text-decoration:none;">📊 View Dashboard</a>
+            </div>
+
+            <div class="review-section" id="review-section" style="display:none;">
+                <div class="review-header">📋 Answer Review</div>
+                <div id="review-list"></div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-msg" id="loading-msg">Preparing your test…</div>
+</div>
+
+<!-- TOAST -->
+<div id="mt-toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const MT = {
+    token: null,
+    user: null,
+    exams: [],
+    activeExam: 'UPSC',
+    activeSubject: null,
+    subjectDataKey: null,
+    questions: [],
+    sessionId: null,
+    currentQ: 0,
+    answers: {},     // { index: optionIndex }
+    marked: new Set(),
+    timerInterval: null,
+    timeLeft: 0,
+    timeLimit: 0,
+    autosaveInterval: null,
+    isSubmitting: false
+};
+
+// ─── Boot ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+    MT.token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (MT.token) {
+        await loadUser();
+    }
+    await loadExamSubjects();
+});
+
+async function loadUser() {
+    try {
+        const res = await apiFetch('/api/auth/me');
+        if (res) {
+            MT.user = res.user || res;
+            showUserTag(MT.user);
+            loadRecentTests();
+        }
+    } catch {}
+}
+
+function showUserTag(user) {
+    const tag = document.getElementById('user-tag');
+    const initials = document.getElementById('user-avatar-initials');
+    const nameTag = document.getElementById('user-name-tag');
+    if (tag && user) {
+        tag.style.display = 'flex';
+        initials.textContent = (user.name || 'U')[0].toUpperCase();
+        nameTag.textContent = user.name ? user.name.split(' ')[0] : 'User';
+    }
+}
+
+async function loadRecentTests() {
+    try {
+        const data = await apiFetch('/api/auth/me');
+        if (!data) return;
+        const tests = data.recentTests || [];
+        const container = document.getElementById('recent-tests-list');
+        if (tests.length === 0) {
+            container.innerHTML = `<div style="color:rgba(255,255,255,0.3);font-size:0.875rem;padding:24px;text-align:center;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">No tests yet. Take your first mock test!</div>`;
+            return;
+        }
+        container.innerHTML = tests.slice(0, 5).map(t => {
+            const acc = t.accuracy || 0;
+            const cls = acc >= 70 ? 'acc-high' : acc >= 40 ? 'acc-mid' : 'acc-low';
+            return `<div class="recent-test-card">
+                <div class="recent-test-left">
+                    <div class="recent-test-title">${escHtml(t.exam || '')} · ${escHtml(t.subject || '')}</div>
+                    <div class="recent-test-meta">
+                        <span>${new Date(t.createdAt).toLocaleDateString()}</span>
+                        <span>${t.totalQuestions || 0} Qs</span>
+                    </div>
+                </div>
+                <div class="recent-test-right">
+                    <span class="acc-pill ${cls}">${acc}%</span>
+                    <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">${t.correct || 0}/${t.totalQuestions || 0}</span>
+                </div>
+            </div>`;
+        }).join('');
+    } catch {}
+}
+
+// ─── Exam / Subject Loading ────────────────────────────────────────────────────
+async function loadExamSubjects() {
+    try {
+        const data = await apiFetch('/api/learning/exams');
+        if (!data) return;
+        MT.exams = data.exams || [];
+        bindExamList();
+        const first = MT.exams.find(e => e.id === 'UPSC') || MT.exams[0];
+        if (first) renderSubjectChips(first);
+    } catch (e) {
+        console.error('Exam load error:', e);
+    }
+}
+
+function bindExamList() {
+    document.querySelectorAll('.exam-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.exam-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            MT.activeExam = this.dataset.exam;
+            MT.activeSubject = null;
+            MT.subjectDataKey = null;
+            document.querySelectorAll('.subject-chip').forEach(c => c.classList.remove('active'));
+            const exam = MT.exams.find(e => e.id === MT.activeExam);
+            if (exam) renderSubjectChips(exam);
+        });
+    });
+}
+
+function renderSubjectChips(exam) {
+    const container = document.getElementById('subject-chips');
+    container.innerHTML = '';
+    exam.subjects.forEach(sub => {
+        const chip = document.createElement('button');
+        chip.className = 'subject-chip';
+        chip.innerHTML = `${sub.icon} ${sub.name}`;
+        chip.onclick = () => {
+            document.querySelectorAll('.subject-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            MT.activeSubject = sub.id;
+            MT.subjectDataKey = sub.dataKey;
+        };
+        container.appendChild(chip);
+    });
+}
+
+// ─── Start Test ────────────────────────────────────────────────────────────────
+async function startTest() {
+    if (!MT.token) {
+        showLoginWall();
+        return;
+    }
+    if (!MT.activeSubject || !MT.subjectDataKey) {
+        toast('Please select a subject first');
+        return;
+    }
+
+    const count     = parseInt(document.getElementById('cfg-count').value) || 25;
+    const timeLimit = parseInt(document.getElementById('cfg-time').value)  || 1500;
+
+    showLoading('Preparing your test…');
+    document.getElementById('btn-start-test').disabled = true;
+
+    try {
+        const res = await fetch('/api/test/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MT.token}` },
+            body: JSON.stringify({ subject: MT.subjectDataKey, exam: MT.activeExam, count, timeLimit })
+        });
+
+        const data = await res.json();
+        if (!res.ok) { toast(data.error || 'Failed to start test'); hideLoading(); document.getElementById('btn-start-test').disabled = false; return; }
+
+        MT.questions  = data.questions || [];
+        MT.sessionId  = data.sessionId;
+        MT.timeLimit  = timeLimit;
+        MT.timeLeft   = timeLimit;
+        MT.currentQ   = 0;
+        MT.answers    = {};
+        MT.marked     = new Set();
+        MT.isSubmitting = false;
+
+        hideLoading();
+        switchView('test');
+        renderQuestion(0);
+        buildQGrid();
+        startTimer();
+        startAutosave();
+
+    } catch (e) {
+        console.error('Start test error:', e);
+        toast('Failed to start test. Please try again.');
+        hideLoading();
+        document.getElementById('btn-start-test').disabled = false;
+    }
+}
+
+// ─── Test Engine ──────────────────────────────────────────────────────────────
+function renderQuestion(idx) {
+    if (idx < 0 || idx >= MT.questions.length) return;
+    MT.currentQ = idx;
+    const q = MT.questions[idx];
+
+    document.getElementById('q-num-label').textContent = `Question ${idx + 1}`;
+    document.getElementById('q-current').textContent  = idx + 1;
+    document.getElementById('q-total').textContent    = MT.questions.length;
+    document.getElementById('q-answered').textContent = Object.keys(MT.answers).length;
+
+    // Mark button state
+    const markBtn = document.getElementById('btn-mark');
+    markBtn.classList.toggle('active', MT.marked.has(idx));
+
+    // Question text
+    const text = q.question_en || q.question || q.text || 'Question text not available';
+    document.getElementById('question-text').textContent = text;
+
+    // Options
+    const opts = q.options || [];
+    const labels = ['A','B','C','D','E'];
+    document.getElementById('options-grid').innerHTML = opts.map((opt, i) => `
+        <button class="option-btn ${MT.answers[idx] === i ? 'selected' : ''}" onclick="selectOption(${i})">
+            <span class="option-letter">${labels[i]}</span>
+            <span>${escHtml(String(opt))}</span>
+        </button>
+    `).join('');
+
+    // Nav buttons
+    document.getElementById('btn-prev').disabled = idx === 0;
+    document.getElementById('btn-next').disabled = idx === MT.questions.length - 1;
+
+    // Update Q grid
+    updateQGrid();
+}
+
+function selectOption(optIdx) {
+    MT.answers[MT.currentQ] = optIdx;
+    renderQuestion(MT.currentQ);
+}
+
+function goQuestion(delta) {
+    renderQuestion(MT.currentQ + delta);
+}
+
+function toggleMark() {
+    if (MT.marked.has(MT.currentQ)) MT.marked.delete(MT.currentQ);
+    else MT.marked.add(MT.currentQ);
+    document.getElementById('btn-mark').classList.toggle('active', MT.marked.has(MT.currentQ));
+    updateQGrid();
+}
+
+function buildQGrid() {
+    const grid = document.getElementById('q-grid');
+    grid.innerHTML = MT.questions.map((_, i) => `
+        <div class="q-dot" id="qd-${i}" onclick="renderQuestion(${i})">${i+1}</div>
+    `).join('');
+}
+
+function updateQGrid() {
+    MT.questions.forEach((_, i) => {
+        const dot = document.getElementById(`qd-${i}`);
+        if (!dot) return;
+        dot.className = 'q-dot';
+        if (i === MT.currentQ) dot.classList.add('current');
+        else if (MT.marked.has(i)) dot.classList.add('marked');
+        else if (MT.answers[i] !== undefined) dot.classList.add('answered');
+    });
+}
+
+// ─── Timer ────────────────────────────────────────────────────────────────────
+function startTimer() {
+    clearInterval(MT.timerInterval);
+    MT.timerInterval = setInterval(() => {
+        MT.timeLeft--;
+        updateTimerDisplay();
+        if (MT.timeLeft <= 0) {
+            clearInterval(MT.timerInterval);
+            toast('Time up! Auto-submitting…');
+            submitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const el = document.getElementById('timer-display');
+    const bar = document.getElementById('timer-bar');
+    const m = Math.floor(MT.timeLeft / 60);
+    const s = MT.timeLeft % 60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+    const pct = (MT.timeLeft / MT.timeLimit) * 100;
+    bar.style.width = pct + '%';
+
+    el.className = 'test-timer';
+    if (MT.timeLeft <= 60) el.classList.add('critical');
+    else if (MT.timeLeft <= 300) el.classList.add('urgent');
+}
+
+// ─── Autosave ─────────────────────────────────────────────────────────────────
+function startAutosave() {
+    clearInterval(MT.autosaveInterval);
+    MT.autosaveInterval = setInterval(async () => {
+        if (!MT.sessionId || MT.isSubmitting) return;
+        try {
+            await fetch('/api/test/autosave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MT.token}` },
+                body: JSON.stringify({ sessionId: MT.sessionId, answers: MT.answers })
+            });
+        } catch {}
+    }, 30000);
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+function confirmSubmit() {
+    const answered = Object.keys(MT.answers).length;
+    const total = MT.questions.length;
+    const unattempted = total - answered;
+    if (unattempted > 0 && !confirm(`You have ${unattempted} unanswered questions. Submit anyway?`)) return;
+    submitTest();
+}
+
+async function submitTest() {
+    if (MT.isSubmitting) return;
+    MT.isSubmitting = true;
+    clearInterval(MT.timerInterval);
+    clearInterval(MT.autosaveInterval);
+
+    showLoading('Grading your answers…');
+
+    const answersArr = MT.questions.map((q, i) => ({
+        questionId: q.id || String(i),
+        userAnswer: MT.answers[i] !== undefined ? MT.answers[i] : null
+    }));
+
+    try {
+        const res = await fetch('/api/test/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MT.token}` },
+            body: JSON.stringify({
+                sessionId: MT.sessionId,
+                answers: answersArr,
+                exam: MT.activeExam,
+                subject: MT.subjectDataKey
+            })
+        });
+
+        const data = await res.json();
+        hideLoading();
+
+        if (!res.ok) { toast(data.error || 'Submission failed'); MT.isSubmitting = false; return; }
+
+        // Show result view — data comes from the response
+        // We'll rebuild from our local state + what server returns
+        showResult(data);
+
+    } catch (e) {
+        console.error('Submit error:', e);
+        toast('Submission failed. Please try again.');
+        hideLoading();
+        MT.isSubmitting = false;
+    }
+}
+
+async function showResult(submitData) {
+    // Fetch the actual result for accurate server-calculated scores
+    switchView('result');
+
+    // While we fetch the real result, show what we know
+    document.getElementById('res-score').textContent = '…';
+    document.getElementById('res-total').textContent = MT.questions.length;
+
+    try {
+        const profile = await apiFetch('/api/auth/me');
+        if (profile && profile.recentTests && profile.recentTests.length > 0) {
+            const latest = profile.recentTests[0];
+            document.getElementById('res-score').textContent = latest.correct || 0;
+            document.getElementById('res-total').textContent = latest.totalQuestions || MT.questions.length;
+            document.getElementById('res-correct').textContent = latest.correct || 0;
+            document.getElementById('res-wrong').textContent = latest.incorrect || 0;
+            document.getElementById('res-unattempted').textContent = latest.unattempted || 0;
+            document.getElementById('res-accuracy').textContent = (latest.accuracy || 0) + '%';
+        }
+    } catch {}
+
+    if (submitData.newBadges && submitData.newBadges.length > 0) {
+        setTimeout(() => toast(`🏆 New badge unlocked: ${submitData.newBadges[0]}`), 800);
+    }
+}
+
+function showReview() {
+    const section = document.getElementById('review-section');
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
+
+    const list = document.getElementById('review-list');
+    const labels = ['A','B','C','D'];
+    list.innerHTML = MT.questions.map((q, i) => {
+        const selected = MT.answers[i];
+        const opts = q.options || [];
+        return `<div class="review-item">
+            <div class="review-q">${i+1}. ${escHtml(q.question_en || q.question || '')}</div>
+            <div class="review-options-row">
+                ${opts.map((opt, oi) => {
+                    let cls = '';
+                    if (oi === selected && selected !== undefined) cls = 'wrong';
+                    return `<span class="review-opt ${cls}">${labels[oi]}: ${escHtml(String(opt))}</span>`;
+                }).join('')}
+            </div>
+            <div class="review-exp">💡 Your answer: ${selected !== undefined ? labels[selected] : 'Not answered'}</div>
+        </div>`;
+    }).join('');
+}
+
+function resetTest() {
+    clearInterval(MT.timerInterval);
+    clearInterval(MT.autosaveInterval);
+    MT.sessionId = null;
+    MT.questions = [];
+    MT.answers = {};
+    MT.marked = new Set();
+    MT.isSubmitting = false;
+    document.getElementById('btn-start-test').disabled = false;
+    document.getElementById('review-section').style.display = 'none';
+    switchView('setup');
+    loadRecentTests();
+}
+
+function showLoginWall() {
+    document.getElementById('view-setup').innerHTML = `
+        <div class="login-wall">
+            <div class="icon">🔒</div>
+            <h2>Login to Start Test</h2>
+            <p>Create a free NirnayPath account to take unlimited mock tests, track your performance, and compete on leaderboards.</p>
+            <button class="btn-login-wall" onclick="window.location='/'">Login / Register Free →</button>
+        </div>`;
+}
+
+// ─── View Switching ───────────────────────────────────────────────────────────
+function switchView(name) {
+    ['setup','test','result'].forEach(v => {
+        document.getElementById(`view-${v}`).style.display = v === name ? 'block' : 'none';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function showLoading(msg) {
+    document.getElementById('loading-msg').textContent = msg || 'Loading…';
+    document.getElementById('loading-overlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('show');
+}
+
+async function apiFetch(url) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (MT.token) headers['Authorization'] = `Bearer ${MT.token}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) return null;
+    return res.json();
+}
+
+function toast(msg, dur = 3500) {
+    const el = document.getElementById('mt-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Tab switch violation detection
+document.addEventListener('visibilitychange', async () => {
+    if (document.hidden && MT.sessionId && !MT.isSubmitting) {
+        try {
+            await fetch('/api/test/violation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MT.token}` },
+                body: JSON.stringify({ sessionId: MT.sessionId, type: 'tab_switch', detail: 'Tab hidden' })
+            });
+        } catch {}
+    }
+});
+</script>
+
+</body>
+</html>

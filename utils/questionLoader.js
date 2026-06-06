@@ -1,11 +1,10 @@
 const fs = require('fs').promises;
 const path = require('path');
-const QuestionRepository = require('../services/questionRepository');
 
 // Cache to prevent disk reads on cache hits
 const memoryCache = new Map();
 
-// Phase 6: SingleFlight Loading to prevent OOM during concurrent cache misses
+// SingleFlight Loading to prevent concurrent reading of same file
 const loadingPromises = new Map();
 
 /**
@@ -14,26 +13,20 @@ const loadingPromises = new Map();
  * @returns {Promise<Array>} Array of questions
  */
 async function loadQuestions(subject) {
-    const safeSubject = path.basename(subject);
+    const safeSubject = path.basename(subject).toLowerCase().trim().replace(/\.[^.]+$/, '');
     
-    // 1. Check startup-precompiled cache first to prevent disk reads during active requests
-    if (QuestionRepository && QuestionRepository.precompiledCache && QuestionRepository.precompiledCache.has(safeSubject)) {
-        return QuestionRepository.precompiledCache.get(safeSubject);
-    }
-
-    // 2. Check local memory cache
+    // Check memory cache
     if (memoryCache.has(safeSubject)) {
         return memoryCache.get(safeSubject);
     }
     
     if (loadingPromises.has(safeSubject)) {
-        console.log(`[loader] Attaching to existing load promise for: ${safeSubject}`);
         return loadingPromises.get(safeSubject);
     }
 
     const loadPromise = (async () => {
         try {
-            // Fallback chain for robust path resolution in all execution environments
+            // Path resolution
             let dataPath = path.join(__dirname, '../data', `${safeSubject}.json`);
             if (!require('fs').existsSync(dataPath)) {
                 dataPath = path.join(__dirname, '../../data', `${safeSubject}.json`);
@@ -41,13 +34,13 @@ async function loadQuestions(subject) {
             if (!require('fs').existsSync(dataPath)) {
                 dataPath = path.resolve(process.cwd(), 'data', `${safeSubject}.json`);
             }
+            
             if (!require('fs').existsSync(dataPath)) {
-                dataPath = path.resolve(process.cwd(), 'server/data', `${safeSubject}.json`);
+                console.log(`[loader] File not found: ${safeSubject}.json`);
+                return [];
             }
-            console.log(`[loader] Primary load started: ${dataPath}`);
             
             const data = await fs.readFile(dataPath, 'utf-8');
-            console.log(`[loader] File read success: ${safeSubject}.json (${data.length} bytes)`);
             const parsedData = JSON.parse(data);
             
             let raw = Array.isArray(parsedData) ? parsedData : (parsedData.questions || []);
@@ -86,10 +79,6 @@ async function loadQuestions(subject) {
                 };
             });
             
-            // Store in memory caches
-            if (QuestionRepository && QuestionRepository.precompiledCache) {
-                QuestionRepository.precompiledCache.set(safeSubject, raw);
-            }
             memoryCache.set(safeSubject, raw);
             return raw;
         } catch (error) {

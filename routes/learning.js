@@ -1,263 +1,247 @@
-const express = require('express');
-const auth = require('../middleware/auth');
-const AdaptiveLearningService = require('../services/adaptiveLearningService');
-const AIStudyPlannerService = require('../services/aiStudyPlannerService');
-const AITutorService = require('../services/aiTutorService');
-const StudentLearningProfileService = require('../services/studentLearningProfileService');
-const PerformanceAnalyticsService = require('../services/performanceAnalyticsService');
-const TestResult = require('../models/testResult');
-const router = express.Router();
+'use strict';
 
 /**
- * GET /api/learning/plan
- * Returns the AI-generated daily study plan with tasks, backlog count, and focus area.
+ * Learning Routes v2.0
+ * =====================
+ * Clean API — no AI services, no Redis, no dead imports.
+ *
+ * GET  /api/learning/exams           → full exam catalogue
+ * GET  /api/learning/exams/:examId   → single exam + its subjects
+ * GET  /api/learning/subjects        → all subjects (unique)
+ * GET  /api/learning/subjects/:examId → subjects for a specific exam
+ * GET  /api/learning/topics          → topics for exam+subject (query params)
+ * GET  /api/learning/content         → full content for exam/subject/topic/subTopic
+ * GET  /api/learning/list            → content card list for exam (+ optional subject)
+ * GET  /api/learning/mcqs            → practice MCQs for exam/subject/topic
+ * GET  /api/learning/bookmarks       → user bookmarks
+ * POST /api/learning/bookmarks       → add bookmark
+ * DELETE /api/learning/bookmarks/:id → remove bookmark
+ * GET  /api/learning/stats           → content stats (admin/public)
  */
-router.get('/plan', auth, async (req, res) => {
+
+const express               = require('express');
+const auth                  = require('../middleware/auth');
+const SyllabusService       = require('../services/syllabusService');
+const LearningContentService = require('../services/learningContentService');
+const Bookmark              = require('../models/bookmark');
+const router                = express.Router();
+
+/* ─────────────────────────────────────────────────────────────
+   SYLLABUS ENDPOINTS
+───────────────────────────────────────────────────────────── */
+
+/**
+ * GET /api/learning/exams
+ * Public — full exam catalogue with subjects
+ */
+router.get('/exams', (req, res) => {
     try {
-        const plan = await AIStudyPlannerService.generateDailyPlan(req.user._id);
-        res.json(plan);
+        const catalogue = SyllabusService.getCatalogue();
+        res.json(catalogue);
     } catch (err) {
-        console.error('[LEARNING] /plan error:', err.message);
-        res.status(500).json({ error: 'Failed to generate daily study plan.' });
+        console.error('[LEARNING] /exams error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch exam catalogue.' });
     }
 });
 
 /**
- * GET /api/learning/weekly
- * Returns the 7-day weekly study schedule with dynamically allocated time blocks.
+ * GET /api/learning/exams/:examId
+ * Public — single exam detail
  */
-router.get('/weekly', auth, async (req, res) => {
+router.get('/exams/:examId', (req, res) => {
     try {
-        const schedule = await AIStudyPlannerService.generateWeeklySchedule(req.user._id);
-        res.json(schedule);
+        const exam = SyllabusService.getExam(req.params.examId);
+        if (!exam) return res.status(404).json({ error: 'Exam not found.' });
+        res.json(exam);
     } catch (err) {
-        console.error('[LEARNING] /weekly error:', err.message);
-        res.status(500).json({ error: 'Failed to generate weekly schedule.' });
+        console.error('[LEARNING] /exams/:id error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch exam.' });
     }
 });
 
 /**
- * GET /api/learning/revision
- * Returns the spaced repetition queue with forgetting curves and urgency scores.
+ * GET /api/learning/subjects
+ * Public — all unique subjects across all exams
  */
-router.get('/revision', auth, async (req, res) => {
+router.get('/subjects', (req, res) => {
     try {
-        const queue = await AdaptiveLearningService.calculateSpacedRepetition(
-            req.user._id,
-            req.query.subject || null
-        );
-        res.json(queue);
+        const subjects = SyllabusService.getAllSubjects();
+        res.json({ subjects });
     } catch (err) {
-        console.error('[LEARNING] /revision error:', err.message);
-        res.status(500).json({ error: 'Failed to fetch revision queue.' });
+        console.error('[LEARNING] /subjects error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch subjects.' });
     }
 });
 
 /**
- * GET /api/learning/mastery
- * Returns the current topic mastery scores (0.0 to 1.0) for the student.
+ * GET /api/learning/subjects/:examId
+ * Public — subjects for a specific exam
  */
-router.get('/mastery', auth, async (req, res) => {
+router.get('/subjects/:examId', (req, res) => {
     try {
-        const masteryMap = await AdaptiveLearningService.getTopicMasteryScores(
-            req.user._id,
-            req.query.subject || null
-        );
-        const masteryObj = {};
-        masteryMap.forEach((value, key) => { masteryObj[key] = value; });
-        res.json({ userId: req.user._id, mastery: masteryObj });
+        const subjects = SyllabusService.getSubjectsForExam(req.params.examId);
+        if (!subjects) return res.status(404).json({ error: 'Exam not found.' });
+        res.json({ examId: req.params.examId, subjects });
     } catch (err) {
-        console.error('[LEARNING] /mastery error:', err.message);
-        res.status(500).json({ error: 'Failed to fetch mastery scores.' });
+        console.error('[LEARNING] /subjects/:examId error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch subjects for exam.' });
+    }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   LEARNING CONTENT ENDPOINTS
+───────────────────────────────────────────────────────────── */
+
+/**
+ * GET /api/learning/topics?exam=UPSC&subject=history
+ * Public — topics/sub-topics for an exam+subject
+ */
+router.get('/topics', async (req, res) => {
+    try {
+        const { exam, subject } = req.query;
+        if (!exam || !subject) {
+            return res.status(400).json({ error: 'exam and subject query parameters are required.' });
+        }
+        const topics = await LearningContentService.getTopicsForSubject(exam, subject);
+        res.json({ exam, subject, topics });
+    } catch (err) {
+        console.error('[LEARNING] /topics error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch topics.' });
     }
 });
 
 /**
- * GET /api/learning/intelligence
- * Combined predictive intelligence for the dashboard (profile + predictive metrics).
+ * GET /api/learning/content?exam=UPSC&subject=history&topic=Ancient%20India&subTopic=Indus%20Valley
+ * Auth — full learning content for a specific sub-topic
  */
-router.get('/intelligence', auth, async (req, res) => {
+router.get('/content', auth, async (req, res) => {
     try {
-        const [profile, predictive, spacedRep] = await Promise.all([
-            StudentLearningProfileService.getProfile(req.user._id),
-            PerformanceAnalyticsService.getPredictiveMetrics(req.user._id),
-            AdaptiveLearningService.calculateSpacedRepetition(req.user._id)
-        ]);
-        res.json({
-            profile,
-            predictive,
-            spacedRepetition: spacedRep.slice(0, 5),     // top 5 most urgent revisions
-            overdueCount: spacedRep.filter(t => t.isOverdue).length
+        const { exam, subject, topic, subTopic } = req.query;
+        if (!exam || !subject || !topic || !subTopic) {
+            return res.status(400).json({ error: 'exam, subject, topic, and subTopic are required.' });
+        }
+        const content = await LearningContentService.getContent(exam, subject, topic, subTopic);
+        if (!content) {
+            return res.status(404).json({ error: 'Content not found for this topic.' });
+        }
+        res.json(content);
+    } catch (err) {
+        console.error('[LEARNING] /content error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch content.' });
+    }
+});
+
+/**
+ * GET /api/learning/list?exam=UPSC&subject=history
+ * Public — list of content cards for browsing
+ */
+router.get('/list', async (req, res) => {
+    try {
+        const { exam, subject } = req.query;
+        if (!exam) {
+            return res.status(400).json({ error: 'exam query parameter is required.' });
+        }
+        const list = await LearningContentService.getContentList(exam, subject || null);
+        res.json({ exam, subject: subject || null, count: list.length, items: list });
+    } catch (err) {
+        console.error('[LEARNING] /list error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch content list.' });
+    }
+});
+
+/**
+ * GET /api/learning/mcqs?exam=UPSC&subject=history&topic=Ancient%20India
+ * Auth — practice MCQs for a topic (correctAnswer included for frontend reveal)
+ */
+router.get('/mcqs', auth, async (req, res) => {
+    try {
+        const { exam, subject, topic } = req.query;
+        if (!exam || !subject || !topic) {
+            return res.status(400).json({ error: 'exam, subject, and topic are required.' });
+        }
+        const mcqs = await LearningContentService.getPracticeMcqs(exam, subject, topic);
+        res.json({ exam, subject, topic, count: mcqs.length, mcqs });
+    } catch (err) {
+        console.error('[LEARNING] /mcqs error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch practice MCQs.' });
+    }
+});
+
+/**
+ * GET /api/learning/stats
+ * Public — aggregate content stats per exam
+ */
+router.get('/stats', async (req, res) => {
+    try {
+        const stats = await LearningContentService.getStats();
+        res.json({ stats });
+    } catch (err) {
+        console.error('[LEARNING] /stats error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch stats.' });
+    }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   BOOKMARK ENDPOINTS
+───────────────────────────────────────────────────────────── */
+
+/**
+ * GET /api/learning/bookmarks
+ * Auth — all bookmarks for the logged-in user
+ */
+router.get('/bookmarks', auth, async (req, res) => {
+    try {
+        const bookmarks = await Bookmark.find({ userId: req.user._id })
+            .sort({ createdAt: -1 })
+            .lean();
+        res.json({ count: bookmarks.length, bookmarks });
+    } catch (err) {
+        console.error('[LEARNING] /bookmarks GET error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch bookmarks.' });
+    }
+});
+
+/**
+ * POST /api/learning/bookmarks
+ * Auth — add a bookmark
+ * Body: { type, refId, title, exam, subject, topic }
+ */
+router.post('/bookmarks', auth, async (req, res) => {
+    try {
+        const { type, refId, title, exam, subject, topic } = req.body;
+        if (!type || !refId || !title) {
+            return res.status(400).json({ error: 'type, refId, and title are required.' });
+        }
+
+        // Idempotent — upsert
+        const bookmark = await Bookmark.findOneAndUpdate(
+            { userId: req.user._id, refId, type },
+            { userId: req.user._id, type, refId, title, exam, subject, topic },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        ).lean();
+
+        res.status(201).json({ message: 'Bookmark saved.', bookmark });
+    } catch (err) {
+        console.error('[LEARNING] /bookmarks POST error:', err.message);
+        res.status(500).json({ error: 'Failed to save bookmark.' });
+    }
+});
+
+/**
+ * DELETE /api/learning/bookmarks/:id
+ * Auth — remove a bookmark by its MongoDB _id
+ */
+router.delete('/bookmarks/:id', auth, async (req, res) => {
+    try {
+        const result = await Bookmark.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user._id
         });
+        if (!result) return res.status(404).json({ error: 'Bookmark not found.' });
+        res.json({ message: 'Bookmark removed.' });
     } catch (err) {
-        console.error('[LEARNING] /intelligence error:', err.message);
-        res.status(500).json({ error: 'Failed to fetch learning intelligence.' });
-    }
-});
-
-/* ============================================================
-   MODULE C — AI TUTOR ENDPOINTS
-   ============================================================ */
-
-/**
- * POST /api/learning/tutor/explain
- * Explain a specific wrong answer from a user's test session.
- * Body: { sessionId, questionId }
- */
-router.post('/tutor/explain', auth, async (req, res) => {
-    try {
-        const { sessionId, questionId } = req.body;
-        if (!sessionId || !questionId) {
-            return res.status(400).json({ error: 'sessionId and questionId are required.' });
-        }
-        const explanation = await AITutorService.explainWrongAnswer(req.user._id, sessionId, questionId);
-        if (explanation && explanation.success === false) {
-            return res.json({
-                success: false,
-                source: "fallback",
-                message: "AI service unavailable"
-            });
-        }
-        res.json(explanation);
-    } catch (err) {
-        console.error('[LEARNING] /tutor/explain error:', err.message);
-        res.status(500).json({ error: 'Failed to generate explanation.' });
-    }
-});
-
-/**
- * POST /api/learning/tutor/hint
- * Generate up to 3 progressive hints for a question.
- * Body: { questionText, topic, correctAnswer }
- */
-router.post('/tutor/hint', auth, async (req, res) => {
-    try {
-        const { questionText, topic, correctAnswer } = req.body;
-        if (!questionText || !correctAnswer) {
-            return res.status(400).json({ error: 'questionText and correctAnswer are required.' });
-        }
-        const hints = await AITutorService.generateHints(questionText, topic, correctAnswer);
-        if (hints && hints.success === false) {
-            return res.json(hints);
-        }
-        res.json({ hints });
-    } catch (err) {
-        console.error('[LEARNING] /tutor/hint error:', err.message);
-        res.status(500).json({ error: 'Failed to generate hints.' });
-    }
-});
-
-/**
- * GET /api/learning/tutor/summary
- * Generate a concept summary for a topic.
- * Query: ?topic=AncientHistory&exam=UPSC
- */
-router.get('/tutor/summary', auth, async (req, res) => {
-    try {
-        const { topic, exam } = req.query;
-        if (!topic) {
-            return res.status(400).json({ error: 'topic query parameter is required.' });
-        }
-        const summary = await AITutorService.generateConceptSummary(topic, exam || 'UPSC');
-        if (summary && summary.success === false) {
-            return res.json({
-                success: false,
-                source: "fallback",
-                message: "AI service unavailable"
-            });
-        }
-        res.json(summary);
-    } catch (err) {
-        console.error('[LEARNING] /tutor/summary error:', err.message);
-        res.status(500).json({ error: 'Failed to generate concept summary.' });
-    }
-});
-
-/**
- * GET /api/learning/tutor/mistakes
- * Detect repeated mistake patterns from test history.
- * Query: ?limit=20
- */
-router.get('/tutor/mistakes', auth, async (req, res) => {
-    try {
-        const limit = parseInt(req.query.limit) || 20;
-        const analysis = await AITutorService.detectRepeatedMistakes(req.user._id, limit);
-        res.json(analysis);
-    } catch (err) {
-        console.error('[LEARNING] /tutor/mistakes error:', err.message);
-        res.status(500).json({ error: 'Failed to analyse mistake patterns.' });
-    }
-});
-
-/* ============================================================
-   MODULE D — OFFLINE SYNC ENDPOINT
-   ============================================================ */
-
-/**
- * POST /api/learning/sync
- * Receive and persist offline-queued test results (Module D).
- * Body: { offlineResults: [{ sessionId, answers, subject, exam, createdAt, ... }] }
- * Conflict resolution: skip existing sessionIds (idempotent).
- */
-router.post('/sync', auth, async (req, res) => {
-    try {
-        const { offlineResults } = req.body;
-        if (!Array.isArray(offlineResults) || offlineResults.length === 0) {
-            return res.status(400).json({ error: 'offlineResults array is required and must not be empty.' });
-        }
-
-        const userId = req.user._id;
-        const results = { synced: [], skipped: [], failed: [] };
-
-        for (const payload of offlineResults) {
-            const { sessionId } = payload;
-            if (!sessionId) {
-                results.failed.push({ sessionId: 'MISSING', reason: 'sessionId is required' });
-                continue;
-            }
-
-            // Idempotency: skip if already exists
-            const existing = await TestResult.findOne({ sessionId }).lean();
-            if (existing) {
-                results.skipped.push({ sessionId, reason: 'Already synced — session exists in database.' });
-                continue;
-            }
-
-            try {
-                // Resolve conflict: use the offline session's createdAt, fallback to now
-                const createdAt = payload.createdAt ? new Date(payload.createdAt) : new Date();
-
-                const newResult = new TestResult({
-                    userId,
-                    sessionId,
-                    exam: payload.exam || 'UNKNOWN',
-                    subject: payload.subject || 'UNKNOWN',
-                    testName: payload.testName || `Offline Test — ${createdAt.toISOString().split('T')[0]}`,
-                    mode: payload.mode || 'full',
-                    score: payload.score || 0,
-                    totalQuestions: payload.totalQuestions || (payload.answers || []).length,
-                    correct: payload.correct || 0,
-                    incorrect: payload.incorrect || 0,
-                    unattempted: payload.unattempted || 0,
-                    accuracy: payload.accuracy || 0,
-                    answers: payload.answers || [],
-                    createdAt
-                });
-
-                await newResult.save();
-                results.synced.push({ sessionId });
-            } catch (saveErr) {
-                results.failed.push({ sessionId, reason: saveErr.message });
-            }
-        }
-
-        res.json({
-            message: `Sync complete. ${results.synced.length} synced, ${results.skipped.length} skipped, ${results.failed.length} failed.`,
-            ...results
-        });
-    } catch (err) {
-        console.error('[LEARNING] /sync error:', err.message);
-        res.status(500).json({ error: 'Failed to process offline sync.' });
+        console.error('[LEARNING] /bookmarks DELETE error:', err.message);
+        res.status(500).json({ error: 'Failed to remove bookmark.' });
     }
 });
 

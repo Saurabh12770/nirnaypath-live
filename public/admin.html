@@ -4,7 +4,6 @@
     <script src="/js/lifecycle.js"></script>
     <script src="/js/uiState.js"></script>
     <script src="/js/renderController.js"></script>
-
     <script src="/js/authStore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -39,17 +38,14 @@
             <div class="nav-item" id="nav-questions" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-question-circle"></i> Questions
             </div>
+            <div class="nav-item" id="nav-notes" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
+                <i class="fas fa-file-alt"></i> Notes Editor
+            </div>
+            <div class="nav-item" id="nav-syllabus" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
+                <i class="fas fa-sitemap"></i> Syllabus
+            </div>
             <div class="nav-item" id="nav-users" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-users"></i> Users
-            </div>
-            <div class="nav-item" id="nav-payments" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
-                <i class="fas fa-credit-card"></i> Payments
-            </div>
-            <div class="nav-item" id="nav-live-sessions" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
-                <i class="fas fa-video"></i> Live Sessions
-            </div>
-            <div class="nav-item" id="nav-telemetry" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
-                <i class="fas fa-satellite-dish"></i> Telemetry
             </div>
             <div class="nav-item" id="nav-home" onclick="document.querySelector('.sidebar-nav').classList.remove('mobile-active')">
                 <i class="fas fa-home"></i> Back to Site
@@ -113,6 +109,59 @@
             </div>
         </div>
 
+        <!-- ════════ NOTES EDITOR SECTION ════════ -->
+        <div id="section-notes" class="admin-section hidden">
+            <div class="admin-card">
+                <div class="controls-row">
+                    <select id="noteExamFilter" class="leaderboard-select" style="max-width: 180px;">
+                        <option value="">All Exams</option>
+                    </select>
+                    <select id="noteSubjectFilter" class="leaderboard-select" style="max-width: 180px;">
+                        <option value="">All Subjects</option>
+                    </select>
+                    <input type="text" id="noteSearch" placeholder="Search by topic/subtopic..." class="search-input" style="max-width: 250px;">
+                    <button class="admin-btn btn-success" style="margin-left: auto;" id="btn-add-note">+ Add Note</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Exam</th>
+                                <th>Subject</th>
+                                <th>Topic</th>
+                                <th>Sub-Topic</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notesTableBody">
+                            <tr><td colspan="5" style="text-align:center;color:#888;">Select filters or search to load notes.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════ SYLLABUS SECTION ════════ -->
+        <div id="section-syllabus" class="admin-section hidden">
+            <div class="charts-grid">
+                <div class="admin-card">
+                    <h3>Visual Syllabus Hierarchy</h3>
+                    <div id="syllabusVisualTree" style="max-height: 500px; overflow-y: auto; font-size: 0.95rem; line-height: 1.6;">
+                        <!-- Dynamically populated tree -->
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <h3>Edit Syllabus (JSON)</h3>
+                    <form id="syllabusForm">
+                        <div class="form-group">
+                            <textarea id="syllabusJsonInput" rows="18" style="font-family: monospace; font-size: 0.85rem;" required></textarea>
+                        </div>
+                        <button type="submit" class="admin-btn btn-primary" style="width: 100%;">Save Syllabus Index</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- ════════ USERS SECTION ════════ -->
         <div id="section-users" class="admin-section hidden">
             <div class="admin-card">
@@ -136,165 +185,8 @@
             </div>
         </div>
 
-        <!-- ════════ PAYMENTS SECTION ════════ -->
-        <div id="section-payments" class="admin-section hidden">
-            <div class="admin-card">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-indian-rupee-sign"></i></div>
-                        <h3 id="totalRevenue">₹0</h3>
-                        <p>Total Revenue</p>
-                        <span class="stat-trend positive"><i class="fas fa-arrow-up"></i> +12% vs last week</span>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Plan</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>ID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════ LIVE SESSIONS SECTION ════════ -->
-        <div id="section-live-sessions" class="admin-section hidden">
-            <!-- Create Session Form -->
-            <div class="admin-card">
-                <h3 style="margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Schedule New Live Session</h3>
-                <form id="createLiveSessionForm">
-                    <div class="form-grid-3">
-                        <div class="form-group">
-                            <label>Exam</label>
-                            <select id="liveExam" required>
-                                <option value="upsc">UPSC</option>
-                                <option value="bpsc">BPSC</option>
-                                <option value="ssc">SSC</option>
-                                <option value="railway">Railway</option>
-                                <option value="banking">Banking</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <select id="liveSubject" required>
-                                <option value="history">History</option>
-                                <option value="geography">Geography</option>
-                                <option value="polity">Polity</option>
-                                <option value="economics">Economics</option>
-                                <option value="science">Science</option>
-                                <option value="gs">General Studies</option>
-                                <option value="reasoning">Reasoning</option>
-                                <option value="math">Mathematics</option>
-                                <option value="english">English</option>
-                                <option value="hindi">Hindi</option>
-                                <option value="currentaffairs">Current Affairs</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Question Count</label>
-                            <input type="number" id="liveQuestionCount" value="50" min="10" max="150" required>
-                        </div>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label>Start Date & Time</label>
-                            <input type="datetime-local" id="liveStartTime" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Duration (minutes)</label>
-                            <input type="number" id="liveDuration" value="90" min="10" max="360" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="admin-btn btn-primary"><i class="fas fa-calendar-plus"></i> Create Live Session</button>
-                </form>
-            </div>
-
-            <!-- Existing Sessions List -->
-            <div class="admin-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3><i class="fas fa-list"></i> All Live Sessions</h3>
-                    <button class="admin-btn" id="btn-refresh-sessions"><i class="fas fa-sync"></i> Refresh</button>
-                </div>
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Exam / Subject</th>
-                                <th>Start Time</th>
-                                <th>Duration</th>
-                                <th>Questions</th>
-                                <th>Registered</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="liveSessionsTableBody">
-                            <tr><td colspan="7" style="text-align:center;color:#888;">Click Refresh to load sessions.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════ TELEMETRY SECTION ════════ -->
-        <div id="section-telemetry" class="admin-section hidden">
-            <div class="stats-grid" id="telemetryStatsGrid">
-                <!-- Dynamically populated stats -->
-            </div>
-            
-            <div class="admin-card" style="margin-top: 20px;">
-                <h3><i class="fas fa-exclamation-triangle"></i> Recent Frontend Errors</h3>
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>Message</th>
-                                <th>Source</th>
-                            </tr>
-                        </thead>
-                        <tbody id="telemetryErrorsBody">
-                            <tr><td colspan="3" style="text-align:center;color:#888;">No errors tracked.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="admin-card" style="margin-top: 20px;">
-                <h3><i class="fas fa-tachometer-alt"></i> Slow API Requests (>1000ms)</h3>
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Endpoint</th>
-                                <th>Duration (ms)</th>
-                                <th>Status</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="telemetrySlowApisBody">
-                            <tr><td colspan="4" style="text-align:center;color:#888;">No slow requests tracked.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="admin-card" style="margin-top: 20px;">
-                <h3><i class="fas fa-chart-area"></i> System Memory Trend</h3>
-                <div class="chart-container">
-                    <canvas id="memoryTrendChart"></canvas>
-                </div>
-            </div>
-        </div>
-
     </main>
+
     <!-- Question Modal -->
     <div id="questionModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 700px;">
@@ -359,7 +251,83 @@
         </div>
     </div>
 
-    <script src="/js/telemetry.js" defer></script>
+    <!-- Note Modal -->
+    <div id="noteModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0;">
+                <h3 id="noteModalTitle">Add/Edit Learning Content</h3>
+                <button class="close-modal" onclick="AdminNotes.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; flex-grow: 1; padding-bottom: 20px;">
+                <form id="noteForm">
+                    <input type="hidden" id="n-id">
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Exam</label>
+                            <input type="text" id="n-exam" required placeholder="e.g. UPSC">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" id="n-subject" required placeholder="e.g. history">
+                        </div>
+                        <div class="form-group">
+                            <label>Topic</label>
+                            <input type="text" id="n-topic" required placeholder="e.g. Ancient India">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sub-Topic</label>
+                        <input type="text" id="n-subtopic" required placeholder="e.g. Indus Valley Civilisation">
+                    </div>
+                    <div class="form-group">
+                        <label>Introduction (HTML/Markdown)</label>
+                        <textarea id="n-introduction" rows="3" required placeholder="Introduction to the sub-topic..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Concept Explanation (HTML/Markdown)</label>
+                        <textarea id="n-conceptExplanation" rows="5" required placeholder="Core concept details..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Detailed Notes (HTML/Markdown)</label>
+                        <textarea id="n-detailedNotes" rows="8" required placeholder="Detailed information, headings, sections..."></textarea>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Important Facts (One per line)</label>
+                            <textarea id="n-facts" rows="4" placeholder="Fact 1&#10;Fact 2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Examples / Illustrations (One per line)</label>
+                            <textarea id="n-examples" rows="4" placeholder="Example 1&#10;Example 2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>PYQ References (One per line)</label>
+                            <textarea id="n-pyqs" rows="4" placeholder="UPSC Prelims 2021&#10;BPSC 2018"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Revision Notes (HTML/Markdown)</label>
+                            <textarea id="n-revisionNotes" rows="4" placeholder="Summary bullet points for quick revision..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Practice MCQs JSON (Optional)</label>
+                        <textarea id="n-mcqsJson" rows="6" placeholder='[
+  {
+    "question": "What was the main port city of Indus Valley?",
+    "options": ["Lothal", "Harappa", "Kalibangan", "Ropar"],
+    "correctAnswer": 0,
+    "explanation": "Lothal was the prominent port city."
+  }
+]' style="font-family: monospace; font-size: 0.85rem;"></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn btn-primary" style="width: 100%; padding: 12px;">Save Note</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/auth.js?v=2.0.0"></script>
     <script src="/js/chatbot.js?v=2.0.0"></script>
     <script src="/js/admin.js?v=2.0.0"></script>
@@ -367,9 +335,3 @@
 </div>
 </body>
 </html>
-
-
-
-
-
-

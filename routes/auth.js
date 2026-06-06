@@ -13,7 +13,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
-const { sendWelcomeEmail, sendPasswordResetEmail } = require('../services/emailService');
 const crypto = require('crypto');
 const router = express.Router();
 
@@ -95,8 +94,8 @@ router.post('/signup', authLimiter, async (req, res) => {
 
         await user.save();
 
-        // Fire-and-forget: Trigger welcome email without blocking the response
-        sendWelcomeEmail(user).catch(err => console.error('[Signup] Welcome email queue failure:', err.message));
+        // Fire-and-forget welcome notification mock
+        console.log(`[Signup] Welcome email mock triggered for user: ${user.email}`);
 
         // PHASE 6: JWT on signup MUST have expiry
         const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
@@ -242,14 +241,13 @@ router.get('/me', auth, async (req, res) => {
 
 // Forgot Password - Initiate Recovery (Phase 8 Hardened)
 router.post('/forgot-password', async (req, res) => {
-    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
 
         const user = await User.findOne({ email: email.toLowerCase() });
         
-        trace(CATEGORIES.PASSWORD_FLOW, 'Forgot Password Requested', { email });
+        console.log('Forgot Password Requested for:', email);
 
         if (!user) {
             // Security Best Practice: Always return generic success to prevent user enumeration
@@ -268,24 +266,23 @@ router.post('/forgot-password', async (req, res) => {
         
         await user.save();
 
-        trace(CATEGORIES.PASSWORD_FLOW, 'Reset Token Generated & Hashed', { 
+        console.log('Reset Token Generated & Hashed:', { 
             userId: user._id, 
             tokenStub: rawToken.substring(0, 4) + '...'
         });
 
-        // Queue email via BullMQ dispatcher (Send the RAW token to the user)
-        sendPasswordResetEmail(user, rawToken).catch(err => console.error('[Auth] Password reset queue error:', err));
+        // Mock password reset link printing to logs (no email integration)
+        console.log(`[Forgot Password] Password reset email link: /reset-password.html?token=${rawToken}`);
 
         res.json({ message: 'Reset link sent to your email.' });
     } catch (error) {
-        trace(CATEGORIES.PASSWORD_FLOW, 'Forgot Password Error', { error: error.message });
+        console.error('Forgot Password Error:', error.message);
         res.status(500).json({ error: 'Recovery system failure' });
     }
 });
 
 // Reset Password - Commit Recovery (Phase 8 Hardened)
 router.post('/reset-password', async (req, res) => {
-    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { token, newPassword } = req.body;
         
@@ -303,7 +300,7 @@ router.post('/reset-password', async (req, res) => {
         });
 
         if (!user) {
-            trace(CATEGORIES.PASSWORD_FLOW, 'Reset Attempt Failed: Invalid or Expired Hash', { tokenStub: token.substring(0, 4) });
+            console.log('Reset Attempt Failed: Invalid or Expired Hash', { tokenStub: token.substring(0, 4) });
             return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
         }
 
@@ -316,11 +313,11 @@ router.post('/reset-password', async (req, res) => {
         
         await user.save();
 
-        trace(CATEGORIES.PASSWORD_FLOW, 'Password Reset Successful', { userId: user._id });
+        console.log('Password Reset Successful', { userId: user._id });
 
         res.json({ message: 'Password has been reset successfully. You can now log in.' });
     } catch (error) {
-        trace(CATEGORIES.PASSWORD_FLOW, 'Password Reset Error', { error: error.message });
+        console.error('Password Reset Error:', error.message);
         res.status(500).json({ error: 'Reset operation failed' });
     }
 });

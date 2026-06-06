@@ -1,66 +1,100 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
-const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 const Question = require('../models/question');
 const User = require('../models/user');
 const TestResult = require('../models/testResult');
-const Payment = require('../models/payment');
-const { loadQuestions } = require('../utils/questionLoader');
-const { atomicWriteFile } = require('../utils/fileUtils');
-const QQS = require('../services/questionQualityService');
+const LearningContent = require('../models/learningContent');
+const LearningContentService = require('../services/learningContentService');
+const SyllabusService = require('../services/syllabusService');
 
-const APPROVED_SUBJECTS = [
-    'aptitude', 'bihar', 'chemistry', 'computerscience', 'current',
-    'economics', 'english', 'environment', 'general_awareness', 'geography',
-    'hindi', 'history', 'law', 'math', 'police_science', 'polity',
-    'reasoning', 'science', 'social_science', 'test'
-];
+const SYLLABUS_PATH = path.resolve(__dirname, '../data/syllabus/index.json');
 
-function getSafeSubject(subject) {
-    if (!subject || typeof subject !== 'string') return null;
-    const safeSubject = path.basename(subject).toLowerCase().trim();
-    if (!APPROVED_SUBJECTS.includes(safeSubject)) {
-        return null;
+// ══════════════════════════════════════════════════════════
+// 1. STATS & ANALYTICS
+// ══════════════════════════════════════════════════════════
+
+router.get('/stats', auth, adminAuth, async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments();
+        const proUsers = await User.countDocuments({ plan: { $in: ['pro_monthly', 'pro_yearly'] } });
+        const bannedUsers = await User.countDocuments({ isActive: false });
+        const totalQuestions = await Question.countDocuments();
+        const totalNotes = await LearningContent.countDocuments();
+        const totalTests = await TestResult.countDocuments();
+
+        // Count tests taken today (24h) and this week (7d)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - 7);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const testsToday = await TestResult.countDocuments({ createdAt: { $gte: startOfDay } });
+        const testsThisWeek = await TestResult.countDocuments({ createdAt: { $gte: startOfWeek } });
+
+        const activeUserIds = await TestResult.distinct('userId', { createdAt: { $gte: startOfWeek } });
+
+        res.json({
+            users: { total: totalUsers, pro: proUsers, banned: bannedUsers },
+            tests: { today: testsToday, week: testsThisWeek, total: totalTests },
+            questions: { total: totalQuestions },
+            notes: { total: totalNotes },
+            revenue: 0, // payment system stripped in NP 2.0
+            activeUsers: activeUserIds.length
+        });
+    } catch (error) {
+        console.error('[ADMIN STATS] Error:', error);
+        res.status(500).json({ error: error.message });
     }
-    return safeSubject;
-}
+});
 
-// List questions from MongoDB (Primary source of truth)
+// ══════════════════════════════════════════════════════════
+// 2. QUESTION MANAGEMENT (CRUD)
+// ══════════════════════════════════════════════════════════
+
+// List all approved subjects
+router.get('/subjects', auth, adminAuth, async (req, res) => {
+    try {
+        const subjects = SyllabusService.getAllSubjects();
+        res.json(subjects.map(s => s.id));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get paginated questions for a subject
 router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
-    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { subject } = req.params;
         const { page = 1, limit = 50, topic = '', difficulty = '', search = '' } = req.query;
-        
-        const subLower = getSafeSubject(subject);
-        if (!subLower) {
-            return res.status(400).json({ error: 'Invalid or unapproved subject name' });
-        }
-        
-        trace(CATEGORIES.ADMIN_FLOW, 'Question List Requested', { subject: subLower, page });
-        
+
         const query = {};
+        if (subject && subject !== 'all') {
+            query.$or = [{ subjectId: subject.toLowerCase() }, { subject: subject.toLowerCase() }];
+        }
 
         if (search) {
-            query.$and = [
-                { $or: [{ subjectId: subLower }, { subject: subLower }] },
-                { $or: [
-                    { question_en: { $regex: search, $options: 'i' } },
-                    { question_hi: { $regex: search, $options: 'i' } }
-                ]}
+            query.$or = [
+                { question_en: { $regex: search, $options: 'i' } },
+                { question_hi: { $regex: search, $options: 'i' } },
+                { text: { $regex: search, $options: 'i' } }
             ];
-        } else {
-            query.$or = [{ subjectId: subLower }, { subject: subLower }];
         }
 
-        if (topic) query.topic = topic; 
-        if (difficulty) query.difficulty = difficulty;
+        if (topic) {
+            query.$or = [{ topicId: topic }, { topic: topic }];
+        }
+        if (difficulty) {
+            query.difficulty = difficulty.toUpperCase();
+        }
 
-        const skip = (page - 1) * parseInt(limit);
+        const skip = (parseInt(page) - 1) * parseInt(limit);
         const questions = await Question.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -68,106 +102,69 @@ router.get('/questions/:subject', auth, adminAuth, async (req, res) => {
             .lean();
 
         const total = await Question.countDocuments(query);
-
         res.json({ questions, total, page: parseInt(page), limit: parseInt(limit) });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * Sync MongoDB to JSON File (Asynchronous Backup)
- * Phase 6: JSON is fallback only
- */
-const syncToJSON = async (subject) => {
-    try {
-        const subLower = subject.toLowerCase().trim();
-        const questions = await Question.find({ 
-            $or: [{ subjectId: subLower }, { subject: subLower }] 
-        }).lean();
-        
-        const filePath = path.join(__dirname, '../data', `${subLower}.json`);
-        await atomicWriteFile(filePath, questions);
-        console.log(`[Backup] Synced ${questions.length} questions to ${subLower}.json`);
-    } catch (err) {
-        console.error('[Backup] JSON Sync Error:', err.message);
-    }
-};
-
-// ══════════════════════════════════════════════════════════
-// 1. QUESTION MANAGEMENT
-// ══════════════════════════════════════════════════════════
-
-// List all subjects
-router.get('/subjects', auth, adminAuth, async (req, res) => {
-    try {
-        const dataDir = path.join(__dirname, '../data');
-        const files = await fs.readdir(dataDir);
-        const subjects = files
-            .filter(f => f.endsWith('.json'))
-            .map(f => f.replace('.json', ''));
-        res.json(subjects);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-// Add new question (MongoDB Direct) — with quality scoring
+// Add new question
 router.post('/questions/:subject', auth, adminAuth, async (req, res) => {
-    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
     try {
         const { subject } = req.params;
         const subLower = subject.toLowerCase().trim();
-        
-        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Attempt', { subject: subLower });
+        const body = req.body;
 
-        // Validation warnings (non-blocking)
-        const { valid, warnings } = QQS.validate(req.body);
-
-        const questionData = { 
-            ...req.body, 
+        const questionData = {
             subjectId: subLower,
             subject: subLower,
-            createdAt: new Date(),
-            ...QQS.score(req.body), // attach qualityScore, qualityFlags, reviewRequired
+            topicId: body.topic,
+            topic: body.topic,
+            question_en: body.question_en,
+            question_hi: body.question_hi,
+            options_en: body.options_en,
+            options: body.options_en,
+            correctAnswer: body.correctAnswer,
+            difficulty: (body.difficulty || 'MEDIUM').toUpperCase(),
+            explanation_en: body.explanation_en,
+            explanation_hi: body.explanation_hi,
+            createdAt: new Date()
         };
-        
+
         const question = new Question(questionData);
         await question.save();
-        
-        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Success', { qId: question._id });
-        syncToJSON(subject).catch(() => {});
-        
-        res.status(201).json({ message: 'Question added', question, warnings });
+        res.status(201).json({ message: 'Question added successfully', question });
     } catch (error) {
-        trace(CATEGORIES.ADMIN_FLOW, 'Question Add Failure', { error: error.message });
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update question — re-score quality on every save
+// Update question
 router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
         const { subject, id } = req.params;
-        const updatedData = req.body;
-        delete updatedData._id; // Safety
+        const subLower = subject.toLowerCase().trim();
+        const body = req.body;
 
-        // Attach fresh quality metrics
-        const qualityMeta = QQS.score(updatedData);
-        Object.assign(updatedData, qualityMeta);
-        
-        const question = await Question.findOneAndUpdate(
-            { $or: [{ _id: id.length === 24 ? id : undefined }, { id: id }] },
-            { $set: updatedData },
-            { new: true }
-        );
-        
+        const updatedData = {
+            subjectId: subLower,
+            subject: subLower,
+            topicId: body.topic,
+            topic: body.topic,
+            question_en: body.question_en,
+            question_hi: body.question_hi,
+            options_en: body.options_en,
+            options: body.options_en,
+            correctAnswer: body.correctAnswer,
+            difficulty: (body.difficulty || 'MEDIUM').toUpperCase(),
+            explanation_en: body.explanation_en,
+            explanation_hi: body.explanation_hi,
+            updatedAt: new Date()
+        };
+
+        const question = await Question.findByIdAndUpdate(id, { $set: updatedData }, { new: true });
         if (!question) return res.status(404).json({ error: 'Question not found' });
-
-        const { warnings } = QQS.validate(updatedData);
-        syncToJSON(subject).catch(() => {});
-        res.json({ message: 'Question updated', question, warnings });
+        res.json({ message: 'Question updated successfully', question });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -176,328 +173,219 @@ router.put('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
 // Delete question
 router.delete('/questions/:subject/:id', auth, adminAuth, async (req, res) => {
     try {
-        const { subject, id } = req.params;
-        
-        const question = await Question.findOneAndDelete({
-            $or: [{ _id: id.length === 24 ? id : null }, { id: id }]
-        });
-
+        const { id } = req.params;
+        const question = await Question.findByIdAndDelete(id);
         if (!question) return res.status(404).json({ error: 'Question not found' });
-
-        syncToJSON(subject).catch(() => {});
-        res.json({ message: 'Question deleted' });
+        res.json({ message: 'Question deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Bulk upload — with duplicate detection + quality scoring + validation
+// Bulk upload questions
 router.post('/questions/:subject/bulk', auth, adminAuth, async (req, res) => {
     try {
         const { subject } = req.params;
+        const subLower = subject.toLowerCase().trim();
         const { questions: newBatch } = req.body;
-        
+
         if (!Array.isArray(newBatch) || newBatch.length === 0) {
             return res.status(400).json({ error: 'Questions must be a non-empty array' });
         }
 
-        const subLower = subject.toLowerCase().trim();
-        const uploadSummary = { total: newBatch.length, inserted: 0, duplicatesSkipped: 0, warnings: [] };
+        const toInsert = newBatch.map(q => ({
+            subjectId: subLower,
+            subject: subLower,
+            topicId: q.topic || q.topicId,
+            topic: q.topic || q.topicId,
+            question_en: q.question_en || q.text,
+            question_hi: q.question_hi,
+            options_en: q.options_en || q.options,
+            options: q.options_en || q.options,
+            correctAnswer: q.correctAnswer,
+            difficulty: (q.difficulty || 'MEDIUM').toUpperCase(),
+            explanation_en: q.explanation_en || q.explanation,
+            explanation_hi: q.explanation_hi,
+            createdAt: new Date()
+        }));
 
-        // Fetch existing hashes for this subject to detect duplicates
-        const existingRaw = await Question.find(
-            { $or: [{ subjectId: subLower }, { subject: subLower }] },
-            { question_en: 1, text: 1 }
-        ).lean();
-        const existingHashes = new Set(
-            existingRaw.map(q => crypto.createHash('md5').update((q.question_en || q.text || '').trim().toLowerCase()).digest('hex'))
-        );
-
-        const toInsert = [];
-        for (const q of newBatch) {
-            const enText = (q.question_en || q.text || '').trim();
-            const hash = crypto.createHash('md5').update(enText.toLowerCase()).digest('hex');
-            if (existingHashes.has(hash)) {
-                uploadSummary.duplicatesSkipped++;
-                continue;
-            }
-            existingHashes.add(hash); // guard within batch too
-
-            const { warnings } = QQS.validate(q);
-            if (warnings.length) uploadSummary.warnings.push({ text: enText.slice(0, 40), warnings });
-
-            toInsert.push({
-                ...q,
-                subjectId: subLower,
-                subject: subLower,
-                createdAt: new Date(),
-                ...QQS.score(q),
-            });
-        }
-
-        if (toInsert.length) await Question.insertMany(toInsert, { ordered: false });
-        uploadSummary.inserted = toInsert.length;
-        syncToJSON(subject).catch(() => {});
-        
-        res.json({ message: `Bulk upload complete`, ...uploadSummary });
+        await Question.insertMany(toInsert, { ordered: false });
+        res.json({ message: 'Bulk upload complete', inserted: toInsert.length });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ── Review Queue — questions flagged for admin attention ─────────────────────
-router.get('/questions/review-queue', auth, adminAuth, async (req, res) => {
+// ══════════════════════════════════════════════════════════
+// 3. LEARNING CONTENT / NOTES MANAGEMENT (CRUD)
+// ══════════════════════════════════════════════════════════
+
+// List all learning content notes
+router.get('/learning-content', auth, adminAuth, async (req, res) => {
     try {
-        const { page = 1, limit = 50 } = req.query;
+        const { exam, subject, topic, page = 1, limit = 50 } = req.query;
+        const query = {};
+        if (exam) query.exam = exam;
+        if (subject) query.subject = subject.toLowerCase();
+        if (topic) query.topic = topic;
+
         const skip = (parseInt(page) - 1) * parseInt(limit);
-        const [questions, total] = await Promise.all([
-            Question.find({ reviewRequired: true })
-                .sort({ qualityScore: 1 }) // lowest quality first
-                .skip(skip)
-                .limit(parseInt(limit))
-                .lean(),
-            Question.countDocuments({ reviewRequired: true }),
-        ]);
-        res.json({ questions, total, page: parseInt(page), limit: parseInt(limit) });
+        const items = await LearningContent.find(query)
+            .sort({ exam: 1, subject: 1, topic: 1, subTopic: 1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean();
+
+        const total = await LearningContent.countDocuments(query);
+        res.json({ items, total, page: parseInt(page), limit: parseInt(limit) });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ── Approve a question from review queue ─────────────────────────────────────
-router.patch('/questions/:id/approve', auth, adminAuth, async (req, res) => {
+// Get single learning content detail
+router.get('/learning-content/:id', auth, adminAuth, async (req, res) => {
     try {
-        const q = await Question.findByIdAndUpdate(
-            req.params.id,
-            { $set: { reviewRequired: false } },
-            { new: true }
-        );
-        if (!q) return res.status(404).json({ error: 'Question not found' });
-        res.json({ message: 'Question approved', question: q });
+        const item = await LearningContent.findById(req.params.id).lean();
+        if (!item) return res.status(404).json({ error: 'Learning content not found.' });
+        res.json(item);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ══════════════════════════════════════════════════════════
-// 1.5 VERIFICATION ENDPOINTS
-// ══════════════════════════════════════════════════════════
-router.get('/verify-semantic-uniqueness/:subject', auth, adminAuth, async (req, res) => {
+// Create or Update learning content note
+router.post('/learning-content', auth, adminAuth, async (req, res) => {
     try {
-        const { subject } = req.params;
-        const subLower = subject.toLowerCase().trim();
-        const DedupEngine = require('../services/dedupEngine');
-        
-        let pool = await Question.find({ 
-            $or: [{ subjectId: subLower }, { subject: subLower }] 
-        }).lean();
-        
-        const rawFs = require('fs');
-        const dataPath = path.join(__dirname, `../data/${subLower}.json`);
-        if (rawFs.existsSync(dataPath)) {
-            const rawData = JSON.parse(rawFs.readFileSync(dataPath, 'utf8'));
-            const subQuestions = Array.isArray(rawData) ? rawData : (rawData.questions || []);
-            pool.push(...subQuestions);
-        }
+        const content = await LearningContentService.upsertContent(req.body);
+        res.status(201).json({ message: 'Learning content saved successfully', content });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        const totalQuestions = pool.length;
-        const duplicateGroups = [];
-        const seenEnTexts = new Map();
-        const seenHiTexts = new Map();
-        const finalUnique = [];
+// Update specific learning content note
+router.put('/learning-content/:id', auth, adminAuth, async (req, res) => {
+    try {
+        const data = { ...req.body, _id: req.params.id };
+        const content = await LearningContentService.upsertContent(data);
+        res.json({ message: 'Learning content updated successfully', content });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        for (const q of pool) {
-            const id = String(q._id || q.id || q.questionId || 'UNKNOWN').trim();
-            const textEn = DedupEngine.normalizeText(q.question_en || q.text || '');
-            const textHi = DedupEngine.normalizeText(q.question_hi || '');
-
-            let isDuplicate = false;
-            let groupEn = null;
-            let groupHi = null;
-
-            if (textEn && seenEnTexts.has(textEn)) {
-                isDuplicate = true;
-                groupEn = seenEnTexts.get(textEn);
-            } else if (textHi && seenHiTexts.has(textHi)) {
-                isDuplicate = true;
-                groupHi = seenHiTexts.get(textHi);
-            }
-
-            if (isDuplicate) {
-                const conflict = groupEn || groupHi;
-                duplicateGroups.push({
-                    originalId: conflict.id,
-                    duplicateId: id,
-                    snippet: (q.question_en || q.text || q.question_hi || '').substring(0, 100)
-                });
-            } else {
-                if (textEn) seenEnTexts.set(textEn, { id, q });
-                if (textHi) seenHiTexts.set(textHi, { id, q });
-                finalUnique.push(q);
-            }
-        }
-
-        res.json({
-            totalQuestions,
-            uniqueQuestions: finalUnique.length,
-            duplicatesFound: duplicateGroups.length,
-            duplicateGroups
-        });
+// Delete learning content note
+router.delete('/learning-content/:id', auth, adminAuth, async (req, res) => {
+    try {
+        const success = await LearningContentService.deleteContent(req.params.id);
+        if (!success) return res.status(404).json({ error: 'Learning content not found.' });
+        res.json({ message: 'Learning content deleted successfully.' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 // ══════════════════════════════════════════════════════════
-// 2. USER MANAGEMENT
+// 4. SYLLABUS MANAGEMENT (CRUD)
 // ══════════════════════════════════════════════════════════
 
-// List users with stats
+// Get index.json syllabus
+router.get('/syllabus', auth, adminAuth, async (req, res) => {
+    try {
+        const raw = await fs.readFile(SYLLABUS_PATH, 'utf8');
+        res.json(JSON.parse(raw));
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read syllabus file: ' + error.message });
+    }
+});
+
+// Update index.json syllabus
+router.put('/syllabus', auth, adminAuth, async (req, res) => {
+    try {
+        const syllabusData = req.body;
+        if (!syllabusData || !Array.isArray(syllabusData.exams)) {
+            return res.status(400).json({ error: 'Invalid syllabus data. Must contain exams array.' });
+        }
+        await fs.writeFile(SYLLABUS_PATH, JSON.stringify(syllabusData, null, 2), 'utf8');
+        SyllabusService.clearCache();
+        res.json({ message: 'Syllabus updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to save syllabus file: ' + error.message });
+    }
+});
+
+// ══════════════════════════════════════════════════════════
+// 5. USER MANAGEMENT
+// ══════════════════════════════════════════════════════════
+
 router.get('/users', auth, adminAuth, async (req, res) => {
     try {
         const { page = 1, limit = 50, search = '' } = req.query;
-        const query = search ? { 
-            $or: [
+        const query = {};
+        if (search) {
+            query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } }
-            ]
-        } : {};
+            ];
+        }
 
+        const skip = (parseInt(page) - 1) * parseInt(limit);
         const users = await User.find(query)
             .sort({ createdAt: -1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
-            .select('-password');
+            .skip(skip)
+            .limit(parseInt(limit))
+            .select('-password')
+            .lean();
 
-        const count = await User.countDocuments(query);
+        const total = await User.countDocuments(query);
 
-        // Map users to include test counts (simplified)
-        const userList = await Promise.all(users.map(async (u) => {
-            const testCount = await TestResult.countDocuments({ userId: u._id });
-            return { ...u.toObject(), testsCount: testCount };
+        const usersWithStats = await Promise.all(users.map(async (u) => {
+            const testsCount = await TestResult.countDocuments({ userId: u._id });
+            return { ...u, testsCount };
         }));
 
-        res.json({ users: userList, total: count, page: parseInt(page) });
+        res.json({ users: usersWithStats, total, page: parseInt(page), limit: parseInt(limit) });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update user (Ban/Unban, Change Plan)
 router.put('/users/:userId', auth, adminAuth, async (req, res) => {
     try {
         const { userId } = req.params;
-        const updates = req.body;
-        
-        const user = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password');
-        res.json({ message: 'User updated', user });
+        const { isActive, plan, role } = req.body;
+        const updates = {};
+        if (isActive !== undefined) updates.isActive = isActive;
+        if (plan !== undefined) updates.plan = plan;
+        if (role !== undefined) updates.role = role;
+
+        const user = await User.findByIdAndUpdate(userId, { $set: updates }, { new: true }).select('-password');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json({ message: 'User updated successfully', user });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 // ══════════════════════════════════════════════════════════
-// 3. ANALYTICS & STATS
+// 6. BACKWARD COMPATIBILITY / MOCK ENDPOINTS
 // ══════════════════════════════════════════════════════════
 
-router.get('/stats', auth, adminAuth, async (req, res) => {
-    const { trace, CATEGORIES } = require('../utils/runtimeTrace');
-    try {
-        trace(CATEGORIES.ADMIN_FLOW, 'Dashboard Stats Requested');
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - 7);
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const [totalUsers, proUsers, bannedUsers, testsToday, testsThisWeek, totalTests] = await Promise.all([
-            User.countDocuments(),
-            User.countDocuments({ plan: 'pro_monthly' }),
-            User.countDocuments({ isActive: false }),
-            TestResult.countDocuments({ createdAt: { $gte: startOfDay } }),
-            TestResult.countDocuments({ createdAt: { $gte: startOfWeek } }),
-            TestResult.countDocuments()
-        ]);
-
-        const payments = await Payment.find({ status: 'success' });
-        const totalRevenue = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
-
-        const activeUserIds = await TestResult.distinct('userId', { createdAt: { $gte: startOfWeek } });
-
-        res.json({
-            users: { total: totalUsers, pro: proUsers, banned: bannedUsers },
-            tests: { today: testsToday, week: testsThisWeek, total: totalTests },
-            revenue: totalRevenue,
-            activeUsers: activeUserIds.length
-        });
-    } catch (error) {
-        trace(CATEGORIES.ADMIN_FLOW, 'Dashboard Stats Error', { error: error.message });
-        res.status(500).json({ error: error.message });
-    }
+router.get('/payments', auth, adminAuth, (req, res) => {
+    res.json([]);
 });
 
-// ══════════════════════════════════════════════════════════
-// 4. PAYMENT REPORTing
-// ══════════════════════════════════════════════════════════
-
-router.get('/payments', auth, adminAuth, async (req, res) => {
-    try {
-        const { start, end } = req.query;
-        let query = { status: 'success' };
-        if (start && end) {
-            query.createdAt = { $gte: new Date(start), $lte: new Date(end) };
-        }
-
-        const payments = await Payment.find(query)
-            .sort({ createdAt: -1 })
-            .populate('userId', 'name email');
-        
-        res.json(payments);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+router.get('/live-sessions', auth, adminAuth, (req, res) => {
+    res.json([]);
 });
 
-// ══════════════════════════════════════════════════════════
-// 5. PRODUCTION TELEMETRY & OBSERVABILITY ENDPOINTS
-// ══════════════════════════════════════════════════════════
-
-const runtimeMetricsService = require('../services/runtimeMetricsService');
-
-router.get('/runtime-metrics', auth, adminAuth, (req, res) => {
-    try {
-        const stats = runtimeMetricsService.getOverviewSnapshot();
-        res.json(stats);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+router.post('/live-sessions', auth, adminAuth, (req, res) => {
+    res.json({ message: 'Live sessions disabled in NirnayPath 2.0', questions: [] });
 });
 
-router.get('/slow-queries', auth, adminAuth, (req, res) => {
-    try {
-        const queries = runtimeMetricsService.getRecentSlowQueries();
-        res.json(queries);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-router.get('/live-health', auth, adminAuth, async (req, res) => {
-    try {
-        const health = await runtimeMetricsService.getSystemLiveHealth();
-        res.json(health);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * GET /api/admin/test-exception
- * Admin-only test exception route to verify Sentry and SRE crash logging
- */
-router.get('/test-exception', auth, adminAuth, (req, res) => {
-    throw new Error('SRE Sentry Verification Exception: Admin-triggered test crash.');
+router.delete('/live-sessions/:id', auth, adminAuth, (req, res) => {
+    res.json({ message: 'Live sessions disabled' });
 });
 
 module.exports = router;

@@ -54,7 +54,6 @@ class QuestionSelectionService {
      */
     static async select(pool, count, options = {}) {
         const { userId, subject, topicId, sessionHistory = [] } = options;
-        const { trace, CATEGORIES } = require('./runtimeTrace');
 
         // 1. Immutable Clone & Primary Dedup
         // Ensure we never mutate the source pool (e.g. cached MongoDB objects)
@@ -125,8 +124,8 @@ class QuestionSelectionService {
         // Hard crash if duplicates were somehow selected
         Integrity.assertUniqueness(selected, `subject:${subject}`);
 
-        // Trace logging
-        trace(CATEGORIES.QUESTION_FLOW, 'Hardened Selection Completed', {
+        // Log selection details
+        console.log('Hardened Selection Completed:', {
             requested: count,
             selected: selected.length,
             freshPool: freshPool.length,

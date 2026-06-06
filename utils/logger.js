@@ -19,7 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const context = require('./context');
+const context = { getStore: () => ({}) };
 
 const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
 const LOGS_DIR = LOG_DIR;

@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn | NirnayPath — India's Premier Exam Prep Platform</title>
+    <meta name="description" content="Browse structured learning content for UPSC, BPSC, SSC, Railway and Police exams. Study topic-by-topic with notes, key facts, and practice MCQs.">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary:   #4F46E5;
+            --secondary: #F97316;
+            --success:   #10B981;
+            --info:      #3B82F6;
+            --accent:    #EC4899;
+            --teal:      #14B8A6;
+            --dark:      #0F172A;
+            --gray-800:  #1E293B;
+            --gray-700:  #334155;
+            --gray-300:  #E2E8F0;
+            --gray-100:  #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted:#475569;
+            --card-bg:   #FFFFFF;
+            --border:    rgba(148,163,184,0.25);
+            --shadow:    0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --radius:    14px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F0F9FF 0%, #FDF4FF 50%, #F0FFF4 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .topbar-brand span { color: var(--secondary); }
+
+        .topbar-nav { display: flex; gap: 8px; align-items: center; }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn-ghost { background: transparent; color: var(--text-muted); }
+        .nav-btn-ghost:hover { background: var(--gray-100); color: var(--text-main); }
+
+        .nav-btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: #fff;
+        }
+        .nav-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 56px 24px 40px;
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(139,92,246,0.12));
+            border: 1px solid rgba(79,70,229,0.2);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #4F46E5, #8B5CF6, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* ── SEARCH ── */
+        .search-bar {
+            max-width: 560px;
+            margin: 28px auto 0;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* ── EXAM TABS ── */
+        .exam-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        .exam-tab {
+            padding: 10px 20px;
+            border-radius: 100px;
+            border: 2px solid var(--border);
+            background: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-muted);
+        }
+
+        .exam-tab:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+
+        .exam-tab.active {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+        }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: white;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ── SUBJECT GRID ── */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 18px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--card-gradient, linear-gradient(135deg, rgba(79,70,229,0.06), rgba(139,92,246,0.04)));
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .subject-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(79,70,229,0.3); }
+        .subject-card:hover::before { opacity: 1; }
+
+        .subject-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .subject-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .subject-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .subject-arrow {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+
+        .subject-card:hover .subject-arrow { transform: translateX(4px); color: var(--primary); }
+
+        /* ── CONTENT PANEL ── */
+        .content-panel {
+            display: none;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        .content-panel.visible { display: block; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── BREADCRUMB ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-link {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.15s;
+        }
+
+        .breadcrumb-link:hover { opacity: 0.75; }
+
+        .breadcrumb-sep { color: var(--border); }
+
+        /* ── TOPICS LIST ── */
+        .topics-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .topic-group {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .topic-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: background 0.15s;
+        }
+
+        .topic-header:hover { background: var(--gray-100); }
+
+        .topic-header-left { display: flex; align-items: center; gap: 12px; }
+        .topic-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .topic-chevron { transition: transform 0.25s; color: var(--text-muted); font-size: 0.8rem; }
+        .topic-group.open .topic-chevron { transform: rotate(180deg); }
+
+        .subtopic-list {
+            display: none;
+            padding: 0 20px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .topic-group.open .subtopic-list { display: block; }
+
+        .subtopic-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(148,163,184,0.1);
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .subtopic-item:last-child { border-bottom: none; }
+        .subtopic-item:hover { color: var(--primary); }
+
+        .subtopic-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+        }
+
+        .subtopic-status {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .status-available { background: rgba(16,185,129,0.12); color: #065F46; }
+        .status-coming    { background: rgba(148,163,184,0.15); color: var(--text-muted); }
+
+        /* ── CONTENT READER ── */
+        .content-reader {
+            display: none;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        .content-reader.visible { display: block; }
+
+        .content-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #8B5CF6 50%, var(--accent) 100%);
+            border-radius: var(--radius);
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-header::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 140px;
+            height: 140px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .content-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .content-header p { opacity: 0.85; font-size: 0.9rem; }
+
+        .content-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .content-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .content-card h3 {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-card p {
+            color: var(--gray-700);
+            line-height: 1.8;
+            font-size: 0.92rem;
+        }
+
+        .facts-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .facts-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: var(--gray-700);
+        }
+
+        .fact-bullet {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+
+        /* ── MCQ SECTION ── */
+        .mcq-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .mcq-question {
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .mcq-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mcq-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.875rem;
+        }
+
+        .mcq-option:hover { border-color: var(--primary); background: rgba(79,70,229,0.04); }
+        .mcq-option.correct { border-color: var(--success); background: rgba(16,185,129,0.08); color: #065F46; }
+        .mcq-option.wrong   { border-color: #EF4444; background: rgba(239,68,68,0.08); color: #7F1D1D; }
+        .mcq-option.selected { border-color: var(--primary); background: rgba(79,70,229,0.08); }
+
+        .mcq-option-label {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .mcq-submit {
+            margin-top: 14px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mcq-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .mcq-explanation {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(16,185,129,0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+
+        .mcq-explanation.visible { display: block; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        .empty-state p { font-size: 0.875rem; line-height: 1.6; }
+
+        /* ── SKELETON LOADER ── */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+        .skeleton-card { height: 96px; margin-bottom: 12px; }
+
+        /* ── TOAST ── */
+        #learn-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        #learn-toast.show { opacity: 1; transform: translateY(0); }
+
+        /* ── LOGIN PROMPT ── */
+        .login-prompt {
+            background: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(139,92,246,0.06));
+            border: 1.5px solid rgba(79,70,229,0.2);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+        }
+
+        .login-prompt h3 { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+        .login-prompt p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 20px; }
+
+        .btn-login-prompt {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-login-prompt:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; }
+            .main { padding: 24px 16px 48px; }
+            .hero { padding: 36px 16px 28px; }
+            .subject-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+    <a href="/" class="topbar-brand">Nirnay<span>Path</span></a>
+    <nav class="topbar-nav">
+        <a href="/mock-tests.html" class="nav-btn nav-btn-ghost">📝 Mock Tests</a>
+        <a href="/dashboard.html" class="nav-btn nav-btn-ghost">📊 Dashboard</a>
+        <a href="/" class="nav-btn nav-btn-primary">🏠 Home</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-label">📚 Learn Mode</div>
+    <h1>Master Every Topic,<br>Ace Every Exam</h1>
+    <p>Structured notes, key facts, and practice MCQs for UPSC, BPSC, SSC, Railway & Police exams.</p>
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="learn-search" placeholder="Search subjects, topics, or exams…" autocomplete="off">
+    </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- EXAM TABS -->
+    <div class="exam-tabs" id="exam-tabs">
+        <div class="skeleton" style="width:120px;height:42px;border-radius:100px;"></div>
+        <div class="skeleton" style="width:140px;height:42px;border-radius:100px;"></div>
+        <div class="skeleton" style="width:100px;height:42px;border-radius:100px;"></div>
+        <div class="skeleton" style="width:130px;height:42px;border-radius:100px;"></div>
+    </div>
+
+    <!-- SUBJECT VIEW -->
+    <div id="subjects-view" class="content-panel">
+        <div class="section-title" id="subjects-section-title">
+            Subjects <span class="section-badge" id="subjects-count"></span>
+        </div>
+        <div class="subject-grid" id="subject-grid"></div>
+    </div>
+
+    <!-- TOPICS VIEW -->
+    <div id="topics-view" class="content-panel">
+        <div class="breadcrumb" id="topics-breadcrumb"></div>
+        <div class="section-title" id="topics-section-title">Topics</div>
+        <div id="topics-container" class="topics-container"></div>
+    </div>
+
+    <!-- CONTENT READER -->
+    <div id="content-view" class="content-reader">
+        <div class="breadcrumb" id="content-breadcrumb"></div>
+        <div class="content-header" id="content-header">
+            <h2 id="content-title">Loading…</h2>
+            <p id="content-subtitle"></p>
+        </div>
+        <div class="content-body" id="content-body"></div>
+    </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="learn-toast"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const state = {
+    exams: [],
+    activeExam: null,
+    activeSubject: null,
+    view: 'subjects',  // 'subjects' | 'topics' | 'content'
+    isLoggedIn: false
+};
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function toast(msg, dur = 3000) {
+    const el = document.getElementById('learn-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ─── Auth check ──────────────────────────────────────────────────────────────
+function checkAuth() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    state.isLoggedIn = !!token;
+    return token;
+}
+
+async function apiFetch(url) {
+    const token = checkAuth();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(url, { headers });
+    if (res.status === 401) {
+        state.isLoggedIn = false;
+        return null;
+    }
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+}
+
+// ─── Exam Tabs ───────────────────────────────────────────────────────────────
+async function loadExamTabs() {
+    try {
+        const data = await apiFetch('/api/learning/exams');
+        if (!data) { renderUnauthExams(); return; }
+        state.exams = data.exams || [];
+        renderExamTabs();
+        if (state.exams.length > 0) selectExam(state.exams[0]);
+    } catch (e) {
+        console.error('Load exams error:', e);
+        toast('Failed to load exams');
+    }
+}
+
+function renderExamTabs() {
+    const container = document.getElementById('exam-tabs');
+    container.innerHTML = '';
+    state.exams.forEach(exam => {
+        const btn = document.createElement('button');
+        btn.className = 'exam-tab';
+        btn.id = `tab-${exam.id}`;
+        btn.innerHTML = `${exam.icon} ${exam.name}`;
+        btn.onclick = () => selectExam(exam);
+        container.appendChild(btn);
+    });
+}
+
+function selectExam(exam) {
+    state.activeExam = exam;
+    document.querySelectorAll('.exam-tab').forEach(t => t.classList.remove('active'));
+    const tab = document.getElementById(`tab-${exam.id}`);
+    if (tab) tab.classList.add('active');
+    showSubjects(exam);
+}
+
+// ─── Subjects ─────────────────────────────────────────────────────────────────
+function showSubjects(exam) {
+    state.view = 'subjects';
+    document.getElementById('subjects-view').classList.add('visible');
+    document.getElementById('topics-view').classList.remove('visible');
+    document.getElementById('content-view').classList.remove('visible');
+
+    document.getElementById('subjects-section-title').innerHTML =
+        `${exam.icon} ${exam.name} <span class="section-badge">${exam.subjects.length} Subjects</span>`;
+
+    const grid = document.getElementById('subject-grid');
+    grid.innerHTML = '';
+    exam.subjects.forEach(sub => {
+        const card = document.createElement('div');
+        card.className = 'subject-card';
+        card.style.setProperty('--card-gradient', `linear-gradient(135deg, ${sub.color}18, ${sub.color}08)`);
+        card.innerHTML = `
+            <div class="subject-icon" style="background:${sub.color}18;color:${sub.color};">${sub.icon}</div>
+            <div>
+                <div class="subject-name">${sub.name}</div>
+                <div class="subject-meta">${exam.name}</div>
+            </div>
+            <div class="subject-arrow">→</div>
+        `;
+        card.onclick = () => showTopics(exam, sub);
+        grid.appendChild(card);
+    });
+}
+
+// ─── Topics ──────────────────────────────────────────────────────────────────
+async function showTopics(exam, subject) {
+    state.activeSubject = subject;
+    state.view = 'topics';
+    document.getElementById('subjects-view').classList.remove('visible');
+    document.getElementById('topics-view').classList.add('visible');
+    document.getElementById('content-view').classList.remove('visible');
+
+    // Breadcrumb
+    document.getElementById('topics-breadcrumb').innerHTML = `
+        <span class="breadcrumb-link" onclick="showSubjects(state.activeExam)">${exam.icon} ${exam.name}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>${subject.icon} ${subject.name}</span>
+    `;
+
+    document.getElementById('topics-section-title').innerHTML =
+        `${subject.icon} ${subject.name} Topics`;
+
+    const container = document.getElementById('topics-container');
+    container.innerHTML = '<div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div>';
+
+    try {
+        const data = await apiFetch(`/api/learning/topics?exam=${exam.id}&subject=${subject.id}`);
+        container.innerHTML = '';
+
+        if (!data || data.topics.length === 0) {
+            container.innerHTML = `<div class="empty-state">
+                <div class="empty-icon">📖</div>
+                <h3>Content Coming Soon</h3>
+                <p>We're building structured notes for ${subject.name}. Check back soon!</p>
+            </div>`;
+            return;
+        }
+
+        const colors = ['#4F46E5','#F97316','#10B981','#EC4899','#3B82F6','#8B5CF6','#14B8A6'];
+        data.topics.forEach((topicGroup, i) => {
+            const color = colors[i % colors.length];
+            const group = document.createElement('div');
+            group.className = 'topic-group';
+            group.innerHTML = `
+                <div class="topic-header" onclick="toggleTopic(this.parentElement)">
+                    <div class="topic-header-left">
+                        <div class="topic-dot" style="background:${color};"></div>
+                        <span>${topicGroup.topic}</span>
+                    </div>
+                    <span class="topic-chevron">▼</span>
+                </div>
+                <div class="subtopic-list">
+                    ${(topicGroup.subTopics || []).map(st => `
+                        <div class="subtopic-item" onclick="openContent('${escHtml(exam.id)}','${escHtml(subject.id)}','${escHtml(topicGroup.topic)}','${escHtml(st.name)}')">
+                            <span class="subtopic-name">
+                                <span>📄</span>
+                                <span>${escHtml(st.name)}</span>
+                            </span>
+                            ${st.contentExists
+                                ? '<span class="subtopic-status status-available">Available</span>'
+                                : '<span class="subtopic-status status-coming">Soon</span>'}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(group);
+        });
+    } catch (e) {
+        console.error('Topics error:', e);
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Failed to load topics</h3><p>Please try again.</p></div>`;
+    }
+}
+
+function toggleTopic(groupEl) {
+    groupEl.classList.toggle('open');
+}
+
+// ─── Content Reader ───────────────────────────────────────────────────────────
+async function openContent(examId, subjectId, topic, subTopic) {
+    if (!state.isLoggedIn) {
+        showLoginPrompt();
+        return;
+    }
+
+    state.view = 'content';
+    document.getElementById('topics-view').classList.remove('visible');
+    document.getElementById('content-view').classList.add('visible');
+
+    const exam = state.activeExam;
+    const subject = state.activeSubject;
+
+    document.getElementById('content-breadcrumb').innerHTML = `
+        <span class="breadcrumb-link" onclick="showSubjects(state.activeExam)">${exam.icon} ${exam.name}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-link" onclick="showTopics(state.activeExam, state.activeSubject)">${subject.icon} ${subject.name}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>${topic}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span><strong>${subTopic}</strong></span>
+    `;
+
+    document.getElementById('content-title').textContent = subTopic;
+    document.getElementById('content-subtitle').textContent = `${topic} · ${subject.name} · ${exam.name}`;
+    document.getElementById('content-body').innerHTML = '<div class="skeleton skeleton-card" style="height:200px;"></div><div class="skeleton skeleton-card" style="height:120px;"></div>';
+
+    try {
+        const data = await apiFetch(`/api/learning/content?exam=${encodeURIComponent(examId)}&subject=${encodeURIComponent(subjectId)}&topic=${encodeURIComponent(topic)}&subTopic=${encodeURIComponent(subTopic)}`);
+
+        if (!data) { renderNotFound(); return; }
+
+        renderContentBody(data);
+    } catch (e) {
+        if (e.message.includes('404')) { renderNotFound(); return; }
+        console.error('Content error:', e);
+        document.getElementById('content-body').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Could not load content</h3><p>Please try again.</p></div>`;
+    }
+}
+
+function renderContentBody(doc) {
+    const body = document.getElementById('content-body');
+    let html = '';
+
+    if (doc.introduction) {
+        html += `<div class="content-card"><h3>📖 Introduction</h3><p>${escHtml(doc.introduction)}</p></div>`;
+    }
+    if (doc.conceptExplanation) {
+        html += `<div class="content-card"><h3>💡 Concept Explanation</h3><p>${escHtml(doc.conceptExplanation)}</p></div>`;
+    }
+    if (doc.detailedNotes) {
+        html += `<div class="content-card"><h3>📝 Detailed Notes</h3><p>${escHtml(doc.detailedNotes)}</p></div>`;
+    }
+    if (doc.importantFacts && doc.importantFacts.length > 0) {
+        html += `<div class="content-card">
+            <h3>⭐ Important Facts</h3>
+            <ul class="facts-list">
+                ${doc.importantFacts.map(f => `<li><div class="fact-bullet"></div><span>${escHtml(f)}</span></li>`).join('')}
+            </ul>
+        </div>`;
+    }
+    if (doc.revisionNotes) {
+        html += `<div class="content-card" style="border-color:rgba(249,115,22,0.3);background:rgba(249,115,22,0.04);">
+            <h3>🔁 Revision Notes</h3><p>${escHtml(doc.revisionNotes)}</p>
+        </div>`;
+    }
+    if (doc.practiceMcqs && doc.practiceMcqs.length > 0) {
+        html += `<div class="content-card">
+            <h3>🎯 Practice MCQs</h3>
+            ${doc.practiceMcqs.map((q, qi) => renderMcq(q, qi)).join('')}
+        </div>`;
+    }
+
+    body.innerHTML = html || `<div class="empty-state"><div class="empty-icon">📄</div><h3>Content available soon</h3><p>Notes for this topic are being prepared.</p></div>`;
+
+    // Attach MCQ handlers
+    body.querySelectorAll('.mcq-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            const mcqEl = this.closest('.mcq-card');
+            if (mcqEl.dataset.answered) return;
+            mcqEl.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            mcqEl.dataset.selected = this.dataset.index;
+        });
+    });
+
+    body.querySelectorAll('.mcq-submit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const mcqEl = this.closest('.mcq-card');
+            if (mcqEl.dataset.answered) return;
+            const selected = parseInt(mcqEl.dataset.selected);
+            const correct  = parseInt(mcqEl.dataset.correct);
+            if (isNaN(selected)) { toast('Please select an answer first'); return; }
+            mcqEl.dataset.answered = '1';
+            mcqEl.querySelectorAll('.mcq-option').forEach((o, i) => {
+                if (i === correct) o.classList.add('correct');
+                else if (i === selected && selected !== correct) o.classList.add('wrong');
+            });
+            const expEl = mcqEl.querySelector('.mcq-explanation');
+            if (expEl) expEl.classList.add('visible');
+            this.textContent = selected === correct ? '✅ Correct!' : '❌ Wrong';
+            this.disabled = true;
+        });
+    });
+}
+
+function renderMcq(q, qi) {
+    const labels = ['A','B','C','D'];
+    return `<div class="mcq-card" data-correct="${q.correctAnswer}">
+        <div class="mcq-question">Q${qi+1}. ${escHtml(q.question)}</div>
+        <div class="mcq-options">
+            ${(q.options||[]).map((opt, i) => `
+                <div class="mcq-option" data-index="${i}">
+                    <span class="mcq-option-label">${labels[i]||i}</span>
+                    <span>${escHtml(opt)}</span>
+                </div>
+            `).join('')}
+        </div>
+        <button class="mcq-submit">Check Answer</button>
+        ${q.explanation ? `<div class="mcq-explanation">💡 ${escHtml(q.explanation)}</div>` : ''}
+    </div>`;
+}
+
+function renderNotFound() {
+    document.getElementById('content-body').innerHTML = `
+        <div class="empty-state">
+            <div class="empty-icon">📖</div>
+            <h3>Content Not Yet Available</h3>
+            <p>Detailed notes for this topic are being prepared by our experts. Check back soon!</p>
+        </div>`;
+}
+
+function showLoginPrompt() {
+    document.getElementById('topics-view').classList.remove('visible');
+    document.getElementById('content-view').classList.add('visible');
+    document.getElementById('content-title').textContent = 'Login Required';
+    document.getElementById('content-subtitle').textContent = 'Please log in to read full content';
+    document.getElementById('content-breadcrumb').innerHTML = '';
+    document.getElementById('content-body').innerHTML = `
+        <div class="login-prompt">
+            <h3>🔒 Login to Read Full Notes</h3>
+            <p>Create a free account to access full learning content, practice MCQs, and detailed notes for all exams.</p>
+            <button class="btn-login-prompt" onclick="window.location='/'">Login / Register Free</button>
+        </div>`;
+}
+
+function renderUnauthExams() {
+    // Render static exam list even without auth (subjects are public)
+    loadExamTabs();
+}
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+let searchTimer;
+document.getElementById('learn-search').addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    const q = this.value.trim().toLowerCase();
+    searchTimer = setTimeout(() => {
+        if (!q) return;
+        // Filter subjects in current grid
+        document.querySelectorAll('.subject-card').forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(q) ? '' : 'none';
+        });
+    }, 300);
+});
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+checkAuth();
+loadExamTabs();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "exams": [
+    {
+      "id": "UPSC",
+      "name": "UPSC Civil Services",
+      "icon": "🏛️",
+      "color": "#4F46E5",
+      "description": "Union Public Service Commission — IAS/IPS/IFS",
+      "subjects": [
+        { "id": "history",           "name": "History",              "dataKey": "history",           "icon": "📜", "color": "#8B5CF6" },
+        { "id": "geography",         "name": "Geography",            "dataKey": "geography",         "icon": "🌍", "color": "#10B981" },
+        { "id": "polity",            "name": "Polity & Governance",  "dataKey": "polity",            "icon": "⚖️", "color": "#3B82F6" },
+        { "id": "economics",         "name": "Economics",            "dataKey": "economics",         "icon": "📈", "color": "#F97316" },
+        { "id": "science",           "name": "Science & Technology", "dataKey": "science",           "icon": "🔬", "color": "#14B8A6" },
+        { "id": "environment",       "name": "Environment",          "dataKey": "environment",       "icon": "🌿", "color": "#22C55E" },
+        { "id": "current",           "name": "Current Affairs",      "dataKey": "current",           "icon": "📰", "color": "#EC4899" },
+        { "id": "general_awareness", "name": "General Awareness",    "dataKey": "general_awareness", "icon": "💡", "color": "#F59E0B" }
+      ]
+    },
+    {
+      "id": "BPSC",
+      "name": "BPSC Civil Services",
+      "icon": "🏢",
+      "color": "#8B5CF6",
+      "description": "Bihar Public Service Commission",
+      "subjects": [
+        { "id": "history",           "name": "History",              "dataKey": "history",           "icon": "📜", "color": "#8B5CF6" },
+        { "id": "geography",         "name": "Geography",            "dataKey": "geography",         "icon": "🌍", "color": "#10B981" },
+        { "id": "polity",            "name": "Polity",               "dataKey": "polity",            "icon": "⚖️", "color": "#3B82F6" },
+        { "id": "economics",         "name": "Economics",            "dataKey": "economics",         "icon": "📈", "color": "#F97316" },
+        { "id": "bihar",             "name": "Bihar Special",        "dataKey": "bihar",             "icon": "🗺️", "color": "#EC4899" },
+        { "id": "general_awareness", "name": "General Awareness",    "dataKey": "general_awareness", "icon": "💡", "color": "#F59E0B" },
+        { "id": "current",           "name": "Current Affairs",      "dataKey": "current",           "icon": "📰", "color": "#6366F1" }
+      ]
+    },
+    {
+      "id": "SSC_CGL",
+      "name": "SSC CGL",
+      "icon": "📋",
+      "color": "#F97316",
+      "description": "Staff Selection Commission — Combined Graduate Level",
+      "subjects": [
+        { "id": "reasoning",         "name": "Reasoning",            "dataKey": "reasoning",         "icon": "🧩", "color": "#8B5CF6" },
+        { "id": "math",              "name": "Quantitative Aptitude","dataKey": "math",              "icon": "🔢", "color": "#3B82F6" },
+        { "id": "english",           "name": "English",              "dataKey": "english",           "icon": "📝", "color": "#10B981" },
+        { "id": "general_awareness", "name": "General Awareness",    "dataKey": "general_awareness", "icon": "💡", "color": "#F59E0B" }
+      ]
+    },
+    {
+      "id": "RAILWAY",
+      "name": "Railway RRB",
+      "icon": "🚂",
+      "color": "#10B981",
+      "description": "Railway Recruitment Board — NTPC / Group D",
+      "subjects": [
+        { "id": "reasoning",         "name": "Reasoning",            "dataKey": "reasoning",         "icon": "🧩", "color": "#8B5CF6" },
+        { "id": "math",              "name": "Mathematics",          "dataKey": "math",              "icon": "🔢", "color": "#3B82F6" },
+        { "id": "general_awareness", "name": "General Awareness",    "dataKey": "general_awareness", "icon": "💡", "color": "#F59E0B" },
+        { "id": "science",           "name": "General Science",      "dataKey": "science",           "icon": "🔬", "color": "#14B8A6" },
+        { "id": "current",           "name": "Current Affairs",      "dataKey": "current",           "icon": "📰", "color": "#EC4899" }
+      ]
+    },
+    {
+      "id": "POLICE",
+      "name": "Police / Constable",
+      "icon": "👮",
+      "color": "#EC4899",
+      "description": "Bihar Police / UP Police / State Police Exams",
+      "subjects": [
+        { "id": "reasoning",         "name": "Reasoning",            "dataKey": "reasoning",         "icon": "🧩", "color": "#8B5CF6" },
+        { "id": "general_awareness", "name": "General Awareness",    "dataKey": "general_awareness", "icon": "💡", "color": "#F59E0B" },
+        { "id": "hindi",             "name": "Hindi",                "dataKey": "hindi",             "icon": "🔤", "color": "#F97316" },
+        { "id": "police_science",    "name": "Police Science",       "dataKey": "police_science",    "icon": "🚔", "color": "#EC4899" },
+        { "id": "math",              "name": "Mathematics",          "dataKey": "math",              "icon": "🔢", "color": "#3B82F6" }
+      ]
+    }
+  ]
+}

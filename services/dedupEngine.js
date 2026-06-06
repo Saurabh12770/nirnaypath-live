@@ -1,7 +1,8 @@
 /**
- * Dedup Engine (Phase 6)
- * Final safety gate. Validates final output.
+ * Dedup Engine - Simplified v2.0
  */
+
+'use strict';
 
 class DedupEngine {
     static validateFinalOutput(questions) {
@@ -13,54 +14,22 @@ class DedupEngine {
         const seenTexts = new Set();
         const uniqueQuestions = [];
 
-        const SemanticDedupService = require('./semanticDedupService');
-        const seenFingerprints = new Set();
-        let duplicatesCount = 0;
-
-        const isProduction = process.env.NODE_ENV === 'production';
-
         for (const q of questions) {
-            // Check ID (Prioritize JSON id over Mongo _id)
-            const id = String(q.id || q.questionId || q._id || '').trim().toLowerCase();
+            const id = String(q.id || q._id || '').trim().toLowerCase();
             if (!id) continue;
             
             if (seenIds.has(id)) {
-                duplicatesCount++;
                 continue;
             }
 
-            // Check normalized text and Semantic Fingerprint
-            if (q._normalizedTextEn === undefined) {
-                if (!Object.isFrozen(q)) {
-                    q._normalizedTextEn = this.normalizeText(q.question_en || q.text || '');
-                }
-            }
-            const normalizedText = q._normalizedTextEn || this.normalizeText(q.question_en || q.text || '');
-
-            if (q._semanticFingerprint === undefined) {
-                if (!Object.isFrozen(q)) {
-                    q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
-                }
-            }
-            const fingerprint = q._semanticFingerprint || SemanticDedupService.getSemanticFingerprint(q);
-            
+            const normalizedText = this.normalizeText(q.question_en || q.text || '');
             if (normalizedText && seenTexts.has(normalizedText)) {
-                duplicatesCount++;
-                continue;
-            }
-            if (fingerprint && seenFingerprints.has(fingerprint)) {
-                duplicatesCount++;
                 continue;
             }
             
             seenIds.add(id);
             if (normalizedText) seenTexts.add(normalizedText);
-            if (fingerprint) seenFingerprints.add(fingerprint);
             uniqueQuestions.push(q);
-        }
-
-        if (duplicatesCount > 0 && isProduction) {
-            console.warn(`[DedupEngine][validateFinalOutput] Dropped ${duplicatesCount} duplicates from output pool of ${questions.length}.`);
         }
 
         return uniqueQuestions;
@@ -73,96 +42,43 @@ class DedupEngine {
         const seenHiTexts = new Set();
         const uniqueQuestions = [];
         
-        const SemanticDedupService = require('./semanticDedupService');
-        const seenFingerprints = new Set();
-        const startTime = Date.now();
-
-        const useFuzzy = process.env.USE_FUZZY_DEDUP === 'true';
-        const isProduction = process.env.NODE_ENV === 'production';
-        let duplicatesCount = 0;
-
         for (const q of questions) {
-            const id = String(q.id || q.questionId || q._id || 'UNKNOWN').trim();
-
-            if (q._normalizedTextEn === undefined) {
-                if (!Object.isFrozen(q)) {
-                    q._normalizedTextEn = this.normalizeText(q.question_en || q.text || '');
-                }
-            }
-            const textEn = q._normalizedTextEn || this.normalizeText(q.question_en || q.text || '');
-
-            if (q._normalizedTextHi === undefined) {
-                if (!Object.isFrozen(q)) {
-                    q._normalizedTextHi = this.normalizeText(q.question_hi || '');
-                }
-            }
-            const textHi = q._normalizedTextHi || this.normalizeText(q.question_hi || '');
-
-            if (q._semanticFingerprint === undefined) {
-                if (!Object.isFrozen(q)) {
-                    q._semanticFingerprint = SemanticDedupService.getSemanticFingerprint(q);
-                }
-            }
-            const fingerprint = q._semanticFingerprint || SemanticDedupService.getSemanticFingerprint(q);
+            const textEn = this.normalizeText(q.question_en || q.text || '');
+            const textHi = this.normalizeText(q.question_hi || '');
 
             let isDuplicate = false;
-            let conflictSnippet = '';
 
-            if (fingerprint && seenFingerprints.has(fingerprint)) {
+            if (textEn && seenEnTexts.has(textEn)) {
                 isDuplicate = true;
-                conflictSnippet = 'Semantic Fingerprint Match';
-            } else if (textEn && seenEnTexts.has(textEn)) {
-                isDuplicate = true;
-                conflictSnippet = textEn.substring(0, 50);
             } else if (textHi && seenHiTexts.has(textHi)) {
                 isDuplicate = true;
-                conflictSnippet = textHi.substring(0, 50);
             }
 
-            if (!isDuplicate && useFuzzy) {
-                // Fuzzy match against unique pool
+            if (!isDuplicate) {
+                // Fuzzy check against already processed pool
                 for (const uq of uniqueQuestions) {
-                    const uqEn = uq._normalizedTextEn || this.normalizeText(uq.question_en || uq.text || '');
-                    const uqHi = uq._normalizedTextHi || this.normalizeText(uq.question_hi || '');
-                    
+                    const uqEn = this.normalizeText(uq.question_en || uq.text || '');
                     if (textEn && uqEn && this.getSimilarity(textEn, uqEn) > 0.85) {
                         isDuplicate = true;
-                        conflictSnippet = textEn.substring(0, 50) + ' (Fuzzy Match)';
-                        break;
-                    }
-                    if (textHi && uqHi && this.getSimilarity(textHi, uqHi) > 0.85) {
-                        isDuplicate = true;
-                        conflictSnippet = textHi.substring(0, 50) + ' (Fuzzy Match)';
                         break;
                     }
                 }
             }
 
             if (isDuplicate) {
-                duplicatesCount++;
                 continue;
             }
 
             if (textEn) seenEnTexts.add(textEn);
             if (textHi) seenHiTexts.add(textHi);
-            if (fingerprint) seenFingerprints.add(fingerprint);
-            
             uniqueQuestions.push(q);
         }
         
-        const duration = Date.now() - startTime;
-        if (duplicatesCount > 0 && isProduction) {
-            console.warn(`[DedupEngine] WARNING: Semantic duplicate check completed. Dropped ${duplicatesCount} duplicates from pool of ${questions.length} (took ${duration}ms).`);
-        } else if (duration > 100 && questions.length >= 2000) {
-            console.warn(`[DedupEngine] PERF WARNING: Semantic dedup took ${duration}ms for ${questions.length} questions.`);
-        }
-
         return uniqueQuestions;
     }
 
     static normalizeText(text) {
         if (!text || typeof text !== 'string') return '';
-        // lowercase, remove punctuation, remove spaces
         return text.toLowerCase().replace(/[^\w\u0900-\u097F]/g, '');
     }
 
