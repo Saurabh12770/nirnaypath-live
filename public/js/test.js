@@ -807,11 +807,16 @@ async function executeSubmitFlow(isForced) {
 
     try {
         const token = Auth.getToken();
-        await fetch('/api/test/submit', {
+        const res = await fetch('/api/test/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(payload)
         });
+        
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || 'Server rejected submission');
+        }
         
         localStorage.removeItem('mockTestState');
         // FIX C: Await exitFullscreen so fullscreenchange fires and resolves

@@ -149,8 +149,13 @@ router.post('/start', auth, async (req, res) => {
 
 // Submit test result
 router.post('/submit', auth, async (req, res) => {
+    let sessionUpdated = false;
+    let resultSaved = false;
+    let sessionId = null;
     try {
-        const { sessionId, exam, subject, testName, score, totalQuestions, correct, incorrect, unattempted, accuracy, answers, mode, modeValue } = req.body;
+        const body = req.body || {};
+        sessionId = body.sessionId;
+        const { exam, subject, testName, score, totalQuestions, correct, incorrect, unattempted, accuracy, answers, mode, modeValue } = body;
         
         // --- INPUT VALIDATION ---
         if (!answers || (typeof answers !== 'object' && !Array.isArray(answers))) {
@@ -162,9 +167,6 @@ router.post('/submit', auth, async (req, res) => {
             console.error('[Submit][400] Validation failed: sessionId is missing.');
             return res.status(400).json({ error: 'Session ID is required for submission.' });
         }
-
-        let sessionUpdated = false;
-        let resultSaved = false;
 
         // Perform the atomic status update from 'active' or 'expired' to 'submitted' first to block duplicate requests.
         // This ensures late submissions can still be recorded rather than throwing a 403 error.

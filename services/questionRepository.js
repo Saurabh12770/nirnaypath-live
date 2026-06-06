@@ -196,10 +196,13 @@ class QuestionRepository {
         };
 
         if (topicLower) {
+            // BUG-05 FIX: Use case-insensitive regex so stored topics like "Polity"
+            // match URL params like "polity" and vice-versa.
+            const topicRegex = new RegExp(`^${topicLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
             query.$and = [{
                 $or: [
-                    { topic:   topicLower },
-                    { topicId: topicLower }
+                    { topic:   topicRegex },
+                    { topicId: topicRegex }
                 ]
             }];
         }
@@ -221,6 +224,7 @@ class QuestionRepository {
             const cachedQuestions = this.precompiledCache.get(sub);
             if (cachedQuestions) {
                 if (topicLower) {
+                    // BUG-05 FIX: case-insensitive in-memory filter for precompiled cache
                     const filtered = cachedQuestions.filter(q => {
                         const qTopic = String(q.topic || q.topicId || '').toLowerCase().trim();
                         return qTopic === topicLower;
@@ -295,6 +299,7 @@ class QuestionRepository {
                     this.precompiledCache.set(sub, adaptedQuestions);
 
                     if (topicLower) {
+                        // BUG-05 FIX: case-insensitive in-memory filter for lazy-load JSON
                         const filtered = adaptedQuestions.filter(q => {
                             const qTopic = String(q.topic || q.topicId || '').toLowerCase().trim();
                             return qTopic === topicLower;

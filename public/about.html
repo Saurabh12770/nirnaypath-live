@@ -452,6 +452,21 @@
             .tl-item.left .tl-empty { display: none; }
             .tl-dot { grid-column: 1; }
         }
+        @media (max-width: 768px) {
+            .about-hero-section {
+                overflow: visible !important;
+            }
+            .about-hero-section .hero-container {
+                aspect-ratio: 16 / 10 !important;
+                min-height: 340px !important;
+            }
+            .about-hero-section .hero-content-overlay {
+                padding: 1.5rem !important;
+            }
+            .about-hero-section h1.hero-title {
+                font-size: clamp(1.4rem, 4vw, 2.2rem) !important;
+            }
+        }
         @media (max-width: 576px) {
             .about-gallery { grid-template-columns: 1fr; gap: 1rem; }
             .gallery-item { height: 200px; }
@@ -460,6 +475,10 @@
             .impact-stat .stat-number { font-size: 2rem; }
             .about-cta-inner { padding: 3.5rem 1.5rem; }
             .founder-image-wrapper { max-width: 320px; margin: 0 auto; }
+            .about-hero-section .hero-container {
+                aspect-ratio: 4 / 3 !important;
+                min-height: 380px !important;
+            }
         }
     </style>
 
@@ -898,6 +917,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation (mobile-only sticky nav) -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" role="navigation" aria-label="Mobile quick access">
+        <a href="index.html" class="mob-nav-item" id="mob-nav-home" aria-label="Home">
+            <i class="fas fa-home" aria-hidden="true"></i>
+            <span>Home</span>
+        </a>
+        <a href="index.html?section=popular-exams" class="mob-nav-item" id="mob-nav-practice" aria-label="Practice Tests">
+            <i class="fas fa-file-alt" aria-hidden="true"></i>
+            <span>Practice</span>
+        </a>
+        <a href="index.html?section=popular-exams" class="mob-nav-item mob-nav-center" id="mob-nav-start" aria-label="Start Test">
+            <div class="mob-nav-fab"><i class="fas fa-rocket" aria-hidden="true"></i></div>
+            <span>Start</span>
+        </a>
+        <a href="index.html?view=analytics" class="mob-nav-item" id="mob-nav-analytics" aria-label="My Analytics">
+            <i class="fas fa-chart-line" aria-hidden="true"></i>
+            <span>Analytics</span>
+        </a>
+        <a href="about.html" class="mob-nav-item active" id="mob-nav-about" aria-label="About NirnayPath">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            <span>About</span>
+        </a>
+    </nav>
 
     <script src="/js/auth.js?v=3.0.0"></script>
     <script src="/js/app.js?v=3.0.0"></script>

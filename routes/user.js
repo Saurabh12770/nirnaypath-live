@@ -192,7 +192,12 @@ async function calculateStreak(userId) {
         
     if (tests.length === 0) return 0;
 
-    const testDates = [...new Set(tests.map(t => t.createdAt.toISOString().split('T')[0]))];
+    // BUG-04 FIX: Guard against null/invalid createdAt to prevent toISOString() crash
+    const testDates = [...new Set(
+        tests
+            .filter(t => t.createdAt && (t.createdAt instanceof Date || typeof t.createdAt === 'string'))
+            .map(t => new Date(t.createdAt).toISOString().split('T')[0])
+    )];
     
     let streak = 0;
     const today     = new Date().toISOString().split('T')[0];

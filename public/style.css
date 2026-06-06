@@ -10305,9 +10305,10 @@ textarea:focus-visible,
     }
 }
 
-/* ── 2. STANDALONE .hero SECTION on small phones ── */
+/* ── 2. STANDALONE .hero / .hero-section on small phones ── */
 @media (max-width: 480px) {
-    .hero {
+    .hero,
+    .hero-section {
         padding: 100px 16px 48px;
         border-radius: var(--r-xl);
         min-height: 100svh;
@@ -10495,7 +10496,8 @@ textarea:focus-visible,
    decorative accents. On mobile the min-height is insufficient for all CTA
    content. Fix: free the overflow constraint, guarantee min-height.       */
 @media (max-width: 768px) {
-    .hero {
+    .hero,
+    .hero-section {
         overflow: visible !important;
         min-height: 480px !important;
         padding: 5rem 0 4rem !important;
@@ -10503,7 +10505,9 @@ textarea:focus-visible,
 
     .hero-bg-accent,
     .hero::before,
-    .hero::after {
+    .hero::after,
+    .hero-section::before,
+    .hero-section::after {
         /* Clip decorative pseudo-elements only, not CTA content */
         overflow: hidden;
     }
@@ -10530,7 +10534,8 @@ textarea:focus-visible,
 }
 
 @media (max-width: 480px) {
-    .hero {
+    .hero,
+    .hero-section {
         min-height: 420px !important;
         padding: 4rem 0 3rem !important;
     }

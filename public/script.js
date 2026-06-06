@@ -218,6 +218,25 @@ document.addEventListener('DOMContentLoaded', () => {
     UIStateMachine.reset('HOME');
     showView('dashboard');
 
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view');
+    if (viewParam === 'analytics') {
+        if (Auth.isLoggedIn()) {
+            Dashboard.show();
+        } else {
+            document.getElementById('loginBtn')?.click();
+        }
+    }
+    const sectionParam = params.get('section');
+    if (sectionParam) {
+        setTimeout(() => {
+            const target = document.getElementById(sectionParam);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 300);
+    }
+
     /* Bind result screen buttons here since engine sections exist */
     bindExamControls();
 
@@ -1286,90 +1305,49 @@ function updateTimerDisplay() {
 /* ============================================================ 
    20. SUBMIT & RESULT
    ============================================================ */
-function submitTest() {
+let _cachedServerAnswers = null;
+
+async function submitTest() {
     if (window.AppState) {
         if (AppState.getState().test.status === 'submitting') return; // Prevent double submission
         AppState.dispatch('test', { status: 'submitting' });
     }
-
-    // ── STATE MACHINE: TEST_ACTIVE → RESULT_SCREEN
-    UIStateMachine.transition('RESULT_SCREEN', 'submitTest');
 
     clearInterval(timerInterval);
     saveCurrentAnswer();
     testState.isActive = false;
     saveProgress();
 
-    /* Robust Answer Comparison Helper */
-    const normalize = s => String(s).trim().toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '');
+    // Disable header submit and main submit buttons
+    const headerSubmit = document.getElementById('btn-header-submit');
+    const mainSubmit = document.getElementById('btn-submit');
+    if (headerSubmit) headerSubmit.disabled = true;
+    if (mainSubmit) mainSubmit.disabled = true;
 
-    const resolveFullText = (val, opts) => {
-        if (val === undefined || val === null) return '';
-        let idx = parseInt(val);
-        if (isNaN(idx)) {
-            const s = String(val).trim().toUpperCase();
-            if (s === 'A') idx = 0;
-            else if (s === 'B') idx = 1;
-            else if (s === 'C') idx = 2;
-            else if (s === 'D') idx = 3;
-        }
-        return opts[idx] ? normalize(opts[idx]) : normalize(val);
-    };
+    // Show loading state
+    showView('loading');
+    const loadingText = document.querySelector('#loading-screen h3');
+    const loadingSubText = document.querySelector('#loading-screen p');
+    if (loadingText) loadingText.textContent = 'Submitting your Test...';
+    if (loadingSubText) loadingSubText.textContent = 'Please wait, saving your responses securely...';
 
-    const isCorrect = (user, correct, opts) => {
-        if (user === undefined || user === null) return false;
-        const uText = resolveFullText(user, opts);
-        const cText = resolveFullText(correct, opts);
-        return uText !== '' && uText === cText;
-    };
-
-    let correct = 0, attempted = 0;
-    testState.selectedQuestions.forEach((q, i) => {
-        if (testState.answers[i] !== undefined) {
-            attempted++;
-            const opts = L.opt(q) || q.options || [];
-            if (isCorrect(testState.answers[i], q.correctAnswer, opts)) correct++;
-        }
-    });
     const total = testState.selectedQuestions.length;
-    const incorrect = attempted - correct;
-    const unattempted = total - attempted;
-    const pct = total ? ((correct / total) * 100).toFixed(2) : '0.00';
-    const accuracy = attempted ? ((correct / attempted) * 100).toFixed(1) : '0.0';
-
-    setEl('r-score', correct);
-    setEl('r-percent', pct);
-    setEl('r-correct', correct);
-    setEl('r-incorrect', incorrect);
-    setEl('r-unattempted', unattempted);
-    setEl('r-attempted', attempted);
-    setEl('r-accuracy', accuracy + '%');
-    setEl('r-total', total);
-
-    buildReview();
-    localStorage.removeItem('mockTestState');
-    /* ✅ Fully switch to result — hides exam engine completely */
-    showView('result');
-
-    /* Send results to backend for persistent storage */
     const resultsData = {
         sessionId: testState.sessionId,
         exam: testState.exam,
         subject: testState.subject,
         testName: testState.testName,
-        score: correct,
+        score: 0, // placeholder, server recalculates
         totalQuestions: total,
-        correct,
-        incorrect,
-        unattempted,
-        accuracy: parseFloat(accuracy),
+        correct: 0,
+        incorrect: 0,
+        unattempted: 0,
+        accuracy: 0.0,
         answers: testState.selectedQuestions.map((q, i) => ({
-            questionId: q._id || `q-${i}`,
+            questionId: q._id || q.id || `q-${i}`,
             userAnswer: testState.answers[i] !== undefined ? String(testState.answers[i]) : null,
-            correctAnswer: String(q.correctAnswer),
-            isCorrect: isCorrect(testState.answers[i], q.correctAnswer, L.opt(q) || q.options || []),
+            correctAnswer: String(q.correctAnswer || ''),
             topic: q.topic || 'General',
-            // ✅ Phase 5: Store explanations
             explanation_en: q.explanation_en || q.explanation,
             explanation_hi: q.explanation_hi || q.explanation
         })),
@@ -1377,20 +1355,60 @@ function submitTest() {
         modeValue: testState.modeValue || null
     };
 
-    fetch('/api/test/submit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Auth.getToken()}`
-        },
-        body: JSON.stringify(resultsData)
-    })
-    .then(res => res.json())
-    .then(data => console.log('Test submitted to server:', data))
-    .catch(err => console.error('Error submitting test to server:', err));
+    try {
+        const token = Auth.getToken();
+        const res = await fetch('/api/test/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(resultsData)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+        const resultId = data.resultId;
+
+        // Fetch finalized server-computed result
+        const resultRes = await fetch(`/api/user/result/${resultId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const serverResult = await resultRes.json();
+        if (!resultRes.ok) throw new Error(serverResult.error || 'Failed to fetch result');
+
+        // Populate result screen KPI fields using server values
+        setEl('r-score', serverResult.score);
+        const pct = serverResult.totalQuestions ? ((serverResult.score / serverResult.totalQuestions) * 100).toFixed(2) : '0.00';
+        setEl('r-percent', pct);
+        setEl('r-correct', serverResult.correct);
+        setEl('r-incorrect', serverResult.incorrect);
+        setEl('r-unattempted', serverResult.unattempted);
+        setEl('r-attempted', serverResult.correct + serverResult.incorrect);
+        setEl('r-accuracy', serverResult.accuracy + '%');
+        setEl('r-total', serverResult.totalQuestions);
+
+        // Build review card list using server-verified answers
+        buildReview(serverResult.answers);
+
+        localStorage.removeItem('mockTestState');
+
+        // Transition views and state machine
+        UIStateMachine.transition('RESULT_SCREEN', 'submitTest');
+        showView('result');
+    } catch (err) {
+        console.error('Submission failed:', err);
+        alert('Network error during submission. Results are saved locally and will sync when connection restores.');
+        // Re-enable buttons
+        if (headerSubmit) headerSubmit.disabled = false;
+        if (mainSubmit) mainSubmit.disabled = false;
+        showView('engine');
+        if (window.AppState) AppState.dispatch('test', { status: 'active' });
+    }
 }
 
-function buildReview() {
+function buildReview(serverAnswers) {
     const rc = document.getElementById('review-container');
     if (!rc) return;
 
@@ -1402,11 +1420,14 @@ function buildReview() {
     `;
     rc.style.display = 'block';
 
-    /* Robust Answer Comparison & Text Resolution for Review */
-    const normalize = s => String(s).trim().toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '');
+    if (serverAnswers) {
+        _cachedServerAnswers = serverAnswers;
+    } else if (_cachedServerAnswers) {
+        serverAnswers = _cachedServerAnswers;
+    }
 
     const resolveDisplayLabel = (val, opts) => {
-        if (val === undefined || val === null) return '<span class="status-empty">Not Attempted</span>';
+        if (val === undefined || val === null || val === 'null') return '<span class="status-empty">Not Attempted</span>';
         let idx = parseInt(val);
         if (isNaN(idx)) {
             const s = String(val).trim().toUpperCase();
@@ -1418,41 +1439,41 @@ function buildReview() {
         return opts[idx] || String(val);
     };
 
-    testState.selectedQuestions.forEach((q, i) => {
-        const opts = L.opt(q) || q.options || [];
-        const userAnsId = testState.answers[i];
-        const corrAnsRaw = q.correctAnswer;
-
-        const userText = resolveDisplayLabel(userAnsId, opts);
-        const correctText = resolveDisplayLabel(corrAnsRaw, opts);
-
-        // Final Comparison for status badge
-        const uNorm = userAnsId !== undefined ? normalize(userText) : '';
-        const cNorm = normalize(correctText);
-        const isMatch = uNorm !== '' && uNorm === cNorm;
+    const answersList = serverAnswers || [];
+    answersList.forEach((ans, i) => {
+        const question = testState.selectedQuestions[i] || {};
+        const opts = L.opt(question) || question.options || [];
+        
+        const userText = resolveDisplayLabel(ans.selected, opts);
+        const correctText = resolveDisplayLabel(ans.correct, opts);
 
         const card = document.createElement('div');
-        card.className = `review-card ${isMatch ? 'correct' : (userAnsId === undefined ? 'skipped' : 'incorrect')}`;
+        const isCorrectMatch = ans.isCorrect;
+        card.className = `review-card ${isCorrectMatch ? 'correct' : (ans.selected === null || ans.selected === undefined || ans.selected === 'null' ? 'skipped' : 'incorrect')}`;
+
+        const lang = currentLanguage || 'en';
+        const qText = lang === 'hi' ? (ans.question_hi || ans.question_en) : ans.question_en;
+        const explanation = lang === 'hi' ? (ans.explanation_hi || ans.explanation_en) : ans.explanation_en;
 
         card.innerHTML = `
             <div class="review-q-meta">
                 <span class="q-badge">Question ${i + 1}</span>
-                <span class="status-badge">${isMatch ? '✅ Correct' : (userAnsId === undefined ? '⚪ Skipped' : '❌ Incorrect')}</span>
+                <span class="status-badge">${isCorrectMatch ? '✅ Correct' : (ans.selected === null || ans.selected === undefined || ans.selected === 'null' ? '⚪ Skipped' : '❌ Incorrect')}</span>
             </div>
-            <div class="review-q-text">${L.q(q)}</div>
+            <div class="review-q-text">${qText || ''}</div>
             <div class="review-choices">
-                <div class="choice-row ${isMatch ? 'user-correct' : (userAnsId === undefined ? '' : 'user-wrong')}">
+                <div class="choice-row ${isCorrectMatch ? 'user-correct' : (ans.selected === null || ans.selected === undefined || ans.selected === 'null' ? '' : 'user-wrong')}">
                     <strong>Your Answer:</strong> <span>${userText}</span>
                 </div>
-                ${!isMatch ? `
+                ${!isCorrectMatch ? `
                 <div class="choice-row system-correct">
                     <strong>Correct Answer:</strong> <span>${correctText}</span>
                 </div>` : ''}
             </div>
-            ${L.exp(q) ? `
+            ${explanation ? `
             <div class="review-explanation">
                 <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
-                <p>${L.exp(q)}</p>
+                <p>${explanation}</p>
             </div>` : ''}
         `;
         rc.appendChild(card);
