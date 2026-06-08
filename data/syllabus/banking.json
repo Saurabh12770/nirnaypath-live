@@ -1,0 +1,112 @@
+{
+  "exam": "Banking",
+  "subjects": [
+    {
+      "name": "Reasoning",
+      "topics": [
+        {
+          "name": "Logical & Analytical Reasoning",
+          "subtopics": [
+            "Seating Arrangement (Linear, Circular, Square)",
+            "Puzzles (Floor, Box, Tabulation, Scheduling)",
+            "Syllogism (Only/Few concepts)",
+            "Coding-Decoding (Conditional, Chinese)",
+            "Inequalities (Coded & Direct)",
+            "Input-Output",
+            "Data Sufficiency",
+            "Blood Relations & Coded Family Trees",
+            "Direction and Distance Sense",
+            "Order and Ranking",
+            "Critical Reasoning (Assumption, Argument, Course of Action, Cause & Effect)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Math",
+      "topics": [
+        {
+          "name": "Quantitative Aptitude & DI",
+          "subtopics": [
+            "Data Interpretation (Table, Bar, Line, Pie, Mixed & Caselets)",
+            "Number Series (Missing & Wrong Number Series)",
+            "Quadratic Equations",
+            "Simplification and Approximation",
+            "Percentage",
+            "Profit, Loss, and Discount",
+            "Simple and Compound Interest",
+            "Ratio & Proportion and Partnership",
+            "Average, Age, and Partnership Problems",
+            "Mixture and Alligation",
+            "Time and Work, Pipes and Cisterns",
+            "Speed, Time, and Distance (Train, Boat & Stream)",
+            "Permutation, Combination & Probability",
+            "Mensuration Basics"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "English",
+      "topics": [
+        {
+          "name": "English Language & Verbal Ability",
+          "subtopics": [
+            "Reading Comprehension (Economy, Social, Scientific)",
+            "Cloze Test",
+            "Error Spotting & Sentence Correction",
+            "Sentence Improvement & Fillers",
+            "Para Jumbles & Sentence Rearrangement",
+            "Vocabulary (Synonyms, Antonyms, Collocations)",
+            "Word Association & Word Swap",
+            "Idioms & Phrases in Context"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "topics": [
+        {
+          "name": "Banking & Financial Awareness",
+          "subtopics": [
+            "History of Banking in India",
+            "RBI Structure, Functions, and Monetary Policy",
+            "Banking Terminology and Instruments (Cheques, DD, Bills)",
+            "Financial Markets (Money Market, Capital Market, SEBI)",
+            "Government Schemes in Banking & Social Sector",
+            "NPA, Basel Norms, and Risk Management",
+            "Digital Banking, UPI, and payment systems"
+          ]
+        },
+        {
+          "name": "Current Affairs & Economics",
+          "subtopics": [
+            "National & International Current Affairs (Last 6 Months)",
+            "Union Budget and Economic Survey",
+            "International Financial Organizations (IMF, World Bank, ADB)",
+            "Sports, Awards, Books & Authors",
+            "Summits, Conferences, and Obits"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Computer Science",
+      "topics": [
+        {
+          "name": "Computer Aptitude & IT Basics",
+          "subtopics": [
+            "Computer Hardware & Peripherals",
+            "Operating Systems (Windows, Linux, Mobile)",
+            "Networking, Internet, Protocols & Cybersecurity",
+            "Database Management Systems (DBMS) Basics",
+            "MS Office Suite (Word, Excel, PowerPoint)",
+            "History of Computers & Generations",
+            "Binary and Hexadecimal Number Systems"
+          ]
+        }
+      ]
+    }
+  ]
+}

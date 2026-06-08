@@ -1,0 +1,132 @@
+{
+  "exam": "SSC CHSL",
+  "subjects": [
+    {
+      "name": "Reasoning",
+      "topics": [
+        {
+          "name": "Verbal Reasoning",
+          "subtopics": [
+            "Coding-Decoding",
+            "Analogy",
+            "Classification & Odd One Out",
+            "Number and Alphabet Series",
+            "Blood Relations",
+            "Direction Sense Test",
+            "Venn Diagrams",
+            "Syllogism",
+            "Order and Ranking",
+            "Data Sufficiency"
+          ]
+        },
+        {
+          "name": "Non-Verbal Reasoning",
+          "subtopics": [
+            "Mirror and Water Images",
+            "Paper Folding and Cutting",
+            "Embedded Figures",
+            "Figure Series and Pattern Completion",
+            "Cubes and Dice"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Math",
+      "topics": [
+        {
+          "name": "Arithmetic Ability",
+          "subtopics": [
+            "Number System",
+            "Simplification and Approximation",
+            "Fractions and Decimals",
+            "LCM and HCF",
+            "Percentage",
+            "Profit, Loss and Discount",
+            "Simple and Compound Interest",
+            "Ratio and Proportion",
+            "Partnership",
+            "Average",
+            "Mixture and Alligation",
+            "Time and Work",
+            "Pipes and Cisterns",
+            "Time, Speed and Distance",
+            "Boats and Streams"
+          ]
+        },
+        {
+          "name": "Advanced Mathematics",
+          "subtopics": [
+            "Algebraic Identities",
+            "Linear Equations",
+            "Geometry - Lines and Angles",
+            "Geometry - Triangles, Circles, and Quadrilaterals",
+            "Mensuration 2D (Area and Perimeter)",
+            "Mensuration 3D (Volume and Surface Area)",
+            "Trigonometric Ratios and Identities",
+            "Height and Distances",
+            "Data Interpretation (Bar, Pie, Line, Table charts)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "English",
+      "topics": [
+        {
+          "name": "Grammar and Vocabulary",
+          "subtopics": [
+            "Spotting Grammar Errors",
+            "Fill in the Blanks",
+            "Synonyms and Antonyms",
+            "Spelling Correction",
+            "Idioms and Phrases",
+            "One Word Substitution",
+            "Sentence Improvement",
+            "Active and Passive Voice",
+            "Direct and Indirect Speech"
+          ]
+        },
+        {
+          "name": "Comprehension & Reading",
+          "subtopics": [
+            "Cloze Test",
+            "Sentence Jumbles (PQRS)",
+            "Reading Comprehension Passages"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "topics": [
+        {
+          "name": "General Knowledge",
+          "subtopics": [
+            "Ancient Indian History",
+            "Medieval Indian History",
+            "Modern Indian History & Freedom Struggle",
+            "Indian Geography (Physical & Political)",
+            "World Geography Overview",
+            "Indian Constitution & Polity",
+            "Indian Economy Basics",
+            "Physics Basics",
+            "Chemistry Basics",
+            "Life Sciences (Biology)"
+          ]
+        },
+        {
+          "name": "Static GK & Current Affairs",
+          "subtopics": [
+            "Books and Authors",
+            "Sports and Trophies",
+            "Important Days and Dates",
+            "National & International Awards",
+            "Art, Culture and Festivals of India",
+            "Current Affairs (Last 6-12 Months)"
+          ]
+        }
+      ]
+    }
+  ]
+}

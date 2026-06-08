@@ -1,0 +1,91 @@
+{
+  "exam": "Railway",
+  "subjects": [
+    {
+      "name": "Reasoning",
+      "topics": [
+        {
+          "name": "General Intelligence & Reasoning",
+          "subtopics": [
+            "Analogy",
+            "Coding-Decoding",
+            "Mathematical Operations",
+            "Syllogism",
+            "Venn Diagrams",
+            "Data Interpretation & Sufficiency",
+            "Decision Making",
+            "Similarities and Differences",
+            "Analytical Reasoning",
+            "Classification & Odd One",
+            "Directions Test",
+            "Statement-Arguments & Assumptions"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mathematics",
+      "topics": [
+        {
+          "name": "Arithmetic & Algebra",
+          "subtopics": [
+            "Number System",
+            "Decimals and Fractions",
+            "LCM and HCF",
+            "Ratio and Proportion",
+            "Percentage",
+            "Mensuration 2D & 3D",
+            "Time and Work",
+            "Time, Speed and Distance",
+            "Simple and Compound Interest",
+            "Profit and Loss",
+            "Elementary Algebra"
+          ]
+        },
+        {
+          "name": "Geometry & Statistics",
+          "subtopics": [
+            "Elementary Geometry",
+            "Trigonometry Basics",
+            "Elementary Statistics (Mean, Median, Mode)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Science",
+      "topics": [
+        {
+          "name": "General Science (up to 10th Standard CBSE)",
+          "subtopics": [
+            "Physics Basics (Motion, Force, Work, Energy, Gravity, Light, Electricity)",
+            "Chemistry Basics (Elements, Compounds, Chemical Reactions, Acids & Bases, Periodic Table)",
+            "Life Sciences (Cell Structure, Human Systems, Plant Kingdom, Genetics, Diseases & Health)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "topics": [
+        {
+          "name": "GK & Current Events",
+          "subtopics": [
+            "Current Affairs (National and International)",
+            "Games and Sports",
+            "Art and Culture of India",
+            "Indian Literature & Monuments",
+            "Indian History & Freedom Struggle",
+            "Physical, Social and Economic Geography of India",
+            "Indian Polity and Governance (Constitution & Political System)",
+            "General Scientific & Technological Developments (Space, Defence, Nuclear)",
+            "Environmental Issues and Environmental Science Basics",
+            "Indian Economy Basics",
+            "Famous Personalities & Organizations",
+            "Indian Railways History, Facts and Statistics"
+          ]
+        }
+      ]
+    }
+  ]
+}

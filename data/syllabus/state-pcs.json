@@ -1,0 +1,139 @@
+{
+  "exam": "State PCS",
+  "subjects": [
+    {
+      "name": "State GK",
+      "topics": [
+        {
+          "name": "State History, Art & Culture",
+          "subtopics": [
+            "Ancient & Medieval History of the State",
+            "Modern History & State Role in Freedom Struggle",
+            "Folk Art, Painting, Music, and Dance Forms",
+            "Major Festivals, Fairs, and Fairs of the State",
+            "Historical Monuments, Tourist Places, and Heritage Sites"
+          ]
+        },
+        {
+          "name": "State Geography & Economy",
+          "subtopics": [
+            "Physiographic Divisions and Climate of the State",
+            "Rivers, Lakes, and Irrigation Projects of the State",
+            "Soils, Forests, and Minerals of the State",
+            "Demographics & Population Census of the State",
+            "State Budget and Economic Survey Highlights",
+            "Agricultural & Industrial Policies of the State",
+            "State Welfare Schemes & Rural Development Programs"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "topics": [
+        {
+          "name": "Indian History & Culture",
+          "subtopics": [
+            "Ancient Indian Civilizations (Indus Valley, Vedic)",
+            "Rise of Buddhism, Jainism, and Mahajanapadas",
+            "Maurya and Gupta Empires",
+            "Delhi Sultanate and Mughal Empire",
+            "Marathas and Southern Dynasties",
+            "British Expansion and East India Company Rule",
+            "Revolt of 1857 and Social-Religious Movements",
+            "Indian National Congress & Moderate Phase",
+            "Extremist Phase and Rise of Revolutionary Movements",
+            "Gandhian Era and Mass Movements",
+            "Post-Independence Consolidation and Reorganization"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geography",
+      "topics": [
+        {
+          "name": "Indian & World Geography",
+          "subtopics": [
+            "Physical Geography of the Earth (Geomorphology, Climatology, Oceanography)",
+            "World Geography (Continents, Rivers, Climatic Regions)",
+            "Physical Geography of India (Himalayas, Plains, Peninsular)",
+            "Climate, Monsoon, and Drainage System of India",
+            "Agriculture, Resources, and Industrial Regions of India",
+            "Ecology, Biodiversity, and Environmental Degradation",
+            "Climate Change, Conventions, and Conservation Efforts"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Polity",
+      "topics": [
+        {
+          "name": "Indian Governance & Administration",
+          "subtopics": [
+            "Historical Background & Making of Indian Constitution",
+            "Preamble, Fundamental Rights, and DPSP",
+            "Union Executive and Parliament (President, PM, MP)",
+            "State Executive and Legislature (Governor, CM, MLA)",
+            "Indian Judiciary (Supreme Court, High Court, Subordinate Courts)",
+            "Local Self Government (73rd & 74th Amendments)",
+            "Constitutional and Non-Constitutional Bodies",
+            "Electoral Systems and Political Parties in India",
+            "Public Policies, Rights Issues, and Governance Reforms"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Economics",
+      "topics": [
+        {
+          "name": "Socio-Economic Development",
+          "subtopics": [
+            "National Income Accounting (GDP, GNP, NNP)",
+            "Economic Planning in India & NITI Aayog",
+            "Poverty, Unemployment, and Demographics",
+            "Fiscal Policy, Taxation, and Union Budget",
+            "Monetary Policy, Inflation, and Banking System",
+            "Agriculture Sector Reforms and Food Security",
+            "Industrial Sector, Infrastructure, and Service Sector",
+            "Foreign Trade, Balance of Payments, and WTO"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Science",
+      "topics": [
+        {
+          "name": "General Science & Tech",
+          "subtopics": [
+            "Physics Basics (Laws of Motion, Work, Energy, Optics, Electricity)",
+            "Chemistry Basics (Organic/Inorganic, Metals/Non-metals, Everyday Chemistry)",
+            "Life Sciences (Human Biology, Genetics, Botany, Biotechnology)",
+            "Space Technology & Indian Space Program (ISRO)",
+            "Defense Technology, Missiles, and Nuclear Energy",
+            "Information Technology, Computer Science & AI Applications",
+            "Public Health, Nutrition, and Diseases"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Aptitude",
+      "topics": [
+        {
+          "name": "CSAT / General Mental Ability",
+          "subtopics": [
+            "Comprehension & Interpersonal Skills",
+            "Logical Reasoning and Analytical Ability",
+            "Decision Making and Problem Solving",
+            "Basic Numeracy (Numbers, Orders of Magnitude)",
+            "Data Interpretation (Charts, Graphs, Tables)"
+          ]
+        }
+      ]
+    }
+  ]
+}

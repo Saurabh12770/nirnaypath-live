@@ -1,0 +1,186 @@
+{
+  "exam": "SSC CGL",
+  "subjects": [
+    {
+      "name": "General Intelligence & Reasoning",
+      "topics": [
+        {
+          "name": "Verbal Reasoning",
+          "subtopics": [
+            "Analogy — Word & Letter Based",
+            "Classification — Odd One Out",
+            "Series — Number & Letter Series",
+            "Coding-Decoding",
+            "Blood Relations",
+            "Direction & Distance",
+            "Order & Ranking",
+            "Syllogism — Statements & Conclusions",
+            "Statement & Assumptions",
+            "Statement & Arguments",
+            "Logical Sequence of Words",
+            "Venn Diagrams — Set Theory Based",
+            "Puzzle & Seating Arrangement",
+            "Calendar Problems",
+            "Clock Problems"
+          ]
+        },
+        {
+          "name": "Non-Verbal Reasoning",
+          "subtopics": [
+            "Figure Analogy & Classification",
+            "Pattern Completion",
+            "Mirror & Water Image",
+            "Paper Folding & Cutting",
+            "Counting of Figures — Triangles, Squares",
+            "Embedded Figures",
+            "Cube & Dice Problems",
+            "Matrix Problems"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "topics": [
+        {
+          "name": "History",
+          "subtopics": [
+            "Ancient India — Harappa to Gupta",
+            "Medieval India — Delhi Sultanate to Mughals",
+            "Modern India — 1857 to Independence",
+            "Important Historical Events & Dates",
+            "Cultural Heritage — Art, Architecture"
+          ]
+        },
+        {
+          "name": "Geography",
+          "subtopics": [
+            "Indian Geography — Rivers, Mountains, Plains",
+            "Physical Features of India",
+            "World Geography — Continents & Oceans",
+            "Climate & Natural Vegetation",
+            "Important Passes, Peaks & Lakes"
+          ]
+        },
+        {
+          "name": "Polity & Constitution",
+          "subtopics": [
+            "Indian Constitution — Key Articles",
+            "Parliament & Legislative Process",
+            "President, PM & Council of Ministers",
+            "Fundamental Rights & Duties",
+            "Constitutional Bodies & Statutory Bodies"
+          ]
+        },
+        {
+          "name": "Economics",
+          "subtopics": [
+            "Indian Economy — Basic Concepts",
+            "National Income, GDP & GNP",
+            "Inflation — CPI, WPI",
+            "Banking — RBI, Commercial Banks",
+            "Budget, Taxes & Fiscal Policy",
+            "Government Schemes & Programmes"
+          ]
+        },
+        {
+          "name": "Science",
+          "subtopics": [
+            "Physics — Laws & Everyday Applications",
+            "Chemistry — Atoms, Elements, Compounds",
+            "Biology — Life Processes & Human Body",
+            "Science & Technology — Space, IT, Defense",
+            "Diseases & Nutrition"
+          ]
+        },
+        {
+          "name": "Current Affairs",
+          "subtopics": [
+            "National Events & Government Schemes",
+            "International Affairs & Summits",
+            "Awards — National & International",
+            "Sports — Recent Championships",
+            "Books, Authors & Important Personalities"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quantitative Aptitude",
+      "topics": [
+        {
+          "name": "Arithmetic",
+          "subtopics": [
+            "Number System — HCF, LCM, Divisibility",
+            "Simplification & Approximation",
+            "Percentage",
+            "Profit & Loss",
+            "Discount — Simple & Trade Discount",
+            "Simple Interest",
+            "Compound Interest",
+            "Ratio & Proportion",
+            "Partnership",
+            "Mixture & Alligation",
+            "Age Problems",
+            "Time & Work",
+            "Pipes & Cisterns",
+            "Time, Speed & Distance",
+            "Boats & Streams",
+            "Trains"
+          ]
+        },
+        {
+          "name": "Algebra & Advanced Maths",
+          "subtopics": [
+            "Algebra — Identities & Equations",
+            "Linear & Quadratic Equations",
+            "Inequalities",
+            "Geometry — Lines, Angles, Triangles",
+            "Circles — Chords, Tangents, Arcs",
+            "Mensuration 2D — Area & Perimeter",
+            "Mensuration 3D — Volume & Surface Area",
+            "Trigonometry — Ratios, Identities",
+            "Height & Distance",
+            "Statistics — Mean, Median, Mode",
+            "Data Interpretation — Tables, Pie, Bar",
+            "Coordinate Geometry Basics"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "English Language",
+      "topics": [
+        {
+          "name": "Grammar",
+          "subtopics": [
+            "Parts of Speech — Nouns, Pronouns, Verbs",
+            "Tenses — All 12 Tenses",
+            "Active & Passive Voice",
+            "Direct & Indirect Speech",
+            "Sentence Improvement & Correction",
+            "Error Spotting",
+            "Subject-Verb Agreement",
+            "Articles — a, an, the",
+            "Prepositions",
+            "Conjunctions & Conditionals"
+          ]
+        },
+        {
+          "name": "Vocabulary & Comprehension",
+          "subtopics": [
+            "Synonyms",
+            "Antonyms",
+            "One Word Substitution",
+            "Idioms & Phrases",
+            "Cloze Test",
+            "Reading Comprehension",
+            "Para Jumbles",
+            "Fill in the Blanks",
+            "Spelling Correction"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "exam": "BPSC",
+  "subjects": [
+    {
+      "name": "Bihar Special",
+      "topics": [
+        {
+          "name": "Bihar History",
+          "subtopics": [
+            "Ancient Bihar — Magadha Empire & Pataliputra",
+            "Buddhist & Jain Heritage in Bihar",
+            "Nalanda & Vikramashila Universities",
+            "Medieval Bihar — Bakhtiyar Khilji & Suri Dynasty",
+            "Sher Shah Suri — Administration & Reforms",
+            "Bihar under Mughals",
+            "British Annexation of Bihar",
+            "Indigo Revolt (Champaran) & Gandhiji",
+            "Freedom Movement in Bihar — Key Figures",
+            "Bihar Reorganisation — Formation of Jharkhand"
+          ]
+        },
+        {
+          "name": "Bihar Geography",
+          "subtopics": [
+            "Physiography — Plains, Hills & Plateaus",
+            "Rivers of Bihar — Ganga, Gandak, Koshi, Son",
+            "Floods in Bihar — Causes & Management",
+            "Climate of Bihar — Seasons & Rainfall",
+            "Forests & Wildlife Sanctuaries of Bihar",
+            "Soils of Bihar — Types & Agricultural Significance",
+            "Minerals in Bihar — Coal, Mica, Copper",
+            "Districts & Administrative Divisions of Bihar"
+          ]
+        },
+        {
+          "name": "Bihar Economy",
+          "subtopics": [
+            "Agriculture in Bihar — Major Crops",
+            "Land Reforms in Bihar",
+            "Bihar Industrial Policy & SEZs",
+            "Bihar Budget — Key Highlights",
+            "Bihar's GSDP & Economic Growth",
+            "Infrastructure Development in Bihar",
+            "Bihar Rural Development Schemes",
+            "Smart City Mission in Bihar — Patna"
+          ]
+        },
+        {
+          "name": "Bihar Polity & Governance",
+          "subtopics": [
+            "Bihar Legislative Assembly — Structure & Functions",
+            "Governor of Bihar — Powers & Role",
+            "Bihar Public Service Commission (BPSC)",
+            "Panchayati Raj in Bihar",
+            "Urban Local Bodies in Bihar",
+            "Prohibition in Bihar — Implementation & Issues",
+            "Bihar Police Administration",
+            "e-Governance Initiatives in Bihar"
+          ]
+        },
+        {
+          "name": "Bihar Art & Culture",
+          "subtopics": [
+            "Folk Art — Madhubani Painting",
+            "Mithila Culture & Literature",
+            "Bihar Festivals — Chhath, Sonepur Mela",
+            "Classical Music & Dance of Bihar",
+            "Famous Personalities of Bihar",
+            "Bihar's Contribution to Indian Literature"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "topics": [
+        {
+          "name": "Ancient India",
+          "subtopics": [
+            "Indus Valley Civilization",
+            "Vedic Period & Vedic Literature",
+            "Mahajanapadas & Magadha",
+            "Buddhism & Jainism",
+            "Mauryan Empire — Ashoka's Dhamma",
+            "Gupta Empire — Golden Age of India",
+            "Post-Gupta Regional Kingdoms"
+          ]
+        },
+        {
+          "name": "Medieval India",
+          "subtopics": [
+            "Delhi Sultanate — Administrative System",
+            "Mughal Empire — Akbar's Policies",
+            "Bhakti & Sufi Movement",
+            "Maratha Power & Peshwas",
+            "Regional States — 18th Century Decline"
+          ]
+        },
+        {
+          "name": "Modern India",
+          "subtopics": [
+            "British Colonial Rule & Exploitation",
+            "Socio-Religious Reform Movements",
+            "Revolt of 1857",
+            "Indian National Congress — Phases",
+            "Gandhian Movements — Non-Cooperation, CDM, Quit India",
+            "Partition & Independence 1947"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geography",
+      "topics": [
+        {
+          "name": "Physical Geography",
+          "subtopics": [
+            "Interior of the Earth — Layers & Composition",
+            "Earthquakes & Volcanoes",
+            "Landforms — Erosional & Depositional",
+            "Atmosphere — Pressure & Wind Systems",
+            "Monsoon — Indian & World",
+            "Ocean Currents & Tides"
+          ]
+        },
+        {
+          "name": "Indian Geography",
+          "subtopics": [
+            "Physiographic Divisions of India",
+            "Himalayan Rivers & Peninsular Rivers",
+            "Indian Climate — Seasons & Rainfall",
+            "Natural Vegetation & Soils of India",
+            "Agriculture & Irrigation in India",
+            "Mineral & Energy Resources of India",
+            "Transport & Infrastructure"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Polity",
+      "topics": [
+        {
+          "name": "Indian Constitution",
+          "subtopics": [
+            "Preamble & Salient Features",
+            "Fundamental Rights — Articles 12–35",
+            "Directive Principles of State Policy",
+            "Fundamental Duties",
+            "Constitutional Amendments — Key Ones"
+          ]
+        },
+        {
+          "name": "Government Structure",
+          "subtopics": [
+            "President, Vice President & Prime Minister",
+            "Parliament — Lok Sabha & Rajya Sabha",
+            "Supreme Court & High Courts",
+            "Centre-State Relations",
+            "Panchayati Raj & Urban Local Bodies",
+            "Constitutional Bodies — EC, UPSC, CAG"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Science",
+      "topics": [
+        {
+          "name": "Physics",
+          "subtopics": [
+            "Newton's Laws of Motion",
+            "Work, Energy & Power",
+            "Heat & Thermodynamics",
+            "Light — Reflection & Refraction",
+            "Sound Waves & Doppler Effect",
+            "Electricity & Magnetism",
+            "Modern Physics — Radioactivity & Nuclear"
+          ]
+        },
+        {
+          "name": "Chemistry",
+          "subtopics": [
+            "Matter — States & Changes",
+            "Atomic Structure & Periodic Table",
+            "Chemical Bonding & Reactions",
+            "Acids, Bases & Salts",
+            "Metals & Non-Metals",
+            "Carbon & Organic Compounds",
+            "Environmental Chemistry"
+          ]
+        },
+        {
+          "name": "Biology",
+          "subtopics": [
+            "Cell — Structure & Functions",
+            "Plant Physiology — Photosynthesis & Respiration",
+            "Human Digestive System",
+            "Human Circulatory System",
+            "Human Respiratory System",
+            "Human Nervous System",
+            "Human Reproductive System",
+            "Diseases — Viral, Bacterial, Deficiency",
+            "Nutrition — Vitamins & Minerals"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Economics",
+      "topics": [
+        {
+          "name": "Indian Economy",
+          "subtopics": [
+            "National Income & Economic Growth",
+            "Inflation — Types & Control",
+            "Banking System & RBI",
+            "Union Budget & Fiscal Policy",
+            "Poverty & Unemployment",
+            "Agriculture — Green Revolution & Reforms",
+            "Industry & Make in India",
+            "Foreign Trade & Balance of Payments"
+          ]
+        },
+        {
+          "name": "Bihar Economy",
+          "subtopics": [
+            "Bihar's Agriculture & Agro-Industries",
+            "Bihar's Revenue & Expenditure",
+            "Employment Schemes in Bihar",
+            "BPSC — State Finance Commission"
+          ]
+        }
+      ]
+    }
+  ]
+}

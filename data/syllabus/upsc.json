@@ -1,0 +1,449 @@
+{
+  "exam": "UPSC",
+  "subjects": [
+    {
+      "name": "History",
+      "topics": [
+        {
+          "name": "Ancient India",
+          "subtopics": [
+            "Prehistoric India & Stone Age",
+            "Indus Valley Civilization — Town Planning & Society",
+            "Indus Valley Civilization — Trade, Religion & Decline",
+            "Vedic Age — Early Vedic Period (Rigvedic)",
+            "Vedic Age — Later Vedic Period & Iron Age",
+            "Mahajanapadas & Rise of Magadha",
+            "Jainism — Mahavira and Jain Philosophy",
+            "Buddhism — Buddha's Life and Teachings",
+            "Buddhist Councils & Spread of Buddhism",
+            "Mauryan Empire — Chandragupta & Ashoka",
+            "Ashokan Edicts & Dhamma",
+            "Post-Mauryan States — Sungas, Kanvas, Satvahanas",
+            "Indo-Greek, Sakas, Kushanas & Parthians",
+            "Sangam Age — Tamil Literature & Society",
+            "Gupta Empire — Political History",
+            "Gupta Age — Art, Science & Culture (Golden Age)",
+            "Harsha & Post-Gupta Period",
+            "Regional Kingdoms — Chalukyas, Pallavas, Rashtrakutas",
+            "Ancient Indian Art & Architecture",
+            "Ancient Indian Literature & Education"
+          ]
+        },
+        {
+          "name": "Medieval India",
+          "subtopics": [
+            "Early Medieval Period — Arab Invasions & Rajputs",
+            "Delhi Sultanate — Slave Dynasty",
+            "Delhi Sultanate — Khilji & Tughlaq Dynasties",
+            "Delhi Sultanate — Sayyids & Lodhis",
+            "Vijayanagara Empire & Bahmani Kingdom",
+            "Mughal Empire — Babur & Humayun",
+            "Akbar — Administration & Religious Policy",
+            "Jahangir, Shah Jahan & Aurangzeb",
+            "Mughal Administration — Land Revenue & Mansabdari",
+            "Bhakti Movement — Saints & Philosophy",
+            "Sufi Movement — Orders & Teachings",
+            "Maratha Empire — Shivaji & Administration",
+            "Maratha Confederacy & Anglo-Maratha Wars",
+            "Medieval India — Art, Architecture & Culture",
+            "Regional States in 18th Century — Mysore, Hyderabad, Awadh"
+          ]
+        },
+        {
+          "name": "Modern India",
+          "subtopics": [
+            "European Advent — Portuguese, Dutch, French",
+            "British East India Company — Establishment & Expansion",
+            "Battle of Plassey & Battle of Buxar",
+            "Subsidiary Alliance & Doctrine of Lapse",
+            "Socio-Religious Reform Movements — Brahmo Samaj, Arya Samaj",
+            "Social Reform — Ram Mohan Roy, Dayananda Saraswati",
+            "Revolt of 1857 — Causes, Spread & Aftermath",
+            "Indian National Congress — Foundation & Early Phase",
+            "Extremists vs Moderates — Bal Pal Lal",
+            "Partition of Bengal 1905 & Swadeshi Movement",
+            "Muslim League & Communal Politics",
+            "Home Rule Movement — Tilak & Besant",
+            "Non-Cooperation Movement 1920–22",
+            "Simon Commission & Nehru Report",
+            "Civil Disobedience Movement & Dandi March",
+            "Round Table Conferences",
+            "Government of India Act 1935",
+            "Quit India Movement 1942",
+            "INA & Subhas Chandra Bose",
+            "Cabinet Mission & Partition Plan",
+            "Independence & Integration of Princely States"
+          ]
+        },
+        {
+          "name": "World History",
+          "subtopics": [
+            "Renaissance — Art, Science & Humanism",
+            "Reformation & Counter-Reformation",
+            "American War of Independence",
+            "French Revolution — Causes & Impact",
+            "Napoleon Bonaparte & Napoleonic Wars",
+            "Industrial Revolution — Britain & Europe",
+            "Imperialism & Colonialism in Asia-Africa",
+            "World War I — Causes, Battles & Aftermath",
+            "Russian Revolution 1917",
+            "Rise of Fascism & Nazism",
+            "World War II — Causes, Theatres & Outcomes",
+            "United Nations — Formation & Structure",
+            "Cold War — Blocs, Crises & Détente",
+            "Decolonization of Asia & Africa",
+            "Chinese Revolution & Korean War"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geography",
+      "topics": [
+        {
+          "name": "Physical Geography",
+          "subtopics": [
+            "Earth — Origin, Structure & Composition",
+            "Plate Tectonics — Theory & Evidence",
+            "Earthquakes — Types, Measurement & Distribution",
+            "Volcanoes — Types, Distribution & Impact",
+            "Rocks & Rock Cycle",
+            "Weathering, Erosion & Mass Wasting",
+            "Landforms — Mountains, Plateaus, Plains",
+            "River Landforms — Valleys, Deltas, Floodplains",
+            "Glacial Landforms & Ice Ages",
+            "Coastal & Marine Landforms",
+            "Desert Landforms & Processes",
+            "Atmosphere — Composition, Layers & Structure",
+            "Insolation, Temperature & Heat Budget",
+            "Pressure Belts & Wind Systems",
+            "Monsoon — Mechanism & Types",
+            "Humidity, Clouds & Precipitation",
+            "Cyclones — Tropical & Temperate",
+            "Ocean Currents — Atlantic, Pacific, Indian",
+            "Ocean Tides & Marine Deposits",
+            "Natural Vegetation — Biomes & Distribution",
+            "Soil Formation & Classification"
+          ]
+        },
+        {
+          "name": "Indian Geography",
+          "subtopics": [
+            "Physiographic Divisions of India",
+            "Himalayas — Formation, Divisions & Passes",
+            "Northern Plains — Formation & Characteristics",
+            "Peninsular Plateau — Deccan & Eastern Ghats",
+            "Western Ghats & Coastal Plains",
+            "Andaman & Nicobar — Lakshadweep Islands",
+            "Drainage System — Himalayan Rivers",
+            "Drainage System — Peninsular Rivers",
+            "India's Climate — Seasons & Mechanisms",
+            "Indian Monsoon — Onset, Withdrawal & El Nino",
+            "Natural Vegetation of India",
+            "Soils of India — Types & Distribution",
+            "Agriculture — Kharif, Rabi & Zaid Crops",
+            "Green Revolution & Agricultural Development",
+            "Irrigation Systems in India",
+            "Mineral Resources — Ferrous & Non-Ferrous",
+            "Energy Resources — Coal, Petroleum, Gas",
+            "Renewable Energy — Solar, Wind, Hydro",
+            "Industries — Location Factors & Distribution",
+            "Transport — Railways, Roadways, Ports, Airways",
+            "Population — Growth, Distribution & Density",
+            "Urbanization & Smart Cities"
+          ]
+        },
+        {
+          "name": "World Geography",
+          "subtopics": [
+            "World Climate Zones — Köppen Classification",
+            "Major Biomes — Tropical, Temperate, Polar",
+            "Pacific Ocean — Ring of Fire",
+            "Straits, Channels & International Waterways",
+            "Landlocked Countries & their Significance",
+            "Deserts of the World",
+            "Major Mountain Ranges of the World",
+            "International Boundaries & Disputes",
+            "Global Shipping Routes",
+            "Geopolitics of Oil & Energy"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Polity",
+      "topics": [
+        {
+          "name": "Indian Constitution",
+          "subtopics": [
+            "Historical Background — Government of India Acts",
+            "Constituent Assembly — Formation & Working",
+            "Preamble of the Indian Constitution",
+            "Salient Features of Indian Constitution",
+            "Fundamental Rights — Articles 12–35",
+            "Right to Equality (Articles 14–18)",
+            "Right to Freedom (Articles 19–22)",
+            "Right against Exploitation (Articles 23–24)",
+            "Right to Freedom of Religion (Articles 25–28)",
+            "Cultural & Educational Rights (Articles 29–30)",
+            "Right to Constitutional Remedies (Article 32)",
+            "Directive Principles of State Policy (DPSP)",
+            "Fundamental Duties — Article 51A",
+            "Constitutional Amendments — Article 368",
+            "Important Constitutional Amendments (1st to 106th)"
+          ]
+        },
+        {
+          "name": "Parliament & Legislature",
+          "subtopics": [
+            "Parliament — Lok Sabha & Rajya Sabha",
+            "Lok Sabha — Speaker, Powers & Functions",
+            "Rajya Sabha — Chairman, Powers & Functions",
+            "Legislative Process — Bills & their Types",
+            "Budget Process & Financial Committees",
+            "Parliamentary Committees — Standing & Ad Hoc",
+            "Parliamentary Privileges",
+            "Anti-Defection Law — Tenth Schedule"
+          ]
+        },
+        {
+          "name": "Executive & Judiciary",
+          "subtopics": [
+            "President of India — Election & Powers",
+            "Vice President — Role & Functions",
+            "Prime Minister & Council of Ministers",
+            "Cabinet System & Collective Responsibility",
+            "Governor — Powers, Discretion & Constitutional Crisis",
+            "State Executive — Chief Minister & Cabinet",
+            "Supreme Court — Composition & Jurisdiction",
+            "High Courts — Powers & Functions",
+            "Subordinate Courts & Lok Adalats",
+            "Judicial Review & Judicial Activism",
+            "Public Interest Litigation (PIL)"
+          ]
+        },
+        {
+          "name": "Federal Structure",
+          "subtopics": [
+            "Centre-State Legislative Relations",
+            "Centre-State Administrative Relations",
+            "Centre-State Financial Relations",
+            "Inter-State Council & Zonal Councils",
+            "Finance Commission — Role & Recommendations",
+            "Panchayati Raj — 73rd Amendment",
+            "Urban Local Bodies — 74th Amendment",
+            "Schedule Areas & Tribal Self-Governance",
+            "Special Provisions for Northeastern States"
+          ]
+        },
+        {
+          "name": "Constitutional Bodies",
+          "subtopics": [
+            "Election Commission of India",
+            "UPSC & State Public Service Commissions",
+            "Comptroller & Auditor General (CAG)",
+            "Attorney General & Solicitor General",
+            "National Human Rights Commission (NHRC)",
+            "National Commission for Scheduled Castes & Tribes",
+            "Statutory Bodies — CVC, CBI, NIA, TRAI"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Economics",
+      "topics": [
+        {
+          "name": "Macroeconomics",
+          "subtopics": [
+            "Basic Economic Concepts — Scarcity, Opportunity Cost",
+            "National Income — GDP, GNP, NNP & Measurement",
+            "Inflation — Types, Measurement (CPI, WPI) & Control",
+            "Money — Functions, Types & Money Supply",
+            "Banking System — Commercial Banks & Functions",
+            "RBI — Structure, Functions & Monetary Policy",
+            "Fiscal Policy — Budget, Deficit & Public Debt",
+            "Balance of Payments & Current Account",
+            "Exchange Rates — Fixed, Floating & Managed"
+          ]
+        },
+        {
+          "name": "Indian Economy",
+          "subtopics": [
+            "Economic Planning & Five Year Plans",
+            "NITI Aayog — Structure & Functions",
+            "Poverty — Measurement & Poverty Line",
+            "Inequality & GINI Coefficient",
+            "Unemployment — Types & Employment Schemes",
+            "Agriculture — Issues & Reforms",
+            "Agricultural Marketing — MSP & APMC",
+            "Green Revolution — Impact & Criticism",
+            "Land Reforms in India",
+            "Industrial Policy — 1991 Reforms & LPG",
+            "MSME Sector — Role & Challenges",
+            "Infrastructure — Roads, Railways, Ports",
+            "Banking Sector Reforms — NPA & IBC",
+            "Capital Market — SEBI & Stock Exchanges",
+            "Foreign Trade Policy & EXIM Policy",
+            "FDI & FPI — Policy & Trends",
+            "WTO — Agreements & India's Position",
+            "Digital Economy & Fintech"
+          ]
+        },
+        {
+          "name": "Government Economic Schemes",
+          "subtopics": [
+            "MGNREGA — Rural Employment Guarantee",
+            "PM Kisan & Agricultural Support Schemes",
+            "Pradhan Mantri Jan Dhan Yojana (PMJDY)",
+            "Pradhan Mantri Mudra Yojana (PMMY)",
+            "Make in India & Atmanirbhar Bharat",
+            "Digital India & BharatNet",
+            "Smart Cities Mission",
+            "PM Awas Yojana — Urban & Rural"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Science & Technology",
+      "topics": [
+        {
+          "name": "Space Technology",
+          "subtopics": [
+            "ISRO — History, Missions & Achievements",
+            "Satellite Types — GEO, LEO, MEO & Applications",
+            "Chandrayaan Missions — 1, 2 & 3",
+            "Mangalyaan — Mars Orbiter Mission",
+            "Gaganyaan — India's Human Spaceflight",
+            "PSLV & GSLV — Launch Vehicles",
+            "NavIC — Navigation System",
+            "Commercial Space — SpaceX, Blue Origin",
+            "International Space Station (ISS)"
+          ]
+        },
+        {
+          "name": "Information Technology",
+          "subtopics": [
+            "Artificial Intelligence — Concepts & Applications",
+            "Machine Learning & Deep Learning",
+            "Big Data & Cloud Computing",
+            "Blockchain Technology",
+            "Cybersecurity — Threats & Solutions",
+            "5G Technology & its Applications",
+            "Internet of Things (IoT)",
+            "Quantum Computing"
+          ]
+        },
+        {
+          "name": "Biology & Health",
+          "subtopics": [
+            "Cell Biology — Structure & Functions",
+            "DNA, RNA & Gene Expression",
+            "Biotechnology — GMOs & Applications",
+            "Vaccines & Immunology",
+            "Human Diseases — Viral, Bacterial, Parasitic",
+            "Nutrition — Vitamins, Minerals & Deficiencies",
+            "CRISPR Gene Editing",
+            "Stem Cell Technology",
+            "COVID-19 & Pandemic Response"
+          ]
+        },
+        {
+          "name": "Physics & Chemistry",
+          "subtopics": [
+            "Nuclear Energy — Fission, Fusion & Reactors",
+            "Radioactivity & Nuclear Radiation",
+            "Semiconductors & Electronics",
+            "Lasers & Optical Fibre",
+            "Nanotechnology — Materials & Applications",
+            "Polymers, Plastics & Smart Materials",
+            "Green Chemistry & Clean Technologies"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Environment & Ecology",
+      "topics": [
+        {
+          "name": "Ecosystems & Biodiversity",
+          "subtopics": [
+            "Ecosystem — Components, Structure & Functions",
+            "Food Chains, Food Webs & Energy Flow",
+            "Biogeochemical Cycles — Carbon, Nitrogen, Phosphorus",
+            "Forest Ecosystems — Tropical, Temperate",
+            "Aquatic Ecosystems — Freshwater & Marine",
+            "Wetlands & Their Ecological Importance",
+            "Biodiversity — Types (Genetic, Species, Ecosystem)",
+            "Biodiversity Hotspots — India's Hotspots",
+            "Threatened Species — IUCN Red List Categories",
+            "In-Situ Conservation — National Parks, Sanctuaries",
+            "Ex-Situ Conservation — Zoos, Gene Banks",
+            "Biosphere Reserves — MAB Programme"
+          ]
+        },
+        {
+          "name": "Environmental Issues",
+          "subtopics": [
+            "Climate Change — Greenhouse Effect & Global Warming",
+            "Paris Agreement & NDCs",
+            "India's Climate Commitments — Net Zero by 2070",
+            "Ozone Layer Depletion — Causes & CFC",
+            "Air Pollution — Sources, Standards & Control",
+            "Water Pollution — Industrial, Agricultural",
+            "Soil Degradation & Desertification",
+            "Plastic Pollution & Microplastics",
+            "E-Waste — Management & Regulations",
+            "Environmental Impact Assessment (EIA)"
+          ]
+        },
+        {
+          "name": "Environmental Laws",
+          "subtopics": [
+            "Wildlife Protection Act 1972",
+            "Forest Conservation Act 1980",
+            "Environment Protection Act 1986",
+            "Biological Diversity Act 2002",
+            "National Green Tribunal (NGT)",
+            "International Conventions — CBD, CITES, Ramsar",
+            "Kyoto Protocol & Copenhagen Accord",
+            "Sustainable Development Goals (SDGs)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Current Affairs & General Awareness",
+      "topics": [
+        {
+          "name": "International Relations",
+          "subtopics": [
+            "India's Foreign Policy — Panchsheel to Neighbourhood First",
+            "India-US Relations — Defence & Trade",
+            "India-China Relations — Border Disputes",
+            "India-Pakistan Relations — Historical Context",
+            "SAARC & BIMSTEC",
+            "BRICS & SCO",
+            "India-Russia Relations — Defence Partnership",
+            "United Nations — India's Role & Reforms",
+            "India & the Gulf — Diaspora & Remittances",
+            "Indo-Pacific Strategy & Quad"
+          ]
+        },
+        {
+          "name": "Awards, Schemes & Important Days",
+          "subtopics": [
+            "National Awards — Bharat Ratna, Padma Awards",
+            "Nobel Prizes — Categories & Indian Winners",
+            "International Sports — Olympics, CWG, Asian Games",
+            "Important Government Schemes 2024–25",
+            "National & International Important Days",
+            "Important Books & Authors (Current Affairs)",
+            "Recently in News — Organizations & Summits"
+          ]
+        }
+      ]
+    }
+  ]
+}
