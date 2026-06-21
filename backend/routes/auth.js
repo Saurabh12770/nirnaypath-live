@@ -92,6 +92,7 @@ router.get('/me', protect, async (req, res, next) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
+        createdAt: req.user.createdAt,
       },
     });
   } catch (error) {
@@ -99,4 +100,39 @@ router.get('/me', protect, async (req, res, next) => {
   }
 });
 
+// @desc    Change current user password
+// @route   PUT /api/auth/password
+// @access  Private
+router.put('/password', protect, async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    res.status(400);
+    return next(new Error('Both current and new passwords are required'));
+  }
+
+  if (newPassword.length < 8) {
+    res.status(400);
+    return next(new Error('New password must be at least 8 characters'));
+  }
+
+  try {
+    // Re-fetch user with password field (excluded by default in protect middleware)
+    const user = await User.findById(req.user._id);
+
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      res.status(401);
+      throw new Error('Current password is incorrect');
+    }
+
+    user.password = newPassword; // pre-save hook will hash it
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
+

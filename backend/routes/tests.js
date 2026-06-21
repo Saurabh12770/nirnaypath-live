@@ -9,6 +9,76 @@ const router = express.Router();
 // @desc    Create / Start a new test session
 // @route   POST /api/tests/sessions
 // @access  Private
+// Helper to normalize frontend exam & subject identifiers to MongoDB schema keys
+const normalizeSearchCriteria = (exam, subject) => {
+  let normalizedExam = exam;
+  let normalizedSubject = subject;
+
+  // 1. Normalize Exam
+  if (exam) {
+    const eUpper = exam.toUpperCase().trim();
+    if (eUpper === 'UPSC') normalizedExam = 'UPSC';
+    else if (eUpper === 'BPSC') normalizedExam = 'BPSC';
+    else if (eUpper === 'SSC-CGL' || eUpper === 'SSC CGL') normalizedExam = 'SSC CGL';
+    else if (eUpper === 'SSC-CHSL' || eUpper === 'SSC CHSL') normalizedExam = 'SSC CHSL';
+    else if (eUpper === 'RAILWAY') normalizedExam = 'Railway';
+    else if (eUpper === 'BANKING') normalizedExam = 'Banking';
+    else if (eUpper === 'STATE-PCS' || eUpper === 'STATE PCS') normalizedExam = 'State PCS';
+  }
+
+  // 2. Normalize Subject
+  if (subject) {
+    const sClean = subject.trim().toLowerCase();
+    
+    if (sClean.includes('history')) {
+      normalizedSubject = 'History';
+    } else if (sClean.includes('polity')) {
+      normalizedSubject = 'Polity';
+    } else if (sClean.includes('geography')) {
+      normalizedSubject = 'Geography';
+    } else if (sClean.includes('economics') || sClean.includes('economy')) {
+      normalizedSubject = 'Economics';
+    } else if (sClean.includes('ethics')) {
+      normalizedSubject = 'Ethics';
+    } else if (sClean.includes('agriculture')) {
+      normalizedSubject = 'Agriculture';
+    } else if ((sClean.includes('art') && sClean.includes('culture')) || sClean.includes('artculture') || sClean.includes('art-culture')) {
+      normalizedSubject = 'Art & Culture';
+    } else if (sClean.includes('environment')) {
+      normalizedSubject = 'Environment';
+    } else if (sClean.includes('general science') || sClean === 'science' || sClean.includes('science & technology') || sClean.includes('chemistry')) {
+      normalizedSubject = 'Science';
+    } else if (sClean.includes('reasoning') || sClean.includes('intelligence')) {
+      normalizedSubject = 'Reasoning';
+    } else if (sClean.includes('aptitude') || sClean.includes('quantitative') || sClean.includes('math') || sClean.includes('mathematics')) {
+      normalizedSubject = 'Mathematics';
+    } else if (sClean.includes('english')) {
+      normalizedSubject = 'English';
+    } else if (sClean.includes('computer')) {
+      normalizedSubject = 'Computer Science';
+    } else if (sClean.includes('hindi')) {
+      normalizedSubject = 'Hindi';
+    } else if (sClean.includes('bihar')) {
+      normalizedSubject = 'Bihar Special';
+    } else if (sClean.includes('state gk') || sClean.includes('state-gk') || sClean.includes('stategk')) {
+      normalizedSubject = 'State GK';
+    } else if (sClean.includes('current')) {
+      normalizedSubject = 'Current Affairs';
+    } else if (sClean.includes('general awareness')) {
+      normalizedSubject = 'General Awareness';
+    } else if (sClean.includes('police')) {
+      normalizedSubject = 'Police Science';
+    } else if (sClean.includes('social science') || sClean.includes('social_science')) {
+      normalizedSubject = 'Social Science';
+    }
+  }
+
+  return { exam: normalizedExam, subject: normalizedSubject };
+};
+
+// @desc    Create / Start a new test session
+// @route   POST /api/tests/sessions
+// @access  Private
 router.post('/sessions', protect, async (req, res, next) => {
   const { testType, exam, subject, topic, subtopic } = req.body;
 
@@ -18,8 +88,10 @@ router.post('/sessions', protect, async (req, res, next) => {
   }
 
   try {
+    const { exam: normExam, subject: normSubject } = normalizeSearchCriteria(exam, subject);
+    
     // 1. Build Match Query based on test type
-    const matchQuery = { exam };
+    const matchQuery = { exam: normExam };
     let questionLimit = 10;
     let timerDuration = 600; // 10 minutes default
 
@@ -28,7 +100,7 @@ router.post('/sessions', protect, async (req, res, next) => {
         res.status(400);
         throw new Error('Subject and topic are required for topic test');
       }
-      matchQuery.subject = subject;
+      matchQuery.subject = normSubject;
       matchQuery.topic = topic;
       if (subtopic) matchQuery.subtopic = subtopic;
       questionLimit = 10; // 10 questions
@@ -38,7 +110,7 @@ router.post('/sessions', protect, async (req, res, next) => {
         res.status(400);
         throw new Error('Subject is required for subject test');
       }
-      matchQuery.subject = subject;
+      matchQuery.subject = normSubject;
       questionLimit = 20; // 20 questions
       timerDuration = 1200; // 20 minutes
     } else if (testType === 'full_mock') {
@@ -47,12 +119,84 @@ router.post('/sessions', protect, async (req, res, next) => {
     }
 
     // 2. Fetch random questions using MongoDB $sample
-    const pipeline = [
+    let pipeline = [
       { $match: matchQuery },
       { $sample: { size: questionLimit } }
     ];
 
-    const sampledQuestions = await Question.aggregate(pipeline);
+    let sampledQuestions = await Question.aggregate(pipeline);
+    let fallbackUsed = 'none';
+
+    // Count guard: if results < 5 for topic tests, expand to subject-only search
+    if (sampledQuestions.length < 5 && testType === 'topic' && matchQuery.topic) {
+      console.log(`[TESTS_ROUTE] Topic query returned < 5 questions (${sampledQuestions.length}). Expanding to subject-only search.`);
+      fallbackUsed = 'subject-only';
+      const expandedQuery = { exam: matchQuery.exam, subject: matchQuery.subject };
+      sampledQuestions = await Question.aggregate([
+        { $match: expandedQuery },
+        { $sample: { size: questionLimit } }
+      ]);
+    }
+
+    // Cross-exam fallback: if exam+subject yields < 3 questions, search subject across all exams
+    if (sampledQuestions.length < 3 && matchQuery.subject) {
+      console.log(`[TESTS_ROUTE] Exam + Subject query returned < 3 questions (${sampledQuestions.length}). Searching subject across all exams.`);
+      fallbackUsed = 'cross-exam';
+      const crossExamQuery = { subject: matchQuery.subject };
+      sampledQuestions = await Question.aggregate([
+        { $match: crossExamQuery },
+        { $sample: { size: questionLimit } }
+      ]);
+    }
+
+    // Fuzzy regex fallback: if exact queries yielded 0 questions
+    if (sampledQuestions.length === 0) {
+      console.log(`[TESTS_ROUTE] Normal query found 0 Qs. Running case-insensitive fallback: exam=${exam}, subject=${subject}, topic=${topic}`);
+      fallbackUsed = 'regex-fuzzy';
+      
+      const fallbackQuery = {
+        exam: new RegExp(`^${exam.replace(/[-_]/g, '[-\\s_]?')}$`, 'i')
+      };
+      
+      if (subject) {
+        const cleanSub = subject.replace(/General|Intelligence|Comprehension|Quantitative|&/gi, '').trim();
+        fallbackQuery.subject = new RegExp(cleanSub, 'i');
+      }
+      
+      if (testType === 'topic' && topic) {
+        // Extract significant keywords from the topic title to match fuzzily
+        const keywords = topic.split(/[\s&,—_\-\/]+/).filter(k => k.length > 3 && !/^(about|and|or|the|with|for|from|into|onto|upon)$/i.test(k));
+        if (keywords.length > 0) {
+          const regexStr = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+          fallbackQuery.topic = new RegExp(regexStr, 'i');
+        } else {
+          fallbackQuery.topic = new RegExp(`^${topic}$`, 'i');
+        }
+      }
+      
+      pipeline = [
+        { $match: fallbackQuery },
+        { $sample: { size: questionLimit } }
+      ];
+      sampledQuestions = await Question.aggregate(pipeline);
+    }
+
+    // Secondary emergency fallback: if fuzzy matching also fails, fall back subject-wide across all exams
+    if (sampledQuestions.length === 0 && subject) {
+      console.log(`[TESTS_ROUTE] Fuzzy fallback found 0 Qs. Running subject-wide emergency fallback across all exams: subject=${subject}`);
+      fallbackUsed = 'regex-emergency';
+      
+      const cleanSub = subject.replace(/General|Intelligence|Comprehension|Quantitative|&/gi, '').trim();
+      const subjectFallbackQuery = {
+        subject: new RegExp(cleanSub, 'i')
+      };
+      
+      pipeline = [
+        { $match: subjectFallbackQuery },
+        { $sample: { size: questionLimit } }
+      ];
+      sampledQuestions = await Question.aggregate(pipeline);
+    }
 
     if (sampledQuestions.length === 0) {
       res.status(404);
@@ -337,6 +481,20 @@ router.get('/history', protect, async (req, res, next) => {
     const history = await TestResult.find({ userId: req.user._id })
       .sort({ submittedAt: -1 });
     res.status(200).json({ success: true, history });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    List all test results for current user (alias for /history)
+// @route   GET /api/tests/results
+// @access  Private
+router.get('/results', protect, async (req, res, next) => {
+  try {
+    const results = await TestResult.find({ userId: req.user._id })
+      .sort({ submittedAt: -1 })
+      .limit(50);
+    res.status(200).json({ success: true, results });
   } catch (error) {
     next(error);
   }

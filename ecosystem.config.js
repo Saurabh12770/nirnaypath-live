@@ -1,7 +1,9 @@
 module.exports = {
   apps: [{
     name: "nirnaypath-server",
-    script: "./app.js",
+    script: "./backend/app.js",
+    interpreter: "node",
+    interpreter_args: "--experimental-specifier-resolution=node",
     instances: "max",
     exec_mode: "cluster",
     watch: false,

@@ -5,6 +5,11 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Helper to escape regex characters
+const escapeRegExp = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 // @desc    Get study content for a subtopic
 // @route   GET /api/learn/content/:exam/:subject/:topic/:subtopic
 // @access  Private
@@ -12,36 +17,22 @@ router.get('/content/:exam/:subject/:topic/:subtopic', protect, async (req, res,
   const { exam, subject, topic, subtopic } = req.params;
 
   try {
-    // Perform search (case-insensitive for convenience)
-    let content = await LearningContent.findOne({
-      exam: new RegExp(`^${exam}$`, 'i'),
-      subject: new RegExp(`^${subject}$`, 'i'),
-      topic: new RegExp(`^${topic}$`, 'i'),
-      subtopic: new RegExp(`^${subtopic}$`, 'i'),
+    // Perform case-insensitive search — NEVER auto-create placeholder docs
+    const content = await LearningContent.findOne({
+      exam:     new RegExp(`^${escapeRegExp(exam)}$`, 'i'),
+      subject:  new RegExp(`^${escapeRegExp(subject)}$`, 'i'),
+      topic:    new RegExp(`^${escapeRegExp(topic)}$`, 'i'),
+      subtopic: new RegExp(`^${escapeRegExp(subtopic)}$`, 'i'),
     }).populate('practiceMcqs');
 
     if (!content) {
-      // Create a premium placeholder to ensure no page failure, allowing edits
-      content = await LearningContent.create({
+      return res.status(404).json({
+        success: false,
+        message: `Content not yet available for: ${subtopic}`,
         exam,
         subject,
         topic,
         subtopic,
-        introduction: `Welcome to the study page for ${subtopic}. This topic forms an important part of the ${subject} syllabus for the ${exam} exam.`,
-        detailedExplanation: `### ${subtopic} Overview\nDetailed concepts, diagrams, and descriptions for **${subtopic}** are currently being updated by the administration. You can use the Admin Panel to edit and update this layout with structured markdown notes, figures, and tables.`,
-        concepts: ['Key Terminology', 'Fundamental Framework', 'Core Principles'],
-        importantFacts: [`Exam-relevant points for ${subtopic}.`],
-        examples: [`Illustrative scenarios and case analyses.`],
-        tables: [
-          {
-            title: `${subtopic} Reference Table`,
-            headers: ['Aspect', 'Details', 'Key takeaway'],
-            rows: [['Introduction', 'Historical & Analytical overview', 'Primary understanding']]
-          }
-        ],
-        revisionNotes: `Quick bullet points summarizing the essentials of ${subtopic} for final-hour revision.`,
-        pyqs: [],
-        practiceMcqs: []
       });
     }
 

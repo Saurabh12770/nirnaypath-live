@@ -5,14 +5,16 @@ import Dashboard from './pages/Dashboard';
 import LearnHub from './pages/LearnHub';
 import TestCenter from './pages/TestCenter';
 import AdminPanel from './pages/AdminPanel';
+import About from './pages/About';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:'#0f0a1e' }}>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:'var(--color-bg-base)' }}>
       <div style={{ textAlign:'center' }}>
-        <div style={{ width:48, height:48, border:'3px solid rgba(99,102,241,0.3)', borderTop:'3px solid #6366f1', borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto 16px' }} />
-        <p style={{ color:'#818cf8', fontFamily:'Inter,sans-serif' }}>Loading NirnayPath...</p>
+        <div style={{ width:48, height:48, border:'3px solid rgba(249,115,22,0.3)', borderTop:'3px solid var(--color-accent-primary)', borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto 16px' }} />
+        <p style={{ color:'var(--color-accent-primary)', fontFamily:'Inter,sans-serif', fontWeight:600 }}>Loading NirnayPath...</p>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -30,6 +32,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingPage />} />
+      <Route path="/about" element={<About />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/learn" element={<ProtectedRoute><LearnHub /></ProtectedRoute>} />
       <Route path="/learn/:exam" element={<ProtectedRoute><LearnHub /></ProtectedRoute>} />
@@ -39,6 +42,7 @@ function AppRoutes() {
       <Route path="/test" element={<ProtectedRoute><TestCenter /></ProtectedRoute>} />
       <Route path="/test/session/:sessionId" element={<ProtectedRoute><TestCenter /></ProtectedRoute>} />
       <Route path="/test/result/:resultId" element={<ProtectedRoute><TestCenter /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminRoute><AdminPanel /></AdminRoute></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -1,13 +1,15 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import TestResult from '../models/TestResult.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
-const __dirname = path.resolve();
-const SYLLABUS_DIR = path.join(__dirname, 'data', 'syllabus');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SYLLABUS_DIR = path.join(__dirname, '..', '..', 'data', 'syllabus');
 
 // Helper to count total subtopics in all syllabus files
 const getTotalSubtopicsCount = () => {

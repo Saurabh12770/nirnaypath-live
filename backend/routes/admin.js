@@ -6,10 +6,12 @@ import TestResult from '../models/TestResult.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
-const __dirname = path.resolve();
-const SYLLABUS_DIR = path.join(__dirname, 'data', 'syllabus');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SYLLABUS_DIR = path.join(__dirname, '..', '..', 'data', 'syllabus');
 
 // Apply protection to all admin endpoints
 router.use(protect);

@@ -39,7 +39,6 @@ const learningContentSchema = new mongoose.Schema(
     subtopic: {
       type: String,
       required: true,
-      unique: true,
       index: true,
     },
     introduction: {
@@ -86,6 +85,7 @@ const learningContentSchema = new mongoose.Schema(
 
 // Compound index for fast hierarchical navigation
 learningContentSchema.index({ exam: 1, subject: 1, topic: 1 });
+learningContentSchema.index({ exam: 1, subject: 1, topic: 1, subtopic: 1 }, { unique: true });
 
 const LearningContent = mongoose.model('LearningContent', learningContentSchema);
 export default LearningContent;
